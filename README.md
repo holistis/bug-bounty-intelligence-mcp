@@ -27,7 +27,7 @@ Add to your `claude_desktop_config.json`:
   "mcpServers": {
     "bug-bounty-intelligence": {
       "command": "npx",
-      "args": ["-y", "github:holistis/bug-bounty-intelligence-mcp"]
+      "args": ["-y", "bug-bounty-intelligence-mcp@latest"]
     }
   }
 }
@@ -36,7 +36,7 @@ Add to your `claude_desktop_config.json`:
 Or run directly:
 
 ```bash
-node index.mjs
+npx -y bug-bounty-intelligence-mcp@latest
 ```
 
 ## Payment
