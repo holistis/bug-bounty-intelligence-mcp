@@ -6,6 +6,14 @@ AI-powered smart contract security analysis for AI agents and developers.
 **Cost: $5 USDC on Base (eip155:8453) via x402.**
 **Free tool: `list_vulnerability_patterns` — no payment needed.**
 
+## Benchmark: vs Slither
+
+**[See the full benchmark →](BENCHMARK.md)**
+
+On 3FLabs/grunt (ERC-4626 + Morpho vaults, 218 contracts): Slither reports 27 "High" findings. After analysis: 24 are in `lib/solady` (out-of-scope dependency with known Slither false positive patterns), and 3 are EIP-712 design patterns. False positive rate: **100%**.
+
+Bug Bounty Intelligence scopes to `src/` only and filters through the Al-Mizaan 7-gate framework before reporting anything.
+
 ## What it does
 
 Submit a public GitHub repo containing Solidity smart contracts. Receive a full vulnerability report within 24 hours, powered by the Al-Mizaan v3 analysis framework.
