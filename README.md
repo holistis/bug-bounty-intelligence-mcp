@@ -75,6 +75,40 @@ Asset:   USDC — 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913
 After paying, retry scan_contract with the same repo_url.
 ```
 
+## Sample scan output
+
+Real scan of `sherlock-audit/2025-03-crestal-network` (Derivatives protocol, 29 contracts):
+
+```
+Summary: 0 Critical  |  1 High  |  0 Medium  |  0 Low
+Analyzed: 29 contracts  |  Model: qwen2.5:7b  |  Duration: 25min
+
+FINDING #1 — HIGH
+Title:    Owner Can Arbitrarily Set Payment Addresses
+File:     Blueprint.sol
+Functions: setCreateAgentTokenCost, setUpdateCreateAgentTokenCost,
+           addPaymentAddress, removePaymentAddress
+Category: ACCESS
+
+Description:
+  The owner can arbitrarily set payment addresses and costs without
+  any external validation or timelock.
+
+Attack path:
+  An attacker with ownership calls setCreateAgentTokenCost or
+  addPaymentAddress to modify fees or redirect user payments to
+  an attacker-controlled wallet.
+
+Impact:
+  Extremely high costs (griefing) or redirection of user funds.
+
+Recommendation:
+  Implement a governance mechanism or timelock to restrict fee
+  and address changes.
+
+Confidence: 0.90 (CONFIRMED by Al-Mizaan validation)
+```
+
 ## About the analysis
 
 The Al-Mizaan v3 framework checks 7 gates:
@@ -87,7 +121,7 @@ The Al-Mizaan v3 framework checks 7 gates:
 6. Impact (real financial damage)
 7. Formal proof (reproducible PoC)
 
-Only findings that survive all 7 gates are reported. No noise, no hallucinations.
+Only findings that survive all 7 gates are reported.
 
 ## Service info
 
