@@ -11,6 +11,20 @@ results could be exactly reconciled against Sherlock's own published outcomes �
 across 10 contests. We'd rather show fewer, verified numbers than a bigger set we can't stand
 behind. See [METHODOLOGY.md](METHODOLOGY.md) for exactly why, and how to reproduce it.
 
+## Free dataset — no server, no MCP, no payment
+
+[`vulnerability-acceptance-rates.json`](vulnerability-acceptance-rates.json) is the same data
+`list_vulnerability_patterns` serves, as a static file. No API call, no account, no network
+dependency at all — download it, or copy it into your own tool's rule set. CC0 licensed, use it
+however you want, credit optional.
+
+```bash
+curl -sO https://raw.githubusercontent.com/holistis/bug-bounty-intelligence-mcp/main/vulnerability-acceptance-rates.json
+```
+
+If you're building a local-first / offline security scanner and the paid `scan_contract` tool
+below isn't a fit for your project's architecture, this file might still be useful on its own.
+
 ## Benchmark: vs Slither
 
 **[See the full benchmark →](BENCHMARK.md)**
