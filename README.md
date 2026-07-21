@@ -2,9 +2,14 @@
 
 AI-powered smart contract security analysis for AI agents and developers.
 
-**Trained on 27,681 real audit findings from Sherlock and Code4rena.**
+**Drawn from a corpus of 27,681 submitted findings across 105 Sherlock and Code4rena contests.**
 **Cost: $5 USDC on Base (eip155:8453) via x402.**
 **Free tool: `list_vulnerability_patterns` — no payment needed.**
+
+`list_vulnerability_patterns`' acceptance-rate numbers are computed only from the subset where
+results could be exactly reconciled against Sherlock's own published outcomes — 1,032 findings
+across 10 contests. We'd rather show fewer, verified numbers than a bigger set we can't stand
+behind. See [METHODOLOGY.md](METHODOLOGY.md) for exactly why, and how to reproduce it.
 
 ## Benchmark: vs Slither
 
@@ -24,7 +29,7 @@ Submit a public GitHub repo containing Solidity smart contracts. Receive a full 
 |------|-------------|------|
 | `scan_contract` | Submit repo for security analysis | $5 USDC |
 | `get_scan_report` | Poll status and get report URL | Free |
-| `list_vulnerability_patterns` | Show historical acceptance rates from 27K findings | Free |
+| `list_vulnerability_patterns` | Show acceptance rates from exact-reconciled Sherlock contests | Free |
 
 ## Quick start (Claude Desktop / Claude Code)
 
@@ -62,14 +67,14 @@ If `scan_contract` returns `PAYMENT REQUIRED`, send exactly $5 USDC on Base to t
 ```
 > list_vulnerability_patterns({ protocol_type: "LENDING" })
 
-Vulnerability patterns for LENDING protocols (from 27,681 real audit findings):
+Vulnerability patterns for LENDING protocols (from Sherlock audit findings, exact-reconciled contests only):
 
-oracle-manipulation      53% accepted (3253 cases)
-liquidation              53% accepted (2502 cases)
-staleness                45% accepted (5838 cases)
-rounding                 51% accepted (2615 cases)
-flash-loan               53% accepted (512 cases)
-access-control           51% accepted (2480 cases)
+oracle-manipulation      36% accepted (131 cases)
+liquidation              29% accepted (14 cases)
+staleness                49% accepted (174 cases)
+rounding                 40% accepted (63 cases)
+flash-loan               46% accepted (13 cases)
+access-control           47% accepted (74 cases)
 
 > scan_contract({ repo_url: "https://github.com/myprotocol/contracts", protocol_type: "LENDING" })
 

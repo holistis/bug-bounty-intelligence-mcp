@@ -21,20 +21,25 @@ import {
 } from '@modelcontextprotocol/sdk/types.js'
 const API_URL = 'https://wazir-x402.duckdns.org'
 
-// Embedded pattern library — 27,681 accepted findings from Sherlock + Code4rena (updated 2026-07-10)
+// Embedded pattern library — Sherlock audit-competition findings, updated 2026-07-21.
+// Methodology: only contests where Sherlock's own judging-repo result structure could be
+// exactly reconciled (accepted + invalid === total submissions) are included — 10 contests,
+// 1,032 findings. A much larger raw corpus exists (27,681 submissions across 105 contests),
+// but acceptance could not be verified for the rest without risking a wrong number, so
+// those are excluded rather than estimated. See BENCHMARK.md for the full methodology note.
 const PATTERN_LIBRARY = {
-  'rounding':           { acceptance_rate: '0.51', total: 2615,  accepted: 1327, examples_accepted: ['Long Jetblack Porpoise - wrong calculation of borrowed amount causes migrateFrom', 'Gentle Mango Locust - Duplicate Reward Tokens Can Be Added, Leading to Denial of', 'Tiny Smoke Swift - No Liquidation Incentive for Small Positions'] },
-  'oracle-manipulation':{ acceptance_rate: '0.53', total: 3253,  accepted: 1736, examples_accepted: ['Boxy Pickle Corgi - Users lose the latest accrued rewards during migration if pr', 'Tiny Smoke Swift - No Liquidation Incentive for Small Positions', 'Flat Cedar Robin - AbstractYieldStrategy.price() implementation is wrong'] },
-  'trusted-actor':      { acceptance_rate: '0.46', total: 8820,  accepted: 4081, examples_accepted: ['Agreeable Pine Porpoise - Double Fee Accrual in Withdrawal Flow Causes Last User', 'Rare Parchment Monkey - Migration of the reward pool will render the strategy co', 'Boxy Pickle Corgi - Users lose the latest accrued rewards during migration'] },
-  'fee-miscalculation': { acceptance_rate: '0.56', total: 2676,  accepted: 1505, examples_accepted: ['Clean Gauze Halibut - Incorrect update of s_escrowedShares causes later users', 'Flat Cedar Robin - AbstractYieldStrategy.price() implementation is wrong', 'Generous Sandstone Raven - Escrowed shares and their underlying yield tokens'] },
-  'mev-slippage':       { acceptance_rate: '0.54', total: 1874,  accepted: 1006, examples_accepted: ['Wide Lavender Octopus - User can go with less tokens', 'Innocent Mahogany Baboon - Intended slippage parameter for liquidators will not', 'Stale Ebony Reindeer - AbstractSingleSidedLP execution'] },
-  'dos-griefing':       { acceptance_rate: '0.49', total: 3702,  accepted: 1796, examples_accepted: ['Long Jetblack Porpoise - wrong calculation of borrowed amount causes migrateFrom', 'Gentle Mango Locust - Duplicate Reward Tokens Can Be Added, Leading to Denial of', 'Fast Quartz Elephant - Shares minted for ERC20 WRM yield strategy deposits'] },
-  'access-control':     { acceptance_rate: '0.51', total: 2480,  accepted: 1259, examples_accepted: ['Decent Saffron Woodpecker - Lack of Access Control in updateAccountRewards', 'Tricky Eggplant Orangutan - Cooldown Griefing via Delegated enterPosition', 'Hot Viridian Sidewinder - Transient Storage Authorization Persists After Failed'] },
-  'staleness':          { acceptance_rate: '0.45', total: 5838,  accepted: 2649, examples_accepted: ['Jumpy Tartan Guppy - claimRewardToken does not update emission rate claiming', 'Boxy Pickle Corgi - Users lose the latest accrued rewards during migration', 'Joyful Caramel Cuckoo - Attacker Can Reenter Redemption Process'] },
-  'reentrancy':         { acceptance_rate: '0.47', total: 979,   accepted: 458,  examples_accepted: ['Joyful Caramel Cuckoo - Attacker Can Reenter Redemption Process', 'Fast Quartz Elephant - Shares minted for ERC20 WRM yield strategy deposits', 'Soaring Carrot Cow - Attacker Will Steal Yield Funds via Reentrancy'] },
-  'overflow':           { acceptance_rate: '0.47', total: 1256,  accepted: 586,  examples_accepted: ['Gentle Mango Locust - Duplicate Reward Tokens Can Be Added', 'Stale Ebony Reindeer - AbstractSingleSidedLP execution', 'Tiny Smoke Swift - Liquidation Front-Running via Minimal Repay'] },
-  'flash-loan':         { acceptance_rate: '0.53', total: 512,   accepted: 269,  examples_accepted: ['Long Jetblack Porpoise - wrong calculation of borrowed amount causes migrateFrom', 'Fancy Ultraviolet Raccoon - Missing Checks for Flash Loan Callback in _enterPosition', 'Cool Clay Cottonmouth - use of approve(type(uint256).max) in the exit flow'] },
-  'liquidation':        { acceptance_rate: '0.53', total: 2502,  accepted: 1319, examples_accepted: ['Generous Sandstone Raven - Liquidators can steal rewards accrued to liquidated', 'Rare Parchment Monkey - Migration of the reward pool will render the strategy', 'Joyful Caramel Cuckoo - Attacker Can Reenter Redemption Process'] },
+  'reentrancy':         { acceptance_rate: '0.78', total: 51,  accepted: 40, examples_accepted: ['m4k2 - Reentrancy in GoatPairV1::burn if token is a non-standard ERC20', 'Tonchi - Reentrancy in burn function, as it does not update the state of liquidity', 'C1rdan - hacker can steal fee from LPs'] },
+  'overflow':           { acceptance_rate: '0.58', total: 45,  accepted: 26, examples_accepted: ['Fassi_Security - When an order is exactly matched, a buyer can end up paying more', 'mstpr-brainbot - Pairs with MAX_FEE can revert due to rounding inconsistencies', 'irresponsible - Partition rounds up which can cause orders to be unfillable'] },
+  'trusted-actor':      { acceptance_rate: '0.51', total: 311, accepted: 159, examples_accepted: ['LTDingZhen - Users can grief fillers by set malicious ValidationContract', 'mstpr-brainbot - Pairs with MAX_FEE can revert due to rounding inconsistencies', 'HSP - Attacker can submit malicious order and user may lose funds'] },
+  'fee-miscalculation': { acceptance_rate: '0.50', total: 109, accepted: 55, examples_accepted: ['WangAudit - [H] RubiconFeeController::getFeeOutputs incorrectly creates feeOut', 'turvec - The feeController differs from its specification', 'hals - IG contract can be DoS-ed from minting or burning options'] },
+  'staleness':          { acceptance_rate: '0.49', total: 174, accepted: 86, examples_accepted: ['LTDingZhen - Users can grief fillers by set malicious ValidationContract', 'HSP - Attacker can submit malicious order and user may lose funds', 'pkqs90 - Orders with equal decayStartTime and decayEndTime benefit the filler'] },
+  'mev-slippage':       { acceptance_rate: '0.49', total: 89,  accepted: 44, examples_accepted: ['ge6a - DOS of IG mint/burn because of _deltaHedgePosition() revert', 'ge6a - Dos through large deposit', 'ge6a - Permanent Dos through trackVaultFee()'] },
+  'access-control':     { acceptance_rate: '0.47', total: 74,  accepted: 35, examples_accepted: ['skatas192 - The owner address has never been set which will cause the auth modifier', 'bearonbike - DVP _mint/_burn function could be DoS-ed by FeeManager', 'KingNFT - Attack on FeeManager.trackVaultFee() to make the IG contract'] },
+  'flash-loan':         { acceptance_rate: '0.46', total: 13,  accepted: 6,  examples_accepted: ['cawfree - The invariant maxDeposit for a Vault can be exceeded', 'mgf15 - Use of slot0 to get sqrtPriceX96 can lead to price manipulation', 'bughuntoor - Any user can do a AAVE flashloan on behalf of FlashLoanAggregator'] },
+  'dos-griefing':       { acceptance_rate: '0.41', total: 156, accepted: 64, examples_accepted: ['ni8mare - execute transactions can be reverted by a malicious user', 'LTDingZhen - Users can grief fillers by set malicious ValidationContract', 'mstpr-brainbot - Pairs with MAX_FEE can revert due to rounding inconsistencies'] },
+  'rounding':           { acceptance_rate: '0.40', total: 63,  accepted: 25, examples_accepted: ['mstpr-brainbot - Pairs with MAX_FEE can revert due to rounding inconsistencies', 'KingNFT - Execution of orders would revert unexpectedly', 'blutorque - PartialFillLib::partition() unexpectedly reverts'] },
+  'oracle-manipulation':{ acceptance_rate: '0.36', total: 131, accepted: 47, examples_accepted: ['ge6a - DOS of IG mint/burn because of _deltaHedgePosition() revert', 'ge6a - Dos through large deposit', 'jasonxiale - Vault._state.liquidity.totalDeposit can avoid being decreased'] },
+  'liquidation':        { acceptance_rate: '0.29', total: 14,  accepted: 4,  examples_accepted: ['M3azad - No updation of _state.liquidity.pendingWithdrawals may lead to abnormal', 'bughuntoor - Liquidation bonus scales exponentially instead of linearly', 'cawfree - Calls to addToBlackList(address,address[]) can be frontrun'] },
 }
 
 // ── helpers ──────────────────────────────────────────────────────────────────
@@ -124,7 +129,8 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     {
       name: 'list_vulnerability_patterns',
       description: [
-        'Returns historical vulnerability patterns and their acceptance rates from 27,681 real audit findings.',
+        'Returns historical vulnerability patterns and acceptance rates from Sherlock audit-competition findings.',
+        'Numbers are limited to contests where results could be exactly reconciled against Sherlock\'s own published outcomes (1,032 findings across 10 contests) — no estimated or unverifiable figures.',
         'Useful for understanding what types of bugs are most likely to be valid in a given protocol type.',
         'This tool is FREE — no payment required.',
       ].join(' '),
@@ -239,7 +245,7 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
       }
     }
 
-    const lines = [`Vulnerability patterns for ${protocol_type} protocols (from 27,681 real audit findings):`, '']
+    const lines = [`Vulnerability patterns for ${protocol_type} protocols (from Sherlock audit findings, exact-reconciled contests only):`, '']
     for (const p of patterns) {
       const pct = Math.round(parseFloat(p.acceptance_rate) * 100)
       lines.push(`${p.pattern.padEnd(24)} ${pct}% accepted (${p.total_cases} cases)`)
