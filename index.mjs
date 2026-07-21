@@ -46,11 +46,16 @@ async function callApi(path, method = 'GET', body = null, extraHeaders = {}) {
     signal: AbortSignal.timeout(30_000),
   }
   if (body) opts.body = JSON.stringify(body)
-  const res  = await fetch(`${API_URL}${path}`, opts)
-  const text = await res.text()
-  let json
-  try { json = JSON.parse(text) } catch { json = { raw: text } }
-  return { status: res.status, ok: res.ok, json }
+  try {
+    const res  = await fetch(`${API_URL}${path}`, opts)
+    const text = await res.text()
+    let json
+    try { json = JSON.parse(text) } catch { json = { raw: text } }
+    return { status: res.status, ok: res.ok, json }
+  } catch (err) {
+    const reason = err.name === 'TimeoutError' || err.name === 'AbortError' ? 'timed out after 30s' : err.message
+    return { status: 0, ok: false, json: { error: `Could not reach ${API_URL} (${reason})` } }
+  }
 }
 
 function ilmPatterns(protocolType) {
@@ -199,13 +204,20 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
       return { content: [{ type: 'text', text: 'Error: job_id is required' }], isError: true }
     }
 
-    const { status, json } = await callApi(`/api/bug-intel/${encodeURIComponent(job_id)}`)
+    const { status, ok, json } = await callApi(`/api/bug-intel/${encodeURIComponent(job_id)}`)
 
     if (status === 404) {
       return { content: [{ type: 'text', text: `Job ${job_id} not found. Check the job_id.` }], isError: true }
     }
 
-    const lines = [`Job ID: ${job_id}`, `Status: ${json.status ?? 'unknown'}`]
+    if (!ok || !json.status) {
+      return {
+        content: [{ type: 'text', text: `Could not get status for job ${job_id}: ${json.error ?? `API error ${status}`}. Try again shortly.` }],
+        isError: true,
+      }
+    }
+
+    const lines = [`Job ID: ${job_id}`, `Status: ${json.status}`]
     if (json.repo)      lines.push(`Repo: ${json.repo}`)
     if (json.reportUrl) lines.push(`Report: ${json.reportUrl}`)
     if (json.findingsCount !== undefined) lines.push(`Findings: ${json.findingsCount}`)
