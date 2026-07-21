@@ -19,13 +19,23 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js'
-import { readFileSync, existsSync } from 'node:fs'
-import { join, dirname }             from 'node:path'
-import { fileURLToPath }             from 'node:url'
-
-const HERE    = dirname(fileURLToPath(import.meta.url))
-const BASE    = join(HERE, '..')
 const API_URL = 'https://wazir-x402.duckdns.org'
+
+// Embedded pattern library — 27,681 accepted findings from Sherlock + Code4rena (updated 2026-07-10)
+const PATTERN_LIBRARY = {
+  'rounding':           { acceptance_rate: '0.51', total: 2615,  accepted: 1327, examples_accepted: ['Long Jetblack Porpoise - wrong calculation of borrowed amount causes migrateFrom', 'Gentle Mango Locust - Duplicate Reward Tokens Can Be Added, Leading to Denial of', 'Tiny Smoke Swift - No Liquidation Incentive for Small Positions'] },
+  'oracle-manipulation':{ acceptance_rate: '0.53', total: 3253,  accepted: 1736, examples_accepted: ['Boxy Pickle Corgi - Users lose the latest accrued rewards during migration if pr', 'Tiny Smoke Swift - No Liquidation Incentive for Small Positions', 'Flat Cedar Robin - AbstractYieldStrategy.price() implementation is wrong'] },
+  'trusted-actor':      { acceptance_rate: '0.46', total: 8820,  accepted: 4081, examples_accepted: ['Agreeable Pine Porpoise - Double Fee Accrual in Withdrawal Flow Causes Last User', 'Rare Parchment Monkey - Migration of the reward pool will render the strategy co', 'Boxy Pickle Corgi - Users lose the latest accrued rewards during migration'] },
+  'fee-miscalculation': { acceptance_rate: '0.56', total: 2676,  accepted: 1505, examples_accepted: ['Clean Gauze Halibut - Incorrect update of s_escrowedShares causes later users', 'Flat Cedar Robin - AbstractYieldStrategy.price() implementation is wrong', 'Generous Sandstone Raven - Escrowed shares and their underlying yield tokens'] },
+  'mev-slippage':       { acceptance_rate: '0.54', total: 1874,  accepted: 1006, examples_accepted: ['Wide Lavender Octopus - User can go with less tokens', 'Innocent Mahogany Baboon - Intended slippage parameter for liquidators will not', 'Stale Ebony Reindeer - AbstractSingleSidedLP execution'] },
+  'dos-griefing':       { acceptance_rate: '0.49', total: 3702,  accepted: 1796, examples_accepted: ['Long Jetblack Porpoise - wrong calculation of borrowed amount causes migrateFrom', 'Gentle Mango Locust - Duplicate Reward Tokens Can Be Added, Leading to Denial of', 'Fast Quartz Elephant - Shares minted for ERC20 WRM yield strategy deposits'] },
+  'access-control':     { acceptance_rate: '0.51', total: 2480,  accepted: 1259, examples_accepted: ['Decent Saffron Woodpecker - Lack of Access Control in updateAccountRewards', 'Tricky Eggplant Orangutan - Cooldown Griefing via Delegated enterPosition', 'Hot Viridian Sidewinder - Transient Storage Authorization Persists After Failed'] },
+  'staleness':          { acceptance_rate: '0.45', total: 5838,  accepted: 2649, examples_accepted: ['Jumpy Tartan Guppy - claimRewardToken does not update emission rate claiming', 'Boxy Pickle Corgi - Users lose the latest accrued rewards during migration', 'Joyful Caramel Cuckoo - Attacker Can Reenter Redemption Process'] },
+  'reentrancy':         { acceptance_rate: '0.47', total: 979,   accepted: 458,  examples_accepted: ['Joyful Caramel Cuckoo - Attacker Can Reenter Redemption Process', 'Fast Quartz Elephant - Shares minted for ERC20 WRM yield strategy deposits', 'Soaring Carrot Cow - Attacker Will Steal Yield Funds via Reentrancy'] },
+  'overflow':           { acceptance_rate: '0.47', total: 1256,  accepted: 586,  examples_accepted: ['Gentle Mango Locust - Duplicate Reward Tokens Can Be Added', 'Stale Ebony Reindeer - AbstractSingleSidedLP execution', 'Tiny Smoke Swift - Liquidation Front-Running via Minimal Repay'] },
+  'flash-loan':         { acceptance_rate: '0.53', total: 512,   accepted: 269,  examples_accepted: ['Long Jetblack Porpoise - wrong calculation of borrowed amount causes migrateFrom', 'Fancy Ultraviolet Raccoon - Missing Checks for Flash Loan Callback in _enterPosition', 'Cool Clay Cottonmouth - use of approve(type(uint256).max) in the exit flow'] },
+  'liquidation':        { acceptance_rate: '0.53', total: 2502,  accepted: 1319, examples_accepted: ['Generous Sandstone Raven - Liquidators can steal rewards accrued to liquidated', 'Rare Parchment Monkey - Migration of the reward pool will render the strategy', 'Joyful Caramel Cuckoo - Attacker Can Reenter Redemption Process'] },
+}
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -44,26 +54,21 @@ async function callApi(path, method = 'GET', body = null, extraHeaders = {}) {
 }
 
 function ilmPatterns(protocolType) {
-  const idx = join(BASE, 'knowledge/3ilm/sherlock/_index.json')
-  if (!existsSync(idx)) return null
-  try {
-    const lib   = JSON.parse(readFileSync(idx, 'utf8')).pattern_library ?? {}
-    const TYPE  = {
-      DEX:         ['oracle-manipulation','mev-slippage','rounding','flash-loan','fee-miscalculation','reentrancy'],
-      LENDING:     ['oracle-manipulation','liquidation','staleness','rounding','flash-loan','access-control'],
-      BRIDGE:      ['access-control','reentrancy','overflow','dos-griefing'],
-      GOVERNANCE:  ['access-control','dos-griefing','trusted-actor'],
-      STAKING:     ['rounding','fee-miscalculation','access-control','overflow','staleness'],
-      GENERAL:     ['oracle-manipulation','rounding','access-control','fee-miscalculation','reentrancy','flash-loan'],
-    }
-    const keys = TYPE[protocolType?.toUpperCase()] ?? TYPE.GENERAL
-    return keys.filter(k => lib[k]).map(k => ({
-      pattern:         k,
-      acceptance_rate: lib[k].acceptance_rate,
-      total_cases:     lib[k].total,
-      example:         (lib[k].examples_accepted ?? [])[0]?.slice(0, 120),
-    }))
-  } catch { return null }
+  const TYPE = {
+    DEX:        ['oracle-manipulation','mev-slippage','rounding','flash-loan','fee-miscalculation','reentrancy'],
+    LENDING:    ['oracle-manipulation','liquidation','staleness','rounding','flash-loan','access-control'],
+    BRIDGE:     ['access-control','reentrancy','overflow','dos-griefing'],
+    GOVERNANCE: ['access-control','dos-griefing','trusted-actor'],
+    STAKING:    ['rounding','fee-miscalculation','access-control','overflow','staleness'],
+    GENERAL:    ['oracle-manipulation','rounding','access-control','fee-miscalculation','reentrancy','flash-loan'],
+  }
+  const keys = TYPE[protocolType?.toUpperCase()] ?? TYPE.GENERAL
+  return keys.filter(k => PATTERN_LIBRARY[k]).map(k => ({
+    pattern:         k,
+    acceptance_rate: PATTERN_LIBRARY[k].acceptance_rate,
+    total_cases:     PATTERN_LIBRARY[k].total,
+    example:         (PATTERN_LIBRARY[k].examples_accepted ?? [])[0]?.slice(0, 120),
+  }))
 }
 
 // ── MCP server ────────────────────────────────────────────────────────────────
@@ -216,9 +221,9 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
     const { protocol_type = 'GENERAL' } = args ?? {}
     const patterns = ilmPatterns(protocol_type)
 
-    if (!patterns) {
+    if (!patterns || patterns.length === 0) {
       return {
-        content: [{ type: 'text', text: 'Pattern library not available locally. Run scan_contract for live analysis.' }],
+        content: [{ type: 'text', text: 'No patterns found for this protocol type. Try GENERAL.' }],
       }
     }
 
