@@ -25,6 +25,14 @@ curl -sO https://raw.githubusercontent.com/holistis/bug-bounty-intelligence-mcp/
 If you're building a local-first / offline security scanner and the paid `scan_contract` tool
 below isn't a fit for your project's architecture, this file might still be useful on its own.
 
+## Just want pattern search, nothing paid? Use 3ilm-mcp instead
+
+[3ilm-mcp](https://github.com/holistis/3ilm-mcp) is a smaller, free-only MCP server built from
+the same verified dataset. It has no paid tier at all — just pattern search
+(`search_vulnerabilities`, `get_pattern_details`, `list_patterns`). Use this repo
+(bug-bounty-intelligence-mcp) if you also want the paid `scan_contract` full-repo scan; use
+3ilm-mcp if you only ever wanted the free lookup tools and prefer the lighter package.
+
 ## Benchmark: vs Slither
 
 **[See the full benchmark →](BENCHMARK.md)**
