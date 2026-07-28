@@ -164,3 +164,9 @@ Only findings that survive all 7 gates are reported.
 - **Terms**: https://wazir-x402.duckdns.org/terms
 - **Delivery**: within 24h
 - **Source code**: deleted after analysis
+
+## Support this project
+
+This is a free, open-source MCP server maintained in my spare time. If it caught something useful before you shipped, tips are welcome and appreciated (never expected):
+
+`0xdffcC75a674257be6FE1b5549FE52e8f8a6A3A5A` (USDC, Base)
