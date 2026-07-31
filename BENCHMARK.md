@@ -51,6 +51,16 @@ contains an incorrect shift operation: ...
 
 This is in `lib/solady/`, a third-party library. It is out of scope for any 3FLabs audit.
 
+**Update:** while triaging these, we noticed a third, related false positive class on the same
+`lib/solady` code that Slither didn't even flag in this run's summary counts but that showed up
+separately: 38 `divide-before-multiply` findings on `FixedPointMathLib`'s `mulDivUnchecked`,
+`cbrt`, and `expWad`, all cases where the "divided" variable had been fully reassigned before the
+multiply, not actually the same value. We reported this upstream —
+[crytic/slither#3039](https://github.com/crytic/slither/issues/3039) — and a maintainer fixed the
+detector's variable-tracking logic and merged it:
+[crytic/slither#3040](https://github.com/crytic/slither/pull/3040). Anyone running Slither 0.11+
+on Solady-based code won't hit this specific false positive anymore.
+
 ### Group B: 3 findings in `src/` — all false positives
 
 Slither flagged 3 uses of `safeTransferFrom(offer.maker, ...)` as "arbitrary from in transferFrom":
