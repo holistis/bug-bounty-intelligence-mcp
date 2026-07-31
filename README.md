@@ -41,7 +41,7 @@ On 3FLabs/grunt (ERC-4626 + Morpho vaults, 218 contracts): Slither reports 27 "H
 
 Bug Bounty Intelligence scopes to `src/` only and filters through the Al-Mizaan 7-gate framework before reporting anything.
 
-We also found and reported a related Slither false positive (38 `divide-before-multiply` findings on the same `lib/solady` code) directly to the Slither project — [crytic/slither#3039](https://github.com/crytic/slither/issues/3039), fixed and merged as [crytic/slither#3040](https://github.com/crytic/slither/pull/3040).
+We also reported a related `divide-before-multiply` pattern on the same `lib/solady` code directly to the Slither project — [crytic/slither#3039](https://github.com/crytic/slither/issues/3039). A maintainer merged a fix for part of it ([crytic/slither#3040](https://github.com/crytic/slither/pull/3040)); see [BENCHMARK.md](BENCHMARK.md) for the honest scope of what that fix does and doesn't cover, we overclaimed in the original report.
 
 ## What it does
 

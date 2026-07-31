@@ -51,15 +51,19 @@ contains an incorrect shift operation: ...
 
 This is in `lib/solady/`, a third-party library. It is out of scope for any 3FLabs audit.
 
-**Update:** while triaging these, we noticed a third, related false positive class on the same
-`lib/solady` code that Slither didn't even flag in this run's summary counts but that showed up
-separately: 38 `divide-before-multiply` findings on `FixedPointMathLib`'s `mulDivUnchecked`,
-`cbrt`, and `expWad`, all cases where the "divided" variable had been fully reassigned before the
-multiply, not actually the same value. We reported this upstream —
-[crytic/slither#3039](https://github.com/crytic/slither/issues/3039) — and a maintainer fixed the
-detector's variable-tracking logic and merged it:
-[crytic/slither#3040](https://github.com/crytic/slither/pull/3040). Anyone running Slither 0.11+
-on Solady-based code won't hit this specific false positive anymore.
+**Update:** while triaging these, we noticed a related pattern on the same `lib/solady` code:
+`divide-before-multiply` fired 38 times on `FixedPointMathLib`'s `fullMulDivUnchecked`, `cbrt`,
+`invMod`, `rpow`, and `cbrtWad`. We initially described all 38 as the same false-positive class
+(divided variable fully reassigned before the multiply) and reported it upstream —
+[crytic/slither#3039](https://github.com/crytic/slither/issues/3039). That was an overclaim on our
+part. A maintainer merged a fix for the specific reassignment pattern we described
+([crytic/slither#3040](https://github.com/crytic/slither/pull/3040), not yet in a PyPI release as
+of 2026-08-01), and re-testing against the merged code ourselves shows it correctly resolves 11 of
+the 38 (down to 27 remaining on this file). The other 27 keep the divided variable in the same
+expression rather than through a clean reassignment, which is a different pattern this fix
+correctly leaves untouched — we haven't yet re-analyzed whether those are genuine false positives
+too or something else. Filed as a lesson: verify a fix against the actual code before describing
+it as resolving the full scope of what you reported.
 
 ### Group B: 3 findings in `src/` — all false positives
 
