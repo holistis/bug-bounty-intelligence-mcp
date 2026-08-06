@@ -167,7 +167,7 @@ scan_contract({ repo_url: "https://github.com/3FLabs/grunt", protocol_type: "LEN
 
 ## About Bug Bounty Intelligence
 
-Trained on 27,681 real accepted audit findings from Sherlock and Code4rena. Uses the Al-Mizaan v3 framework — a 7-gate validation chain (Code, Reachability, Threat-Model, Invariant, Protocol-Intent, Impact, Proof) — to filter signals into confirmed findings.
+Pattern-aware from a corpus of 27,681 submitted Sherlock/Code4rena findings across 105 contests; acceptance-rate numbers (used by `list_vulnerability_patterns`) are limited to the 1,032 findings across 10 contests that could be exact-reconciled against contest outcomes (461 accepted) — see METHODOLOGY.md. Uses the Al-Mizaan v3 framework — a 7-gate validation chain (Code, Reachability, Threat-Model, Invariant, Protocol-Intent, Impact, Proof) — to filter signals into confirmed findings.
 
 **Cost:** $5 USDC on Base (eip155:8453) via x402.  
 **Install:** `npx -y bug-bounty-intelligence-mcp@latest`  
