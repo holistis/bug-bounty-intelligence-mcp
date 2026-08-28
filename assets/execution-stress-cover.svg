@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="420" viewBox="0 0 1000 420">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b1120"/>
+      <stop offset="100%" stop-color="#111827"/>
+    </linearGradient>
+    <linearGradient id="arc" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#22c55e"/>
+      <stop offset="45%" stop-color="#eab308"/>
+      <stop offset="100%" stop-color="#ef4444"/>
+    </linearGradient>
+  </defs>
+  <rect width="1000" height="420" fill="url(#bg)"/>
+
+  <!-- gauge -->
+  <g transform="translate(230,235)">
+    <path d="M -150 0 A 150 150 0 0 1 150 0" fill="none" stroke="url(#arc)" stroke-width="22" stroke-linecap="round"/>
+    <!-- needle pointing into the stressed (right) zone -->
+    <g transform="rotate(58)">
+      <line x1="0" y1="0" x2="0" y2="-125" stroke="#f8fafc" stroke-width="5" stroke-linecap="round"/>
+    </g>
+    <circle cx="0" cy="0" r="10" fill="#f8fafc"/>
+    <text x="-150" y="35" fill="#94a3b8" font-family="Menlo, Consolas, monospace" font-size="15">CALM</text>
+    <text x="118" y="35" fill="#94a3b8" font-family="Menlo, Consolas, monospace" font-size="15">STRESSED</text>
+  </g>
+
+  <!-- copy -->
+  <g font-family="Menlo, Consolas, monospace" fill="#f8fafc">
+    <text x="480" y="150" font-size="34" font-weight="bold">Execution Stress Index</text>
+    <text x="480" y="185" font-size="17" fill="#94a3b8">DeFi Signal API · api.mergefix.com</text>
+  </g>
+  <g font-family="Menlo, Consolas, monospace" fill="#cbd5e1" font-size="15">
+    <text x="480" y="235">score = chains_at_risk + rpc_stress + liquidity_stress</text>
+    <text x="480" y="262" fill="#64748b">built from live liquidation + RPC telemetry</text>
+    <text x="480" y="285" fill="#64748b">Aave V3 · Compound V3 · Morpho Blue · Jupiter Lending</text>
+  </g>
+
+  <g font-family="Menlo, Consolas, monospace" font-size="14">
+    <text x="480" y="340" fill="#4ade80">CALM</text>
+    <text x="560" y="340" fill="#facc15">ELEVATED</text>
+    <text x="670" y="340" fill="#f87171">STRESSED</text>
+    <text x="780" y="340" fill="#94a3b8">DATA-INCOMPLETE</text>
+  </g>
+
+  <text x="480" y="385" font-family="Menlo, Consolas, monospace" font-size="13" fill="#475569">$0.010 USDC / call on Base · x402</text>
+</svg>
