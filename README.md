@@ -33,6 +33,8 @@ the same verified dataset. It has no paid tier at all — just pattern search
 (bug-bounty-intelligence-mcp) if you also want the paid `scan_contract` full-repo scan; use
 3ilm-mcp if you only ever wanted the free lookup tools and prefer the lighter package.
 
+Two more tools in the same Al-Mizaan toolkit, for the rest of the workflow: [al-mizaan-judge](https://github.com/holistis/al-mizaan-judge) is a local CLI that pressure-tests a candidate finding through the same 7-gate framework before you submit it, and [DeFi Signal API](https://github.com/holistis/defi-signal-api) exposes the same vuln-search/bug-intel routes as a pay-per-call HTTP API for anyone who wants this outside MCP.
+
 ## Benchmark: vs Slither
 
 **[See the full benchmark →](BENCHMARK.md)**
