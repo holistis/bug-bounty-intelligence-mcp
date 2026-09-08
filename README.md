@@ -1,21 +1,21 @@
-# Bug Bounty Intelligence — MCP Server
+# Bug Bounty Intelligence: MCP Server
 
 AI-powered smart contract security analysis for AI agents and developers.
 
 **Drawn from a corpus of 27,681 submitted findings across 105 Sherlock and Code4rena contests.**
 **Cost: $5 USDC on Base (eip155:8453) via x402.**
-**Free tool: `list_vulnerability_patterns` — no payment needed.**
+**Free tool: `list_vulnerability_patterns`, no payment needed.**
 
 `list_vulnerability_patterns`' acceptance-rate numbers are computed only from the subset where
-results could be exactly reconciled against Sherlock's own published outcomes — 1,032 findings
+results could be exactly reconciled against Sherlock's own published outcomes: 1,032 findings
 across 10 contests. We'd rather show fewer, verified numbers than a bigger set we can't stand
 behind. See [METHODOLOGY.md](METHODOLOGY.md) for exactly why, and how to reproduce it.
 
-## Free dataset — no server, no MCP, no payment
+## Free dataset: no server, no MCP, no payment
 
 [`vulnerability-acceptance-rates.json`](vulnerability-acceptance-rates.json) is the same data
 `list_vulnerability_patterns` serves, as a static file. No API call, no account, no network
-dependency at all — download it, or copy it into your own tool's rule set. CC0 licensed, use it
+dependency at all. Download it, or copy it into your own tool's rule set. CC0 licensed, use it
 however you want, credit optional.
 
 ```bash
@@ -28,7 +28,7 @@ below isn't a fit for your project's architecture, this file might still be usef
 ## Just want pattern search, nothing paid? Use 3ilm-mcp instead
 
 [3ilm-mcp](https://github.com/holistis/3ilm-mcp) is a smaller, free-only MCP server built from
-the same verified dataset. It has no paid tier at all — just pattern search
+the same verified dataset. It has no paid tier at all, just pattern search
 (`search_vulnerabilities`, `get_pattern_details`, `list_patterns`). Use this repo
 (bug-bounty-intelligence-mcp) if you also want the paid `scan_contract` full-repo scan; use
 3ilm-mcp if you only ever wanted the free lookup tools and prefer the lighter package.
@@ -41,7 +41,7 @@ On 3FLabs/grunt (ERC-4626 + Morpho vaults, 218 contracts): Slither reports 27 "H
 
 Bug Bounty Intelligence scopes to `src/` only and filters through the Al-Mizaan 7-gate framework before reporting anything.
 
-We also reported a related `divide-before-multiply` pattern on the same `lib/solady` code directly to the Slither project — [crytic/slither#3039](https://github.com/crytic/slither/issues/3039). A maintainer merged a fix for part of it ([crytic/slither#3040](https://github.com/crytic/slither/pull/3040)); see [BENCHMARK.md](BENCHMARK.md) for the honest scope of what that fix does and doesn't cover, we overclaimed in the original report.
+We also reported a related `divide-before-multiply` pattern on the same `lib/solady` code directly to the Slither project: [crytic/slither#3039](https://github.com/crytic/slither/issues/3039). A maintainer merged a fix for part of it ([crytic/slither#3040](https://github.com/crytic/slither/pull/3040)); see [BENCHMARK.md](BENCHMARK.md) for the honest scope of what that fix does and doesn't cover, we overclaimed in the original report.
 
 ## What it does
 
