@@ -10,7 +10,7 @@
  * Payment: $5 USDC on Base (eip155:8453) via x402.
  * If you receive a payment_required response, pay to the address shown and retry.
  *
- * Run: node scripts/bug-intel-mcp.mjs
+ * Run: node index.mjs  (or: npx -y bug-bounty-intelligence-mcp@latest)
  */
 
 import { Server }        from '@modelcontextprotocol/sdk/server/index.js'
