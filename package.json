@@ -1,18 +1,40 @@
 {
   "name": "bug-bounty-intelligence-mcp",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "MCP server for AI-powered smart contract security analysis. $5 USDC/scan via x402. Drawn from 27,681 Sherlock/Code4rena submissions, verified acceptance rates from 1,032 exact-reconciled findings. Includes a free, standalone dataset (vulnerability-acceptance-rates.json) — no server required.",
   "type": "module",
   "main": "index.mjs",
-  "bin": { "bug-bounty-intelligence-mcp": "index.mjs" },
-  "files": ["index.mjs", "README.md", "BENCHMARK.md", "METHODOLOGY.md", "vulnerability-acceptance-rates.json"],
-  "repository": { "type": "git", "url": "git+https://github.com/holistis/bug-bounty-intelligence-mcp.git" },
+  "bin": {
+    "bug-bounty-intelligence-mcp": "index.mjs"
+  },
+  "files": [
+    "index.mjs",
+    "README.md",
+    "BENCHMARK.md",
+    "METHODOLOGY.md",
+    "vulnerability-acceptance-rates.json"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/holistis/bug-bounty-intelligence-mcp.git"
+  },
   "homepage": "https://github.com/holistis/bug-bounty-intelligence-mcp#readme",
-  "keywords": ["mcp", "smart-contract", "security", "audit", "solidity", "defi", "x402", "bug-bounty"],
+  "keywords": [
+    "mcp",
+    "smart-contract",
+    "security",
+    "audit",
+    "solidity",
+    "defi",
+    "x402",
+    "bug-bounty"
+  ],
   "author": "holistis",
   "license": "MIT",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0"
   },
-  "engines": { "node": ">=20.0.0" }
+  "engines": {
+    "node": ">=20.0.0"
+  }
 }
