@@ -84,7 +84,9 @@ If `scan_contract` returns `PAYMENT REQUIRED`, send exactly $5 USDC on Base to t
 - Network: Base mainnet (eip155:8453)
 - Amount: 5,000,000 (= 5 USDC, 6 decimals)
 - Asset: 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913 (USDC)
-- Wallet: 0xdffcC75a674257be6FE1b5549FE52e8f8a6A3A5A
+- Wallet: 0x015Eb036560216B3051339061FF68A207E0fe88f
+
+The wallet address can change. Always pay the address `scan_contract` actually returns in its `PAYMENT REQUIRED` response, not a copy of this README. This document is updated when the address changes, but the live tool response is the source of truth.
 
 ## Example session
 
@@ -106,7 +108,7 @@ PAYMENT REQUIRED to start the scan.
 
 Amount:  5.00 USDC
 Network: Base mainnet (eip155:8453)
-Pay to:  0xdffcC75a674257be6FE1b5549FE52e8f8a6A3A5A
+Pay to:  0x015Eb036560216B3051339061FF68A207E0fe88f
 Asset:   USDC — 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913
 
 After paying, retry scan_contract with the same repo_url.

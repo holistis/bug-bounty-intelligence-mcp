@@ -169,6 +169,17 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
     if (status === 402) {
       const accept  = json.accepts?.[0] ?? {}
       const amtUsdc = accept.amount ? (parseInt(accept.amount) / 1_000_000).toFixed(2) : '5.00'
+      if (!accept.payTo || !accept.asset) {
+        // Never fall back to a hardcoded address here: a stale one silently
+        // sends real USDC to a wallet nobody is watching. Fail loud instead.
+        return {
+          content: [{
+            type: 'text',
+            text: 'PAYMENT REQUIRED, but the server did not return a payment address. Do not guess one. Retry scan_contract; if this repeats, the payment endpoint is broken, not the address.',
+          }],
+          isError: true,
+        }
+      }
       return {
         content: [{
           type: 'text',
@@ -177,8 +188,8 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
             '',
             `Amount:  ${amtUsdc} USDC`,
             `Network: Base mainnet (eip155:8453)`,
-            `Pay to:  ${accept.payTo ?? '0xdffcC75a674257be6FE1b5549FE52e8f8a6A3A5A'}`,
-            `Asset:   USDC — ${accept.asset ?? '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'}`,
+            `Pay to:  ${accept.payTo}`,
+            `Asset:   USDC — ${accept.asset}`,
             '',
             'After paying, retry scan_contract with the same repo_url.',
             'Terms: https://wazir-x402.duckdns.org/terms',
