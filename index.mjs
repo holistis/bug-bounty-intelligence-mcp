@@ -10,7 +10,7 @@
  * Payment: $5 USDC on Base (eip155:8453) via x402.
  * If you receive a payment_required response, pay to the address shown and retry.
  *
- * Run: node scripts/bug-intel-mcp.mjs
+ * Run: node index.mjs  (or: npx -y bug-bounty-intelligence-mcp@latest)
  */
 
 import { Server }        from '@modelcontextprotocol/sdk/server/index.js'
@@ -94,10 +94,11 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
       name: 'scan_contract',
       description: [
         'Submit a public GitHub repository for an automated smart contract security analysis.',
-        'Trained on 27,681 real findings from Sherlock and Code4rena audits.',
-        'Cost: $5 USDC on Base (eip155:8453) via x402.',
-        'Returns a job_id. Use get_scan_report to poll for results (ready within 24h).',
-        'If payment_required is true, pay $5 USDC to the payTo address on Base, then retry.',
+        'Runs the Al-Mizaan v3 7-gate framework (code, reachability, threat-model, invariant, protocol-intent, impact, formal proof) to filter out false positives before reporting anything — on a real benchmark run (3FLabs/grunt, 218 contracts) plain Slither reported 27 "High" findings with a 100% false-positive rate; see BENCHMARK.md for the full comparison.',
+        'Pattern awareness is drawn from a corpus of 27,681 submitted Sherlock/Code4rena findings; the acceptance-rate numbers used elsewhere in this server (list_vulnerability_patterns) are limited to the 1,032 findings that could be exact-reconciled against contest outcomes — see METHODOLOGY.md.',
+        'Cost: $5 USDC on Base (eip155:8453) via x402. Delivery is guaranteed within 24h — the sample run documented in README.md took about 25 minutes.',
+        'Returns a job_id. Use get_scan_report to poll for results.',
+        'If payment_required is true, pay $5 USDC to the payTo address on Base, then retry scan_contract with the same repo_url.',
       ].join(' '),
       inputSchema: {
         type: 'object',
@@ -117,7 +118,12 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: 'get_scan_report',
-      description: 'Poll the status of a previously submitted scan. Returns status (queued/processing/complete) and report URL when complete.',
+      description: [
+        'Poll the status of a job_id returned by scan_contract.',
+        'Call this every minute or two after submitting — real runs have taken around 25 minutes, delivery is guaranteed within 24h, so polling faster than that just re-checks a job that is still processing.',
+        'Returns status (queued/processing/complete), the repo under scan, and — once complete — reportUrl (the full Al-Mizaan-validated findings report) and findingsCount.',
+        'A 404 means the job_id does not exist — double-check what scan_contract actually returned rather than retrying blindly.',
+      ].join(' '),
       inputSchema: {
         type: 'object',
         properties: {
@@ -163,6 +169,17 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
     if (status === 402) {
       const accept  = json.accepts?.[0] ?? {}
       const amtUsdc = accept.amount ? (parseInt(accept.amount) / 1_000_000).toFixed(2) : '5.00'
+      if (!accept.payTo || !accept.asset) {
+        // Never fall back to a hardcoded address here: a stale one silently
+        // sends real USDC to a wallet nobody is watching. Fail loud instead.
+        return {
+          content: [{
+            type: 'text',
+            text: 'PAYMENT REQUIRED, but the server did not return a payment address. Do not guess one. Retry scan_contract; if this repeats, the payment endpoint is broken, not the address.',
+          }],
+          isError: true,
+        }
+      }
       return {
         content: [{
           type: 'text',
@@ -171,8 +188,8 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
             '',
             `Amount:  ${amtUsdc} USDC`,
             `Network: Base mainnet (eip155:8453)`,
-            `Pay to:  ${accept.payTo ?? '0xdffcC75a674257be6FE1b5549FE52e8f8a6A3A5A'}`,
-            `Asset:   USDC — ${accept.asset ?? '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'}`,
+            `Pay to:  ${accept.payTo}`,
+            `Asset:   USDC — ${accept.asset}`,
             '',
             'After paying, retry scan_contract with the same repo_url.',
             'Terms: https://wazir-x402.duckdns.org/terms',
