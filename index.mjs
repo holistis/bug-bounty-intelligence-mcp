@@ -94,10 +94,11 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
       name: 'scan_contract',
       description: [
         'Submit a public GitHub repository for an automated smart contract security analysis.',
-        'Trained on 27,681 real findings from Sherlock and Code4rena audits.',
-        'Cost: $5 USDC on Base (eip155:8453) via x402.',
-        'Returns a job_id. Use get_scan_report to poll for results (ready within 24h).',
-        'If payment_required is true, pay $5 USDC to the payTo address on Base, then retry.',
+        'Runs the Al-Mizaan v3 7-gate framework (code, reachability, threat-model, invariant, protocol-intent, impact, formal proof) to filter out false positives before reporting anything — on a real benchmark run (3FLabs/grunt, 218 contracts) plain Slither reported 27 "High" findings with a 100% false-positive rate; see BENCHMARK.md for the full comparison.',
+        'Pattern awareness is drawn from a corpus of 27,681 submitted Sherlock/Code4rena findings; the acceptance-rate numbers used elsewhere in this server (list_vulnerability_patterns) are limited to the 1,032 findings that could be exact-reconciled against contest outcomes — see METHODOLOGY.md.',
+        'Cost: $5 USDC on Base (eip155:8453) via x402. Delivery is guaranteed within 24h — the sample run documented in README.md took about 25 minutes.',
+        'Returns a job_id. Use get_scan_report to poll for results.',
+        'If payment_required is true, pay $5 USDC to the payTo address on Base, then retry scan_contract with the same repo_url.',
       ].join(' '),
       inputSchema: {
         type: 'object',
@@ -117,7 +118,12 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: 'get_scan_report',
-      description: 'Poll the status of a previously submitted scan. Returns status (queued/processing/complete) and report URL when complete.',
+      description: [
+        'Poll the status of a job_id returned by scan_contract.',
+        'Call this every minute or two after submitting — real runs have taken around 25 minutes, delivery is guaranteed within 24h, so polling faster than that just re-checks a job that is still processing.',
+        'Returns status (queued/processing/complete), the repo under scan, and — once complete — reportUrl (the full Al-Mizaan-validated findings report) and findingsCount.',
+        'A 404 means the job_id does not exist — double-check what scan_contract actually returned rather than retrying blindly.',
+      ].join(' '),
       inputSchema: {
         type: 'object',
         properties: {
