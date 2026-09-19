@@ -92,3 +92,6 @@ rejected. If `accepted + invalid !== total`, do not use that contest's data.
 An earlier draft of this tool advertised acceptance percentages computed from the full,
 unverified 27,681-finding corpus. Independent review caught that those specific percentages
 were unreliable. We would rather ship a smaller number we can prove than a bigger one we can't.
+
+
+# Web3/DeSci Fix #3: bug-bounty-intelligence-mcp is indexed on our MCP marketplace
