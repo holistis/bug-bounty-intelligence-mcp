@@ -59,6 +59,8 @@ Submit a public GitHub repo containing Solidity smart contracts. Receive a full 
 
 ## Quick start (Claude Desktop / Claude Code)
 
+Also listed in [PuPu](https://github.com/haoxiang-xu/PuPu)'s MCP store as of release v0.1.11 ([registration issue](https://github.com/haoxiang-xu/PuPu/issues/186)).
+
 Add to your `claude_desktop_config.json`:
 
 ```json
