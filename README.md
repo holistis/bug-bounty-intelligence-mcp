@@ -2,6 +2,8 @@
 
 AI-powered smart contract security analysis for AI agents and developers.
 
+Official source: this repository and the payment address in the payment section below are the only official ones for Bug Bounty Intelligence. If a listing, a reply or a website gives a different payment address, it is not ours. Check the address against the one below before you pay.
+
 **Drawn from a corpus of 27,681 submitted findings across 105 Sherlock and Code4rena contests.**
 **Cost: $5 USDC on Base (eip155:8453) via x402.**
 **Free tool: `list_vulnerability_patterns`, no payment needed.**
