@@ -1,0 +1,228 @@
+{
+ "success": true,
+ "error": null,
+ "results": {
+  "detectors": [
+   {
+    "check": "arbitrary-send-eth",
+    "impact": "High",
+    "confidence": "Medium",
+    "description": "Vault.sweep(address) (src/Vault.sol#12) sends eth to arbitrary user\n\tDangerous calls:\n\t- address(to).transfer(address(this).balance) (src/Vault.sol#12)\n",
+    "first_markdown_element": "src/Vault.sol#L12",
+    "elements": [
+     {
+      "type": "function",
+      "name": "sweep",
+      "source_mapping": {
+       "filename_relative": "src/Vault.sol",
+       "lines": [
+        12
+       ],
+       "is_dependency": false
+      },
+      "type_specific_fields": {
+       "parent": {
+        "type": "contract",
+        "name": "Vault"
+       }
+      }
+     },
+     {
+      "type": "node",
+      "name": "address(to).transfer(address(this).balance)",
+      "source_mapping": {
+       "filename_relative": "src/Vault.sol",
+       "lines": [
+        12
+       ],
+       "is_dependency": false
+      },
+      "type_specific_fields": {
+       "parent": {
+        "type": "function",
+        "name": "sweep"
+       }
+      }
+     }
+    ]
+   },
+   {
+    "check": "reentrancy-eth",
+    "impact": "High",
+    "confidence": "Medium",
+    "description": "Reentrancy in Vault.withdraw(uint256) (src/Vault.sol#6-11):\n\tExternal calls:\n\t- (ok,None) = msg.sender.call{value: amount}() (src/Vault.sol#8)\n\tState variables written after the call(s):\n\t- balances[msg.sender] -= amount (src/Vault.sol#10)\n\tVault.balances (src/Vault.sol#4) can be used in cross function reentrancies:\n\t- Vault.balances (src/Vault.sol#4)\n\t- Vault.deposit() (src/Vault.sol#5)\n\t- Vault.withdraw(uint256) (src/Vault.sol#6-11)\n",
+    "first_markdown_element": "src/Vault.sol#L6-L11",
+    "elements": [
+     {
+      "type": "function",
+      "name": "withdraw",
+      "source_mapping": {
+       "filename_relative": "src/Vault.sol",
+       "lines": [
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+       ],
+       "is_dependency": false
+      },
+      "type_specific_fields": {
+       "parent": {
+        "type": "contract",
+        "name": "Vault"
+       }
+      }
+     },
+     {
+      "type": "node",
+      "name": "(ok,None) = msg.sender.call{value: amount}()",
+      "source_mapping": {
+       "filename_relative": "src/Vault.sol",
+       "lines": [
+        8
+       ],
+       "is_dependency": false
+      },
+      "type_specific_fields": {
+       "parent": {
+        "type": "function",
+        "name": "withdraw"
+       }
+      }
+     },
+     {
+      "type": "node",
+      "name": "balances[msg.sender] -= amount",
+      "source_mapping": {
+       "filename_relative": "src/Vault.sol",
+       "lines": [
+        10
+       ],
+       "is_dependency": false
+      },
+      "type_specific_fields": {
+       "parent": {
+        "type": "function",
+        "name": "withdraw"
+       }
+      }
+     }
+    ]
+   },
+   {
+    "check": "missing-zero-check",
+    "impact": "Low",
+    "confidence": "Medium",
+    "description": "Vault.sweep(address).to (src/Vault.sol#12) lacks a zero-check on :\n\t\t- address(to).transfer(address(this).balance) (src/Vault.sol#12)\n",
+    "first_markdown_element": "src/Vault.sol#L12",
+    "elements": [
+     {
+      "type": "variable",
+      "name": "to",
+      "source_mapping": {
+       "filename_relative": "src/Vault.sol",
+       "lines": [
+        12
+       ],
+       "is_dependency": false
+      },
+      "type_specific_fields": {
+       "parent": {
+        "type": "function",
+        "name": "sweep"
+       }
+      }
+     },
+     {
+      "type": "node",
+      "name": "address(to).transfer(address(this).balance)",
+      "source_mapping": {
+       "filename_relative": "src/Vault.sol",
+       "lines": [
+        12
+       ],
+       "is_dependency": false
+      },
+      "type_specific_fields": {
+       "parent": {
+        "type": "function",
+        "name": "sweep"
+       }
+      }
+     }
+    ]
+   },
+   {
+    "check": "solc-version",
+    "impact": "Informational",
+    "confidence": "High",
+    "description": "Version constraint ^0.8.20 contains known severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)\n\t- VerbatimInvalidDeduplication\n\t- FullInlinerNonExpressionSplitArgumentEvaluationOrder\n\t- MissingSideEffectsOnSelectorAccess.\nIt is used by:\n\t- ^0.8.20 (src/Vault.sol#2)\n",
+    "first_markdown_element": "src/Vault.sol#L2",
+    "elements": [
+     {
+      "type": "pragma",
+      "name": "^0.8.20",
+      "source_mapping": {
+       "filename_relative": "src/Vault.sol",
+       "lines": [
+        2
+       ],
+       "is_dependency": false
+      },
+      "type_specific_fields": {}
+     }
+    ]
+   },
+   {
+    "check": "low-level-calls",
+    "impact": "Informational",
+    "confidence": "High",
+    "description": "Low level call in Vault.withdraw(uint256) (src/Vault.sol#6-11):\n\t- (ok,None) = msg.sender.call{value: amount}() (src/Vault.sol#8)\n",
+    "first_markdown_element": "src/Vault.sol#L6-L11",
+    "elements": [
+     {
+      "type": "function",
+      "name": "withdraw",
+      "source_mapping": {
+       "filename_relative": "src/Vault.sol",
+       "lines": [
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+       ],
+       "is_dependency": false
+      },
+      "type_specific_fields": {
+       "parent": {
+        "type": "contract",
+        "name": "Vault"
+       }
+      }
+     },
+     {
+      "type": "node",
+      "name": "(ok,None) = msg.sender.call{value: amount}()",
+      "source_mapping": {
+       "filename_relative": "src/Vault.sol",
+       "lines": [
+        8
+       ],
+       "is_dependency": false
+      },
+      "type_specific_fields": {
+       "parent": {
+        "type": "function",
+        "name": "withdraw"
+       }
+      }
+     }
+    ]
+   }
+  ]
+ }
+}
