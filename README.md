@@ -2,6 +2,10 @@
 
 AI-powered smart contract security analysis for AI agents and developers.
 
+## Update, 24 October 2026, evening: the sealed run
+
+The one run on the sealed set is done, with the rule written before it: [results/2026-10-24-sealed/README.md](results/2026-10-24-sealed/README.md). On 8 contests that nobody here had run anything on, the scan as it runs today found 1 of 105 known High and Medium findings. A newer version, not in production, found 4 of 105. The rule needed at least 5 findings that production does not find, and it found 3, so production stays as it is. The scan still produces hypotheses to review by hand, and it has not been shown to find what a human audit finds.
+
 ## Update, 24 October 2026, later the same day: version 2 of the scan
 
 The defects described below were fixed and the new version is live. What changed: git submodules are fetched when they point to github.com, tests, mocks, scripts, interfaces and vendored libraries are left out, files are ranked by how likely they move funds and sent in at most six parts, every report states how much of the in-scope code was read, a scan without hypotheses is delivered as such and not as a normal report, hypotheses that name files or functions that are not in the code are dropped, and file links inside a repository are never followed. A free precheck at https://x402.tokenizen.nl/api/bug-intel/precheck?repo=owner/name says before you pay whether the scan counts any Solidity in your repository and roughly how much of it will be read.
