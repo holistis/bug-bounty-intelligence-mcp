@@ -1,0 +1,170 @@
+{
+  "contest": "2025-02-yieldoor",
+  "hypotheses": [
+    {
+      "title": "`withdraw()` in Leverager uses wrong variable for repay calculation when borrowed token is token1",
+      "severity": "High",
+      "category": "Accounting",
+      "file": "Leverager.sol",
+      "function": "withdraw()",
+      "description": "In the `withdraw()` function, when `borrowed == up.token1`, the code sets `repayFromWithdraw = amountOut1 < owedAmount ? amountOut0 : owedAmount`. It uses `amountOut0` instead of `amountOut1` in the ternary condition, which can lead to incorrect repayment amounts and potential accounting errors.",
+      "attackPath": "1. User has a position where the borrowed token is token1. 2. User calls `withdraw()` with a percentage. 3. Due to the bug, the code may incorrectly calculate `repayFromWithdraw`, potentially under-repaying or over-repaying debt, leading to an inconsistent position state.",
+      "impact": "Wrong debt accounting; could allow a user to withdraw more collateral than entitled or leave the protocol with bad debt.",
+      "recommendation": "Change `amountOut0` to `amountOut1` in the ternary condition: `uint256 repayFromWithdraw = amountOut1 < owedAmount ? amountOut1 : owedAmount;`."
+    },
+    {
+      "title": "First-depositor inflation attack in Vault share minting",
+      "severity": "High",
+      "category": "Accounting",
+      "file": "Vault.sol",
+      "function": "deposit()",
+      "description": "The `_calcDeposit()` function for the first deposit mints shares as `max(amount0, amount1) - 1000`. An attacker can front-run the first deposit with a tiny amount, then donate large amounts of one token to inflate the share price, causing subsequent depositors to receive near-zero shares.",
+      "attackPath": "1. Attacker calls `deposit(1 wei, 1 wei, 0, 0)` to become the first depositor, minting 0 shares (since 1000 is subtracted). 2. Attacker transfers a large amount of token0 directly to the strategy. 3. Victim deposits a large amount; `_calcDeposit` sees a high `bal0` but tiny totalSupply, so victim receives very few shares. 4. Attacker can burn their 0 shares (or use the inflated share price to extract most of the victim's deposit).",
+      "impact": "Loss of funds for subsequent depositors; the attacker can steal almost all deposited value.",
+      "recommendation": "Mint a fixed number of initial shares (e.g., 1000) to the zero address (BURN) on first deposit, similar to Uniswap V2, and ensure the share calculation cannot be manipulated."
+    },
+    {
+      "title": "`_calculateTokenValues` uses incorrect decimal scaling for borrowed value in liquidation",
+      "severity": "High",
+      "category": "Accounting",
+      "file": "Leverager.sol",
+      "function": "liquidatePosition()",
+      "description": "In `liquidatePosition()`, `borrowedValue` is computed as `owedAmount * bPrice / ERC20(up.denomination).decimals()`. This divides by the raw decimal count (e.g., 18) instead of `10**decimals`, producing a value that is orders of magnitude too small. This makes the liquidation check `totalValueUSD > borrowedValue` almost always true, even when the position is underwater.",
+      "attackPath": "1. A position becomes slightly underwater. 2. The liquidation check incorrectly passes because `borrowedValue` is computed as a tiny number. 3. The liquidator can seize the full collateral while repaying a fraction of the true debt, stealing from the protocol.",
+      "impact": "Protocol insolvency; liquidators can extract all collateral from any position at a huge discount.",
+      "recommendation": "Change to `owedAmount * bPrice / (10 ** ERC20(up.denomination).decimals())`."
+    },
+    {
+      "title": "TWAP price used before activity check in openLeveragedPosition",
+      "severity": "High",
+      "category": "Stale Price",
+      "file": "yieldoor/src/Leverager.sol",
+      "function": "openLeveragedPosition()",
+      "description": "In openLeveragedPosition(), the TWAP price is fetched from the vault and stored as `price` *before* `checkPoolActivity()` is called. If the pool has been manipulated in the current block (e.g. via a flash loan), the TWAP will reflect the old, stale price while the check passes, allowing the position to be opened with an incorrect valuation.",
+      "attackPath": "1. Attacker manipulates pool spot price via a flash loan or large swap. 2. Calls openLeveragedPosition() – the stale TWAP from before the manipulation is used to compute initCollateralUsd and initCollateralValue. 3. The activity check passes because it only sees the manipulated observations. 4. Position is opened at incorrect collateral value, enabling undercollateralized borrowing.",
+      "impact": "Borrower can open a leveraged position with inflated collateral value, leading to bad debt and potential insolvency of the lending pool.",
+      "recommendation": "Fetch and store the TWAP price *after* the `checkPoolActivity()` call, not before."
+    },
+    {
+      "title": "Slippage parameters missing or ignored in exactOutput swaps",
+      "severity": "Medium",
+      "category": "Slippage Protection",
+      "file": "yieldoor/src/Leverager.sol",
+      "function": "openLeveragedPosition()",
+      "description": "In the `openLeveragedPosition()` function, when performing exactOutput swaps via the swap router, the code does not pass a `sqrtPriceLimitX96` and does not enforce a minimum output amount from the swap. The swap is done with `swapParams.amountOut` set to `a0 - lp.amount0In` (or similar), but there is no check that the actual amount out is at least some minimum. This exposes the swap to sandwich attacks where the attacker manipulates the pool price to receive far less output tokens than expected.",
+      "attackPath": "1. Attacker observes a pending openLeveragedPosition transaction in the mempool. 2. Front-runs with a large swap to move the pool price. 3. The exactOutput swap executes at the manipulated price, returning far fewer tokens than expected. 4. The position is now undercollateralized, but the check `!isLiquidateable` may still pass if manipulation is subtle. 5. Attacker later liquidates position for profit or steals borrowed funds.",
+      "impact": "Loss of funds for the user opening the position due to unfavorable swap execution; potential bad debt for the protocol.",
+      "recommendation": "Use exactInput swaps with `amountOutMinimum` parameters, or add a slippage check on the amount out of each exactOutput swap."
+    },
+    {
+      "title": "Unbounded loop in checkPoolActivity can cause denial of service",
+      "severity": "High",
+      "category": "Denial of Service",
+      "file": "Strategy.sol",
+      "function": "checkPoolActivity()",
+      "description": "The checkPoolActivity() function iterates over all observations up to observationCardinality, which can be as large as 65535. An attacker can increase the cardinality by calling increaseObservationCardinalityNext on the pool, causing this loop to consume excessive gas and revert, blocking all functions that call _requirePriceWithinRange() (rebalance, compound, addVestingPosition) and any vault deposit/withdraw that relies on checkPoolActivity().",
+      "attackPath": "1. Attacker calls increaseObservationCardinalityNext on the underlying UniswapV3Pool to set cardinality to a high value (e.g., 1000+). 2. Any subsequent call to checkPoolActivity() (via rebalance, compound, addVestingPosition, or vault deposit/withdraw) will loop over all observations, exceeding block gas limit and reverting. 3. Core protocol functions become permanently blocked.",
+      "impact": "Permanent denial of service for rebalancing, compounding, adding vesting positions, and vault deposits/withdrawals that check pool activity, freezing the strategy.",
+      "recommendation": "Add a maximum iteration limit (e.g., 256) to the loop in checkPoolActivity() and break early once the TWAP lookback is reached."
+    },
+    {
+      "title": "LiquidatePosition uses wrong decimals for borrowedValue calculation",
+      "severity": "High",
+      "category": "Wrong constant/unit",
+      "file": "yieldoor/src/Leverager.sol",
+      "function": "liquidatePosition()",
+      "description": "In `liquidatePosition()`, the `borrowedValue` is computed as `owedAmount * bPrice / ERC20(up.denomination).decimals()`. This divides by the raw decimals (e.g., 18) instead of `10 ** decimals`, resulting in a severely undervalued borrowed amount. The same error does not appear in `isLiquidateable()` which correctly uses `10 ** ERC20(pos.denomination).decimals()`.",
+      "attackPath": "An attacker can liquidate a position that is not actually underwater because the borrowed value is calculated incorrectly, making it appear that `totalValueUSD > borrowedValue` when it is not, or vice versa.",
+      "impact": "Positions can be incorrectly liquidated or protected from liquidation, leading to loss of funds for users or accumulation of bad debt for the protocol.",
+      "recommendation": "Change `ERC20(up.denomination).decimals()` to `10 ** ERC20(up.denomination).decimals()`."
+    },
+    {
+      "title": "Vesting position withdrawal uses wrong tickUpper",
+      "severity": "High",
+      "category": "Wrong constant/unit",
+      "file": "yieldoor/src/Strategy.sol",
+      "function": "collectFees()",
+      "description": "In `collectFees()`, when collecting fees for the vesting position, the code calls `collectPositionFees(vestPosition.tickLower, mainPosition.tickUpper)`. However, the vesting position's upper tick is `vestPosition.tickUpper`, not `mainPosition.tickUpper`. This means fees are collected from the wrong tick range, potentially missing fees or attempting to collect from an uninitialized tick.",
+      "attackPath": "An attacker can exploit this by creating a vesting position and then calling functions that trigger `collectFees()`. The incorrect tick range may cause the transaction to revert or fees to be lost.",
+      "impact": "Loss of fee revenue for the protocol and users, or denial of service due to transaction reverts.",
+      "recommendation": "Change `mainPosition.tickUpper` to `vestPosition.tickUpper` in the `collectPositionFees` call."
+    },
+    {
+      "title": "Incorrect tokenIn validation in liquidatePosition swapParams2",
+      "severity": "Medium",
+      "category": "Wrong constant/unit",
+      "file": "yieldoor/src/Leverager.sol",
+      "function": "liquidatePosition()",
+      "description": "In `liquidatePosition()`, when processing `swapParams2`, the code requires `tokenIn == up.token0` instead of `tokenIn == up.token1`. This is a copy-paste error from the `swapParams1` check. This could allow swaps using the wrong token as input, potentially leading to failed transactions or incorrect accounting.",
+      "attackPath": "An attacker liquidating a position could provide swap parameters where the input token is token0 instead of token1, causing the swap to fail or use the wrong tokens.",
+      "impact": "Failed liquidations or incorrect token accounting, potentially leading to loss of funds.",
+      "recommendation": "Change `require(tokenIn == up.token0, \"tokenIn should be token0\")` to `require(tokenIn == up.token1, \"tokenIn should be token1\")`."
+    },
+    {
+      "title": "Missing Chainlink price staleness check in PriceFeed",
+      "severity": "High",
+      "category": "Stale Oracle",
+      "file": "yieldoor/src/PriceFeed.sol",
+      "function": "_getChainlinkPrice()",
+      "description": "The `_getChainlinkPrice()` function reads `latestRoundData()` but does not check `updatedAt` against a heartbeat threshold. The `heartbeat` parameter is stored but never enforced. If the Chainlink feed becomes stale (e.g., due to network issues or price deviation below threshold), the protocol will continue using an outdated price for all collateral and liquidation calculations.",
+      "attackPath": "1. Chainlink price feed stops updating (e.g., ETH/USD feed freezes). 2. Attacker opens a leveraged position using the stale price that undervalues collateral. 3. When the feed updates, the position becomes undercollateralized but cannot be liquidated because the stale price is still used. 4. Protocol accumulates bad debt.",
+      "impact": "Insolvency of the lending pool due to positions valued at stale prices that do not reflect market conditions.",
+      "recommendation": "Add a check `require(block.timestamp - updatedAt <= heartbeat, \"stale price\")` in `_getChainlinkPrice()`."
+    },
+    {
+      "title": "Missing deadline and nonce in Leverager swap approval",
+      "severity": "High",
+      "category": "Replay / Missing Deadline",
+      "file": "Leverager.sol",
+      "function": "openLeveragedPosition()",
+      "description": "The function calls `IMainnetRouter.exactOutput()` and `IMainnetRouter.exactInput()` with `swapParams` that include a path and amounts but no deadline check; the caller can pass an expired or replayed deadline, and the contract does not verify a unique nonce or chain/contract domain. This allows an attacker to reuse a valid signed swap approval across different contexts or after expiry.",
+      "attackPath": "An attacker observes a valid swapParams blob (e.g., from a front‑end signature) and replays it in a later `openLeveragedPosition()` call with a manipulated `lp` struct, causing the router to execute an unintended swap that drains tokens from the Leverager.",
+      "impact": "Loss of user or protocol funds due to unauthorized or misrouted token swaps.",
+      "recommendation": "Add a `deadline` parameter to `LeverageParams` and enforce `require(block.timestamp <= deadline)` before any swap; include a per‑user nonce and the contract address in the signed data to prevent cross‑chain replay."
+    },
+    {
+      "title": "Vesting position liquidity can be withdrawn multiple times due to missing reset",
+      "severity": "High",
+      "category": "Logic Error",
+      "file": "yieldoor/src/Strategy.sol",
+      "function": "_withdrawPartOfVestingPosition()",
+      "description": "The `_withdrawPartOfVestingPosition` function reduces `vestPosition.remainingLiquidity` and updates `vestPosition.lastUpdate`, but it does not reset `ongoingVestingPosition` to `false` until `lastValid == vestPosition.endTs`. If `collectFees()` is called multiple times before the vesting ends, each call will attempt to withdraw a portion of the vesting position based on the time delta. However, the calculation `uint128(vp.initialLiquidity * (lastValid - vp.lastUpdate) / (vp.endTs - vp.startTs))` uses `initialLiquidity` and the full duration, which can lead to withdrawing more than the remaining liquidity if the function is called frequently.",
+      "attackPath": "1. A vesting position is created with `initialLiquidity = 1000`, `startTs = 0`, `endTs = 100`. 2. At `t=50`, `collectFees()` is called. `_withdrawPartOfVestingPosition` calculates `liquidityToRemove = 1000 * (50-0) / (100-0) = 500`. `remainingLiquidity` becomes 500. 3. At `t=60`, `collectFees()` is called again. The calculation uses `initialLiquidity` (1000) and `lastUpdate` (50): `liquidityToRemove = 1000 * (60-50) / (100-0) = 100`. `remainingLiquidity` becomes 400. 4. The total withdrawn is 600, but only 100 more seconds have passed, so only 100 should have been withdrawn. The attacker can repeat this to drain the vesting position faster than intended.",
+      "impact": "Vesting position can be drained faster than the intended vesting schedule, depriving long-term LPs of their expected rewards and allowing an attacker to extract more value.",
+      "recommendation": "Use `remainingLiquidity` instead of `initialLiquidity` in the calculation, and use the remaining time (`endTs - lastUpdate`) instead of the full duration."
+    },
+    {
+      "title": "Zero-amount burn in collectPositionFees can revert and block operations",
+      "severity": "Medium",
+      "category": "Zero-amount edge case",
+      "file": "Strategy.sol",
+      "function": "collectPositionFees()",
+      "description": "The function calls `IUniswapV3Pool(pool).burn(tickLower, tickUpper, 0)` to update fee growth. If the position has zero liquidity, this call will revert with 'NP' (no position) from the Uniswap V3 pool's `Position.update` function. This can happen if the main or secondary position has been fully withdrawn but `collectFees()` is still called, blocking all subsequent operations like `deposit()`, `withdraw()`, and `rebalance()`.",
+      "attackPath": "1) An attacker (or normal user) withdraws all liquidity from a position. 2) The `mainPosition.liquidity` or `secondaryPosition.liquidity` becomes 0. 3) Any call to `collectFees()` (e.g., via `Vault.deposit()`) reverts, freezing the vault.",
+      "impact": "Denial of service; all vault operations frozen.",
+      "recommendation": "Check if liquidity is zero before calling `burn` in `collectPositionFees`."
+    },
+    {
+      "title": "Missing deadline and chain-id in swap callback data allows replay across chains",
+      "severity": "High",
+      "category": "Cross-chain replay",
+      "file": "Leverager.sol",
+      "function": "openLeveragedPosition()",
+      "description": "The `swapParams1` and `swapParams2` passed by the user contain no deadline, chain-id, or contract address. The `IMainnetRouter.exactOutput()` and `exactInput()` calls use these user-supplied parameters without verifying that the swap is intended for the current chain or contract. An attacker can capture a valid swap path from one chain and replay it on another chain where the same tokens and router exist, causing the Leverager to execute unintended swaps.",
+      "attackPath": "1. Attacker observes a valid `LeverageParams` transaction on chain A. 2. Attacker replays the same `swapParams1`/`swapParams2` on chain B (e.g., a testnet or L2) where the same router and pool addresses exist. 3. The Leverager on chain B executes the swap, potentially draining funds or causing incorrect token balances.",
+      "impact": "Loss of funds due to unintended swaps executed on a different chain, or incorrect accounting leading to insolvency.",
+      "recommendation": "Include a deadline, chain-id, and contract address in the swap parameters and verify them before execution."
+    },
+    {
+      "title": "No deadline or nonce in Leverager liquidation swap calls",
+      "severity": "High",
+      "category": "Replay / Missing Deadline",
+      "file": "Leverager.sol",
+      "function": "liquidatePosition()",
+      "description": "The liquidation function decodes `swapParams1` and `swapParams2` from `liqParams` and passes them to the router without checking a deadline or unique identifier. An attacker can reuse a signed swap payload meant for a legitimate liquidation to execute a different swap or replay it after the intended time.",
+      "attackPath": "A liquidator provides a signed swap payload; an attacker sees it and calls `liquidatePosition()` with altered amounts, causing the router to swap tokens at an unfavorable rate or send funds to an unintended recipient.",
+      "impact": "Loss of liquidation proceeds or incorrect debt repayment, potentially leaving the position underwater.",
+      "recommendation": "Include a `deadline` field in `LiquidateParams` and enforce it; incorporate a nonce and the contract address in the signed swap data."
+    }
+  ]
+}

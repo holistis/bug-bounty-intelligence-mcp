@@ -1,0 +1,170 @@
+{
+  "contest": "2025-05-layeredge",
+  "hypotheses": [
+    {
+      "title": "Unauthorized staking via native ETH without WETH approval",
+      "severity": "High",
+      "category": "Access Control",
+      "file": "edgen-staking/src/stake/LayerEdgeStaking.sol",
+      "function": "stakeNative()",
+      "description": "The `stakeNative()` function accepts ETH and calls `IWETH(address(stakingToken)).deposit{value: amount}()` to wrap it, but the WETH contract's `deposit()` function mints WETH to `msg.sender` (the caller), not to the staking contract. The staking contract never receives the WETH tokens, yet it records the stake in its internal accounting, allowing an attacker to inflate their staked balance without transferring any tokens to the contract.",
+      "attackPath": "1. Attacker calls `stakeNative()` with 1 ETH. 2. WETH mints 1 WETH to the attacker's address. 3. The staking contract's `_stake()` increases the attacker's `balance` and `totalStaked` without actually holding the WETH. 4. Attacker can later claim rewards or compound interest based on this phantom balance.",
+      "impact": "Loss of funds: the contract's reward reserve can be drained by attackers claiming rewards on non-existent stakes, leading to insolvency.",
+      "recommendation": "In `_stake()`, after the WETH deposit, transfer the WETH from the user to the contract using `stakingToken.transferFrom(userAddr, address(this), amount)`."
+    },
+    {
+      "title": "Unstake completes without token transfer to user",
+      "severity": "High",
+      "category": "Access Control",
+      "file": "edgen-staking/src/stake/LayerEdgeStaking.sol",
+      "function": "_completeUnstake()",
+      "description": "In `_completeUnstake()`, when `isNative` is false, the function calls `stakingToken.transfer(userAddr, request.amount)` but the contract may not hold the WETH tokens because `_unstake()` never transfers tokens out of the contract. The contract's WETH balance is only reduced by the internal accounting, but the actual WETH remains in the contract, allowing the attacker to repeatedly complete unstake requests for the same amount.",
+      "attackPath": "1. Attacker stakes 1000 WETH. 2. Attacker calls `unstake(1000)`, which queues an unstake request but does not transfer tokens. 3. After 7 days, attacker calls `completeUnstake(0)` and receives 1000 WETH. 4. The contract's WETH balance is reduced by 1000, but the attacker's `balance` is also reduced. 5. Attacker can repeat steps 2-4 if the contract still holds WETH from other users, draining the contract.",
+      "impact": "Loss of funds: the contract can be drained of all WETH by repeatedly unstaking the same amount, leading to insolvency for other stakers.",
+      "recommendation": "In `_unstake()`, transfer the tokens to the contract immediately, or in `_completeUnstake()`, ensure the contract holds sufficient WETH balance before transferring."
+    },
+    {
+      "title": "Unauthorized interest claim via native ETH without WETH approval",
+      "severity": "High",
+      "category": "Access Control",
+      "file": "edgen-staking/src/stake/LayerEdgeStaking.sol",
+      "function": "claimInterestNative()",
+      "description": "The `claimInterestNative()` function calls `IWETH(address(stakingToken)).withdraw(claimable)` to unwrap WETH to ETH, but the WETH contract's `withdraw()` function burns WETH from `msg.sender` (the caller), not from the staking contract. The staking contract never holds the WETH tokens, yet it reduces `rewardsReserve` and transfers ETH to the attacker, allowing the attacker to claim rewards without the contract having the corresponding WETH.",
+      "attackPath": "1. Attacker stakes 1 ETH via `stakeNative()` (which doesn't transfer WETH to contract). 2. Attacker calls `claimInterestNative()` to claim rewards. 3. The contract reduces `rewardsReserve` and calls `IWETH.withdraw()`, which burns WETH from the attacker's balance (not the contract's). 4. The contract sends ETH to the attacker, draining the contract's ETH balance.",
+      "impact": "Loss of funds: the contract's ETH balance can be drained by attackers claiming rewards without the contract holding the corresponding WETH, leading to insolvency.",
+      "recommendation": "Ensure the contract holds the WETH tokens before allowing native claims, or transfer WETH from the user to the contract during staking."
+    },
+    {
+      "title": "Unauthorized compounding without WETH transfer",
+      "severity": "High",
+      "category": "Access Control",
+      "file": "edgen-staking/src/stake/LayerEdgeStaking.sol",
+      "function": "compoundInterest()",
+      "description": "The `compoundInterest()` function adds `claimable` interest to the user's staked balance and reduces `rewardsReserve`, but it never transfers any tokens. An attacker can compound interest on a phantom balance (created via `stakeNative()` without actual WETH transfer) to inflate their staked balance, then later claim rewards or unstake based on the inflated balance.",
+      "attackPath": "1. Attacker calls `stakeNative()` with 1 ETH, which creates a phantom balance. 2. Attacker calls `compoundInterest()` to add interest to their balance. 3. The attacker's balance increases without any token movement. 4. Attacker can then call `unstake()` and `completeUnstake()` to drain real WETH from the contract.",
+      "impact": "Loss of funds: the contract's WETH and ETH balances can be drained by attackers compounding phantom stakes, leading to insolvency.",
+      "recommendation": "Ensure the contract holds the staked tokens before allowing compounding, or transfer tokens during staking."
+    },
+    {
+      "title": "Interest calculation divides by 100 after APY multiplication, causing massive underpayment",
+      "severity": "High",
+      "category": "Accounting/Rounding",
+      "file": "edgen-staking/src/stake/LayerEdgeStaking.sol",
+      "function": "calculateUnclaimedInterest()",
+      "description": "In `calculateUnclaimedInterest()`, the formula `(user.balance * apy * (periodEnd - periodStart)) / (SECONDS_IN_YEAR * PRECISION) / 100` divides by an extra 100. Since APY rates are already stored as percentages multiplied by PRECISION (e.g., 50 * 1e18 for 50%), the `/100` reduces the interest by a factor of 100, paying users only 1% of what they are owed.",
+      "attackPath": "Any user stakes tokens and waits for any time period. When they call `claimInterest()` or `compoundInterest()`, the calculated interest is 100x less than the correct amount. The attacker can repeatedly stake/unstake to accumulate this underpaid interest.",
+      "impact": "Users receive only 1% of their entitled rewards; the protocol effectively steals 99% of staking rewards from all users. Massive accounting error.",
+      "recommendation": "Remove the `/100` from the interest calculation formula in `calculateUnclaimedInterest()`."
+    },
+    {
+      "title": "Cross-function reentrancy via WETH withdraw in completeUnstakeNative()",
+      "severity": "High",
+      "category": "Reentrancy",
+      "file": "edgen-staking/src/stake/LayerEdgeStaking.sol",
+      "function": "_completeUnstake()",
+      "description": "In _completeUnstake(), the external call to IWETH.withdraw() followed by a low-level ETH transfer to the user occurs after the request.completed flag is set, but before any state update that would prevent reentrancy into other functions like unstake() or claimInterest(). The ReentrancyGuard only prevents reentrancy into the same function, not cross-function reentrancy. An attacker can reenter via the ETH transfer callback to call unstake() or claimInterest() with stale state.",
+      "attackPath": "1. Attacker stakes tokens and queues an unstake request. 2. After UNSTAKE_WINDOW, attacker calls completeUnstakeNative(). 3. The ETH transfer triggers a receive() fallback in attacker's contract. 4. In the fallback, attacker calls unstake() again (or claimInterest()) which uses stale user.balance or interestEarned values. 5. Attacker drains more funds than entitled.",
+      "impact": "Loss of funds due to double-claiming rewards or double-unstaking, leading to insolvency of the rewards reserve.",
+      "recommendation": "Apply the checks-effects-interactions pattern: update all state (set request.completed, reduce user.balance, etc.) before making the external ETH transfer. Alternatively, use a reentrancy guard that covers all mutative functions."
+    },
+    {
+      "title": "Cross-function reentrancy via WETH withdraw in claimInterestNative()",
+      "severity": "High",
+      "category": "Reentrancy",
+      "file": "edgen-staking/src/stake/LayerEdgeStaking.sol",
+      "function": "_claimInterest()",
+      "description": "In _claimInterest(), the external call to IWETH.withdraw() followed by an ETH transfer to the user occurs after rewardsReserve is decremented and user.interestEarned is set to zero, but before the user's balance or other state is updated. The ETH transfer can reenter into stake() or compoundInterest(), which read stale totalStaked or user.balance values. This violates the checks-effects-interactions pattern.",
+      "attackPath": "1. Attacker stakes tokens and accrues interest. 2. Attacker calls claimInterestNative(). 3. The ETH transfer triggers a receive() in attacker's contract. 4. In the fallback, attacker calls stake() with the received ETH, which uses stale totalStaked and user.balance. 5. Attacker can manipulate tier calculations or inflate staked amounts.",
+      "impact": "Wrong accounting of totalStaked and user balances, potentially allowing tier manipulation or double-counting of rewards.",
+      "recommendation": "Move all state updates (user.interestEarned = 0, rewardsReserve -= claimable, user.lastClaimTime) before the external ETH transfer. Consider using a reentrancy guard that covers all state-changing functions."
+    },
+    {
+      "title": "Unbounded loop in _checkBoundariesAndRecord can cause DoS",
+      "severity": "High",
+      "category": "Denial of Service",
+      "file": "edgen-staking/src/stake/LayerEdgeStaking.sol",
+      "function": "_checkBoundariesAndRecord()",
+      "description": "When stakerCountInTree changes, _checkBoundariesAndRecord() iterates over all ranks between old and new tier boundaries. With up to 100M users, this loop can exceed block gas limit, freezing stake/unstake operations for all users.",
+      "attackPath": "An attacker stakes many times to increase stakerCountInTree, then unstakes to trigger boundary recalculation. The loop over thousands of ranks causes out-of-gas revert, blocking all subsequent stake/unstake/claim calls.",
+      "impact": "Complete denial of service for all staking operations; funds stuck in contract; no withdrawals possible.",
+      "recommendation": "Replace iterative boundary updates with lazy tier recalculation on-demand per user, or limit the number of updates per transaction."
+    },
+    {
+      "title": "rewardsReserve not updated on stake, allowing double-counting of rewards",
+      "severity": "High",
+      "category": "Double Counting",
+      "file": "edgen-staking/src/stake/LayerEdgeStaking.sol",
+      "function": "_stake()",
+      "description": "When a user stakes tokens, `totalStaked` increases but `rewardsReserve` is not increased. The staked tokens are held by the contract and could be used as rewards, but the reserve accounting ignores them. This means `rewardsReserve` can be less than actual available tokens, but also when compounding, the reserve is decremented while the staked balance increases, creating a mismatch.",
+      "attackPath": "An attacker stakes a large amount, then compounds repeatedly. Each compound reduces `rewardsReserve` but the staked tokens remain in the contract. Eventually `rewardsReserve` can be drained below zero (underflow in unchecked block? No, it uses checked math so it will revert). But more critically, the reserve accounting is inconsistent with actual holdings.",
+      "impact": "Accounting mismatch between `rewardsReserve` and actual token holdings; potential denial of service when claiming rewards if reserve is too low, or insolvency if reserve is overstated.",
+      "recommendation": "Track staked tokens separately from reward tokens. Do not use `rewardsReserve` as the sole source of truth for available rewards; instead track actual token balance minus totalStaked."
+    },
+    {
+      "title": "FenwickTree.update() with negative delta can underflow to huge values",
+      "severity": "High",
+      "category": "Accounting/Rounding",
+      "file": "edgen-staking/src/library/FenwickTree.sol",
+      "function": "update()",
+      "description": "The `update()` function casts `int256(delta)` and adds it to `self.data[index]` which is `uint256`. If `delta` is negative and its absolute value exceeds the current stored value, the result underflows to a very large number (since Solidity 0.8+ has checked math, this will revert). However, the function is called with `-1` in `_unstake()`, and if the tree data is 0, it will revert, blocking unstaking.",
+      "attackPath": "If a user's joinId has been removed from the tree (e.g., due to balance dropping below minStake), calling `_unstake()` again will try to update the tree with -1 when the value is already 0, causing a revert. This prevents the user from unstaking their remaining balance.",
+      "impact": "Users with balances below minStakeAmount who already had their tree entry removed cannot unstake their remaining tokens, locking funds permanently.",
+      "recommendation": "In `_unstake()`, check if the user is still in the tree (`!user.outOfTree`) before attempting to update the tree. Only update the tree if the user is still tracked."
+    },
+    {
+      "title": "getTierCountForStakerCount() can return tier1Count > stakerCount, causing rank overflow",
+      "severity": "Medium",
+      "category": "Accounting/Rounding",
+      "file": "edgen-staking/src/stake/LayerEdgeStaking.sol",
+      "function": "getTierCountForStakerCount()",
+      "description": "When `stakerCount` is 1, `tier1Count` is set to 1 (due to the minimum-1 logic). Then `remainingAfterTier1` becomes 0, but `calculatedTier2Count` is also 0, so `tier2Count` is set to 1. This makes `tier1Count + tier2Count = 2`, which exceeds `stakerCount` of 1. This causes `_computeTierByRank()` to return Tier3 for rank 1, incorrectly classifying the only staker.",
+      "attackPath": "When there is exactly 1 staker in the tree, that staker should be Tier1 but is incorrectly assigned Tier3. The staker receives lower APY than entitled.",
+      "impact": "Single staker gets Tier3 APY instead of Tier1, losing rewards. Tier boundary logic is broken for small staker counts.",
+      "recommendation": "In `getTierCountForStakerCount()`, ensure `tier1Count + tier2Count <= stakerCount`. Cap `tier2Count` to `stakerCount - tier1Count` after the minimum logic."
+    },
+    {
+      "title": "Front-running opportunity in stake() due to tier rank manipulation",
+      "severity": "Medium",
+      "category": "Front-Running",
+      "file": "edgen-staking/src/stake/LayerEdgeStaking.sol",
+      "function": "_stake()",
+      "description": "The _stake() function assigns a joinId sequentially (nextJoinId++) and updates the Fenwick tree to determine the user's rank and tier. An attacker can monitor the mempool for a stake transaction that would push them into a higher tier (e.g., Tier 1) and front-run it with their own stake to secure a better rank. Since tier boundaries are based on stakerCountInTree and rank, a front-runner can steal a higher APY tier from the victim.",
+      "attackPath": "1. Victim submits a stake transaction that would make them the 20th staker (Tier 1 boundary). 2. Attacker sees this in the mempool and submits a stake with higher gas to be mined first. 3. Attacker becomes the 20th staker (Tier 1), pushing victim to 21st (Tier 2). 4. Victim gets lower APY than intended.",
+      "impact": "Loss of expected rewards for the victim due to tier manipulation; attacker gains higher APY at victim's expense.",
+      "recommendation": "Consider using a commit-reveal scheme or a time-weighted ranking to reduce front-running incentives. Alternatively, implement a minimum delay between stake and tier assignment."
+    },
+    {
+      "title": "Same-block manipulation via compoundInterest() and unstake()",
+      "severity": "Medium",
+      "category": "Same-Block Manipulation",
+      "file": "edgen-staking/src/stake/LayerEdgeStaking.sol",
+      "function": "compoundInterest()",
+      "description": "The compoundInterest() function adds interestEarned to user.balance and increases totalStaked, but does not update the Fenwick tree or user's joinId. An attacker can compound interest to increase their balance, then immediately unstake() in the same block (or same transaction via a contract) to withdraw the compounded amount plus original stake, effectively claiming rewards without waiting for the unstake window. The unstake() function only checks user.balance, not the source of the balance increase.",
+      "attackPath": "1. Attacker stakes tokens and accrues interest. 2. Attacker calls compoundInterest() to add interest to balance. 3. In the same transaction, attacker calls unstake() for the full balance (original + compounded). 4. Attacker queues an unstake request and later completes it, withdrawing both principal and rewards without the 7-day wait for rewards.",
+      "impact": "Attacker can bypass the unstake window for rewards, effectively getting immediate liquidity on rewards while other users must wait.",
+      "recommendation": "Add a cooldown period after compounding before the compounded amount can be unstaked. Alternatively, track the compounded amount separately and apply the unstake window to it."
+    },
+    {
+      "title": "Unbounded loop in calculateUnclaimedInterest can cause DoS",
+      "severity": "High",
+      "category": "Denial of Service",
+      "file": "edgen-staking/src/stake/LayerEdgeStaking.sol",
+      "function": "calculateUnclaimedInterest()",
+      "description": "The function iterates over the entire stakerTierHistory array for a user. An attacker can inflate their own tier history by repeatedly staking/unstaking small amounts, creating thousands of TierEvent entries. This loop is called in _updateInterest() on every stake/unstake/claim, causing out-of-gas reverts.",
+      "attackPath": "Attacker calls stake() and unstake() repeatedly to push many TierEvent entries. When any function calls _updateInterest() for that user, the loop over the long history reverts with out-of-gas, blocking the attacker's own funds and potentially affecting admin operations.",
+      "impact": "User's funds become permanently stuck; contract operations for that user are frozen.",
+      "recommendation": "Cap the number of TierEvent entries per user, or use a more efficient interest calculation that doesn't iterate over all historical events."
+    },
+    {
+      "title": "Missing nonce and deadline in unstake request allows replay",
+      "severity": "High",
+      "category": "Replay Attack",
+      "file": "LayerEdgeStaking.sol",
+      "function": "_completeUnstake()",
+      "description": "The `_completeUnstake()` function does not include a nonce, deadline, or chain-specific identifier in the unstake request. An attacker can replay the same unstake request across different chains or contracts if the same user address exists, causing double withdrawal of funds.",
+      "attackPath": "1. User creates an unstake request on chain A. 2. Attacker observes the request data. 3. Attacker calls `completeUnstake()` on chain B (or a different contract with same logic) using the same index, completing the request again before the user claims it.",
+      "impact": "Loss of funds due to double withdrawal of staked tokens across chains or contracts.",
+      "recommendation": "Include a nonce, deadline, and chain ID (via `block.chainid`) in the unstake request struct, and validate them during completion."
+    }
+  ]
+}

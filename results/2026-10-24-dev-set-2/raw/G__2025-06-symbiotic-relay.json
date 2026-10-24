@@ -1,0 +1,170 @@
+{
+  "contest": "2025-06-symbiotic-relay",
+  "hypotheses": [
+    {
+      "title": "Ed25519Delegation.authorize() can be called by anyone",
+      "severity": "High",
+      "category": "Access Control",
+      "file": "Ed25519DelegationEIP7702.sol",
+      "function": "authorize()",
+      "description": "The `authorize()` function requires `msg.sender == address(this)`, which is always false because `msg.sender` is an external caller, not the contract itself. This means the function is uncallable, making it impossible to set the authorized public key. The contract is effectively bricked from the start.",
+      "attackPath": "No exploit needed; the function is permanently disabled by its own check.",
+      "impact": "The delegation contract cannot be initialized, making it unusable for its intended purpose.",
+      "recommendation": "Change the check to `msg.sender == tx.origin` or use a different access control mechanism."
+    },
+    {
+      "title": "Vault.setDelegator() and setSlasher() lack access control",
+      "severity": "High",
+      "category": "Access Control",
+      "file": "Vault.sol",
+      "function": "setDelegator()",
+      "description": "`setDelegator()` and `setSlasher()` are public and have no role-based access control. They only check that the delegator/slasher has not been initialized yet. An untrusted caller can call these functions first, setting arbitrary addresses and permanently locking the vault's configuration.",
+      "attackPath": "1. Attacker calls `setDelegator()` with a malicious delegator address. 2. Attacker calls `setSlasher()` with a malicious slasher address. 3. The vault is now permanently configured with attacker-controlled components.",
+      "impact": "Attacker can set a delegator that reports zero stake or a slasher that never slashes, leading to incorrect accounting and potential loss of funds.",
+      "recommendation": "Add `onlyRole(DEFAULT_ADMIN_ROLE)` or similar access control to both functions."
+    },
+    {
+      "title": "Vault._migrate() reverts, blocking all upgrades",
+      "severity": "High",
+      "category": "Access Control",
+      "file": "Vault.sol",
+      "function": "_migrate()",
+      "description": "The `_migrate()` function in Vault.sol unconditionally calls `revert()`. This means any attempt to upgrade the vault via the factory's `migrate()` function will fail. The vault is permanently stuck at its initial version.",
+      "attackPath": "No exploit needed; the function is intentionally broken. Any migration attempt will revert.",
+      "impact": "The vault cannot be upgraded to fix bugs or add features, making it a permanent liability.",
+      "recommendation": "Implement proper migration logic or remove the function if migration is not intended."
+    },
+    {
+      "title": "VaultTokenized._update() can be called by anyone",
+      "severity": "High",
+      "category": "Access Control",
+      "file": "VaultTokenized.sol",
+      "function": "_update()",
+      "description": "The `_update()` function is public and has no access control. It directly modifies `_activeShares` and `_activeSharesOf` checkpoints. An untrusted caller can call this function to arbitrarily inflate or deflate share balances, bypassing the deposit/withdraw logic.",
+      "attackPath": "1. Attacker calls `_update(address(0), attackerAddress, largeAmount)` to mint shares. 2. Attacker calls `_update(attackerAddress, address(0), largeAmount)` to burn shares. 3. Attacker can manipulate share supply and individual balances at will.",
+      "impact": "Attacker can mint unlimited shares, drain the vault, and cause complete loss of funds for all depositors.",
+      "recommendation": "Add access control (e.g., `onlyRole(DEFAULT_ADMIN_ROLE)`) or make the function internal."
+    },
+    {
+      "title": "First-depositor inflation attack via zero initial shares",
+      "severity": "High",
+      "category": "Accounting/Rounding",
+      "file": "Vault.sol",
+      "function": "deposit()",
+      "description": "When `activeShares()` is zero, `previewDeposit` returns `depositedAmount` because `totalShares + 1` and `totalAssets + 1` produce a 1:1 ratio. An attacker can front-run the first deposit with a tiny amount (e.g. 1 wei) to mint 1 share, then donate a large asset amount to inflate the share price. Subsequent depositors receive near-zero shares for their assets.",
+      "attackPath": "1. Attacker calls `deposit()` with 1 wei of collateral → mints 1 share. 2. Attacker transfers a large amount of collateral directly to the vault (donation). 3. Next user deposits X assets → `previewDeposit` computes shares as `X * (1 + 1) / (donated + 1 + 1)` ≈ 0 shares. Attacker can later redeem the single share for almost all vault assets.",
+      "impact": "First depositor can steal nearly all funds from subsequent depositors through share-price manipulation.",
+      "recommendation": "Mint a fixed number of dead shares (e.g. 1e9) to the zero address on first deposit, or require a minimum initial deposit that makes inflation economically unviable."
+    },
+    {
+      "title": "Ed25519Delegation.transact lacks nonce in signed message allowing replay",
+      "severity": "High",
+      "category": "Missing nonce in signed data",
+      "file": "Ed25519DelegationEIP7702.sol",
+      "function": "transact()",
+      "description": "The `transact` function verifies an Ed25519 signature over only the `data` (calldata) of the transaction. The contract has a `nonce` state variable, but it is never incremented or included in the signed message. This allows the same signed transaction to be replayed multiple times.",
+      "attackPath": "1. An authorized signer signs a transaction (e.g., a token transfer) with their Ed25519 key. 2. An attacker observes this signed transaction on-chain. 3. The attacker calls `transact()` again with the exact same `to`, `data`, `value`, `r`, and `s` parameters. 4. The signature verification passes again because the message is identical, and the transaction is executed a second time.",
+      "impact": "An attacker can replay authorized transactions, leading to repeated transfers of funds or repeated execution of arbitrary actions, draining the account's assets.",
+      "recommendation": "Include the `nonce` in the signed message and increment it after each successful transaction. Also, consider including the chain ID and contract address to prevent cross-chain and cross-contract replay."
+    },
+    {
+      "title": "Stale price used in reward distribution due to missing TWAP freshness check",
+      "severity": "High",
+      "category": "Price Oracle Manipulation",
+      "file": "DefaultStakerRewards.sol",
+      "function": "distributeRewards()",
+      "description": "The `distributeRewards()` function accepts a `timestamp` parameter and uses it to look up `activeSharesAt()` and `activeStakeAt()` from the vault. There is no check that the provided timestamp is recent (e.g., within the last epoch). An attacker can supply a very old timestamp where the stake/shares were low, then distribute a large reward amount, causing the per-share reward to be inflated for the current holders.",
+      "attackPath": "1. Attacker calls `distributeRewards()` with a timestamp far in the past when total active shares were very low. 2. The function caches `_activeSharesCache[timestamp]` as that low value. 3. Later, when users call `claimRewards()`, the reward amount is divided by the cached low share count, minting far more tokens per share than intended.",
+      "impact": "Inflated reward payouts, draining the reward token balance of the contract and causing insolvency for legitimate reward distributions.",
+      "recommendation": "Reject timestamps older than `Time.timestamp() - epochDuration` in `distributeRewards()` to ensure only recent stake snapshots are used."
+    },
+    {
+      "title": "Reward distribution can use zero activeShares leading to division by zero",
+      "severity": "High",
+      "category": "Price Oracle Manipulation",
+      "file": "DefaultStakerRewards.sol",
+      "function": "distributeRewards()",
+      "description": "In `distributeRewards()`, the code checks `if (activeShares_ == 0 || activeStake_ == 0) { revert InvalidRewardTimestamp(); }`. However, this check happens *after* the `_activeSharesCache[timestamp]` is set. If `activeShares_` is zero, the function reverts, but the cache is already written. A subsequent call with a different timestamp could read the stale cache? No, the cache is per-timestamp. The real issue: if `activeShares_` is zero, the reward distribution is reverted, but the `amount` has already been transferred to the contract. The tokens are stuck in the contract with no way to distribute them, effectively burning them.",
+      "attackPath": "1. Attacker calls `distributeRewards()` with a timestamp where `activeShares_ == 0`. 2. The reward tokens are transferred to the contract. 3. The function reverts, leaving the tokens in the contract. 4. The tokens are now stuck and cannot be recovered or distributed.",
+      "impact": "Permanent loss of reward tokens sent to the contract, causing financial loss for the rewarder.",
+      "recommendation": "Move the balance transfer after the share/stake checks, or use a pull pattern where tokens are only transferred on successful distribution."
+    },
+    {
+      "title": "VaultTokenized.deposit() emits Transfer event without minting",
+      "severity": "Medium",
+      "category": "Access Control",
+      "file": "VaultTokenized.sol",
+      "function": "deposit()",
+      "description": "The `deposit()` function calls `super.deposit()` which mints shares, then emits a `Transfer` event. However, the `_update()` function is public and can be called directly, allowing an attacker to emit fake `Transfer` events without actually minting shares. This can mislead off-chain indexers.",
+      "attackPath": "1. Attacker calls `_update(address(0), someAddress, amount)` to emit a `Transfer` event. 2. Off-chain indexers see the event and believe shares were minted, but no actual shares exist.",
+      "impact": "Off-chain systems can be tricked into thinking shares were minted, leading to incorrect accounting and potential loss of funds.",
+      "recommendation": "Make `_update()` internal or add access control to prevent unauthorized calls."
+    },
+    {
+      "title": "VaultTokenized.totalSupply() returns activeShares() but _update() can modify it",
+      "severity": "Medium",
+      "category": "Access Control",
+      "file": "VaultTokenized.sol",
+      "function": "totalSupply()",
+      "description": "`totalSupply()` returns `activeShares()`, which is modified by the public `_update()` function. An attacker can call `_update()` to arbitrarily change the total supply, breaking the ERC20 invariant that `totalSupply` reflects actual minted shares.",
+      "attackPath": "1. Attacker calls `_update(address(0), address(0), largeAmount)` to inflate total supply. 2. All subsequent share calculations are based on the inflated supply.",
+      "impact": "Incorrect total supply leads to wrong share-to-asset conversions, potentially allowing attackers to drain the vault.",
+      "recommendation": "Make `_update()` internal or add access control to prevent unauthorized calls."
+    },
+    {
+      "title": "Rounding favours user in deposit, not protocol",
+      "severity": "Medium",
+      "category": "Accounting/Rounding",
+      "file": "ERC4626Math.sol",
+      "function": "previewDeposit()",
+      "description": "`previewDeposit` uses `Math.Rounding.Floor` when converting assets to shares. This rounds down the number of shares minted, which favours the vault (fewer shares for the same assets). However, `previewWithdraw` uses `Math.Rounding.Ceil` for shares burned, which rounds up the shares taken from the user. The combination is correct per ERC4626, but `previewRedeem` uses `Math.Rounding.Floor` for assets returned, which favours the user (more assets per share). The protocol loses value on every redeem.",
+      "attackPath": "A user can repeatedly deposit and redeem to exploit the rounding asymmetry. Each cycle, the user gains a small amount of assets due to floor rounding on redeem, slowly draining the vault.",
+      "impact": "Over many transactions, the vault's asset balance drifts downward relative to share value, causing insolvency.",
+      "recommendation": "Change `previewRedeem` to use `Math.Rounding.Ceil` so that the protocol rounds in its favour on withdrawals."
+    },
+    {
+      "title": "No slippage/minimum-out check in Vault.withdraw() and Vault.redeem()",
+      "severity": "High",
+      "category": "Missing Slippage Protection",
+      "file": "Vault.sol",
+      "function": "withdraw()",
+      "description": "The `withdraw()` function accepts a `amount` parameter and computes `burnedShares` via `previewWithdraw()`. There is no user-specified minimum amount of assets to receive or maximum shares to burn. If the vault’s share price changes between transaction submission and execution (e.g., via a frontrunning deposit), the user may receive far fewer assets than expected.",
+      "attackPath": "1. User submits a `withdraw(claimer, 1000)` expecting to burn a certain number of shares. 2. Attacker frontruns with a large deposit, diluting the share price. 3. The user’s transaction executes, burning more shares than anticipated for the same 1000 assets, or receiving fewer assets if the price moved the other way.",
+      "impact": "Users can lose value due to unexpected share price changes, leading to loss of funds.",
+      "recommendation": "Add a `minAssetsOut` or `maxSharesIn` parameter and revert if the computed value is outside the user’s tolerance."
+    },
+    {
+      "title": "Reentrancy via ERC-777/ERC-4626 callback in deposit()",
+      "severity": "High",
+      "category": "Reentrancy",
+      "file": "Vault.sol",
+      "function": "deposit()",
+      "description": "The deposit() function uses safeTransferFrom() to pull collateral from the caller before updating internal accounting. If the collateral token is an ERC-777 or similar hook-enabled token, the transfer callback can reenter deposit() or withdraw() in the same transaction, manipulating share/stake checkpoints before the first call's state updates are committed.",
+      "attackPath": "1. Attacker deploys a malicious ERC-777 token as collateral. 2. Attacker calls deposit() which triggers the token's tokensToSend hook. 3. Inside the hook, attacker calls deposit() again with a different onBehalfOf, causing the second deposit to see stale activeStake/activeShares values. 4. The attacker extracts more shares than entitled, or inflates stake for a delegator.",
+      "impact": "Loss of funds: attacker can mint extra shares or inflate stake, draining the vault's underlying assets.",
+      "recommendation": "Move the safeTransferFrom() call after all state updates, or add a reentrancy guard (nonReentrant is already present but does not protect against cross-function reentrancy via the same modifier slot)."
+    },
+    {
+      "title": "Reentrancy via claim() and claimBatch() with external transfer before state update",
+      "severity": "High",
+      "category": "Reentrancy",
+      "file": "Vault.sol",
+      "function": "claim()",
+      "description": "claim() calls _claim() which sets isWithdrawalsClaimed[epoch][msg.sender] = true, then performs a safeTransfer() of collateral. If the collateral token has a transfer hook, the callback can reenter claim() for a different epoch, and since isWithdrawalsClaimed for that epoch is not yet set, the attacker can claim the same withdrawal amount twice.",
+      "attackPath": "1. Attacker has pending withdrawals in two epochs. 2. Attacker calls claim() for epoch 1. 3. The safeTransfer() triggers a callback that calls claim() for epoch 2. 4. Both claims succeed, and the attacker receives double the intended amount.",
+      "impact": "Loss of funds: attacker can drain the vault by claiming the same withdrawal multiple times.",
+      "recommendation": "Move the safeTransfer() call before the state update, or use a reentrancy guard that prevents reentrancy across all claim functions."
+    },
+    {
+      "title": "Vault slashing can be bypassed by withdrawing to next epoch",
+      "severity": "High",
+      "category": "Slashing bypass",
+      "file": "Vault.sol",
+      "function": "onSlash()",
+      "description": "The `onSlash` function only slashes `activeStake` and `withdrawals[currentEpoch + 1]` when `captureEpoch == currentEpoch_`. A user can withdraw their funds, which moves them to `withdrawals[currentEpoch + 1]`. If a slash is requested with a `captureTimestamp` in the current epoch, the user's withdrawn funds in the next epoch are slashed. However, if the user withdraws and the slash is for a previous epoch (`captureEpoch == currentEpoch_ - 1`), the slash only affects `withdrawals[currentEpoch_]`, not the next epoch's withdrawals. A user can withdraw in the current epoch, moving funds to `withdrawals[currentEpoch_ + 1]`, and then a slash for the previous epoch will not affect these funds.",
+      "attackPath": "1. User has funds staked in epoch N. 2. User calls `withdraw()` in epoch N, moving funds to `withdrawals[N+1]`. 3. A slash is executed with `captureTimestamp` in epoch N-1. 4. The `onSlash` function slashes `withdrawals[N]` (which is empty) and `activeStake`, but not `withdrawals[N+1]`, so the user's withdrawn funds are safe.",
+      "impact": "Users can avoid slashing by withdrawing before a slash is executed, leading to unfair distribution of losses and potential insolvency of the vault.",
+      "recommendation": "Slash all withdrawals that were active at the capture timestamp, including those in future epochs."
+    }
+  ]
+}

@@ -1,0 +1,170 @@
+{
+  "contest": "2025-05-layeredge",
+  "hypotheses": [
+    {
+      "title": "Missing nonce in unstake request allows replay of completion",
+      "severity": "High",
+      "category": "Replay Attack",
+      "file": "edgen-staking/src/stake/LayerEdgeStaking.sol",
+      "function": "_completeUnstake()",
+      "description": "The `_completeUnstake()` function only checks `!request.completed` but does not use a nonce or signature. If a user has multiple unstake requests, an attacker could front-run or replay a completion call with the same index after the first completion, if the `completed` flag is not properly enforced due to a storage collision or reorg. However, the primary flaw is that there is no signed authorization or replay protection across chains/contracts for the unstake request itself; the request is stored on-chain but the completion can be called by anyone (not just the user) for any index, allowing a griefer to complete another user's unstake early if they know the index.",
+      "attackPath": "1. Victim calls `unstake(100)` which pushes `UnstakeRequest` at index 0. 2. Attacker calls `completeUnstake(victim, 0, false)` immediately after 7 days, completing the request before victim. 3. The transfer goes to attacker? No, transfer goes to `userAddr` which is `msg.sender`? Actually `_completeUnstake` uses `userAddr` parameter from caller, but `msg.sender` is passed as `userAddr` in external functions. So attacker cannot steal funds, but can force premature completion, potentially causing loss of staking position or tier.",
+      "impact": "Griefing; forced completion of unstake requests by untrusted third parties, potentially causing user to lose staking tier or rewards.",
+      "recommendation": "Restrict `completeUnstake` and `completeUnstakeNative` to only be callable by the user who created the request, e.g., `require(msg.sender == userAddr)`."
+    },
+    {
+      "title": "Precision loss in interest calculation divides by 100 twice",
+      "severity": "Medium",
+      "category": "Rounding/Precision Loss",
+      "file": "edgen-staking/src/stake/LayerEdgeStaking.sol",
+      "function": "calculateUnclaimedInterest()",
+      "description": "The interest formula `(user.balance * apy * (periodEnd - periodStart)) / (SECONDS_IN_YEAR * PRECISION) / 100` divides by 100 after the main division, causing truncation of the intermediate result. Since `apy` is already a percentage (e.g., 50e18 for 50%), the extra `/100` reduces precision by up to 99%.",
+      "attackPath": "Any user claiming interest will receive less than mathematically correct amount due to double division. For example, with balance=1e18, apy=50e18, period=1 year: correct = 0.5e18, but code yields 0 due to truncation.",
+      "impact": "Systematic underpayment of rewards to all stakers, accumulating over time; rewards reserve will be overestimated, leading to insolvency.",
+      "recommendation": "Remove the extra `/100`; the `apy` is already in basis points (e.g., 50e18 = 50%), so formula should be `( balance * apy * duration ) / ( SECONDS_IN_YEAR * PRECISION )`."
+    },
+    {
+      "title": "FenwickTree update with -1 can underflow to huge values",
+      "severity": "High",
+      "category": "Integer overflow",
+      "file": "edgen-staking/src/library/FenwickTree.sol",
+      "function": "update()",
+      "description": "The `update` function casts `int256(self.data[index]) + delta` to `uint256`. If `self.data[index]` is 0 and delta is -1, the result is -1 which casts to `type(uint256).max`, corrupting the tree. In `_unstake`, `stakerTree.update(user.joinId, -1)` is called, and if the user's joinId was already removed or the tree state is inconsistent, this can corrupt the entire Fenwick tree structure.",
+      "attackPath": "1) User stakes and gets joinId. 2) User unstakes fully, tree updated with -1. 3) Due to reentrancy or logic error, user's joinId is updated again with -1 (e.g., if `outOfTree` flag is not set correctly). 4) Tree data becomes corrupted, causing incorrect rank queries and tier assignments for all users.",
+      "impact": "Complete corruption of the staking tier system, incorrect tier assignments, potential loss of rewards for all users.",
+      "recommendation": "Add a check in `update` to ensure `int256(self.data[index]) + delta >= 0` before casting to uint256, or use a safe subtraction pattern."
+    },
+    {
+      "title": "Read-only reentrancy in calculateUnclaimedInterest() during unstake",
+      "severity": "Medium",
+      "category": "Read-Only Reentrancy",
+      "file": "LayerEdgeStaking.sol",
+      "function": "calculateUnclaimedInterest()",
+      "description": "The `calculateUnclaimedInterest()` view function reads `stakerTierHistory[userAddr]` and `users[userAddr].lastClaimTime` to compute pending rewards. During `_unstake()`, `_updateInterest()` calls `calculateUnclaimedInterest()` after the user's balance has been reduced but before `stakerTree` is updated. If an external protocol queries this view function during the unstake transaction (e.g., via a callback), it would see inconsistent state where the user's balance is reduced but their tier history hasn't been updated yet.",
+      "attackPath": "1. Attacker stakes a large amount, achieving Tier 1. 2. Attacker calls `unstake()` with an amount that drops their balance below `minStakeAmount`. 3. Inside `_unstake()`, `_updateInterest()` calls `calculateUnclaimedInterest()`. 4. A protocol integrating with this contract queries `getUserInfo()` or `calculateUnclaimedInterest()` during the same transaction (e.g., via a flashloan callback). 5. The protocol sees the user's balance as reduced but their tier still as Tier 1, leading to incorrect APY calculations.",
+      "impact": "Incorrect accounting in external protocols that rely on this contract's view functions for reward calculations or collateral valuation.",
+      "recommendation": "Ensure state updates are consistent before calling `_updateInterest()`, or document that view functions may return stale data during state-modifying operations."
+    },
+    {
+      "title": "First-depositor donation attack via minStakeAmount bypass",
+      "severity": "High",
+      "category": "Accounting/Donation Attack",
+      "file": "edgen-staking/src/stake/LayerEdgeStaking.sol",
+      "function": "_stake()",
+      "description": "A user can stake exactly `minStakeAmount` (3000e18) to get into the tree and Tier1, then immediately unstake to below minStakeAmount, moving to Tier3 but remaining in the tree until the unstake completes. This allows manipulating tier boundaries and stealing rewards from legitimate stakers.",
+      "attackPath": "1) Attacker stakes 3000e18, gets joinId=1, Tier1. 2) Attacker unstakes 2999e18, balance drops below minStake, but unstake is queued for 7 days. 3) During those 7 days, attacker still has joinId=1 and rank=1, occupying Tier1 slot. 4) Attacker claims high Tier1 interest on remaining 1 wei balance. 5) After 7 days, completes unstake, moves out of tree.",
+      "impact": "Attacker can occupy top-tier slots with negligible stake, stealing high APY rewards from honest stakers and corrupting tier distribution.",
+      "recommendation": "Move user out of tree immediately upon unstake that drops balance below minStake, or require balance to stay above minStake to remain in tree."
+    },
+    {
+      "title": "Cross-contract reentrancy via WETH9.withdraw() in completeUnstakeNative()",
+      "severity": "High",
+      "category": "Reentrancy",
+      "file": "LayerEdgeStaking.sol",
+      "function": "_completeUnstake()",
+      "description": "In `_completeUnstake()`, the state update `request.completed = true` occurs before the external call to `IWETH.withdraw()` and the subsequent raw ETH transfer. The WETH9 contract's `withdraw()` function calls `payable(msg.sender).transfer(wad)`, which can trigger a fallback in the attacker's contract. This fallback can reenter `completeUnstake()` or `completeUnstakeNative()` with the same index before `request.completed` is set to true, allowing multiple withdrawals of the same unstake amount.",
+      "attackPath": "1. Attacker stakes tokens and queues an unstake request. 2. After the 7-day window, attacker calls `completeUnstakeNative(0)`. 3. The function sets `request.completed = true`, then calls `IWETH.withdraw()`. 4. WETH9's `withdraw()` sends ETH to the attacker, triggering their fallback. 5. The fallback calls `completeUnstakeNative(0)` again. 6. Since `request.completed` is already true, the second call reverts, but the attacker can instead call `completeUnstake(0)` (non-native) to drain the contract's ERC20 balance, as the request is marked completed but the ERC20 transfer path is separate.",
+      "impact": "Loss of funds: attacker can drain the contract's staking token balance by completing the same unstake request multiple times via different completion functions.",
+      "recommendation": "Move the `request.completed = true` state update after all external calls, or add a reentrancy guard that covers both `completeUnstake()` and `completeUnstakeNative()`."
+    },
+    {
+      "title": "Slippage and minimum-out parameters missing in stake/unstake",
+      "severity": "High",
+      "category": "Price & Oracle",
+      "file": "LayerEdgeStaking.sol",
+      "function": "stake()",
+      "description": "The `stake()` function accepts `amount` directly from the user without any slippage or minimum-out parameter. When staking native tokens via `stakeNative()`, the amount is `msg.value`. There is no check that the staked amount is within an acceptable range relative to an external price. If the staking token is a rebasing token or a token with a dynamic supply (e.g., stETH, aUSDC), the actual amount received after transfer may differ from the intended amount due to exchange rate changes. Additionally, the contract does not handle fee-on-transfer tokens; the `amount` parameter is assumed to be the exact amount transferred, but if the token takes a fee, the contract's balance change will be less than `amount`, leading to an inflated `user.balance` and `totalStaked` compared to actual tokens held.",
+      "attackPath": "[Detailed] 1. Attacker uses a token with a 1% transfer fee. 2. Attacker stakes 1000 tokens. 3. Contract receives 990 tokens but records 1000. 4. Attacker then claims interest based on 1000 balance, getting more rewards than deserved. 5. When attacker unstakes 1000, the contract only has 990 tokens, so the transfer of 1000 fails (reverts). 6. The attacker's funds are locked, and the contract's `totalStaked` is permanently inflated.",
+      "impact": "The contract can become insolvent if the staking token is fee-on-transfer or rebasing, leading to frozen user funds and incorrect reward distribution. This is a critical accounting error.",
+      "recommendation": "Check the actual balance change after `transferFrom` and use that as the staked amount. For native staking, consider using a wrapper that accounts for any conversion fees. Alternatively, explicitly reject fee-on-transfer tokens in the initializer."
+    },
+    {
+      "title": "Unbounded loop in _checkBoundariesAndRecord can cause DoS",
+      "severity": "High",
+      "category": "Denial of Service",
+      "file": "LayerEdgeStaking.sol",
+      "function": "_checkBoundariesAndRecord()",
+      "description": "When staker count changes, _checkBoundariesAndRecord() iterates over all ranks between old and new tier boundaries. If many users are added or removed at once (e.g., via multiple stakes/unstakes), the loop can iterate over thousands of entries, exceeding block gas limit and reverting the transaction.",
+      "attackPath": "An attacker can repeatedly stake and unstake small amounts to trigger boundary shifts, forcing the contract to loop over many ranks. Over time, the cumulative gas cost of these loops can make any stake/unstake transaction revert due to out-of-gas.",
+      "impact": "Permanent denial of service for all staking and unstaking operations, freezing user funds and preventing new stakes.",
+      "recommendation": "Replace the iterative loop with a lazy update mechanism that records tier changes only when a user's rank is queried, or limit the number of rank updates per transaction."
+    },
+    {
+      "title": "Rewards can be claimed twice by front-running depositRewards()",
+      "severity": "High",
+      "category": "Double-Claim / Race Condition",
+      "file": "edgen-staking/src/stake/LayerEdgeStaking.sol",
+      "function": "claimInterest()",
+      "description": "`claimInterest()` and `compoundInterest()` check `rewardsReserve >= claimable` at the moment of the call, but `rewardsReserve` is only increased by `depositRewards()`. An attacker can call `calculateUnclaimedInterest()` to compute a large pending reward, then front-run a `depositRewards()` transaction that tops up the reserve, and claim that reward before the deposit is processed. The reserve is credited after the deposit, so the attacker’s claim passes the check using the newly deposited funds, effectively claiming rewards that were not yet accounted for.",
+      "attackPath": "1. Attacker stakes a large amount and waits for time to pass, accruing high `interestEarned`. 2. Attacker monitors the mempool for a `depositRewards()` call that will increase `rewardsReserve` above their claimable amount. 3. Attacker submits `claimInterest()` with a higher gas price, front-running the deposit. 4. The claim succeeds because `rewardsReserve` is still low but the check passes if the deposit tx is mined after the claim. 5. The deposit then adds funds to the reserve, which are now insufficient for other users.",
+      "impact": "Attacker drains rewards that belong to other stakers, causing insolvency of the rewards pool and loss of funds for honest users.",
+      "recommendation": "Use a pull-based reward distribution that only allows claiming from a per-user accrued reward accumulator that is updated atomically with deposits, or use a checkpoint system that prevents claiming rewards that were not yet funded."
+    },
+    {
+      "title": "First deposit below minStake locks user out of tree permanently",
+      "severity": "Medium",
+      "category": "Wrong assumptions about state",
+      "file": "edgen-staking/src/stake/LayerEdgeStaking.sol",
+      "function": "_stake()",
+      "description": "If a user's first deposit is below `minStakeAmount`, they are marked `outOfTree = true` permanently. Even if they later add more funds to exceed the minimum, the `outOfTree` flag is never reset, so they remain Tier3 forever. The `isFirstDepositMoreThanMinStake` flag is only set on first deposit and never updated.",
+      "attackPath": "User stakes 100 tokens (below 3000 min). Later stakes 5000 tokens. The user is still `outOfTree` and can never enter the tier system, earning only Tier3 APY despite having a large stake.",
+      "impact": "Users are permanently locked out of higher APY tiers, causing loss of expected rewards and unfair treatment.",
+      "recommendation": "In `_stake()`, if a user is `outOfTree` but their total balance exceeds `minStakeAmount`, re-add them to the tree and reset `outOfTree = false`."
+    },
+    {
+      "title": "Same-block manipulation of tier boundaries via stake/unstake sandwich",
+      "severity": "Medium",
+      "category": "Same-Block Manipulation",
+      "file": "LayerEdgeStaking.sol",
+      "function": "_stake() and _unstake()",
+      "description": "An attacker can manipulate tier boundaries within a single block by staking and unstaking in sequence. Since `_checkBoundariesAndRecord()` recalculates tiers for all affected users when `stakerCountInTree` changes, an attacker can temporarily inflate or deflate the staker count to trigger tier changes for targeted users, then revert their own position.",
+      "attackPath": "1. Attacker identifies a user at the Tier 1/Tier 2 boundary. 2. In a single block, attacker stakes a large amount, increasing `stakerCountInTree` and pushing the boundary user into Tier 2. 3. The boundary user's tier is recalculated and recorded. 4. Attacker immediately unstakes, returning `stakerCountInTree` to its original value. 5. The boundary user's tier is recalculated again, potentially back to Tier 1. 6. The attacker's temporary stake causes unnecessary tier change events and potential reward miscalculations.",
+      "impact": "Griefing: attacker can cause unnecessary tier change events and reward recalculations for targeted users, potentially causing minor reward losses due to rounding errors.",
+      "recommendation": "Add a minimum staking duration or cooldown period before unstaking to prevent same-block manipulation."
+    },
+    {
+      "title": "FenwickTree.findByCumulativeFrequency returns index+1 even when freq is zero",
+      "severity": "Low",
+      "category": "Accounting/Edge Case",
+      "file": "edgen-staking/src/library/FenwickTree.sol",
+      "function": "findByCumulativeFrequency()",
+      "description": "When `freq` is 0, the function returns 1 (idx+1) instead of 0, because the loop never executes and idx remains 0. This can cause `_ findAndRecordTierChange` to access `stakerAddress[1]` incorrectly when no user should be selected.",
+      "attackPath": "If `stakerCountInTree` is 0 and `_checkBoundariesAndRecord` is called, `rank` could be 0, leading to `findByCumulativeFrequency(0)` returning 1, which may point to a stale or zero address.",
+      "impact": "Potential incorrect tier assignment or transaction revert when accessing `stakerAddress[1]` if that slot is uninitialized.",
+      "recommendation": "Add a check at the start of `findByCumulativeFrequency` to return 0 if `freq == 0`."
+    },
+    {
+      "title": "Missing access control on `initialize()` allows anyone to reinitialize",
+      "severity": "High",
+      "category": "Access Control",
+      "file": "LayerEdgeStaking.sol",
+      "function": "initialize()",
+      "description": "The `initialize()` function is protected only by the `initializer` modifier, which prevents reinitialization only if the contract has already been initialized. However, if the contract is deployed behind a UUPS proxy and the proxy's storage is not yet initialized, any untrusted caller can call `initialize()` to set the staking token, admin, and APY rates, effectively taking ownership of the proxy.",
+      "attackPath": "1. Attacker calls `initialize()` on the proxy before the legitimate deployer does. 2. Attacker sets `_stakingToken` to a malicious token and `_admin` to their own address. 3. Attacker becomes owner and can drain rewards, pause, upgrade, etc.",
+      "impact": "Complete loss of control and funds; attacker can steal all staked tokens and rewards.",
+      "recommendation": "Add a constructor in the implementation contract that calls `_disableInitializers()` (already present) and ensure the proxy is initialized atomically during deployment, or use a factory pattern that prevents front-running."
+    },
+    {
+      "title": "`_authorizeUpgrade()` onlyOwner allows owner to upgrade to malicious implementation",
+      "severity": "High",
+      "category": "Access Control",
+      "file": "LayerEdgeStaking.sol",
+      "function": "_authorizeUpgrade()",
+      "description": "The UUPS upgrade function `_authorizeUpgrade()` is protected only by `onlyOwner`. If the owner is compromised, an attacker can upgrade the implementation to a malicious contract that steals all funds. There is no timelock or governance check.",
+      "attackPath": "1. Attacker compromises owner key. 2. Deploys a malicious implementation that e.g. transfers all staked tokens to the attacker. 3. Calls `upgradeTo(maliciousImpl)`. 4. All staked tokens and rewards are stolen.",
+      "impact": "Complete loss of all staked tokens and rewards; contract insolvency.",
+      "recommendation": "Use a multisig or timelock for upgrade authority, or implement a two-step upgrade with a delay."
+    },
+    {
+      "title": "Initializer can be called by anyone to reinitialize contract",
+      "severity": "High",
+      "category": "Access Control",
+      "file": "LayerEdgeStaking.sol",
+      "function": "initialize()",
+      "description": "The `initialize()` function is protected only by the `initializer` modifier, but after a UUPS upgrade, the implementation contract’s storage is not used; the proxy’s storage is. However, the implementation contract itself can be initialized directly by an untrusted caller, setting its own storage and potentially selfdestructing or bricking the logic. Additionally, if the proxy’s `initialized` flag is somehow cleared (e.g., via a future upgrade bug), the function could be called again.",
+      "attackPath": "1. Attacker calls `initialize()` on the implementation contract address directly. 2. They set themselves as owner and change APY rates, minStakeAmount, etc. 3. The proxy remains unaffected, but the implementation is now poisoned.",
+      "impact": "Loss of trust in upgradeability; potential selfdestruct or storage corruption of the implementation contract.",
+      "recommendation": "Add a constructor that calls `_disableInitializers()` (already present) and consider adding a check that `_admin` is not `address(0)` or that `msg.sender == address(this)` to prevent direct initialization."
+    }
+  ]
+}

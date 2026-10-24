@@ -1,0 +1,170 @@
+{
+  "contest": "2025-01-peapods-finance",
+  "hypotheses": [
+    {
+      "title": "First-depositor inflation attack on AutoCompoundingPodLp",
+      "severity": "High",
+      "category": "share/asset rounding",
+      "file": "AutoCompoundingPodLp.sol",
+      "function": "_cbr()",
+      "description": "The vault uses `_cbr()` which returns `FACTOR` when `totalSupply() == 0`. An attacker can front-run the first deposit by depositing 1 wei of the underlying LP token, then inflating `totalAssets()` via a direct transfer of a large amount of the LP token to the contract. This makes the share price extremely high, causing subsequent depositors to receive near-zero shares and lose most of their assets.",
+      "attackPath": "1. Attacker calls `deposit(1, attacker)` to mint 1 share. 2. Attacker transfers a large amount of the underlying LP token directly to the contract, inflating `totalAssets()`. 3. Victim deposits a normal amount; `_convertToShares` uses the inflated `_cbr()`, minting only a tiny fraction of shares. 4. Attacker redeems their single share for a disproportionate amount of the underlying LP token, stealing most of the victim's deposit.",
+      "impact": "Loss of funds for depositors; attacker can extract nearly all deposited value from the vault.",
+      "recommendation": "Implement a minimum deposit amount or mint a fixed number of dead shares (e.g., 1e18) on first deposit to prevent share price manipulation."
+    },
+    {
+      "title": "Zero-amount deposit mints shares, inflating share price",
+      "severity": "High",
+      "category": "Price Manipulation",
+      "file": "AutoCompoundingPodLp.sol",
+      "function": "_deposit()",
+      "description": "The `_deposit()` function requires `_assets != 0` and `_shares != 0`, but both values are computed from user input before the check. An attacker can call `deposit(1 wei, …)` which passes, mints 1 share, and sets `_totalAssets` to 1. This makes `_cbr()` return `FACTOR * 1 / 1 = FACTOR`, enabling the attacker to later manipulate the conversion rate.",
+      "attackPath": "1. Attacker calls `deposit(1 wei, attacker)` → mints 1 share, `totalAssets = 1`. 2. Attacker calls `withdraw(1 wei, …)` → gets 1 wei back. The share count remains 1 and `totalAssets` becomes 0. 3. Next deposit by a legitimate user at a normal amount gets a distorted share ratio because `_cbr()` uses `totalAssets / totalSupply` which can be zero or near-zero, leading to massive share minting or asset theft.",
+      "impact": "Complete loss of funds for subsequent depositors; share price can be driven to zero or arbitrarily inflated, enabling attacker to drain the vault.",
+      "recommendation": "Enforce a minimum deposit amount (e.g. 1e6 wei) or use a virtual shares / assets scheme to prevent the first-deposit front-run."
+    },
+    {
+      "title": "Reentrancy via flash loan callback in removeLeverage workflow",
+      "severity": "High",
+      "category": "Reentrancy",
+      "file": "contracts/contracts/lvf/LeverageManager.sol",
+      "function": "removeLeverage()",
+      "description": "Same reentrancy vulnerability as `addLeverage()`. The `removeLeverage()` function uses the same `workflow(true)` modifier and makes an external flash loan call via `IFlashLoanSource(...).flash()`. The `callback()` function resets `_initialised` only after the callback completes, allowing re-entrance into `removeLeverage()` or `addLeverage()` during the flash loan callback.",
+      "attackPath": "1. Attacker calls `removeLeverage()` which sets `_initialised = true` and initiates a flash loan. 2. During the flash loan callback, the attacker re-enters `removeLverge()` or `addLeverage()` because `_initialised` is still `true`. 3. The attacker can manipulate collateral, borrow amounts, or repayments to extract value.",
+      "impact": "Loss of funds, manipulation of leverage positions, potential insolvency of positions.",
+      "recommendation": "Use OpenZeppelin's `ReentrancyGuard` or set `_initialised = false` before the external flash loan call."
+    },
+    {
+      "title": "`setLendingPair` can be called by owner to redirect existing positions to a malicious pair",
+      "severity": "High",
+      "category": "Trust / Privilege Escalation",
+      "file": "LeverageManagerAccessControl.sol",
+      "function": "setLendingPair()",
+      "description": "`setLendingPair()` is `onlyOwner` and updates the `lendingPairs` mapping. This mapping is used in `_initializePosition()` to determine the lending pair for a pod. However, existing positions store the lending pair in `positionProps` at creation time and are not updated. An owner could set a malicious lending pair for a pod, then when a new position is created, it uses the malicious pair. The owner could also front-run a user's `addLeverage()` to change the pair. This is a privilege escalation because the owner can control which lending pair new positions use, potentially stealing funds.",
+      "attackPath": "1. Owner sets a malicious lending pair for a popular pod via `setLendingPair()`. 2. User calls `initializePosition()` or `addLeverage()` with positionId=0. 3. The new position uses the malicious lending pair. 4. The malicious pair can be configured to steal collateral or mint unlimited debt.",
+      "impact": "Loss of user funds if the owner becomes malicious or is compromised.",
+      "recommendation": "Add a timelock or two-step ownership transfer for `setLendingPair()`, or require that the lending pair has been previously verified by the protocol."
+    },
+    {
+      "title": "Missing access control on `callback()` allows arbitrary flash loan callback execution",
+      "severity": "High",
+      "category": "Access Control",
+      "file": "LeverageManager.sol",
+      "function": "callback()",
+      "description": "The `callback()` function is only protected by the `workflow(false)` modifier, which checks the `_initialised` flag but does not verify that the caller is the legitimate flash loan source. Any untrusted caller can invoke `callback()` during an active workflow, potentially passing arbitrary `_userData` that decodes to a `LeverageFlashProps` with a `method` of `ADD` or `REMOVE`. This allows an attacker to trigger internal leverage logic with attacker-controlled parameters, including arbitrary `positionId`, `owner`, `pTknAmt`, and `pairedLpDesired`.",
+      "attackPath": "1. Attacker calls `addLeverage()` or `removeLeverage()` to set `_initialised = true`. 2. Before the legitimate flash loan callback arrives, attacker calls `callback()` with crafted `_userData` that decodes to a `LeverageFlashProps` with `method = FlashCallbackMethod.ADD` and arbitrary `positionId`, `owner`, `pTknAmt`, `pairedLpDesired`. 3. The function executes `_addLeveragePostCallback()`, which performs LP operations, transfers tokens, and borrows assets from the lending pair using the custodian. 4. Attacker can drain funds or manipulate positions.",
+      "impact": "Loss of funds: attacker can steal collateral or borrowed assets from any position, or cause insolvency by manipulating leverage parameters.",
+      "recommendation": "Add a check in `callback()` that `_msgSender() == _getFlashSource(_posProps.positionId)` before executing any logic, similar to the check in the existing code but placed before the `workflow(false)` modifier or within the function body."
+    },
+    {
+      "title": "`withdrawAssets()` allows owner to drain custodian of any token without position validation",
+      "severity": "High",
+      "category": "Access Control",
+      "file": "LeverageManager.sol",
+      "function": "withdrawAssets()",
+      "description": "The `withdrawAssets()` function only checks that the caller is the owner of the position NFT (`onlyPositionOwner`). It does not validate that the `_token` being withdrawn is actually part of the position's collateral or that the `_amount` is within the position's entitled balance. The `LeveragePositionCustodian.withdraw()` function is unrestricted (only `onlyOwner` which is the LeverageManager), so the position owner can withdraw any token held by the custodian, including tokens that belong to other positions or protocol fees.",
+      "attackPath": "1. Attacker acquires any position NFT (e.g., by minting a new position via `initializePosition`). 2. Attacker calls `withdrawAssets()` with `_token` set to a valuable token held in the custodian (e.g., the paired LP token or borrow token from another position). 3. The custodian transfers the full balance of that token to the attacker.",
+      "impact": "Loss of funds: attacker can steal all tokens from any custodian contract, draining collateral and assets from other positions.",
+      "recommendation": "Restrict `withdrawAssets()` to only allow withdrawal of the position's own collateral token (e.g., `_getAspTkn(_positionId)`) and enforce a maximum amount based on the position's collateral balance tracked in the lending pair."
+    },
+    {
+      "title": "Unbounded loop over user-controlled rewards tokens can DoS yield conversion",
+      "severity": "High",
+      "category": "Denial of Service",
+      "file": "contracts/contracts/AutoCompoundingPodLp.sol",
+      "function": "_processRewardsToPodLp()",
+      "description": "The `_processRewardsToPodLp()` function iterates over the entire `_tokens` array returned by `ITokenRewards.getAllRewardsTokens()`. An attacker can add many arbitrary reward tokens via the whitelist, causing the loop to exceed the block gas limit. This permanently blocks all deposits, withdrawals, mints, and redeems in the AutoCompoundingPodLp vault.",
+      "attackPath": "1. Attacker calls `RewardsWhitelist.toggleRewardsToken()` to whitelist many tokens (up to 12). 2. Each subsequent call to `deposit()`, `withdraw()`, `mint()`, or `redeem()` triggers `_processRewardsToPodLp()`, which loops over all reward tokens. 3. The loop consumes more gas than the block limit, making all vault operations impossible.",
+      "impact": "Complete denial of service for the AutoCompoundingPodLp vault. Users cannot deposit, withdraw, or redeem shares, effectively freezing all funds in the vault.",
+      "recommendation": "Cap the number of reward tokens that can be whitelisted, or implement a gas-efficient pagination mechanism that processes a limited number of tokens per transaction."
+    },
+    {
+      "title": "Unbounded loop over whitelisted vaults can DoS LendingAssetVault operations",
+      "severity": "High",
+      "category": "Denial of Service",
+      "file": "contracts/contracts/LendingAssetVault.sol",
+      "function": "_updateInterestAndMdInAllVaults()",
+      "description": "The `_updateInterestAndMdInAllVaults()` function iterates over the entire `_vaultWhitelistAry` array, calling `addInterest()` on each vault. An attacker can add many vaults to the whitelist (up to 20), causing the loop to exceed the block gas limit. This permanently blocks deposits, withdrawals, mints, and redeems in the LendingAssetVault.",
+      "attackPath": "1. Attacker calls `setVaultWhitelist()` to add many vaults (up to 20. 2. Each subsequent call to `deposit()`, `withdraw()`, `mint()`, or `redeem()` triggers `_updateInterestAndMdInAllVaults()`, which loops over all whitelisted vaults. 3. The loop consumes more gas than the block limit, making all vault operations impossible.",
+      "impact": "Complete denial of service for the LendingAssetVault. Users cannot deposit, withdraw, or redeem shares, effectively freezing all funds in the vault.",
+      "recommendation": "Reduce the maximum number of whitelisted vaults to a safe limit, or implement a gas-efficient pagination mechanism that processes a limited number of vaults per transaction."
+    },
+    {
+      "title": "`initializePosition()` can be called by anyone, minting arbitrary position NFTs",
+      "severity": "High",
+      "category": "Missing Access Control",
+      "file": "LeverageManager.sol",
+      "function": "initializePosition()",
+      "description": "`initializePosition()` is external and has no access control – any untrusted caller can invoke it for any pod, any recipient, and any override lending pair. This mints a new position NFT and creates a `LeveragePositionCustodian` owned by the LeverageManager. The caller can then use `addLeverage()` with positionId=0 to create another position, but the ability to mint arbitrary NFTs to any address can be used to spam or grief.",
+      "attackPath": "1. Attacker calls `initializePosition(pod, attacker_address, overridePair, false)` repeatedly. 2. Each call mints a new NFT and deploys a new custodian contract, consuming gas and bloating state. 3. No value is extracted but the protocol incurs cost and state bloat.",
+      "impact": "Gas griefing, state bloat, and potential denial-of-service by exhausting position ID space or custodian deployments.",
+      "recommendation": "Add a fee or access control (e.g. only allow calls from the LeverageFactory or whitelisted addresses) to prevent arbitrary position creation."
+    },
+    {
+      "title": "Missing slippage protection in addLeverage LP operation",
+      "severity": "High",
+      "category": "Slippage Missing",
+      "file": "contracts/contracts/lvf/LeverageManager.sol",
+      "function": "_lpAndStakeInPod()",
+      "description": "The `_lpAndStakeInPod()` function calls `indexUtils.addLPAndStake()` with a hardcoded `0` for the `_amountPairedLpTokenMin` parameter. This means the LP addition has no minimum paired token output, making it vulnerable to sandwich attacks that extract value from the user's paired LP tokens.",
+      "attackPath": "A user calls `addLeverage()` with a large `_pairedLpDesired`. A MEV bot sees the pending transaction, manipulates the UniV2 pool price, and front-runs the LP addition. The bot then back-runs to profit, causing the user to receive far fewer LP tokens than expected.",
+      "impact": "Users can lose a significant portion of their paired LP tokens due to MEV/sandwich attacks, resulting in direct financial loss.",
+      "recommendation": "Remove the hardcoded `0` and use the slippage parameter from `_config` (which is already passed) for the minimum paired token output in the `addLPAndStake` call."
+    },
+    {
+      "title": "Stale oracle price used when exchange rate not updated this block",
+      "severity": "High",
+      "category": "Price Staleness",
+      "file": "fraxlend/src/contracts/FraxlendPairCore.sol",
+      "function": "_updateExchangeRate()",
+      "description": "The `_updateExchangeRate()` function short-circuits and returns the cached `lowExchangeRate` and `highExchangeRate` if the exchange rate was already updated in the same block. If no external call triggers `_updateExchangeRate()` in a given block, the cached prices remain from the previous block and can become stale. The function does not enforce a maximum age for the cached exchange rate, so a price that is many blocks old can be used for borrowing, lending, and liquidation decisions.",
+      "attackPath": "An attacker monitors the chain and waits for a period when the on-chain oracle price has moved significantly but the cached exchange rate in the FraxlendPair has not been updated for several blocks. The attacker then calls `borrowAsset()` or `removeCollateral()` which uses the stale cached exchange rate to open an under-collateralized position or withdraw excess collateral at an outdated favorable rate.",
+      "impact": "Borrowers can open positions with artificially low collateral requirements or withdraw collateral that should be locked, leading to protocol insolvency and bad debt.",
+      "recommendation": "Add a staleness check in `_updateExchangeRate()` that reverts if `block.timestamp - _exchangeRateInfo.lastTimestamp > maxOracleDelay` (or a similar configurable threshold), forcing the caller to wait for a fresh oracle update."
+    },
+    {
+      "title": "Chainlink min/max answer bounds not enforced in Fraxlend dual oracle",
+      "severity": "High",
+      "category": "Stale Oracle",
+      "file": "DualOracleChainlinkUniV3.sol",
+      "function": "_getChainlinkPrice()",
+      "description": "The `_getChainlinkPrice()` function only checks for negative or stale data but does not validate that the Chainlink answer is within the allowed min/max range. Chainlink aggregators define `minAnswer` and `maxAnswer`; if the price goes outside these bounds, the aggregator clamps the answer, and the protocol will use an incorrect price without reverting.",
+      "attackPath": "1. A flash crash or manipulation pushes the actual asset price below the Chainlink aggregator's `minAnswer`. 2. The aggregator returns the clamped `minAnswer` value, which is higher than the real price. 3. Attacker borrows against collateral at an inflated price, extracting more value than the collateral is worth, leading to bad debt.",
+      "impact": "Protocol can become insolvent due to undercollateralized loans priced at clamped oracle values.",
+      "recommendation": "Add a check comparing the Chainlink answer against `minAnswer` and `maxAnswer` from the aggregator, reverting if the answer is outside the valid range."
+    },
+    {
+      "title": "Reentrancy via flash loan callback in addLeverage workflow",
+      "severity": "High",
+      "category": "Reentrancy",
+      "file": "contracts/contracts/lvf/LeverageManager.sol",
+      "function": "addLeverage()",
+      "description": "The `addLeverage()` function uses a `workflow(true)` modifier that sets `_initialised = true` before the external flash loan call, and `callback()` uses `workflow(false)` to reset it. However, the flash loan callback (`callback()`) can be re-entered by the attacker if the flash source is a malicious or compromised pool, because the state update (`_initialised = false`) happens only after the callback completes. The attacker can re-enter `addLeverage()` while `_initialised` is still `true`, bypassing the reentrancy guard.",
+      "attackPath": "1. Attacker deploys a malicious flash loan source that calls back into `addLeverage()` during the flash loan callback. 2. The first `addLeverage()` sets `_initialised = true` and calls `flash()`. 3. The malicious source calls `addLeverage()` again, which passes the `workflow(true)` check because `_initialised` is still `true`. 4. The attacker can manipulate state, drain funds, or create inconsistent position accounting.",
+      "impact": "Loss of funds, creation of inconsistent leverage positions, potential draining of protocol assets.",
+      "recommendation": "Use OpenZeppelin's `ReentrancyGuard` instead of the custom `workflow` modifier, or ensure the `_initialised` flag is set to `false` before the external call."
+    },
+    {
+      "title": "Read-Only Reentrancy in FraxlendPairCore Solvency Check",
+      "severity": "High",
+      "category": "Reentrancy",
+      "file": "fraxlend/src/contracts/FraxlendPairCore.sol",
+      "function": "borrowAsset()",
+      "description": "The `borrowAsset()` function uses the `isSolvent` modifier, which checks solvency AFTER executing the function body. The function calls `_borrowAsset()` which transfers assets to the receiver via `assetContract.safeTransfer()`. This external transfer can trigger a callback (e.g., ERC-777 tokensReceived hook) that re-enters `borrowAsset()` or other functions before the solvency check runs. The attacker can borrow more than allowed by manipulating state during the reentrancy.",
+      "attackPath": "1. Attacker deploys a contract that implements `tokensReceived()` hook. 2. Attacker calls `borrowAsset()` with a small amount of collateral. 3. The function transfers the borrowed asset to the attacker's contract, triggering the `tokensReceived()` hook. 4. In the hook, the attacker re-enters `borrowAsset()` to borrow more assets. 5. The solvency check only runs after the outer call completes, so the attacker can borrow beyond their collateral.",
+      "impact": "Loss of funds: an attacker can borrow more assets than their collateral allows, leading to protocol insolvency.",
+      "recommendation": "Move the solvency check before the external transfer in `_borrowAsset()`, or use a reentrancy guard on all state-modifying functions."
+    },
+    {
+      "title": "No chain ID or contract address in flash loan callback verification",
+      "severity": "High",
+      "category": "Cross-chain replay",
+      "file": "contracts/contracts/lvf/LeverageManager.sol",
+      "function": "callback()",
+      "description": "The `callback()` function only verifies that `_getFlashSource(_posProps.positionId) == _msgSender()`. It does not include any chain ID, nonce, or contract-specific identifier in the signed/encoded data. This allows replay of the same callback data across different chains or contracts if the flash source address matches.",
+      "attackPath": "An attacker captures a valid callback payload from one chain/contract deployment. They replay it on another chain where the same flash source address exists (e.g., via CREATE2 deterministic deployment), causing unauthorized leverage operations.",
+      "impact": "Unauthorized addition or removal of leverage positions, potentially draining collateral or creating bad debt.",
+      "recommendation": "Include `block.chainid` and `address(this)` in the encoded `LeverageFlashProps` data and verify them in `callback()`."
+    }
+  ]
+}
