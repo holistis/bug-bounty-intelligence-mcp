@@ -1,0 +1,532 @@
+{
+ "repo": "sherlock-audit/2025-02-yieldoor",
+ "outcome": "hypotheses",
+ "model": "openai/gpt-oss-120b (Together), nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter)",
+ "sources": [
+  "openai/gpt-oss-120b (Together)",
+  "nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter)"
+ ],
+ "coverage": {
+  "scopeFiles": 68,
+  "scopeBytes": 386579,
+  "analysedBytes": 103593,
+  "analysedPct": 27,
+  "chunksPlanned": 6,
+  "chunksAnalysed": 6,
+  "filesFull": 8,
+  "filesPartial": [],
+  "notAnalysedFiles": [
+   "yieldoor/lib/v3-core/contracts/UniswapV3Factory.sol",
+   "yieldoor/lib/v3-core/contracts/UniswapV3PoolDeployer.sol",
+   "yieldoor/lib/v3-core/contracts/libraries/BitMath.sol",
+   "yieldoor/lib/v3-core/contracts/libraries/FixedPoint96.sol",
+   "yieldoor/lib/v3-core/contracts/libraries/FullMath.sol",
+   "yieldoor/lib/v3-core/contracts/libraries/LiquidityMath.sol",
+   "yieldoor/lib/v3-core/contracts/libraries/LowGasSafeMath.sol",
+   "yieldoor/lib/v3-core/contracts/libraries/Oracle.sol",
+   "yieldoor/lib/v3-core/contracts/libraries/Position.sol",
+   "yieldoor/lib/v3-core/contracts/libraries/SafeCast.sol",
+   "yieldoor/lib/v3-core/contracts/libraries/SqrtPriceMath.sol",
+   "yieldoor/lib/v3-core/contracts/libraries/SwapMath.sol",
+   "yieldoor/lib/v3-core/contracts/libraries/Tick.sol",
+   "yieldoor/lib/v3-core/contracts/libraries/TickBitmap.sol",
+   "yieldoor/lib/v3-core/contracts/libraries/TickMath.sol",
+   "yieldoor/lib/v3-core/contracts/libraries/UnsafeMath.sol",
+   "yieldoor/lib/v3-periphery/contracts/NonfungiblePositionManager.sol",
+   "yieldoor/lib/v3-periphery/contracts/NonfungibleTokenPositionDescriptor.sol",
+   "yieldoor/lib/v3-periphery/contracts/SwapRouter.sol",
+   "yieldoor/lib/v3-periphery/contracts/V3Migrator.sol",
+   "yieldoor/lib/v3-periphery/contracts/base/BlockTimestamp.sol",
+   "yieldoor/lib/v3-periphery/contracts/base/ERC721Permit.sol",
+   "yieldoor/lib/v3-periphery/contracts/base/LiquidityManagement.sol",
+   "yieldoor/lib/v3-periphery/contracts/base/Multicall.sol",
+   "yieldoor/lib/v3-periphery/contracts/base/PeripheryImmutableState.sol",
+   "yieldoor/lib/v3-periphery/contracts/base/PeripheryPayments.sol",
+   "yieldoor/lib/v3-periphery/contracts/base/PeripheryPaymentsWithFee.sol",
+   "yieldoor/lib/v3-periphery/contracts/base/PeripheryValidation.sol",
+   "yieldoor/lib/v3-periphery/contracts/base/PoolInitializer.sol",
+   "yieldoor/lib/v3-periphery/contracts/base/SelfPermit.sol",
+   "yieldoor/lib/v3-periphery/contracts/examples/PairFlash.sol",
+   "yieldoor/lib/v3-periphery/contracts/lens/Quoter.sol",
+   "yieldoor/lib/v3-periphery/contracts/lens/QuoterV2.sol",
+   "yieldoor/lib/v3-periphery/contracts/lens/TickLens.sol",
+   "yieldoor/lib/v3-periphery/contracts/lens/UniswapInterfaceMulticall.sol",
+   "yieldoor/lib/v3-periphery/contracts/libraries/BytesLib.sol",
+   "yieldoor/lib/v3-periphery/contracts/libraries/CallbackValidation.sol",
+   "yieldoor/lib/v3-periphery/contracts/libraries/ChainId.sol",
+   "yieldoor/lib/v3-periphery/contracts/libraries/HexStrings.sol",
+   "yieldoor/lib/v3-periphery/contracts/libraries/LiquidityAmounts.sol",
+   "yieldoor/lib/v3-periphery/contracts/libraries/NFTDescriptor.sol",
+   "yieldoor/lib/v3-periphery/contracts/libraries/NFTSVG.sol",
+   "yieldoor/lib/v3-periphery/contracts/libraries/OracleLibrary.sol",
+   "yieldoor/lib/v3-periphery/contracts/libraries/Path.sol",
+   "yieldoor/lib/v3-periphery/contracts/libraries/PoolAddress.sol",
+   "yieldoor/lib/v3-periphery/contracts/libraries/PoolTicksCounter.sol",
+   "yieldoor/lib/v3-periphery/contracts/libraries/PositionKey.sol",
+   "yieldoor/lib/v3-periphery/contracts/libraries/PositionValue.sol",
+   "yieldoor/lib/v3-periphery/contracts/libraries/TokenRatioSortOrder.sol",
+   "yieldoor/src/LendingPool.sol",
+   "yieldoor/src/PriceFeed.sol",
+   "yieldoor/src/libraries/BytesLib.sol",
+   "yieldoor/src/libraries/FullMath.sol",
+   "yieldoor/src/libraries/InterestRateUtils.sol",
+   "yieldoor/src/libraries/LiquidityAmounts.sol",
+   "yieldoor/src/libraries/Path.sol",
+   "yieldoor/src/libraries/ReserveLogic.sol",
+   "yieldoor/src/libraries/TickMath.sol",
+   "yieldoor/src/types/DataTypes.sol",
+   "yieldoor/src/yToken.sol"
+  ],
+  "skipped": {
+   "tests": 55,
+   "mocks": 0,
+   "scripts": 0,
+   "vendor": 7,
+   "interfaces": 43,
+   "tooSmall": 0,
+   "tooLarge": 0,
+   "noLogic": 0,
+   "symlink": 0,
+   "unreadable": 0
+  },
+  "submodules": {
+   "declared": 4,
+   "fetched": [
+    "yieldoor/lib/v3-core",
+    "yieldoor/lib/v3-periphery"
+   ],
+   "failed": [],
+   "skipped": [
+    {
+     "path": "yieldoor/lib/forge-std",
+     "reason": "afhankelijkheid"
+    },
+    {
+     "path": "yieldoor/lib/openzeppelin-contracts",
+     "reason": "afhankelijkheid"
+    }
+   ]
+  },
+  "droppedHypotheses": 0,
+  "deadlineHit": false
+ },
+ "hypotheses": [
+  {
+   "title": "Dust left in protocol fee slot prevents full fee collection",
+   "severity": "Low",
+   "category": "ACCOUNTING",
+   "file": "UniswapV3Pool.sol",
+   "function": "collectProtocol()",
+   "description": "The `collectProtocol` function deliberately leaves one unit of fee in the `protocolFees` storage slot when the caller requests the full amount (`if (amount0 == protocolFees.token0) amount0--;`). This creates permanent “dust” that can never be withdrawn, resulting in a small but irreversible loss of protocol revenue over time.",
+   "attackPath": "1. An attacker (or any user) calls `collectProtocol` requesting the exact amount of accrued fees.  \n2. The function reduces the withdrawal amount by one token unit, leaving that unit in storage.  \n3. Repeating the call never clears the remaining unit, so the protocol permanently forfeits that token.",
+   "impact": "Accumulated dust can add up across many withdrawals, reducing the total fees the protocol can collect and marginally decreasing profitability for token holders.",
+   "recommendation": "Remove the special‑case subtraction or implement a safe “clear‑slot” pattern that does not retain dust (e.g., set the slot to zero after transfer).",
+   "confidence": 0.92
+  },
+  {
+   "title": "Unrestricted increaseObservationCardinalityNext can be abused for gas‑DoS",
+   "severity": "Medium",
+   "category": "LIVENESS",
+   "file": "UniswapV3Pool.sol",
+   "function": "increaseObservationCardinalityNext()",
+   "description": "The function is external, has no access control, and allows any caller to increase the observation array size. An attacker can repeatedly call it with a large value, causing the pool to store many observations, which makes every subsequent write (e.g., swaps, mints) consume excessive gas and potentially become unexecutable.",
+   "attackPath": "1. Attacker calls `increaseObservationCardinalityNext()` with a value close to the maximum allowed (65535). 2. The pool grows its observations array. 3. Every future interaction that writes an observation (mint, swap, flash) must process the larger array, causing gas usage to exceed block limits, effectively freezing the pool.",
+   "impact": "The pool becomes unusable; liquidity providers cannot add/remove liquidity or trade, leading to loss of fees and potential capital lock‑up.",
+   "recommendation": "Restrict the function to the pool’s factory owner or a timelocked governance role, and cap the maximum increase per call.",
+   "confidence": 0.9
+  },
+  {
+   "title": "Vault withdraw uses `safeTransferFrom` instead of `safeTransfer`, causing permanent fund lock",
+   "severity": "Low",
+   "category": "LIVENESS",
+   "file": "yieldoor/src/Vault.sol",
+   "function": "withdraw(uint256,uint256,uint256)",
+   "description": "The `withdraw` function attempts to move the underlying tokens from the Strategy contract to the user with `IERC20(token).safeTransferFrom(strategy, msg.sender, amount)`. This call requires the Strategy contract to have previously approved the Vault for the transferred amount, but the code never sets such an allowance. Consequently, every withdrawal reverts, effectively freezing user funds.",
+   "attackPath": "1. A user (or any external caller) invokes `withdraw` on the Vault.  \n2. After calculating the withdrawal amounts, the function reaches the `safeTransferFrom` call.  \n3. Because the Strategy has not granted an allowance to the Vault, the low‑level call returns `false`.  \n4. `safeTransferFrom` reverts with “TF”, causing the entire withdrawal transaction to fail.  \n5. Users cannot retrieve their deposited assets, resulting in a denial‑of‑service.",
+   "impact": "All user deposits become non‑withdrawable, leading to a complete loss of liquidity for users and a potential loss of trust in the protocol.",
+   "recommendation": "Replace the `safeTransferFrom` calls with `safeTransfer` (or have the Strategy explicitly approve the Vault for the required amounts before withdrawals). Ensure the token transfer direction matches the intended flow: the Strategy should transfer tokens to the Vault, after which the Vault can safely transfer them to the user.",
+   "confidence": 0.85
+  },
+  {
+   "title": "Minting liquidity to the zero address creates irrecoverable positions",
+   "severity": "Low",
+   "category": "LIVENESS",
+   "file": "UniswapV3Pool.sol",
+   "function": "mint()",
+   "description": "The `mint()` function does not validate that the `recipient` address is non‑zero. If a caller passes `address(0)`, a position is created owned by the zero address, which no one can later collect from, effectively locking the deposited tokens.",
+   "attackPath": "1. Attacker calls `mint()` with `recipient = address(0)` and supplies the required token amounts. 2. The pool mints a position owned by the zero address and transfers the tokens into the pool. 3. No one can later call `collect()` for that position, leaving the liquidity permanently locked.",
+   "impact": "A portion of the pool’s liquidity becomes permanently inaccessible, reducing total usable liquidity and fee accrual.",
+   "recommendation": "Add `require(recipient != address(0))` validation in `mint()`.",
+   "confidence": 0.8
+  },
+  {
+   "title": "Protocol fee rounding down due to integer division",
+   "severity": "Low",
+   "category": "ACCOUNTING",
+   "file": "UniswapV3Pool.sol",
+   "function": "swap()",
+   "description": "In the swap logic the protocol fee is calculated as `uint256 delta = step.feeAmount / cache.feeProtocol;`. Because Solidity integer division truncates toward zero, any remainder is discarded, causing the protocol to collect slightly less than the intended fraction of the swap fee.",
+   "attackPath": "1. An attacker performs a series of small swaps where `step.feeAmount` is not a multiple of `cache.feeProtocol`.  \n2. Each swap rounds the protocol fee down, leaving the remainder in the pool.  \n3. Over many swaps the uncollected fractions accumulate, reducing total protocol revenue.",
+   "impact": "Systematic under‑collection of protocol fees leads to revenue loss for the protocol and its stakeholders.",
+   "recommendation": "Use `FullMath.mulDivRoundingUp` (or similar) to compute the protocol fee with rounding up, ensuring the protocol receives at least its entitled share.",
+   "confidence": 0.78
+  },
+  {
+   "title": "Unrestricted pool initialization enables front‑run price manipulation",
+   "severity": "Medium",
+   "category": "SETTLEMENT",
+   "file": "UniswapV3Pool.sol",
+   "function": "initialize()",
+   "description": "The `initialize()` function is public and can be called by any external address before the pool is used. An attacker can initialize the pool with a malicious `sqrtPriceX96`, setting an extreme initial price that benefits the attacker when the first liquidity is added.",
+   "attackPath": "1. Attacker observes the pool address after deployment. 2. Before any legitimate user interacts, attacker calls `initialize()` with a manipulated `sqrtPriceX96`. 3. When the first liquidity provider adds liquidity, they do so at the attacker‑set price, allowing the attacker to arbitrage the price immediately after.",
+   "impact": "Early liquidity providers receive unfavorable rates, leading to immediate loss; the attacker can extract value via arbitrage.",
+   "recommendation": "Restrict `initialize()` to the pool’s factory (e.g., `onlyFactoryOwner`) or require a timelock/commit‑reveal scheme for the initial price.",
+   "confidence": 0.75
+  }
+ ],
+ "rawCount": 6,
+ "dropped": 0,
+ "durationMs": 338179,
+ "filesInScope": [
+  {
+   "rel": "yieldoor/lib/v3-core/contracts/NoDelegateCall.sol",
+   "bytes": 1079,
+   "score": 5
+  },
+  {
+   "rel": "yieldoor/lib/v3-core/contracts/UniswapV3Factory.sol",
+   "bytes": 2848,
+   "score": 4
+  },
+  {
+   "rel": "yieldoor/lib/v3-core/contracts/UniswapV3Pool.sol",
+   "bytes": 35501,
+   "score": 11
+  },
+  {
+   "rel": "yieldoor/lib/v3-core/contracts/UniswapV3PoolDeployer.sol",
+   "bytes": 1408,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-core/contracts/libraries/BitMath.sol",
+   "bytes": 2790,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-core/contracts/libraries/FixedPoint128.sol",
+   "bytes": 311,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-core/contracts/libraries/FixedPoint96.sol",
+   "bytes": 380,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-core/contracts/libraries/FullMath.sol",
+   "bytes": 5114,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-core/contracts/libraries/LiquidityMath.sol",
+   "bytes": 622,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-core/contracts/libraries/LowGasSafeMath.sol",
+   "bytes": 1696,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-core/contracts/libraries/Oracle.sol",
+   "bytes": 16408,
+   "score": 6
+  },
+  {
+   "rel": "yieldoor/lib/v3-core/contracts/libraries/Position.sol",
+   "bytes": 3575,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-core/contracts/libraries/SafeCast.sol",
+   "bytes": 1048,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-core/contracts/libraries/SqrtPriceMath.sol",
+   "bytes": 10774,
+   "score": 5
+  },
+  {
+   "rel": "yieldoor/lib/v3-core/contracts/libraries/SwapMath.sol",
+   "bytes": 4633,
+   "score": 4
+  },
+  {
+   "rel": "yieldoor/lib/v3-core/contracts/libraries/Tick.sol",
+   "bytes": 9513,
+   "score": 5
+  },
+  {
+   "rel": "yieldoor/lib/v3-core/contracts/libraries/TickBitmap.sol",
+   "bytes": 4112,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-core/contracts/libraries/TickMath.sol",
+   "bytes": 8638,
+   "score": 5
+  },
+  {
+   "rel": "yieldoor/lib/v3-core/contracts/libraries/TransferHelper.sol",
+   "bytes": 933,
+   "score": 7
+  },
+  {
+   "rel": "yieldoor/lib/v3-core/contracts/libraries/UnsafeMath.sol",
+   "bytes": 660,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/NonfungiblePositionManager.sol",
+   "bytes": 15128,
+   "score": 7
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/NonfungibleTokenPositionDescriptor.sol",
+   "bytes": 4933,
+   "score": 0
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/SwapRouter.sol",
+   "bytes": 9116,
+   "score": 5
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/V3Migrator.sol",
+   "bytes": 4015,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/base/BlockTimestamp.sol",
+   "bytes": 428,
+   "score": 0
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/base/ERC721Permit.sol",
+   "bytes": 3241,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/base/LiquidityManagement.sol",
+   "bytes": 3085,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/base/Multicall.sol",
+   "bytes": 964,
+   "score": 3
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/base/PeripheryImmutableState.sol",
+   "bytes": 574,
+   "score": 0
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/base/PeripheryPayments.sol",
+   "bytes": 2459,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/base/PeripheryPaymentsWithFee.sol",
+   "bytes": 1984,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/base/PeripheryValidation.sol",
+   "bytes": 297,
+   "score": 0
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/base/PoolInitializer.sol",
+   "bytes": 1182,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/base/SelfPermit.sol",
+   "bytes": 2003,
+   "score": 0
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/examples/PairFlash.sol",
+   "bytes": 5891,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/lens/Quoter.sol",
+   "bytes": 6597,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/lens/QuoterV2.sol",
+   "bytes": 10317,
+   "score": 3
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/lens/TickLens.sol",
+   "bytes": 1521,
+   "score": 0
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/lens/UniswapInterfaceMulticall.sol",
+   "bytes": 1300,
+   "score": 3
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/libraries/BytesLib.sol",
+   "bytes": 4200,
+   "score": 0
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/libraries/CallbackValidation.sol",
+   "bytes": 1471,
+   "score": 0
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/libraries/ChainId.sol",
+   "bytes": 357,
+   "score": 0
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/libraries/HexStrings.sol",
+   "bytes": 1212,
+   "score": 0
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/libraries/LiquidityAmounts.sol",
+   "bytes": 6815,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/libraries/NFTDescriptor.sol",
+   "bytes": 18328,
+   "score": 4
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/libraries/NFTSVG.sol",
+   "bytes": 19322,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/libraries/OracleLibrary.sol",
+   "bytes": 8266,
+   "score": 5
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/libraries/Path.sol",
+   "bytes": 2787,
+   "score": 0
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/libraries/PoolAddress.sol",
+   "bytes": 1820,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/libraries/PoolTicksCounter.sol",
+   "bytes": 4148,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/libraries/PositionKey.sol",
+   "bytes": 373,
+   "score": 0
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/libraries/PositionValue.sol",
+   "bytes": 7181,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/libraries/TokenRatioSortOrder.sol",
+   "bytes": 341,
+   "score": 0
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/libraries/TransferHelper.sol",
+   "bytes": 2538,
+   "score": 5
+  },
+  {
+   "rel": "yieldoor/src/LendingPool.sol",
+   "bytes": 16104,
+   "score": 8
+  },
+  {
+   "rel": "yieldoor/src/Leverager.sol",
+   "bytes": 28874,
+   "score": 9
+  },
+  {
+   "rel": "yieldoor/src/PriceFeed.sol",
+   "bytes": 2017,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/src/Strategy.sol",
+   "bytes": 25323,
+   "score": 9
+  },
+  {
+   "rel": "yieldoor/src/Vault.sol",
+   "bytes": 9037,
+   "score": 9
+  },
+  {
+   "rel": "yieldoor/src/libraries/BytesLib.sol",
+   "bytes": 4296,
+   "score": 0
+  },
+  {
+   "rel": "yieldoor/src/libraries/FullMath.sol",
+   "bytes": 5569,
+   "score": 0
+  },
+  {
+   "rel": "yieldoor/src/libraries/InterestRateUtils.sol",
+   "bytes": 4475,
+   "score": 0
+  },
+  {
+   "rel": "yieldoor/src/libraries/LiquidityAmounts.sol",
+   "bytes": 5855,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/src/libraries/Path.sol",
+   "bytes": 2713,
+   "score": 0
+  },
+  {
+   "rel": "yieldoor/src/libraries/ReserveLogic.sol",
+   "bytes": 7501,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/src/libraries/TickMath.sol",
+   "bytes": 4294,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/src/types/DataTypes.sol",
+   "bytes": 1929,
+   "score": 0
+  },
+  {
+   "rel": "yieldoor/src/yToken.sol",
+   "bytes": 2355,
+   "score": 4
+  }
+ ]
+}

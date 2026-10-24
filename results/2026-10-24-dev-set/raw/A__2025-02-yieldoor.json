@@ -1,0 +1,170 @@
+{
+ "contest": "2025-02-yieldoor",
+ "hypotheses": [
+  {
+   "title": "Incorrect variable used in withdraw() for token1 repayment",
+   "severity": "High",
+   "category": "Accounting / Typo",
+   "file": "Leverager.sol",
+   "function": "withdraw()",
+   "description": "In the `withdraw` function, when the borrowed denomination equals `up.token1`, the code mistakenly uses `amountOut0` instead of `amountOut1` to compute the repayment from withdrawn tokens. This results in an incorrect comparison, causing the user to repay less than owed and potentially steal the remaining tokens.",
+   "attackPath": "A position owner with denomination = token1 calls `withdraw`. They can craft the swap outputs such that `amountOut0` is large while `amountOut1` is small, causing the over-approval of repayment from `amountOut0` and under-repayment of debt. The borrower retains more tokens than entitled.",
+   "impact": "Loss of funds for the lending pool (insufficient repayment) and potential insolvency.",
+   "recommendation": "Replace `amountOut0` with `amountOut1` in the token1 branch."
+  },
+  {
+   "title": "Decimals bug in liquidatePosition() – missing 10** exponent",
+   "severity": "High",
+   "category": "Accounting / Decimals Mismatch",
+   "file": "Leverager.sol",
+   "function": "liquidatePosition()",
+   "description": "The calculation of `borrowedValue` uses `owedAmount * bPrice / ERC20(up.denomination).decimals()` instead of dividing by `10 ** decimals`. This severely miscalculates the USD value of the debt, causing incorrect protocol fee amounts and potentially allowing unfair liquidations.",
+   "attackPath": "An attacker (liquidator or borrower) can exploit the miscalculation to either overpay or underpay the protocol fee. For a denomination with low decimals (e.g., USDC, decimals=6), the divisor is 6 instead of 1e6, resulting in a vastly inflated borrowed value, which may incorrectly trigger or avoid liquidation fee calculations.",
+   "impact": "Incorrect liquidation fee distribution, potential loss of funds for the protocol or unfair liquidation terms.",
+   "recommendation": "Change to `owedAmount * bPrice / (10 ** ERC20(up.denomination).decimals())`."
+  },
+  {
+   "title": "Donation attack on Vault dilutes existing shareholders",
+   "severity": "High",
+   "category": "Accounting / Inflation Attack",
+   "file": "Vault.sol",
+   "function": "(contract-wide)",
+   "description": "The Vault’s `deposit()` and `withdraw()` rely on `IStrategy(strategy).balances()`, which includes the actual ERC20 token balances held by the strategy. An attacker can transfer tokens directly to the strategy, inflating `totalBalance0` and `totalBalance1` without minting any vault shares. This instantly dilutes the value of all existing vault shares.",
+   "attackPath": "An attacker observes a pending deposit transaction. They front‑run by transferring a large amount of token0/token1 to the strategy address. The deposit then calculates shares based on the inflated balances, causing the depositor to receive fewer shares than expected. The attacker can later withdraw their donated tokens by redeeming their own shares, profiting at the depositor’s expense.",
+   "impact": "Loss of value for honest depositors; the attacker can steal a portion of any deposit made after the donation.",
+   "recommendation": "Track internally the actual deposited amounts and ignore external transfers, or implement a deposit fee that makes such attacks unprofitable."
+  },
+  {
+   "title": "Missing Chainlink Heartbeat Check Allows Stale Price",
+   "severity": "High",
+   "category": "Stale oracle price",
+   "file": "yieldoor/src/PriceFeed.sol",
+   "function": "getPrice",
+   "description": "`getPrice` reads `latestRoundData()` from a Chainlink aggregator but ignores the `updatedAt` timestamp. The required staleness check (`block.timestamp - updatedAt <= heartbeat`) is commented out, so the function will return an arbitrarily old price. An attacker can exploit a stale price to open undercollateralized positions or trigger unfair liquidations.",
+   "attackPath": "1. Wait until the Chainlink price becomes stale (e.g., no new round for hours). 2. Call `openLeveragedPosition` with a borrowed amount that would be undercollateralized at the real price but appears safe at the stale price. 3. After the real price updates, the position becomes liquidatable, but the attacker may have already extracted value or the protocol incurs bad debt.",
+   "impact": "Loss of funds for lenders and protocol through undercollateralized borrows or unfair liquidations.",
+   "recommendation": "Uncomment and implement the heartbeat check: `require(block.timestamp - updatedAt <= heartbeat, \"stale price\");`."
+  },
+  {
+   "title": "Flash-Loan Manipulation of Spot Price in Vault.deposit() Share Calculation",
+   "severity": "High",
+   "category": "Spot-price manipulation",
+   "file": "yieldoor/src/Vault.sol",
+   "function": "deposit",
+   "description": "`deposit` calls `IStrategy(strategy).balances()`, which uses the current Uniswap V3 pool `sqrtPriceX96` (spot price) to compute the vault’s token holdings. The share price is derived from these spot-based balances. An attacker can flash-loan the pool tokens, execute a large swap to shift the spot price, cause a victim to deposit (receiving inflated or deflated shares), then reverse the swap to extract profit.",
+   "attackPath": "1. Attacker obtains a flash loan of token0 and token1. 2. Swaps a large amount in the underlying Uniswap pool to manipulate the spot price. 3. Victim calls `deposit`; the manipulated spot price causes the vault’s computed balances to be distorted, granting the victim fewer shares than fair (or attacker gets more). 4. Attacker reverses the swap with the flash loan and repays. 5. Attacker profits from the share price discrepancy.",
+   "impact": "Theft of value from depositors or dilution of existing LPs; attacker can extract funds equivalent to the manipulated portion.",
+   "recommendation": "Use a TWAP-based price (e.g., from `twapPrice()` of the Strategy) instead of the instantaneous spot price when computing the share ratio in `_calcDeposit`. Alternatively, protect with a time-weighted average of balances."
+  },
+  {
+   "title": "Wrong variable used in withdraw when borrowed denomination equals token1 causes permanent revert",
+   "severity": "High",
+   "category": "Funds stuck",
+   "file": "Leverager.sol",
+   "function": "withdraw()",
+   "description": "In the withdraw function, when the borrowed denomination is token1, the code incorrectly uses `amountOut0` instead of `amountOut1` to compute `repayFromWithdraw`. This causes an arithmetic underflow when `amountOut1` is less than `owedAmount`, making the transaction revert. Positions where the borrowed token is token1 and the withdrawn token1 balance is insufficient to cover the debt cannot be withdrawn, trapping user funds.",
+   "attackPath": "1. User opens a leveraged position where `denomination == token1` (e.g., WETH as denomination). 2. Over time, the position accrues debt. 3. User calls `withdraw()` with any `pctWithdraw`. Since `amountOut1` (token1 withdrawn from vault) is less than `owedAmount`, the bug sets `repayFromWithdraw` to `amountOut0` (token0 amount), which may be > `amountOut1`. 4. `amountOut1 -= repayFromWithdraw` underflows and reverts. 5. The user can never withdraw their collateral, and the position can only be liquidated.",
+   "impact": "User funds become stuck in the position. The owner cannot reduce exposure or exit; the only way to retrieve value is through liquidation, which may incur losses due to fees and market moves.",
+   "recommendation": "Change `amountOut0` to `amountOut1` in the ternary condition for the `borrowed == up.token1` branch."
+  },
+  {
+   "title": "Incorrect liquidation fee calculation can steal liquidator profits",
+   "severity": "High",
+   "category": "Accounting Error",
+   "file": "yieldoor/src/Leverager.sol",
+   "function": "liquidatePosition()",
+   "description": "The liquidation fee calculation uses `ERC20(up.denomination).decimals()` instead of `10 ** ERC20(up.denomination).decimals()` when computing `borrowedValue`. This means `borrowedValue` is off by a factor of 10^decimals, making it orders of magnitude smaller than `totalValueUSD`. As a result, `totalValueUSD > borrowedValue` is almost always true, causing the protocol to take a large portion of the liquidated assets as fees, even when there is no profit.",
+   "attackPath": "1. A position becomes slightly underwater. 2. A liquidator calls `liquidatePosition()`. 3. Due to the incorrect calculation, the protocol calculates a huge \"profit\" and takes most of the withdrawn assets as fees. 4. The liquidator receives almost nothing, making liquidation economically unviable.",
+   "impact": "Liquidators are disincentivized from liquidating positions, leading to accumulation of bad debt and potential insolvency of the lending pool.",
+   "recommendation": "Change `ERC20(up.denomination).decimals()` to `10 ** ERC20(up.denomination).decimals()` in the `borrowedValue` calculation."
+  },
+  {
+   "title": "Withdraw function uses wrong variable for repay calculation",
+   "severity": "High",
+   "category": "Accounting Error",
+   "file": "yieldoor/src/Leverager.sol",
+   "function": "withdraw()",
+   "description": "When `borrowed == up.token1`, the code uses `amountOut0` instead of `amountOut1` for the `repayFromWithdraw` calculation: `uint256 repayFromWithdraw = amountOut1 < owedAmount ? amountOut0 : owedAmount;`. This incorrectly caps the repayment amount using `amountOut0` instead of `amountOut1`, potentially causing the contract to attempt to repay more than available from the withdrawn token1.",
+   "attackPath": "1. User has a position where `denomination == token1`. 2. User calls `withdraw()` with a percentage. 3. The code incorrectly uses `amountOut0` to cap the repayment from token1. 4. If `amountOut0` is larger than `amountOut1`, the contract may try to repay more token1 than was withdrawn, causing the transaction to revert or the user to lose funds.",
+   "impact": "Users may be unable to withdraw their positions, or may lose funds due to incorrect accounting.",
+   "recommendation": "Change `amountOut0` to `amountOut1` in the `borrowed == up.token1` branch."
+  },
+  {
+   "title": "Incorrect repayFromWithdraw logic when borrowed token is token1",
+   "severity": "High",
+   "category": "Wrong constant/unit",
+   "file": "yieldoor/src/Leverager.sol",
+   "function": "withdraw()",
+   "description": "In the `withdraw()` function, when `borrowed == up.token1`, the code sets `repayFromWithdraw = amountOut1 < owedAmount ? amountOut0 : owedAmount`. It uses `amountOut0` instead of `amountOut1` in the ternary condition, which is a copy-paste error. This causes incorrect repayment amounts, potentially leaving debt unpaid or over-repaying.",
+   "attackPath": "A user calls `withdraw()` with a position where the borrowed token is token1. The code incorrectly uses `amountOut0` to determine the repayment from the withdrawn amount, leading to an incorrect `owedAmount` and `amountOut1` values. The user may end up with an incorrect debt balance or receive wrong token amounts.",
+   "impact": "Incorrect accounting of debt and withdrawn tokens, potentially leaving the position with unpaid debt or causing the protocol to lose funds.",
+   "recommendation": "Change `amountOut0` to `amountOut1` in the ternary condition: `uint256 repayFromWithdraw = amountOut1 < owedAmount ? amountOut1 : owedAmount;`"
+  },
+  {
+   "title": "Incorrect repayFromWithdraw logic when borrowed token is token1 in liquidatePosition",
+   "severity": "High",
+   "category": "Wrong constant/unit",
+   "file": "yieldoor/src/Leverager.sol",
+   "function": "liquidatePosition()",
+   "description": "In `liquidatePosition()`, when `up.denomination == up.token1`, the code sets `uint256 repayFromWithdraw = amount1 < owedAmount ? amount1 : owedAmount;` but then subtracts from `amount1` instead of `amount1`. This is a copy-paste error from the token0 case. It causes incorrect debt repayment and token amount tracking.",
+   "attackPath": "A liquidator calls `liquidatePosition()` on a position where the borrowed token is token1. The code incorrectly uses `amount1` in both the condition and the subtraction, leading to incorrect `owedAmount` and `amount1` values. The liquidator may receive wrong token amounts or the debt may not be fully repaid.",
+   "impact": "Incorrect liquidation accounting, potentially leaving bad debt or causing loss of funds for the liquidator or protocol.",
+   "recommendation": "Change the condition to use `amount1` and the subtraction to use `amount1`: `uint256 repayFromWithdraw = amount1 < owedAmount ? amount1 : owedAmount;` and `amount1 -= repayFromWithdraw;`"
+  },
+  {
+   "title": "Incorrect tokenIn validation in liquidatePosition swap",
+   "severity": "Medium",
+   "category": "Wrong constant/unit",
+   "file": "yieldoor/src/Leverager.sol",
+   "function": "liquidatePosition()",
+   "description": "In the second swap block of `liquidatePosition()`, the code requires `tokenIn == up.token0` instead of `tokenIn == up.token1`. This is a copy-paste error from the first swap block. It allows swaps with the wrong token, potentially causing the liquidation to fail or use incorrect tokens.",
+   "attackPath": "A liquidator calls `liquidatePosition()` with `swapParams2` where the input token is token1. The require statement incorrectly checks for token0, causing the transaction to revert. Alternatively, if the attacker provides token0 as input, the swap proceeds but uses the wrong token, leading to incorrect liquidation amounts.",
+   "impact": "Liquidations may fail or use incorrect tokens, potentially preventing timely liquidation and causing bad debt.",
+   "recommendation": "Change `require(tokenIn == up.token0, \"tokenIn should be token0\");` to `require(tokenIn == up.token1, \"tokenIn should be token1\");`"
+  },
+  {
+   "title": "Incorrect vesting position tickUpper uses mainPosition.tickUpper instead of vestPosition.tickUpper",
+   "severity": "Medium",
+   "category": "Wrong constant/unit",
+   "file": "yieldoor/src/Strategy.sol",
+   "function": "collectFees()",
+   "description": "In `collectFees()`, when collecting fees for the vesting position, the code calls `collectPositionFees(vestPosition.tickLower, mainPosition.tickUpper)` instead of `collectPositionFees(vestPosition.tickLower, vestPosition.tickUpper)`. This uses the main position's upper tick instead of the vesting position's upper tick, which could be different if the main position ticks have changed since the vesting position was created.",
+   "attackPath": "After a rebalance changes the main position ticks, the vesting position's tick range may differ from the main position. Calling `collectFees()` would attempt to collect fees from a non-existent position (wrong tick range), causing the transaction to revert or collect fees from the wrong position.",
+   "impact": "Fee collection for the vesting position may fail or collect fees from the wrong tick range, potentially locking vesting position fees or causing incorrect fee distribution.",
+   "recommendation": "Change `mainPosition.tickUpper` to `vestPosition.tickUpper` in the `collectPositionFees()` call."
+  },
+  {
+   "title": "Incorrect borrowedValue calculation in liquidatePosition uses decimals() instead of 10**decimals()",
+   "severity": "High",
+   "category": "Wrong constant/unit",
+   "file": "yieldoor/src/Leverager.sol",
+   "function": "liquidatePosition()",
+   "description": "In `liquidatePosition()`, the borrowed value is calculated as `uint256 borrowedValue = owedAmount * bPrice / ERC20(up.denomination).decimals();`. This divides by the number of decimals (e.g., 18) instead of 10**decimals (e.g., 1e18). This results in a massively incorrect borrowed value, making the liquidation fee calculation and profit check completely wrong.",
+   "attackPath": "A liquidator calls `liquidatePosition()` on a position. The borrowed value is calculated incorrectly (e.g., dividing by 18 instead of 1e18), causing the protocol to either overcharge or undercharge liquidation fees. This could make profitable liquidations appear unprofitable or vice versa.",
+   "impact": "Incorrect liquidation fee calculation, potentially causing the protocol to lose fees or liquidators to receive incorrect amounts, leading to financial losses.",
+   "recommendation": "Change `ERC20(up.denomination).decimals()` to `10 ** ERC20(up.denomination).decimals()` to properly scale the borrowed value."
+  },
+  {
+   "title": "UniswapV3Pool.initialize() lacks access control, enabling front-running",
+   "severity": "High",
+   "category": "Access Control",
+   "file": "UniswapV3Pool.sol",
+   "function": "initialize()",
+   "description": "The initialize() function is external and has no access control modifier. It can be called once to set the initial sqrt price and unlock the pool. An attacker can front-run the legitimate deployer, initialize the pool with an arbitrary price, and then any subsequent interactions (mint, swap) will use that manipulated price.",
+   "attackPath": "Attacker monitors for a new pool deployment; calls initialize() with a chosen sqrtPriceX96 before the intended initializer; the pool becomes active with attacker-controlled price. Users interacting via yieldoor later can be exploited.",
+   "impact": "Loss of funds from trades or liquidity provision at a manipulated price; potential insolvency if liquidity is deposited based on the false price.",
+   "recommendation": "Restrict initialize() to be callable only by the factory contract (e.g., require(msg.sender == factory))."
+  },
+  {
+   "title": "Reentrancy via Modifier Ordering in liquidatePosition",
+   "severity": "High",
+   "category": "Reentrancy",
+   "file": "Leverager.sol",
+   "function": "liquidatePosition()",
+   "description": "The `collectFees` modifier calls `IStrategy(strat).collectFees()` before the `nonReentrant` modifier is applied. This means the external call is made without the reentrancy lock. If the strategy's `collectFees` triggers a callback (e.g., via an ERC-777 token hook or a malicious strategy) that re-enters `liquidatePosition`, it can bypass the mutex and cause state inconsistencies.",
+   "attackPath": "1. Attacker deploys a malicious token that calls back into Leverager on transfer. 2. The strategy uses this token. 3. Attacker calls liquidatePosition on an allowed position. 4. The collectFees modifier calls strategy.collectFees, which triggers the token callback. 5. The callback re-enters liquidatePosition, now executing the main logic while the outer call is still inside the modifier, allowing manipulation of borrow/debt state before final repayment.",
+   "impact": "An attacker could steal funds, avoid liquidation, or cause incorrect debt accounting, leading to protocol insolvency.",
+   "recommendation": "Move the `nonReentrant` modifier to the beginning of the function (outermost) or integrate the fee collection inside the locked section."
+  }
+ ]
+}

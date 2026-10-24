@@ -1,0 +1,760 @@
+{
+ "voorvoegsel": "h0",
+ "wedstrijden": {
+  "2025-03-crestal-network": {
+   "hypotheses": 12,
+   "bekend": 7,
+   "gevondenStreng": [],
+   "gevondenRuim": [
+    "M-5"
+   ],
+   "recallStreng": 0,
+   "recallRuim": 0.14285714285714285,
+   "precisieStreng": 0,
+   "precisieRuim": 0.08333333333333333,
+   "overeenstemming": 0.9166666666666666,
+   "ongeldigeAntwoorden": 0,
+   "perNiveau": {
+    "makkelijk": {
+     "totaal": 4,
+     "streng": 0,
+     "ruim": 1
+    },
+    "midden": {
+     "totaal": 0,
+     "streng": 0,
+     "ruim": 0
+    },
+    "moeilijk": {
+     "totaal": 3,
+     "streng": 0,
+     "ruim": 0
+    }
+   },
+   "hypothesesLijst": [
+    {
+     "title": "Signed functions accept arbitrary caller, enabling signature replay attacks",
+     "file": "BlueprintCore.sol",
+     "function": "createProjectIDAndProposalRequestWithSig()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a missing caller verification in createProjectIDAndProposalRequestWithSig, which does not correspond to any listed finding's exact function or root cause.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a missing msg.sender check in signed functions, which is not covered by any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Unrestricted upgradeProject allows anyone to reset project state",
+     "file": "BlueprintCore.sol",
+     "function": "upgradeProject()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unrestricted upgradeProject function, which does not correspond to any listed finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes a lack of access control in upgradeProject, which is not covered by any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Public upgradeProject function allows anyone to reset project state",
+     "file": "crestal-omni-contracts/src/history/BlueprintCoreV4.sol",
+     "function": "upgradeProject()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the same function or contract lacking access control for upgradeProject",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a different function (upgradeProject) in a different contract (BlueprintCoreV4.sol) than any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Unrestricted updateWorkerDeploymentConfig allows arbitrary config changes",
+     "file": "crestal-omni-contracts/src/history/BlueprintV3.sol",
+     "function": "updateWorkerDeploymentConfig()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unrestricted updateWorkerDeploymentConfig in BlueprintV3.sol, which does not correspond to any listed finding's same function or contract.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes a lack of access control in updateWorkerDeploymentConfig in BlueprintV3, which is not among the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Unrestricted worker assignment allows any address to hijack deployment requests",
+     "file": "BlueprintCore.sol",
+     "function": "submitDeploymentRequest()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes unrestricted worker assignment in submitDeploymentRequest; existing findings address different issues.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "None of the known findings describe unrestricted worker assignment in submitDeploymentRequest allowing any address to hijack deployment requests.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Missing access control in BlueprintV2 UpdateWorkerDeploymentConfig",
+     "file": "crestal-omni-contracts/src/history/BlueprintV2.sol",
+     "function": "UpdateWorkerDeploymentConfig()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes missing access control in BlueprintV2's UpdateWorkerDeploymentConfig function.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes a missing access control in BlueprintV2's UpdateWorkerDeploymentConfig, which is not covered by any of the known findings that address different functions or contracts.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Denial‑of‑service by locking deployment requests in Pickup state",
+     "file": "BlueprintCore.sol",
+     "function": "submitDeploymentRequest()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a missing access control allowing anyone to lock a request in Pickup, which differs from known findings that focus on hardcoded IDs, signature issues, or lack of cancellation, ",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": "M-5",
+      "reden": "Both describe the same DoS vector where a worker can lock a deployment request in Pickup state indefinitely.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "tryPrank modifier silently swallows prank failures in test helpers",
+     "file": "crestal-omni-contracts/lib/openzeppelin-foundry-upgrades/src/internal/Core.sol",
+     "function": "tryPrank()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a test helper issue unrelated to any listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding concerns a test helper in Core.sol, while all known findings are about production contract vulnerabilities in Blueprint contracts.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Potential reentrancy via ERC‑20 transfer in userTopUp allowing inflated credit",
+     "file": "BlueprintCore.sol",
+     "function": "userTopUp()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the same reentrancy issue in userTopUp using payWithERC20",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy issue in userTopUp, which is not covered by any known finding; H-1 is about a different vulnerability in payWithERC20.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Command injection via unsanitized user input in buildValidateCommand",
+     "file": "crestal-omni-contracts/lib/openzeppelin-foundry-upgrades/src/internal/Core.sol",
+     "function": "buildValidateCommand()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a command injection issue in buildValidateCommand, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about command injection in a different codebase (openzeppelin-foundry-upgrades) and not related to any of the known findings in the crestal-omni-contracts.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Replayable signed deployment requests lack nonce, enabling multiple submissions",
+     "file": "crestal-omni-contracts/src/history/BlueprintV3.sol",
+     "function": "createProjectIDAndDeploymentRequestWithSig()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the same replay‑nonce issue in the same function/contract.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a missing nonce in signed deployment requests, which is not the same root cause as any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Upgrade validation skipped when unsafeSkipAllChecks is true",
+     "file": "crestal-omni-contracts/lib/openzeppelin-foundry-upgrades/src/internal/Core.sol",
+     "function": "_validate()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an upgrade validation bypass, which does not correspond to any listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding concerns upgrade validation in OpenZeppelin Foundry Upgrades, while all known findings are about different contracts and issues in the Crestal Network audit.",
+      "model": "deepseek-v4-flash"
+     }
+    }
+   ]
+  },
+  "2025-02-yieldoor": {
+   "hypotheses": 6,
+   "bekend": 17,
+   "gevondenStreng": [],
+   "gevondenRuim": [],
+   "recallStreng": 0,
+   "recallRuim": 0,
+   "precisieStreng": 0,
+   "precisieRuim": 0,
+   "overeenstemming": 1,
+   "ongeldigeAntwoorden": 0,
+   "perNiveau": {
+    "makkelijk": {
+     "totaal": 7,
+     "streng": 0,
+     "ruim": 0
+    },
+    "midden": {
+     "totaal": 2,
+     "streng": 0,
+     "ruim": 0
+    },
+    "moeilijk": {
+     "totaal": 8,
+     "streng": 0,
+     "ruim": 0
+    }
+   },
+   "hypothesesLijst": [
+    {
+     "title": "Dust left in protocol fee slot prevents full fee collection",
+     "file": "UniswapV3Pool.sol",
+     "function": "collectProtocol()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the dust left in the protocol fee slot of UniswapV3Pool.sol's collectProtocol function.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about UniswapV3Pool.sol, which is not part of the Yieldoor protocol, and none of the known findings relate to this contract or issue.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Unrestricted increaseObservationCardinalityNext can be abused for gas‑DoS",
+     "file": "UniswapV3Pool.sol",
+     "function": "increaseObservationCardinalityNext()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the same unrestricted increaseObservationCardinalityNext vulnerability",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a different issue in UniswapV3Pool.sol unrelated to any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Vault withdraw uses `safeTransferFrom` instead of `safeTransfer`, causing permanent fund lock",
+     "file": "yieldoor/src/Vault.sol",
+     "function": "withdraw(uint256,uint256,uint256)",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the same safeTransferFrom misuse in Vault.withdraw causing fund lock",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a missing approval in Vault.withdraw, which is not among the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Minting liquidity to the zero address creates irrecoverable positions",
+     "file": "UniswapV3Pool.sol",
+     "function": "mint()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the zero-address recipient issue in UniswapV3Pool.sol's mint() function.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a missing zero-address check in UniswapV3Pool.sol, which is not among the known findings that all pertain to Yieldoor protocol contracts.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Protocol fee rounding down due to integer division",
+     "file": "UniswapV3Pool.sol",
+     "function": "swap()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a fee rounding issue in UniswapV3Pool.swap, which is not covered by any known finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a fee rounding issue in UniswapV3Pool.sol, which is not among the known findings that are all from the Yieldoor protocol.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Unrestricted pool initialization enables front‑run price manipulation",
+     "file": "UniswapV3Pool.sol",
+     "function": "initialize()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the public initialize() vulnerability in UniswapV3Pool.sol",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding concerns UniswapV3Pool.sol initialize() which is not present in any of the known findings; all known findings are from different contracts (Leverager, Strategy, Vault, etc.).",
+      "model": "deepseek-v4-flash"
+     }
+    }
+   ]
+  },
+  "2025-01-peapods-finance": {
+   "hypotheses": 10,
+   "bekend": 41,
+   "gevondenStreng": [],
+   "gevondenRuim": [],
+   "recallStreng": 0,
+   "recallRuim": 0,
+   "precisieStreng": 0,
+   "precisieRuim": 0,
+   "overeenstemming": 1,
+   "ongeldigeAntwoorden": 0,
+   "perNiveau": {
+    "makkelijk": {
+     "totaal": 10,
+     "streng": 0,
+     "ruim": 0
+    },
+    "midden": {
+     "totaal": 16,
+     "streng": 0,
+     "ruim": 0
+    },
+    "moeilijk": {
+     "totaal": 15,
+     "streng": 0,
+     "ruim": 0
+    }
+   },
+   "hypothesesLijst": [
+    {
+     "title": "Unlimited token allowance granted to arbitrary DEX handler",
+     "file": "contracts/contracts/lvf/LeverageManager.sol",
+     "function": "_swapPodForBorrowToken()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the same unlimited allowance grant to an arbitrary DEX handler in LeverageManager._swapPodForBorrowToken",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding describes unlimited allowance granted to arbitrary DEX handler in LeverageManager.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Re‑entrancy possible via token callbacks after flash‑loan repayment",
+     "file": "contracts/contracts/lvf/LeverageManager.sol",
+     "function": "callback()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the same re‑entrancy issue in LeverageManager.callback()",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a re-entrancy vulnerability in the callback() function via token callbacks, which is not mentioned in any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Reentrancy risk via ERC4626 redeem (or ERC777) in unstake flow",
+     "file": "contracts/contracts/lvf/LeverageManager.sol",
+     "function": "_unstakeAndRemoveLP()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the same reentrancy issue in LeverageManager._unstakeAndRemoveLP via ERC4626 redeem",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding describes a reentrancy risk via ERC4626 redeem in LeverageManager._unstakeAndRemoveLP.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Reentrancy via externalAssetVault in `_depositFromVault`",
+     "file": "FraxlendPairCore.sol",
+     "function": "_depositFromVault(uint256)",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the same reentrancy issue in FraxlendPairCore._depositFromVault",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding describes reentrancy via externalAssetVault in _depositFromVault.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Reentrancy via externalAssetVault in `_withdrawToVault`",
+     "file": "FraxlendPairCore.sol",
+     "function": "_withdrawToVault(uint256)",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes a reentrancy issue in FraxlendPairCore.sol's _withdrawToVault function",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding describes a reentrancy via externalAssetVault in _withdrawToVault.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Unrestricted withdrawal of any token from the position custodian",
+     "file": "contracts/contracts/lvf/LeverageManager.sol",
+     "function": "withdrawAssets()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unrestricted token withdrawal in withdrawAssets(), which does not correspond to any listed known finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding describes unrestricted withdrawal of any token from the position custodian via withdrawAssets().",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Missing validation of external deposit/bond results leads to zero‑collateral positions",
+     "file": "contracts/contracts/lvf/LeverageManager.sol",
+     "function": "_processAndGetPairedTknAndAmt()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes missing validation of deposit/bond results in _processAndGetPairedTknAndAmt() leading to zero-collateral positions.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes missing validation of deposit/bond return values in LeverageManager, which is not described in any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Denial‑of‑Service via division by zero in `_updateExchangeRate`",
+     "file": "FraxlendPairCore.sol",
+     "function": "_updateExchangeRate()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes a division‑by‑zero DoS in FraxlendPairCore.sol's _updateExchangeRate function.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a division by zero in `_updateExchangeRate` due to a zero `highExchangeRate`, which is not mentioned in any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Stale oracle data used for solvency checks",
+     "file": "FraxlendPairCore.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes stale oracle data usage in FraxlendPairCore.sol's solvency check",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding describes stale oracle data in FraxlendPairCore's isSolvent function.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Potential re‑entrancy via ERC‑777 token callbacks in swapper calls",
+     "file": "fraxlend/src/contracts/FraxlendPairCore.sol",
+     "function": "leveragedPosition()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the same ERC‑777 re‑entrancy issue in leveragedPosition of FraxlendPairCore.sol.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a re-entrancy via ERC-777 callbacks in leveragedPosition, which is not mentioned in any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    }
+   ]
+  },
+  "2025-05-layeredge": {
+   "hypotheses": 1,
+   "bekend": 3,
+   "gevondenStreng": [],
+   "gevondenRuim": [],
+   "recallStreng": 0,
+   "recallRuim": 0,
+   "precisieStreng": 0,
+   "precisieRuim": 0,
+   "overeenstemming": 1,
+   "ongeldigeAntwoorden": 0,
+   "perNiveau": {
+    "makkelijk": {
+     "totaal": 3,
+     "streng": 0,
+     "ruim": 0
+    },
+    "midden": {
+     "totaal": 0,
+     "streng": 0,
+     "ruim": 0
+    },
+    "moeilijk": {
+     "totaal": 0,
+     "streng": 0,
+     "ruim": 0
+    }
+   },
+   "hypothesesLijst": [
+    {
+     "title": "Missing upgrade authorization allows arbitrary contract upgrades",
+     "file": "LayerEdgeStaking.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an upgrade authorization issue, which is unrelated to the tier tracking or unbound array findings listed.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a missing _authorizeUpgrade override, which is a different vulnerability from the known findings about tier tracking, interest calculation, and unbounded arrays.",
+      "model": "deepseek-v4-flash"
+     }
+    }
+   ]
+  },
+  "2025-07-cap": {
+   "hypotheses": 1,
+   "bekend": 10,
+   "gevondenStreng": [],
+   "gevondenRuim": [],
+   "recallStreng": 0,
+   "recallRuim": 0,
+   "precisieStreng": 0,
+   "precisieRuim": 0,
+   "overeenstemming": 1,
+   "ongeldigeAntwoorden": 0,
+   "perNiveau": {
+    "makkelijk": {
+     "totaal": 5,
+     "streng": 0,
+     "ruim": 0
+    },
+    "midden": {
+     "totaal": 4,
+     "streng": 0,
+     "ruim": 0
+    },
+    "moeilijk": {
+     "totaal": 1,
+     "streng": 0,
+     "ruim": 0
+    }
+   },
+   "hypothesesLijst": [
+    {
+     "title": "Missing reentrancy protection on Lender’s external state‑changing functions",
+     "file": "cap-contracts/contracts/lendingPool/Lender.sol",
+     "function": "borrow()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a missing reentrancy guard, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a missing reentrancy guard, which is not mentioned in any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    }
+   ]
+  },
+  "2025-06-symbiotic-relay": {
+   "hypotheses": 6,
+   "bekend": 7,
+   "gevondenStreng": [],
+   "gevondenRuim": [],
+   "recallStreng": 0,
+   "recallRuim": 0,
+   "precisieStreng": 0,
+   "precisieRuim": 0,
+   "overeenstemming": 1,
+   "ongeldigeAntwoorden": 0,
+   "perNiveau": {
+    "makkelijk": {
+     "totaal": 2,
+     "streng": 0,
+     "ruim": 0
+    },
+    "midden": {
+     "totaal": 4,
+     "streng": 0,
+     "ruim": 0
+    },
+    "moeilijk": {
+     "totaal": 1,
+     "streng": 0,
+     "ruim": 0
+    }
+   },
+   "hypothesesLijst": [
+    {
+     "title": "Unrestricted Delegator Initialization Allows Malicious Delegator Injection",
+     "file": "Vault.sol",
+     "function": "setDelegator()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unrestricted setDelegator function, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding describes an unrestricted setDelegator() initialization in Vault.sol.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Unrestricted Slasher Initialization Enables Arbitrary Slashing",
+     "file": "Vault.sol",
+     "function": "setSlasher()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unrestricted setSlasher function, which is not covered by any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes an unrestricted setSlasher function, which is not mentioned in any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Unrestricted slashing functions allow arbitrary callers to trigger slash requests",
+     "file": "BaseSlashingLogic.sol",
+     "function": "slashVault()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes unrestricted access to slashing functions, which is not covered by any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding describes missing access control on slashVault/slash functions.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "VaultTokenized ERC20 accounting corrupts vault share tracking",
+     "file": "middleware-sdk/lib/core/src/contracts/vault/VaultTokenized.sol",
+     "function": "deposit(), _withdraw(), _update()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an ERC20 accounting mismatch in VaultTokenized, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes an ERC20 accounting corruption in VaultTokenized, which is a different root cause and code area than any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Uninitialized proxy can be taken over via `initialize`",
+     "file": "DefaultStakerRewards.sol",
+     "function": "initialize()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized proxy vulnerability, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes an uninitialized proxy takeover in DefaultStakerRewards.sol, which is not covered by any of the known findings that focus on voting power, whitelist, vault mapping, DoS",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Unbounded rewards array can cause gas‑limit denial of service",
+     "file": "DefaultStakerRewards.sol",
+     "function": "claimRewards()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unbounded array causing gas limit DoS in claimRewards, which does not correspond to any listed finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding concerns an unbounded rewards array in DefaultStakerRewards.sol, which is not mentioned in any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    }
+   ]
+  }
+ },
+ "totaal": {
+  "bekend": 85,
+  "hyps": 36,
+  "streng": 0,
+  "ruim": 1,
+  "strengHyp": 0,
+  "eens": 35,
+  "perNiveau": {
+   "makkelijk": {
+    "totaal": 31,
+    "streng": 0
+   },
+   "midden": {
+    "totaal": 26,
+    "streng": 0
+   },
+   "moeilijk": {
+    "totaal": 28,
+    "streng": 0
+   }
+  },
+  "recallStreng": 0,
+  "recallRuim": 0.011764705882352941,
+  "precisieStreng": 0,
+  "overeenstemming": 0.9722222222222222
+ },
+ "kosten": 0.02040240460000001
+}

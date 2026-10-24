@@ -1,0 +1,170 @@
+{
+ "contest": "2025-03-crestal-network",
+ "hypotheses": [
+  {
+   "title": "userTopUp mapping never decreased, causing double payment",
+   "severity": "High",
+   "category": "accounting",
+   "file": "crestal-omni-contracts/src/BlueprintCore.sol",
+   "function": "userTopUp",
+   "description": "The `userTopUpMp` mapping records cumulative top-up amounts but is never deducted when `payWithERC20` is called for agent creation or config updates. This means users who top up still pay the full cost again via direct transfer, and the top-up balance is effectively a donation. The system overcharges users and the accounting is inaccurate.",
+   "attackPath": "A user calls `userTopUp` to prepay. Later they call `createAgentWithToken`, which calls `payWithERC20` again, charging the user the same tokens without using the top-up balance. The user loses the top-up amount.",
+   "impact": "Users lose funds equal to their top-up balance because they are charged again. The protocol's balance sheet is inflated.",
+   "recommendation": "Implement a deduction from `userTopUpMp` before calling `payWithERC20`, or remove the top-up mechanism if not intended."
+  },
+  {
+   "title": "Fee-on-transfer tokens cause underpayment",
+   "severity": "High",
+   "category": "accounting",
+   "file": "crestal-omni-contracts/src/Payment.sol",
+   "function": "payWithERC20",
+   "description": "The function assumes the transferred amount equals the cost, but fee-on-transfer tokens (e.g., USDT with fee, or rebasing tokens) result in the protocol receiving less than `amount`. The protocol does not verify the actual received balance. An attacker can use such a token to pay less than the required fee.",
+   "attackPath": "Attacker deploys or uses a token with a transfer fee. They call `createAgentWithToken` with that token. The `payWithERC20` transfers `cost` tokens, but the fee collection wallet receives only `cost - fee`. The protocol credits the attacker for the full `cost`.",
+   "impact": "Protocol receives less revenue than expected, and attackers can get services for a discount or free.",
+   "recommendation": "Check the actual balance change before and after the transfer, or use a whitelist of fee-free tokens."
+  },
+  {
+   "title": "payWithERC20 allows arbitrary token transfers from any approved user",
+   "severity": "High",
+   "category": "Unsafe public function",
+   "file": "Payment.sol",
+   "function": "payWithERC20()",
+   "description": "The `payWithERC20` function is public and does not restrict the caller. It calls `safeTransferFrom(fromAddress, toAddress, amount)` with any parameters provided. Any user who has approved this contract to spend their tokens can have their tokens transferred to any address by any caller.",
+   "attackPath": "Attacker calls `payWithERC20(tokenAddress, amount, victim, attackerAddress)` where victim has approved the contract. The contract transfers victim's tokens to the attacker.",
+   "impact": "Total loss of tokens that users have approved to the contract (e.g., for fee payments).",
+   "recommendation": "Remove the public access or restrict it to only be callable by trusted roles (e.g., onlyOwner) or enforce that `fromAddress` equals `msg.sender`."
+  },
+  {
+   "title": "Signature does not include tokenAddress or workerAddress, enabling parameter injection",
+   "severity": "High",
+   "category": "Missing parameter in signed data",
+   "file": "BlueprintCore.sol",
+   "function": "createAgentWithTokenWithSig()",
+   "description": "The EIP712 digest (DeploymentRequest) covers only `projectId`, `base64Proposal`, and `serverURL`. The critical parameters `tokenAddress` and `privateWorkerAddress` are not signed. An attacker can take a user's signature and call the function with a different token address (e.g., a high‑cost token) to drain the user's allowance.",
+   "attackPath": "1. User signs a DeploymentRequest message for a project. 2. Attacker observes the signature. 3. Attacker calls `createAgentWithTokenWithSig` with the same `projectId`, `base64Proposal`, `serverURL`, but chooses a `tokenAddress` that the user has approved and that has a high `paymentOpCost`. 4. The contract recovers the user's address and transfers the fee from the user to the fee wallet.",
+   "impact": "Unauthorized token payments from user to fee wallet (user loses funds they did not intend to pay).",
+   "recommendation": "Include `tokenAddress` and `workerAddress` in the signed data. Also consider adding a nonce and deadline."
+  },
+  {
+   "title": "Same EIP712 type hash used for multiple actions enables cross‑function signature reuse",
+   "severity": "High",
+   "category": "Signature confusion",
+   "file": "EIP712.sol",
+   "function": "getRequestDeploymentDigest()",
+   "description": "The `DEPLOYMENT_REQUEST_TYPEHASH` is used for deployment requests, agent creation (with tokens or NFTs), and config updates. A user who signs for a deployment (no payment) may unknowingly authorize an agent creation that triggers a token payment, as the digest is identical.",
+   "attackPath": "1. User signs a DeploymentRequest message expecting it to be used in `createDeploymentRequest` (no payment). 2. Attacker uses the same signature in `createAgentWithTokenWithSig` with a costly token address, causing the user to lose tokens.",
+   "impact": "Unauthorized token payments and unintended deployment actions.",
+   "recommendation": "Use distinct type hashes for each action (e.g., `AgentCreationRequest`, `ConfigUpdateRequest`) or include an action identifier in the signed data."
+  },
+  {
+   "title": "Public payWithERC20 enables arbitrary token theft from any approved user",
+   "severity": "High",
+   "category": "Economic flaw",
+   "file": "crestal-omni-contracts/src/Payment.sol",
+   "function": "payWithERC20()",
+   "description": "The `payWithERC20` function is declared `public` and does not restrict the `fromAddress`, `toAddress`, or `amount` parameters. Any external caller can invoke it using any `fromAddress` that has approved this contract as spender, transferring tokens to an arbitrary `toAddress`. The comment in the code acknowledges the design for gasless flow but fails to enforce that `fromAddress` must be the caller.",
+   "attackPath": "1) User A approves this contract to spend a token (e.g., via `approve` for top-up or future agent creation). 2) Attacker calls `payWithERC20(token, amount, A, attackerWallet)` directly. 3) The contract transfers `amount` tokens from A to attackerWallet, draining A's approved balance.",
+   "impact": "Complete loss of any tokens that users have approved for this contract, including funds intended for top-ups or agent creation fees.",
+   "recommendation": "Make `payWithERC20` internal so it can only be called by the contract’s own functions, or add a modifier that requires `msg.sender == fromAddress` (or a valid signature from `fromAddress`)."
+  },
+  {
+   "title": "Unchecked ERC20 transfer return value in payWithERC20",
+   "severity": "High",
+   "category": "Unchecked return value",
+   "file": "crestal-omni-contracts/src/Payment.sol",
+   "function": "payWithERC20()",
+   "description": "The `payWithERC20()` function uses `SafeERC20.safeTransferFrom()` which reverts on failure, so this is not a missing check. However, the function is `public` and can be called by anyone with arbitrary `fromAddress`, `toAddress`, and `amount`. This allows an attacker to force any address that has approved this contract to transfer tokens to any other address, draining approvals.",
+   "attackPath": "1. User A approves the Blueprint contract to spend 1000 USDC. 2. Attacker calls `payWithERC20(USDC, 1000, A, attacker)` directly. 3. The contract transfers 1000 USDC from A to the attacker.",
+   "impact": "Loss of funds for any user who has approved the contract to spend their ERC20 tokens.",
+   "recommendation": "Restrict `payWithERC20()` to internal or onlyOwner, or add access control so only trusted contract functions can call it."
+  },
+  {
+   "title": "Missing initialization of feeCollectionWalletAddress in upgradeable contracts",
+   "severity": "Medium",
+   "category": "Uninitialized state",
+   "file": "crestal-omni-contracts/src/BlueprintV5.sol",
+   "function": "initialize()",
+   "description": "The `initialize()` function in `BlueprintV5` does not set `feeCollectionWalletAddress`. This address is used in `createAgent()` and `userTopUp()` to receive payments. If not set, payments will be sent to `address(0)`, permanently losing funds.",
+   "attackPath": "1. User calls `createAgentWithToken()` or `userTopUp()`. 2. The contract calls `payWithERC20()` with `feeCollectionWalletAddress = address(0)`. 3. Tokens are transferred to `address(0)` and are irretrievable.",
+   "impact": "Permanent loss of user funds sent as fees.",
+   "recommendation": "Set `feeCollectionWalletAddress` in `initialize()` or require it to be set before any payment functions can be called."
+  },
+  {
+   "title": "Missing initialization of nftContractAddress in BlueprintV5",
+   "severity": "Medium",
+   "category": "Uninitialized state",
+   "file": "crestal-omni-contracts/src/BlueprintV5.sol",
+   "function": "initialize()",
+   "description": "`BlueprintV5`'s `initialize()` does not set `nftContractAddress`, unlike `BlueprintV4` which sets it to a constant. The `createAgent()` function checks NFT ownership via `checkNFTOwnership(nftContractAddress, ...)`. If `nftContractAddress` is `address(0)`, the check will revert, blocking all NFT-based agent creation.",
+   "attackPath": "1. User calls `createAgentWithNFT()`. 2. The contract calls `checkNFTOwnership(address(0), ...)`. 3. The function reverts because `nftTokenAddress == address(0)` is checked.",
+   "impact": "NFT-based agent creation is permanently broken until the owner sets the address.",
+   "recommendation": "Set `nftContractAddress` in `initialize()` or add a setter that can be called during initialization."
+  },
+  {
+   "title": "Public deployment requests can be hijacked and locked by any address",
+   "severity": "High",
+   "category": "Liveness / Denial of Service",
+   "file": "crestal-omni-contracts/src/BlueprintCore.sol",
+   "function": "submitDeploymentRequest",
+   "description": "The function submitDeploymentRequest is public and allows any address to claim a public deployment request (status Issued) by setting status to Pickup and assigning itself as deployWorkerAddr. Once claimed, there is no mechanism for the request owner or any other party to cancel, reassign, or force progress. The worker can simply never submit a proof, leaving the request stuck in Pickup forever. Additionally, because the project’s requestDeploymentID is already set, the project owner cannot create a new deployment request for the same project (the require check in deploymentRequest blocks it). This permanently blocks further deployments on that project.",
+   "attackPath": "1. Attacker monitors the mempool for a createProjectIDAndDeploymentRequest transaction. 2. Attacker front-runs it or simply calls submitDeploymentRequest with the same requestID (which they can compute from the parameters) immediately after the transaction is mined. 3. The request status becomes Pickup and the attacker’s address is set as worker. 4. The legitimate worker never submits a proof. The project owner cannot reuse the project for new deployments because the project’s requestDeploymentID is locked.",
+   "impact": "An attacker can completely block any public project from ever completing a deployment, forcing the owner to abandon the project and lose all associated state and progress.",
+   "recommendation": "Restrict submitDeploymentRequest to only be callable by the project owner or a registered worker, or implement a timeout mechanism that allows the project owner to cancel or reassign the request after a period of inactivity."
+  },
+  {
+   "title": "Reentrancy in createAgent bypasses whitelist one-agent limit",
+   "severity": "High",
+   "category": "Reentrancy",
+   "file": "crestal-omni-contracts/src/BlueprintCore.sol",
+   "function": "createAgent",
+   "description": "In the token branch of createAgent(), the external call payWithERC20() is made before the caller (createAgentWithWhitelistUsers) updates whitelistUsers[msg.sender] to Pickup. If the ERC20 token has a callback, an attacker can re-enter and call createAgentWithWhitelistUsers again, bypassing the one-agent-per-whitelist-user restriction.",
+   "attackPath": "1. Attacker is a whitelisted user. 2. Attacker deploys a malicious ERC20 token that calls back into the contract. 3. Attacker calls createAgentWithWhitelistUsers() with that token address. 4. During payWithERC20(), the token callback re-enters and calls createAgentWithWhitelistUsers() again. 5. The second call passes the require(whitelistUsers[msg.sender] != Status.Pickup) because it hasn't been updated yet. 6. Attacker creates multiple agents, each time paying the fee.",
+   "impact": "Attacker can create multiple agents despite the one-agent-per-whitelist-user restriction, potentially causing unfair advantage or loss of funds for the protocol.",
+   "recommendation": "Update whitelistUsers status before making the external payment call, or use a reentrancy guard."
+  },
+  {
+   "title": "Config update signature does not include requestID, allowing reuse across deployments",
+   "severity": "Medium",
+   "category": "Missing parameter in signed data",
+   "file": "BlueprintCore.sol",
+   "function": "updateWorkerDeploymentConfigWithSig()",
+   "description": "The signature covers `projectId` and `updatedBase64Config`, but not `requestID`. An attacker can take a single signature and call the function with multiple different `requestID` values belonging to the same project. Each call may trigger a token payment from the signer.",
+   "attackPath": "1. User signs a message for a specific config update. 2. Attacker calls `updateWorkerDeploymentConfigWithSig` repeatedly with different `requestID` values under the same project, each time paying a fee from the user's approved tokens.",
+   "impact": "Repeated unauthorized token payments from user.",
+   "recommendation": "Include `requestID` in the signed data."
+  },
+  {
+   "title": "Missing reentrancy guard in payWithERC20 allows token callback reentrancy",
+   "severity": "High",
+   "category": "Reentrancy",
+   "file": "crestal-omni-contracts/src/Payment.sol",
+   "function": "payWithERC20()",
+   "description": "The `payWithERC20()` function performs an external call via `safeTransferFrom()` without any reentrancy protection. If the token has a callback (e.g., ERC777 or a malicious ERC20), the recipient's callback can reenter the contract and manipulate state before the transfer completes.",
+   "attackPath": "1. Attacker deploys a malicious ERC20 token that calls back into the contract during transfer. 2. Attacker calls a function that triggers `payWithERC20()` with the malicious token. 3. During the transfer, the callback reenters and modifies state (e.g., deployment status, balances) to gain an advantage.",
+   "impact": "State manipulation leading to double-spending, unauthorized access, or incorrect accounting.",
+   "recommendation": "Add a reentrancy guard (e.g., OpenZeppelin's ReentrancyGuard) to all functions that call `payWithERC20()`."
+  },
+  {
+   "title": "upgradeProject can be called by anyone to reset project state",
+   "severity": "Medium",
+   "category": "Liveness / Unauthorized modification",
+   "file": "crestal-omni-contracts/src/BlueprintCore.sol",
+   "function": "upgradeProject",
+   "description": "The upgradeProject function is public and has no access control beyond requiring the project to exist (hasProject modifier). Any address can call it with any valid projectId to reset the project’s requestProposalID, requestDeploymentID, and proposedSolverAddr to zero/default values. This can disrupt the project owner’s workflow by clearing their proposal and deployment references. While the owner can recreate them, an attacker can repeatedly call upgradeProject to interfere each time the owner attempts to advance the project, effectively grieving the project lifecycle.",
+   "attackPath": "1. Attacker identifies a project ID that exists (e.g., by viewing events or guessing). 2. Attacker calls upgradeProject(projectId) after the owner has set up a proposal or deployment request. 3. The project’s internal tracking fields are zeroed. 4. The owner may not immediately notice and could attempt to create a new request, but the attacker can front-run or repeat the attack.",
+   "impact": "Attacker can cause confusion, waste of gas, and prevent the project owner from properly managing proposal and deployment requests, potentially forcing a restart.",
+   "recommendation": "Add an access control modifier (e.g., only the project owner or the contract owner) to restrict upgradeProject to authorized addresses only."
+  },
+  {
+   "title": "Public deployment requests cannot have their configuration updated",
+   "severity": "Medium",
+   "category": "Liveness / Unrecoverable state",
+   "file": "crestal-omni-contracts/src/BlueprintCore.sol",
+   "function": "updateWorkerDeploymentConfigCommon",
+   "description": "The function updateWorkerDeploymentConfigCommon requires that deploymentOwners[requestID] == userAddress. However, for public deployment requests created via createProjectIDAndDeploymentRequest (without NFT or token payment), deploymentOwners is never set (remains address(0)). Since msg.sender cannot be address(0), the require always fails. This means no one can update the deployment configuration for these requests, leaving them stuck with the initial configuration even if changes are needed (e.g., by the worker). This prevents the worker from completing the deployment or applying necessary updates, effectively freezing the request.",
+   "attackPath": "No direct exploitation by an untrusted actor; it is a design flaw that affects all public deployment requests. However, the system’s liveness is compromised because legitimate participants cannot update config, leading to potentially stuck requests.",
+   "impact": "Workers are unable to modify the deployment configuration after the request is made. If the configuration is incorrect or needs to be updated, the deployment may fail or remain incomplete, effectively freezing the request.",
+   "recommendation": "Set deploymentOwners for all deployment requests, e.g., defaulting to the user who created the request (userAddress). This ensures that the creator can update config if needed."
+  }
+ ]
+}

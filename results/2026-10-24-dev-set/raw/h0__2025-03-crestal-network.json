@@ -1,0 +1,326 @@
+{
+ "repo": "sherlock-audit/2025-03-crestal-network",
+ "outcome": "hypotheses",
+ "model": "openai/gpt-oss-120b (Together), nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter)",
+ "sources": [
+  "openai/gpt-oss-120b (Together)",
+  "nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter)"
+ ],
+ "coverage": {
+  "scopeFiles": 21,
+  "scopeBytes": 233968,
+  "analysedBytes": 102418,
+  "analysedPct": 44,
+  "chunksPlanned": 6,
+  "chunksAnalysed": 6,
+  "filesFull": 4,
+  "filesPartial": [
+   "crestal-omni-contracts/lib/openzeppelin-foundry-upgrades/src/Upgrades.sol",
+   "crestal-omni-contracts/src/history/BlueprintV2.sol",
+   "crestal-omni-contracts/src/history/BlueprintV3.sol"
+  ],
+  "notAnalysedFiles": [
+   "crestal-omni-contracts/lib/openzeppelin-foundry-upgrades/src/Defender.sol",
+   "crestal-omni-contracts/lib/openzeppelin-foundry-upgrades/src/LegacyUpgrades.sol",
+   "crestal-omni-contracts/lib/openzeppelin-foundry-upgrades/src/internal/DefenderDeploy.sol",
+   "crestal-omni-contracts/lib/openzeppelin-foundry-upgrades/src/internal/Utils.sol",
+   "crestal-omni-contracts/lib/openzeppelin-foundry-upgrades/src/internal/Versions.sol",
+   "crestal-omni-contracts/src/Blueprint.sol",
+   "crestal-omni-contracts/src/BlueprintV1.sol",
+   "crestal-omni-contracts/src/BlueprintV2.sol",
+   "crestal-omni-contracts/src/BlueprintV3.sol",
+   "crestal-omni-contracts/src/BlueprintV4.sol",
+   "crestal-omni-contracts/src/BlueprintV5.sol",
+   "crestal-omni-contracts/src/Payment.sol",
+   "crestal-omni-contracts/src/history/BlueprintV1.sol",
+   "crestal-omni-contracts/src/history/BlueprintV4.sol"
+  ],
+  "skipped": {
+   "tests": 46,
+   "mocks": 0,
+   "scripts": 6,
+   "vendor": 0,
+   "interfaces": 3,
+   "tooSmall": 0,
+   "tooLarge": 0,
+   "noLogic": 1,
+   "symlink": 0,
+   "unreadable": 0
+  },
+  "submodules": {
+   "declared": 3,
+   "fetched": [
+    "crestal-omni-contracts/lib/openzeppelin-foundry-upgrades"
+   ],
+   "failed": [],
+   "skipped": [
+    {
+     "path": "crestal-omni-contracts/lib/forge-std",
+     "reason": "afhankelijkheid"
+    },
+    {
+     "path": "crestal-omni-contracts/lib/openzeppelin-contracts-upgradeable",
+     "reason": "afhankelijkheid"
+    }
+   ]
+  },
+  "droppedHypotheses": 0,
+  "deadlineHit": false
+ },
+ "hypotheses": [
+  {
+   "title": "Signed functions accept arbitrary caller, enabling signature replay attacks",
+   "severity": "Critical",
+   "category": "ACCESS",
+   "file": "BlueprintCore.sol",
+   "function": "createProjectIDAndProposalRequestWithSig()",
+   "description": "Functions that accept an EIP‑712 signature (`createProjectIDAndProposalRequestWithSig`, `createProjectIDAndDeploymentRequestWithSig`, `createAgentWithTokenWithSig`) recover the signer address but never verify that `msg.sender` matches the recovered signer. An attacker can submit a victim’s signed payload and execute the action on their behalf.",
+   "attackPath": "1. Victim signs a proposal/deployment payload off‑chain. 2. Attacker captures the signature. 3. Attacker calls the corresponding `*WithSig` function, passing the signature. 4. The contract uses the recovered signer as the project owner, while `msg.sender` is the attacker, allowing the attacker to create projects, deployments, or agents under the victim’s address and later claim rewards or drain funds.",
+   "impact": "Unauthorized creation of projects, deployments, or agents, potentially leading to fund theft or protocol abuse.",
+   "recommendation": "Add a check `require(signerAddr == msg.sender, \"caller must be signer\")` (or an explicit authorization mapping) in each `*WithSig` function.",
+   "confidence": 0.97
+  },
+  {
+   "title": "Unrestricted upgradeProject allows anyone to reset project state",
+   "severity": "High",
+   "category": "ACCESS",
+   "file": "BlueprintCore.sol",
+   "function": "upgradeProject()",
+   "description": "The `upgradeProject` function is public and only checks that the project exists via `hasProject`. It does not restrict access to the contract owner or admin, allowing any external caller to reset a project's `requestProposalID`, `requestDeploymentID`, and `proposedSolverAddr` to their default values.",
+   "attackPath": "1. Attacker calls `upgradeProject(projectId)` for any existing project. 2. The function clears the project's proposal and deployment identifiers. 3. The original project owner can no longer reference the cleared IDs, causing loss of pending work or enabling the attacker to reuse the project ID.",
+   "impact": "Project state can be arbitrarily cleared, leading to denial of service for legitimate users and potential loss of funds tied to the cleared requests.",
+   "recommendation": "Restrict `upgradeProject` to only the contract owner or a designated admin using an `onlyOwner` or `onlyAdmin` modifier.",
+   "confidence": 0.95
+  },
+  {
+   "title": "Public upgradeProject function allows anyone to reset project state",
+   "severity": "High",
+   "category": "ACCESS",
+   "file": "crestal-omni-contracts/src/history/BlueprintCoreV4.sol",
+   "function": "upgradeProject()",
+   "description": "The `upgradeProject` function is declared `public` and only checks that the project exists via `hasProject`. It does not restrict the caller to the project owner or an admin, allowing any external address to reset the project's proposal and deployment IDs and clear the assigned solver. This can be used to disrupt ongoing projects.",
+   "attackPath": "1. Attacker identifies an existing `projectId` (e.g., by querying events). 2. Calls `upgradeProject(projectId)`. 3. The contract clears `requestProposalID`, `requestDeploymentID`, and `proposedSolverAddr`. 4. The legitimate project owner can no longer reference the original requests, causing denial of service.",
+   "impact": "Project owners lose progress; services cannot be completed, leading to loss of fees and reputation.",
+   "recommendation": "Restrict `upgradeProject` to the project owner or a privileged admin using an `onlyOwner` or `onlyProjectOwner` modifier, and emit an event on reset.",
+   "confidence": 0.95
+  },
+  {
+   "title": "Unrestricted updateWorkerDeploymentConfig allows arbitrary config changes",
+   "severity": "High",
+   "category": "ACCESS",
+   "file": "crestal-omni-contracts/src/history/BlueprintV3.sol",
+   "function": "updateWorkerDeploymentConfig()",
+   "description": "The function permits any caller to modify the deployment configuration of a request without verifying that the caller is the assigned worker or the project owner. It only checks that the request exists and is not in the Issued state, allowing malicious actors to overwrite or reset configs, potentially causing incorrect deployments or denial‑of‑service.",
+   "attackPath": "1. Attacker discovers a pending deployment request ID (e.g., via public getters).  \n2. Calls `updateWorkerDeploymentConfig(projectId, requestID, maliciousConfig)`.  \n3. The contract updates the stored config and emits an `UpdateDeploymentConfig` event, while the legitimate worker later executes with altered parameters or the request status may be reset, disrupting the service.",
+   "impact": "Attackers can tamper with deployment parameters, leading to failed or malicious deployments, loss of funds, and reputational damage to the protocol.",
+   "recommendation": "Restrict the function to only the worker address that picked up the request (or the project owner) by adding a `require(msg.sender == requestDeploymentStatus[requestID].deployWorkerAddr)` check, and consider adding a nonce or timestamp to prevent replay.",
+   "confidence": 0.95
+  },
+  {
+   "title": "Unrestricted worker assignment allows any address to hijack deployment requests",
+   "severity": "High",
+   "category": "SOLVENCY",
+   "file": "BlueprintCore.sol",
+   "function": "submitDeploymentRequest()",
+   "description": "The function `submitDeploymentRequest` lets any caller pick up a deployment request without verifying that the caller is a registered worker or otherwise authorized. It only checks the request’s status and then records `msg.sender` as `deployWorkerAddr`. Subsequent payment logic (outside the shown snippet) likely rewards this address, enabling an attacker to claim fees intended for the legitimate worker.",
+   "attackPath": "1. Attacker scans pending deployment requests (status Init).  \n2. Calls `submitDeploymentRequest(projectId, requestID)`; the contract sets the request status to `Pickup` and stores the attacker’s address as `deployWorkerAddr`.  \n3. When the protocol later releases the service fee (e.g., after proof submission), the funds are transferred to the attacker’s address.",
+   "impact": "Funds allocated for legitimate workers can be diverted to an attacker, causing loss of compensation and undermining economic incentives.",
+   "recommendation": "Restrict `submitDeploymentRequest` to addresses that are registered workers (e.g., require a non‑empty `workersPublicKey[msg.sender]` or maintain a worker whitelist) and reject unauthorized callers.",
+   "confidence": 0.92
+  },
+  {
+   "title": "Missing access control in BlueprintV2 UpdateWorkerDeploymentConfig",
+   "severity": "High",
+   "category": "ACCESS",
+   "file": "crestal-omni-contracts/src/history/BlueprintV2.sol",
+   "function": "UpdateWorkerDeploymentConfig()",
+   "description": "This legacy function mirrors the V3 version and allows any external address to modify a deployment request’s configuration without verifying the caller’s authority. Only existence and state checks are performed, so an attacker can overwrite legitimate configuration data.",
+   "attackPath": "1. Attacker identifies a valid `requestID`.  \n2. Calls `UpdateWorkerDeploymentConfig(projectId, requestID, maliciousConfig)`.  \n3. The contract updates the config and emits the event, potentially causing the worker to act on malicious data.",
+   "impact": "Similar to the V3 issue – tampered deployment configurations can cause failed or malicious service execution and possible fund loss.",
+   "recommendation": "Add an access check ensuring only the assigned worker (or authorized entity) can invoke the function, e.g., `require(msg.sender == requestDeploymentStatus[requestID].deployWorkerAddr)`.",
+   "confidence": 0.9
+  },
+  {
+   "title": "Denial‑of‑service by locking deployment requests in Pickup state",
+   "severity": "Medium",
+   "category": "LIVENESS",
+   "file": "BlueprintCore.sol",
+   "function": "submitDeploymentRequest()",
+   "description": "Because any address can call `submitDeploymentRequest` and set a request’s status to `Pickup`, a malicious actor can claim a request and then never submit a proof. The request remains in `Pickup`, preventing any other participant from picking it up and effectively freezing the service.",
+   "attackPath": "1. Attacker calls `submitDeploymentRequest` on a target request, becoming the recorded worker.  \n2. Attacker never calls `submitProofOfDeployment`, leaving the request in `Pickup`.  \n3. Other legitimate workers cannot call `submitDeploymentRequest` for that request (status check fails), so the request is permanently stalled.",
+   "impact": "Legitimate workers are blocked from fulfilling services, leading to stalled projects and loss of revenue for users.",
+   "recommendation": "Add a timeout or a reclamation mechanism that allows the original requester or an authorized party to reset the request, and restrict who may call `submitDeploymentRequest` to authorized workers.",
+   "confidence": 0.85
+  },
+  {
+   "title": "tryPrank modifier silently swallows prank failures in test helpers",
+   "severity": "Medium",
+   "category": "LIVENESS",
+   "file": "crestal-omni-contracts/lib/openzeppelin-foundry-upgrades/src/internal/Core.sol",
+   "function": "tryPrank()",
+   "description": "The `tryPrank` modifier catches all errors from `vm.startPrank(deployer)` and proceeds to execute the wrapped function without the prank. In a test context this masks `OwnableUnauthorizedAccount` and other authorization failures, causing tests to pass incorrectly and giving false confidence about access control.",
+   "attackPath": "1. Developer writes a test that uses `upgradeProxy(..., tryCaller)` expecting the call to revert when `tryCaller` is not the admin. 2. `vm.startPrank` fails (e.g., because the address has no code in the test env). 3. The catch block runs the upgrade call as the real `msg.sender` (often the test deployer who *is* the admin). 4. The upgrade succeeds, the test passes, but the real contract would have reverted for the unauthorized caller.",
+   "impact": "False-negative test results; access-control bugs in upgrade logic go undetected and may reach production.",
+   "recommendation": "Remove the catch-all handler or at least `revert` when `startPrank` fails. Use `vm.prank` (which reverts on failure) instead of `vm.startPrank`/`stopPrank` for single-call impersonation.",
+   "confidence": 0.85
+  },
+  {
+   "title": "Potential reentrancy via ERC‑20 transfer in userTopUp allowing inflated credit",
+   "severity": "High",
+   "category": "SOLVENCY",
+   "file": "BlueprintCore.sol",
+   "function": "userTopUp()",
+   "description": "`userTopUp` invokes `payWithERC20` (an external ERC‑20 `transferFrom`) before updating the internal balance `userTopUpMp`. A malicious ERC‑20 token could re‑enter `userTopUp` during `transferFrom`, causing the balance to be incremented multiple times while only a single (or no) token transfer occurs.",
+   "attackPath": "1. Attacker deploys a malicious ERC‑20 token whose `transferFrom` calls back into `userTopUp`.  \n2. Calls `userTopUp` with that token address and a small amount.  \n3. During the `transferFrom` callback, the token re‑enters `userTopUp`, repeating the call.  \n4. After recursion finishes, `userTopUpMp[msg.sender][token]` reflects the sum of all recursive calls, but the token contract may have transferred only the initial amount (or none).",
+   "impact": "The contract’s accounting of user balances becomes inflated, allowing the attacker to withdraw more funds than actually deposited, leading to loss of assets.",
+   "recommendation": "Update the internal balance before making the external token call, use OpenZeppelin’s `SafeERC20.safeTransferFrom`, and protect the function with a `nonReentrant` guard.",
+   "confidence": 0.78
+  },
+  {
+   "title": "Command injection via unsanitized user input in buildValidateCommand",
+   "severity": "High",
+   "category": "ACCESS",
+   "file": "crestal-omni-contracts/lib/openzeppelin-foundry-upgrades/src/internal/Core.sol",
+   "function": "buildValidateCommand()",
+   "description": "The `buildValidateCommand` function constructs a shell command array by directly interpolating user-controlled `Options` fields (`contractName`, `referenceContract`, `referenceBuildInfoDir`, `exclude[]`, `unsafeAllow`) into the command arguments without sanitization. These values are passed to `Utils.runAsBashCommand` which executes them via `vm.ffi` (Foundry cheatcode). An attacker who can influence these options during a deployment/upgrade script execution could inject arbitrary shell commands.",
+   "attackPath": "1. Attacker influences the `contractName` or `referenceContract` parameter passed to `validateUpgrade`/`prepareUpgrade` (e.g., via a malicious PR or compromised deployment config). 2. The unsanitized string is interpolated into the `npx @openzeppelin/upgrades-core validate` command. 3. Shell metacharacters (e.g., `; rm -rf /`, `$(malicious_command)`) execute arbitrary code on the machine running the deployment script (CI/CD, developer laptop, Defender relayer).",
+   "impact": "Remote code execution on the deployment environment, leading to private key theft, supply-chain compromise, or unauthorized contract upgrades.",
+   "recommendation": "Avoid shell interpolation; use `vm.ffi` with an explicit argument array (already done) but ensure each argument is a single, validated token. Reject any input containing whitespace, quotes, or shell metacharacters. Prefer the programmatic validation API over CLI invocation.",
+   "confidence": 0.75
+  },
+  {
+   "title": "Replayable signed deployment requests lack nonce, enabling multiple submissions",
+   "severity": "Medium",
+   "category": "ACCESS",
+   "file": "crestal-omni-contracts/src/history/BlueprintV3.sol",
+   "function": "createProjectIDAndDeploymentRequestWithSig()",
+   "description": "The function validates a signature over `(projectId, base64Proposal, serverURL)` but does not include a unique nonce or deadline in the signed struct. An attacker who obtains a valid user signature can replay the call repeatedly, creating duplicate deployment requests and consuming the user’s topped‑up balance.",
+   "attackPath": "1. Attacker obtains a signed message from a user (e.g., via off‑chain interaction).  \n2. Calls `createProjectIDAndDeploymentRequestWithSig` multiple times with the same parameters.  \n3. Each call creates a new request (if request IDs are generated per call) and triggers fee/top‑up deductions, draining the user’s funds.",
+   "impact": "Repeated request creation can exhaust a user’s funds, flood the system with spam requests, and increase gas costs for honest participants.",
+   "recommendation": "Incorporate a unique nonce (or timestamp with expiration) into the signed data and store used nonces to enforce one‑time use.",
+   "confidence": 0.75
+  },
+  {
+   "title": "Upgrade validation skipped when unsafeSkipAllChecks is true",
+   "severity": "Medium",
+   "category": "ACCESS",
+   "file": "crestal-omni-contracts/lib/openzeppelin-foundry-upgrades/src/internal/Core.sol",
+   "function": "_validate()",
+   "description": "The `_validate` function unconditionally returns early if `opts.unsafeSkipAllChecks` is set, bypassing all storage-layout and upgrade-safety checks. While intended for emergency upgrades, this flag can be set by any caller of the public `Upgrades.upgradeProxy`/`Defender.upgradeProxy` entry points (not shown here but in scope), allowing a compromised or malicious deployer to push an incompatible implementation that corrupts proxy storage.",
+   "attackPath": "1. Attacker gains control of the deployment script / CI credentials / Defender API key. 2. They invoke `upgradeProxy` with `unsafeSkipAllChecks = true` and a malicious implementation that reorders state variables. 3. The proxy upgrades successfully; existing storage (user balances, proposal IDs, NFT mappings) is misinterpreted, leading to fund loss or protocol paralysis.",
+   "impact": "Storage collision after upgrade → loss of user funds, broken proposal/deployment accounting, inability to withdraw fees.",
+   "recommendation": "Restrict `unsafeSkipAllChecks` to a multi-sig or time-locked governance path; do not expose it as a simple boolean in deployment scripts. Add a runtime check that the caller is the protocol's emergency multisig.",
+   "confidence": 0.7
+  }
+ ],
+ "rawCount": 12,
+ "dropped": 0,
+ "durationMs": 248116,
+ "filesInScope": [
+  {
+   "rel": "crestal-omni-contracts/lib/openzeppelin-foundry-upgrades/src/Defender.sol",
+   "bytes": 8467,
+   "score": 1
+  },
+  {
+   "rel": "crestal-omni-contracts/lib/openzeppelin-foundry-upgrades/src/LegacyUpgrades.sol",
+   "bytes": 16197,
+   "score": 2
+  },
+  {
+   "rel": "crestal-omni-contracts/lib/openzeppelin-foundry-upgrades/src/Upgrades.sol",
+   "bytes": 26444,
+   "score": 3
+  },
+  {
+   "rel": "crestal-omni-contracts/lib/openzeppelin-foundry-upgrades/src/internal/Core.sol",
+   "bytes": 20851,
+   "score": 6
+  },
+  {
+   "rel": "crestal-omni-contracts/lib/openzeppelin-foundry-upgrades/src/internal/DefenderDeploy.sol",
+   "bytes": 13777,
+   "score": 1
+  },
+  {
+   "rel": "crestal-omni-contracts/lib/openzeppelin-foundry-upgrades/src/internal/Utils.sol",
+   "bytes": 10081,
+   "score": 1
+  },
+  {
+   "rel": "crestal-omni-contracts/lib/openzeppelin-foundry-upgrades/src/internal/Versions.sol",
+   "bytes": 270,
+   "score": 0
+  },
+  {
+   "rel": "crestal-omni-contracts/src/Blueprint.sol",
+   "bytes": 3654,
+   "score": 0
+  },
+  {
+   "rel": "crestal-omni-contracts/src/BlueprintCore.sol",
+   "bytes": 29740,
+   "score": 7
+  },
+  {
+   "rel": "crestal-omni-contracts/src/BlueprintV1.sol",
+   "bytes": 836,
+   "score": 0
+  },
+  {
+   "rel": "crestal-omni-contracts/src/BlueprintV2.sol",
+   "bytes": 742,
+   "score": 0
+  },
+  {
+   "rel": "crestal-omni-contracts/src/BlueprintV3.sol",
+   "bytes": 945,
+   "score": 0
+  },
+  {
+   "rel": "crestal-omni-contracts/src/BlueprintV4.sol",
+   "bytes": 1149,
+   "score": 0
+  },
+  {
+   "rel": "crestal-omni-contracts/src/BlueprintV5.sol",
+   "bytes": 1088,
+   "score": 0
+  },
+  {
+   "rel": "crestal-omni-contracts/src/EIP712.sol",
+   "bytes": 1842,
+   "score": 2
+  },
+  {
+   "rel": "crestal-omni-contracts/src/Payment.sol",
+   "bytes": 1354,
+   "score": 2
+  },
+  {
+   "rel": "crestal-omni-contracts/src/history/BlueprintCoreV4.sol",
+   "bytes": 33228,
+   "score": 7
+  },
+  {
+   "rel": "crestal-omni-contracts/src/history/BlueprintV1.sol",
+   "bytes": 11915,
+   "score": 1
+  },
+  {
+   "rel": "crestal-omni-contracts/src/history/BlueprintV2.sol",
+   "bytes": 22206,
+   "score": 2
+  },
+  {
+   "rel": "crestal-omni-contracts/src/history/BlueprintV3.sol",
+   "bytes": 27698,
+   "score": 5
+  },
+  {
+   "rel": "crestal-omni-contracts/src/history/BlueprintV4.sol",
+   "bytes": 1484,
+   "score": 0
+  }
+ ]
+}

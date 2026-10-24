@@ -1,0 +1,91 @@
+{
+ "repo": "sherlock-audit/2025-05-layeredge",
+ "outcome": "hypotheses",
+ "model": "openai/gpt-oss-120b (Together), nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter)",
+ "sources": [
+  "openai/gpt-oss-120b (Together)",
+  "nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter)"
+ ],
+ "coverage": {
+  "scopeFiles": 3,
+  "scopeBytes": 37052,
+  "analysedBytes": 37051,
+  "analysedPct": 100,
+  "chunksPlanned": 2,
+  "chunksAnalysed": 2,
+  "filesFull": 3,
+  "filesPartial": [],
+  "notAnalysedFiles": [],
+  "skipped": {
+   "tests": 5,
+   "mocks": 0,
+   "scripts": 4,
+   "vendor": 0,
+   "interfaces": 1,
+   "tooSmall": 0,
+   "tooLarge": 0,
+   "noLogic": 0,
+   "symlink": 0,
+   "unreadable": 0
+  },
+  "submodules": {
+   "declared": 4,
+   "fetched": [],
+   "failed": [],
+   "skipped": [
+    {
+     "path": "edgen-staking/lib/forge-std",
+     "reason": "afhankelijkheid"
+    },
+    {
+     "path": "edgen-staking/lib/openzeppelin-contracts",
+     "reason": "afhankelijkheid"
+    },
+    {
+     "path": "edgen-staking/lib/openzeppelin-contracts-upgradeable",
+     "reason": "afhankelijkheid"
+    },
+    {
+     "path": "edgen-staking/lib/solady",
+     "reason": "afhankelijkheid"
+    }
+   ]
+  },
+  "droppedHypotheses": 0,
+  "deadlineHit": false
+ },
+ "hypotheses": [
+  {
+   "title": "Missing upgrade authorization allows arbitrary contract upgrades",
+   "severity": "Critical",
+   "category": "ACCESS",
+   "file": "LayerEdgeStaking.sol",
+   "function": "",
+   "description": "The contract inherits `UUPSUpgradeable` but does not override the internal `_authorizeUpgrade` function, which is required to restrict upgrades to privileged accounts. Consequently, any external address can invoke `upgradeTo` or `upgradeToAndCall` on the proxy and replace the implementation with a malicious contract, gaining full control over the staking logic and assets.",
+   "attackPath": "1. Attacker calls `upgradeTo(address maliciousImpl)` on the proxy contract. 2. Because `_authorizeUpgrade` is empty, the call succeeds without any permission check. 3. The malicious implementation includes functions to drain `rewardsReserve`, transfer staked tokens, or alter ownership, allowing the attacker to exfiltrate all funds.",
+   "impact": "Total loss of user‑deposited tokens and rewards; attacker gains complete control over the protocol.",
+   "recommendation": "Override `_authorizeUpgrade` with an access‑controlled modifier, e.g., `function _authorizeUpgrade(address) internal override onlyOwner {}` (or a multisig/governance check).",
+   "confidence": 1
+  }
+ ],
+ "rawCount": 1,
+ "dropped": 0,
+ "durationMs": 112252,
+ "filesInScope": [
+  {
+   "rel": "edgen-staking/src/WETH9.sol",
+   "bytes": 1863,
+   "score": 6
+  },
+  {
+   "rel": "edgen-staking/src/library/FenwickTree.sol",
+   "bytes": 1490,
+   "score": 2
+  },
+  {
+   "rel": "edgen-staking/src/stake/LayerEdgeStaking.sol",
+   "bytes": 33699,
+   "score": 12
+  }
+ ]
+}

@@ -1,0 +1,1431 @@
+{
+ "repo": "sherlock-audit/2025-07-cap",
+ "outcome": "hypotheses",
+ "model": "nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter), openai/gpt-oss-120b (Together)",
+ "sources": [
+  "nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter)",
+  "openai/gpt-oss-120b (Together)"
+ ],
+ "coverage": {
+  "scopeFiles": 228,
+  "scopeBytes": 1200088,
+  "analysedBytes": 103596,
+  "analysedPct": 9,
+  "chunksPlanned": 6,
+  "chunksAnalysed": 6,
+  "filesFull": 8,
+  "filesPartial": [],
+  "notAnalysedFiles": [
+   "cap-contracts/contracts/access/Access.sol",
+   "cap-contracts/contracts/access/AccessControl.sol",
+   "cap-contracts/contracts/delegation/providers/symbiotic/SymbioticNetwork.sol",
+   "cap-contracts/contracts/delegation/providers/symbiotic/SymbioticNetworkMiddleware.sol",
+   "cap-contracts/contracts/feeAuction/FeeAuction.sol",
+   "cap-contracts/contracts/feeReceiver/FeeReceiver.sol",
+   "cap-contracts/contracts/fractionalReserve/LimitModule.sol",
+   "cap-contracts/contracts/lendingPool/libraries/LiquidationLogic.sol",
+   "cap-contracts/contracts/lendingPool/libraries/ReserveLogic.sol",
+   "cap-contracts/contracts/lendingPool/libraries/ValidationLogic.sol",
+   "cap-contracts/contracts/lendingPool/libraries/ViewLogic.sol",
+   "cap-contracts/contracts/lendingPool/libraries/configuration/AgentConfiguration.sol",
+   "cap-contracts/contracts/lendingPool/libraries/math/MathUtils.sol",
+   "cap-contracts/contracts/lendingPool/libraries/math/PercentageMath.sol",
+   "cap-contracts/contracts/lendingPool/libraries/math/WadRayMath.sol",
+   "cap-contracts/contracts/lendingPool/tokens/DebtToken.sol",
+   "cap-contracts/contracts/lendingPool/tokens/base/MintableERC20.sol",
+   "cap-contracts/contracts/lendingPool/tokens/base/ScaledToken.sol",
+   "cap-contracts/contracts/oracle/Oracle.sol",
+   "cap-contracts/contracts/oracle/PriceOracle.sol",
+   "cap-contracts/contracts/oracle/RateOracle.sol",
+   "cap-contracts/contracts/oracle/libraries/AaveAdapter.sol",
+   "cap-contracts/contracts/oracle/libraries/CapTokenAdapter.sol",
+   "cap-contracts/contracts/oracle/libraries/ChainlinkAdapter.sol",
+   "cap-contracts/contracts/oracle/libraries/StakedCapAdapter.sol",
+   "cap-contracts/contracts/oracle/libraries/VaultAdapter.sol",
+   "cap-contracts/contracts/storage/AccessStorageUtils.sol",
+   "cap-contracts/contracts/storage/DebtTokenStorageUtils.sol",
+   "cap-contracts/contracts/storage/DelegationStorageUtils.sol",
+   "cap-contracts/contracts/storage/FeeAuctionStorageUtils.sol",
+   "cap-contracts/contracts/storage/FeeReceiverStorageUtils.sol",
+   "cap-contracts/contracts/storage/FractionalReserveStorageUtils.sol",
+   "cap-contracts/contracts/storage/LenderStorageUtils.sol",
+   "cap-contracts/contracts/storage/MintableERC20StorageUtils.sol",
+   "cap-contracts/contracts/storage/MinterStorageUtils.sol",
+   "cap-contracts/contracts/storage/PriceOracleStorageUtils.sol",
+   "cap-contracts/contracts/storage/RateOracleStorageUtils.sol",
+   "cap-contracts/contracts/storage/ScaledTokenStorageUtils.sol",
+   "cap-contracts/contracts/storage/StakedCapStorageUtils.sol",
+   "cap-contracts/contracts/storage/SymbioticNetworkMiddlewareStorageUtils.sol",
+   "cap-contracts/contracts/storage/SymbioticNetworkStorageUtils.sol",
+   "cap-contracts/contracts/storage/VaultAdapterStorageUtils.sol",
+   "cap-contracts/contracts/storage/VaultStorageUtils.sol",
+   "cap-contracts/contracts/testnetCampaign/OAppMessenger.sol",
+   "cap-contracts/contracts/testnetCampaign/PreMainnetVault.sol",
+   "cap-contracts/contracts/token/CapToken.sol",
+   "cap-contracts/contracts/token/L2Token.sol",
+   "cap-contracts/contracts/token/OFTLockbox.sol",
+   "cap-contracts/contracts/token/OFTPermit.sol",
+   "cap-contracts/contracts/token/StakedCap.sol",
+   "cap-contracts/contracts/vault/FractionalReserve.sol",
+   "cap-contracts/contracts/vault/Minter.sol",
+   "cap-contracts/contracts/vault/Vault.sol",
+   "cap-contracts/contracts/vault/libraries/FractionalReserveLogic.sol",
+   "cap-contracts/contracts/vault/libraries/MinterLogic.sol",
+   "cap-contracts/contracts/vault/libraries/VaultLogic.sol",
+   "cap-contracts/contracts/zap/SafeOFTLzComposer.sol",
+   "cap-contracts/contracts/zap/ZapOFTComposer.sol",
+   "cap-contracts/lib/layerzero-devtools/examples/mint-burn-oft-adapter/contracts/MyMintBurnOFTAdapter.sol",
+   "cap-contracts/lib/layerzero-devtools/examples/mint-burn-oft-adapter/contracts/MyOFT.sol",
+   "cap-contracts/lib/layerzero-devtools/examples/native-oft-adapter/contracts/MyNativeOFTAdapter.sol",
+   "cap-contracts/lib/layerzero-devtools/examples/native-oft-adapter/contracts/MyOFT.sol",
+   "cap-contracts/lib/layerzero-devtools/examples/oapp/contracts/MyOApp.sol",
+   "cap-contracts/lib/layerzero-devtools/examples/oapp-read/contracts/MyOAppRead.sol",
+   "cap-contracts/lib/layerzero-devtools/examples/oft/contracts/MyOFT.sol",
+   "cap-contracts/lib/layerzero-devtools/examples/oft-adapter/contracts/MyOFT.sol",
+   "cap-contracts/lib/layerzero-devtools/examples/oft-adapter/contracts/MyOFTAdapter.sol",
+   "cap-contracts/lib/layerzero-devtools/examples/oft-solana/contracts/MyOFT.sol",
+   "cap-contracts/lib/layerzero-devtools/examples/oft-upgradeable/contracts/MyOFTAdapterUpgradeable.sol",
+   "cap-contracts/lib/layerzero-devtools/examples/oft-upgradeable/contracts/MyOFTUpgradeable.sol",
+   "cap-contracts/lib/layerzero-devtools/examples/onft721/contracts/MyONFT721.sol",
+   "cap-contracts/lib/layerzero-devtools/examples/onft721/contracts/MyONFT721Adapter.sol",
+   "cap-contracts/lib/layerzero-devtools/examples/uniswap-read/contracts/UniswapV3QuoteDemo.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/oapp-alt-evm/contracts/oapp/OAppAlt.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/oapp-alt-evm/contracts/oapp/OAppSenderAlt.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/oapp-evm/contracts/oapp/OApp.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/oapp-evm/contracts/oapp/OAppCore.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/oapp-evm/contracts/oapp/OAppRead.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/oapp-evm/contracts/oapp/OAppReceiver.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/oapp-evm/contracts/oapp/OAppSender.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/oapp-evm/contracts/oapp/libs/OAppOptionsType3.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/oapp-evm/contracts/oapp/libs/OptionsBuilder.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/oapp-evm/contracts/oapp/libs/ReadCodecV1.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/oapp-evm/contracts/oapp/utils/RateLimiter.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/oapp-evm/contracts/precrime/OAppPreCrimeSimulator.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/oapp-evm/contracts/precrime/PreCrime.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/oapp-evm/contracts/precrime/libs/Packet.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/oapp-evm-upgradeable/contracts/oapp/OAppCoreUpgradeable.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/oapp-evm-upgradeable/contracts/oapp/OAppReceiverUpgradeable.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/oapp-evm-upgradeable/contracts/oapp/OAppSenderUpgradeable.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/oapp-evm-upgradeable/contracts/oapp/OAppUpgradeable.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/oapp-evm-upgradeable/contracts/oapp/libs/OAppOptionsType3Upgradeable.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/oapp-evm-upgradeable/contracts/precrime/OAppPreCrimeSimulatorUpgradeable.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/oapp-evm-upgradeable/contracts/precrime/PreCrimeUpgradeable.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/oapp-evm-upgradeable/contracts/precrime/extensions/PreCrimeE1Upgradeable.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/oft-alt-evm/contracts/OFTAdapterAlt.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/oft-alt-evm/contracts/OFTAlt.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/oft-alt-evm/contracts/OFTAltCore.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/oft-evm/contracts/Fee.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/oft-evm/contracts/MintBurnOFTAdapter.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/oft-evm/contracts/NativeOFTAdapter.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/oft-evm/contracts/OFT.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/oft-evm/contracts/OFTAdapter.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/oft-evm/contracts/OFTCore.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/oft-evm/contracts/libs/OFTComposeMsgCodec.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/oft-evm/contracts/libs/OFTMsgCodec.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/oft-evm-upgradeable/contracts/oft/OFTAdapterUpgradeable.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/oft-evm-upgradeable/contracts/oft/OFTCoreUpgradeable.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/oft-evm-upgradeable/contracts/oft/OFTUpgradeable.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/onft-evm/contracts/libs/ONFTComposeMsgCodec.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/onft-evm/contracts/onft721/ONFT721.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/onft-evm/contracts/onft721/ONFT721Adapter.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/onft-evm/contracts/onft721/ONFT721Core.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/onft-evm/contracts/onft721/libs/ONFT721MsgCodec.sol",
+   "cap-contracts/lib/layerzero-devtools/packages/test-devtools-evm-foundry/contracts/OptionsHelper.sol",
+   "cap-contracts/lib/layerzero-v1/contracts/Endpoint.sol",
+   "cap-contracts/lib/layerzero-v1/contracts/NonceContract.sol",
+   "cap-contracts/lib/layerzero-v1/contracts/Relayer.sol",
+   "cap-contracts/lib/layerzero-v1/contracts/Treasury.sol",
+   "cap-contracts/lib/layerzero-v1/contracts/TreasuryV2.sol",
+   "cap-contracts/lib/layerzero-v1/contracts/proof/FPValidator.sol",
+   "cap-contracts/lib/layerzero-v1/contracts/proof/MPTValidator01.sol",
+   "cap-contracts/lib/layerzero-v1/contracts/proof/utility/Buffer.sol",
+   "cap-contracts/lib/layerzero-v1/contracts/proof/utility/LayerZeroPacket.sol",
+   "cap-contracts/lib/layerzero-v1/contracts/proof/utility/RLPDecode.sol",
+   "cap-contracts/lib/layerzero-v1/contracts/proof/utility/UltraLightNodeEVMDecoder.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/Executor.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/ExecutorFeeLib.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/MessageLibBase.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/PriceFeed.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/ReceiveLibBaseE2.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/SendLibBase.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/SendLibBaseE2.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/SimpleReadExecutor.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/Treasury.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/Worker.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/libs/ExecutorOptions.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/libs/SafeCall.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/LzExecutor.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/ReceiveUlnBase.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/SendUlnBase.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/UlnBase.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/dvn/DVNFeeLib.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/dvn/MultiSig.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/dvn/SimpleReadDVN.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/dvn/adapters/CCIP/CCIPDVNAdapter.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/dvn/adapters/CCIP/CCIPDVNAdapterFeeLib.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/dvn/adapters/DVNAdapterBase.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/dvn/adapters/axelar/AxelarDVNAdapter.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/dvn/adapters/axelar/AxelarDVNAdapterFeeLib.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/dvn/adapters/libs/DVNAdapterMessageCodec.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/libs/DVNOptions.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/libs/ReadCmdCodecV1.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/libs/SupportedCmdTypes.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/libs/UlnOptions.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/readlib/ReadLib1002.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/readlib/ReadLib1002View.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/readlib/ReadLibBase.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/uln301/AddressSizeConfig.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/uln301/ReceiveLibBaseE1.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/uln301/ReceiveUln301.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/uln301/ReceiveUln301View.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/uln301/SendLibBaseE1.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/uln301/SendUln301.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/uln301/TreasuryFeeHandler.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/uln302/ReceiveUln302.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/uln302/ReceiveUln302View.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/uln302/SendUln302.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/upgradeable/WorkerUpgradeable.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/upgradeable/proxy/ProxyAdmin.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/upgradeable/proxy/TransparentUpgradeableProxy.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/oapp/OApp.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/oapp/OAppCore.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/oapp/OAppRead.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/oapp/OAppReceiver.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/oapp/OAppSender.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/oapp/examples/LzReadCounter.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/oapp/examples/OmniCounter.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/oapp/examples/OmniCounterAbstract.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/oapp/examples/OmniCounterPreCrime.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/oapp/libs/OAppOptionsType3.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/oapp/libs/OptionsBuilder.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/oapp/libs/ReadCmdCodecV1.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/oapp/utils/RateLimiter.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/oft/OFT.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/oft/OFTAdapter.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/oft/OFTCore.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/oft/libs/OFTComposeMsgCodec.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/oft/libs/OFTMsgCodec.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/precrime/OAppPreCrimeSimulator.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/precrime/PreCrime.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/precrime/extensions/PreCrimeE1.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/precrime/libs/Packet.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/protocol/contracts/EndpointV2.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/protocol/contracts/EndpointV2Alt.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/protocol/contracts/EndpointV2View.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/protocol/contracts/EndpointV2ViewUpgradeable.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/protocol/contracts/MessageLibManager.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/protocol/contracts/MessagingChannel.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/protocol/contracts/MessagingComposer.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/protocol/contracts/MessagingContext.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/protocol/contracts/libs/AddressCast.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/protocol/contracts/libs/CalldataBytesLib.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/protocol/contracts/libs/Errors.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/protocol/contracts/libs/GUID.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/protocol/contracts/libs/Transfer.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/protocol/contracts/messagelib/BlockedMessageLib.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/protocol/contracts/messagelib/SimpleMessageLib.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/protocol/contracts/messagelib/libs/BitMaps.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/protocol/contracts/messagelib/libs/ExecutorOptions.sol",
+   "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/protocol/contracts/messagelib/libs/PacketV1Codec.sol",
+   "cap-contracts/lib/openzeppelin-foundry-upgrades/src/Defender.sol",
+   "cap-contracts/lib/openzeppelin-foundry-upgrades/src/LegacyUpgrades.sol",
+   "cap-contracts/lib/openzeppelin-foundry-upgrades/src/Upgrades.sol",
+   "cap-contracts/lib/openzeppelin-foundry-upgrades/src/internal/Core.sol",
+   "cap-contracts/lib/openzeppelin-foundry-upgrades/src/internal/DefenderDeploy.sol",
+   "cap-contracts/lib/openzeppelin-foundry-upgrades/src/internal/Utils.sol",
+   "cap-contracts/lib/openzeppelin-foundry-upgrades/src/internal/Versions.sol",
+   "cap-contracts/lib/solidity-bytes-utils/contracts/AssertBytes.sol",
+   "cap-contracts/lib/solidity-bytes-utils/contracts/BytesLib.sol"
+  ],
+  "skipped": {
+   "tests": 270,
+   "mocks": 39,
+   "scripts": 45,
+   "vendor": 0,
+   "interfaces": 98,
+   "tooSmall": 0,
+   "tooLarge": 0,
+   "noLogic": 2,
+   "symlink": 0,
+   "unreadable": 0
+  },
+  "submodules": {
+   "declared": 6,
+   "fetched": [
+    "cap-contracts/lib/layerzero-devtools",
+    "cap-contracts/lib/layerzero-v2",
+    "cap-contracts/lib/solidity-bytes-utils",
+    "cap-contracts/lib/openzeppelin-foundry-upgrades",
+    "cap-contracts/lib/layerzero-v1"
+   ],
+   "failed": [],
+   "skipped": [
+    {
+     "path": "cap-contracts/lib/forge-std",
+     "reason": "afhankelijkheid"
+    }
+   ]
+  },
+  "droppedHypotheses": 1,
+  "deadlineHit": false
+ },
+ "hypotheses": [
+  {
+   "title": "Missing reentrancy protection on Lender’s external state‑changing functions",
+   "severity": "Medium",
+   "category": "ORDERING",
+   "file": "cap-contracts/contracts/lendingPool/Lender.sol",
+   "function": "borrow()",
+   "description": "The `borrow`, `repay`, `liquidate`, `realizeInterest`, `realizeRestakerInterest`, `openLiquidation` and `closeLiquidation` functions are external and invoke external library contracts (`BorrowLogic`, `LiquidationLogic`, etc.) that perform token transfers. The contract does not inherit from or use OpenZeppelin’s `ReentrancyGuard`, nor does it implement any custom non‑reentrant modifier.",
+   "attackPath": "1. Attacker deploys a malicious ERC‑777 (or ERC‑777‑compatible) token and registers it as a borrowable asset.  \n2. Attacker calls `borrow()` (or `repay()`/`liquidate()`) with the malicious token as `_asset`.  \n3. Inside `BorrowLogic.borrow` the contract transfers the token to the borrower **after** updating internal accounting.  \n4. The ERC‑777 token’s `tokensReceived` hook is triggered, re‑entering `borrow()` (or `repay()`/`liquidate()`) before the first call finishes, allowing the attacker to manipulate internal balances (e.g., inflate borrowed amount or bypass debt checks).  \n5. The attacker can repeat the re‑entrancy to drain assets or corrupt accounting.",
+   "impact": "An attacker can artificially inflate borrow limits, bypass debt checks, or extract assets, leading to loss of funds and potential insolvency of the lending pool.",
+   "recommendation": "Add OpenZeppelin’s `ReentrancyGuard` and apply the `nonReentrant` modifier to all external functions that modify state and involve external token transfers. Ensure that any internal accounting updates occur after all external calls.",
+   "confidence": 0.78
+  }
+ ],
+ "rawCount": 1,
+ "dropped": 1,
+ "durationMs": 592593,
+ "filesInScope": [
+  {
+   "rel": "cap-contracts/contracts/access/Access.sol",
+   "bytes": 1578,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/contracts/access/AccessControl.sol",
+   "bytes": 2364,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/contracts/delegation/Delegation.sol",
+   "bytes": 8626,
+   "score": 7
+  },
+  {
+   "rel": "cap-contracts/contracts/delegation/providers/symbiotic/SymbioticNetwork.sol",
+   "bytes": 2366,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/contracts/delegation/providers/symbiotic/SymbioticNetworkMiddleware.sol",
+   "bytes": 11827,
+   "score": 5
+  },
+  {
+   "rel": "cap-contracts/contracts/feeAuction/FeeAuction.sol",
+   "bytes": 6010,
+   "score": 4
+  },
+  {
+   "rel": "cap-contracts/contracts/feeReceiver/FeeReceiver.sol",
+   "bytes": 3507,
+   "score": 2
+  },
+  {
+   "rel": "cap-contracts/contracts/fractionalReserve/LimitModule.sol",
+   "bytes": 993,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/contracts/lendingPool/Lender.sol",
+   "bytes": 10718,
+   "score": 7
+  },
+  {
+   "rel": "cap-contracts/contracts/lendingPool/libraries/BorrowLogic.sol",
+   "bytes": 11743,
+   "score": 9
+  },
+  {
+   "rel": "cap-contracts/contracts/lendingPool/libraries/LiquidationLogic.sol",
+   "bytes": 4454,
+   "score": 6
+  },
+  {
+   "rel": "cap-contracts/contracts/lendingPool/libraries/ReserveLogic.sol",
+   "bytes": 3758,
+   "score": 2
+  },
+  {
+   "rel": "cap-contracts/contracts/lendingPool/libraries/ValidationLogic.sol",
+   "bytes": 5755,
+   "score": 2
+  },
+  {
+   "rel": "cap-contracts/contracts/lendingPool/libraries/ViewLogic.sol",
+   "bytes": 9368,
+   "score": 5
+  },
+  {
+   "rel": "cap-contracts/contracts/lendingPool/libraries/configuration/AgentConfiguration.sol",
+   "bytes": 1643,
+   "score": 2
+  },
+  {
+   "rel": "cap-contracts/contracts/lendingPool/libraries/math/MathUtils.sol",
+   "bytes": 3642,
+   "score": 2
+  },
+  {
+   "rel": "cap-contracts/contracts/lendingPool/libraries/math/PercentageMath.sol",
+   "bytes": 2376,
+   "score": 2
+  },
+  {
+   "rel": "cap-contracts/contracts/lendingPool/libraries/math/WadRayMath.sol",
+   "bytes": 4254,
+   "score": 2
+  },
+  {
+   "rel": "cap-contracts/contracts/lendingPool/tokens/DebtToken.sol",
+   "bytes": 4198,
+   "score": 6
+  },
+  {
+   "rel": "cap-contracts/contracts/lendingPool/tokens/base/MintableERC20.sol",
+   "bytes": 3600,
+   "score": 4
+  },
+  {
+   "rel": "cap-contracts/contracts/lendingPool/tokens/base/ScaledToken.sol",
+   "bytes": 3710,
+   "score": 2
+  },
+  {
+   "rel": "cap-contracts/contracts/oracle/Oracle.sol",
+   "bytes": 1034,
+   "score": 4
+  },
+  {
+   "rel": "cap-contracts/contracts/oracle/PriceOracle.sol",
+   "bytes": 4138,
+   "score": 4
+  },
+  {
+   "rel": "cap-contracts/contracts/oracle/RateOracle.sol",
+   "bytes": 3945,
+   "score": 7
+  },
+  {
+   "rel": "cap-contracts/contracts/oracle/libraries/AaveAdapter.sol",
+   "bytes": 693,
+   "score": 2
+  },
+  {
+   "rel": "cap-contracts/contracts/oracle/libraries/CapTokenAdapter.sol",
+   "bytes": 1694,
+   "score": 4
+  },
+  {
+   "rel": "cap-contracts/contracts/oracle/libraries/ChainlinkAdapter.sol",
+   "bytes": 984,
+   "score": 4
+  },
+  {
+   "rel": "cap-contracts/contracts/oracle/libraries/StakedCapAdapter.sol",
+   "bytes": 1192,
+   "score": 4
+  },
+  {
+   "rel": "cap-contracts/contracts/oracle/libraries/VaultAdapter.sol",
+   "bytes": 4753,
+   "score": 2
+  },
+  {
+   "rel": "cap-contracts/contracts/storage/AccessStorageUtils.sol",
+   "bytes": 732,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/contracts/storage/DebtTokenStorageUtils.sol",
+   "bytes": 771,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/contracts/storage/DelegationStorageUtils.sol",
+   "bytes": 780,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/contracts/storage/FeeAuctionStorageUtils.sol",
+   "bytes": 783,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/contracts/storage/FeeReceiverStorageUtils.sol",
+   "bytes": 793,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/contracts/storage/FractionalReserveStorageUtils.sol",
+   "bytes": 895,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/contracts/storage/LenderStorageUtils.sol",
+   "bytes": 726,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/contracts/storage/MintableERC20StorageUtils.sol",
+   "bytes": 819,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/contracts/storage/MinterStorageUtils.sol",
+   "bytes": 726,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/contracts/storage/PriceOracleStorageUtils.sol",
+   "bytes": 787,
+   "score": 4
+  },
+  {
+   "rel": "cap-contracts/contracts/storage/RateOracleStorageUtils.sol",
+   "bytes": 775,
+   "score": 4
+  },
+  {
+   "rel": "cap-contracts/contracts/storage/ScaledTokenStorageUtils.sol",
+   "bytes": 792,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/contracts/storage/StakedCapStorageUtils.sol",
+   "bytes": 776,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/contracts/storage/SymbioticNetworkMiddlewareStorageUtils.sol",
+   "bytes": 997,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/contracts/storage/SymbioticNetworkStorageUtils.sol",
+   "bytes": 846,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/contracts/storage/VaultAdapterStorageUtils.sol",
+   "bytes": 799,
+   "score": 2
+  },
+  {
+   "rel": "cap-contracts/contracts/storage/VaultStorageUtils.sol",
+   "bytes": 714,
+   "score": 2
+  },
+  {
+   "rel": "cap-contracts/contracts/testnetCampaign/OAppMessenger.sol",
+   "bytes": 3868,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/contracts/testnetCampaign/PreMainnetVault.sol",
+   "bytes": 7125,
+   "score": 6
+  },
+  {
+   "rel": "cap-contracts/contracts/token/CapToken.sol",
+   "bytes": 1390,
+   "score": 2
+  },
+  {
+   "rel": "cap-contracts/contracts/token/L2Token.sol",
+   "bytes": 647,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/contracts/token/OFTLockbox.sol",
+   "bytes": 669,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/contracts/token/OFTPermit.sol",
+   "bytes": 3621,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/contracts/token/StakedCap.sol",
+   "bytes": 4865,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/contracts/vault/FractionalReserve.sol",
+   "bytes": 4353,
+   "score": 4
+  },
+  {
+   "rel": "cap-contracts/contracts/vault/Minter.sol",
+   "bytes": 3406,
+   "score": 4
+  },
+  {
+   "rel": "cap-contracts/contracts/vault/Vault.sol",
+   "bytes": 8570,
+   "score": 7
+  },
+  {
+   "rel": "cap-contracts/contracts/vault/libraries/FractionalReserveLogic.sol",
+   "bytes": 7192,
+   "score": 6
+  },
+  {
+   "rel": "cap-contracts/contracts/vault/libraries/MinterLogic.sol",
+   "bytes": 6509,
+   "score": 6
+  },
+  {
+   "rel": "cap-contracts/contracts/vault/libraries/VaultLogic.sol",
+   "bytes": 13152,
+   "score": 7
+  },
+  {
+   "rel": "cap-contracts/contracts/zap/SafeOFTLzComposer.sol",
+   "bytes": 3796,
+   "score": 2
+  },
+  {
+   "rel": "cap-contracts/contracts/zap/ZapOFTComposer.sol",
+   "bytes": 2802,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/examples/mint-burn-oft-adapter/contracts/MyMintBurnOFTAdapter.sol",
+   "bytes": 1332,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/examples/mint-burn-oft-adapter/contracts/MyOFT.sol",
+   "bytes": 430,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/examples/native-oft-adapter/contracts/MyNativeOFTAdapter.sol",
+   "bytes": 879,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/examples/native-oft-adapter/contracts/MyOFT.sol",
+   "bytes": 430,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/examples/oapp/contracts/MyOApp.sol",
+   "bytes": 3053,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/examples/oapp-read/contracts/MyOAppRead.sol",
+   "bytes": 7938,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/examples/oft/contracts/MyOFT.sol",
+   "bytes": 430,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/examples/oft-adapter/contracts/MyOFT.sol",
+   "bytes": 430,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/examples/oft-adapter/contracts/MyOFTAdapter.sol",
+   "bytes": 1114,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/examples/oft-solana/contracts/MyOFT.sol",
+   "bytes": 430,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/examples/oft-upgradeable/contracts/MyOFTAdapterUpgradeable.sol",
+   "bytes": 487,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/examples/oft-upgradeable/contracts/MyOFTUpgradeable.sol",
+   "bytes": 481,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/examples/onft721/contracts/MyONFT721.sol",
+   "bytes": 370,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/examples/onft721/contracts/MyONFT721Adapter.sol",
+   "bytes": 361,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/examples/onft721-zksync/contracts/MyONFT721.sol",
+   "bytes": 370,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/examples/uniswap-read/contracts/UniswapV3QuoteDemo.sol",
+   "bytes": 12420,
+   "score": 3
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/oapp-alt-evm/contracts/oapp/OAppAlt.sol",
+   "bytes": 1825,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/oapp-alt-evm/contracts/oapp/OAppSenderAlt.sol",
+   "bytes": 3389,
+   "score": 2
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/oapp-evm/contracts/oapp/OApp.sol",
+   "bytes": 1525,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/oapp-evm/contracts/oapp/OAppCore.sol",
+   "bytes": 3360,
+   "score": 2
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/oapp-evm/contracts/oapp/OAppRead.sol",
+   "bytes": 558,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/oapp-evm/contracts/oapp/OAppReceiver.sol",
+   "bytes": 5410,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/oapp-evm/contracts/oapp/OAppSender.sol",
+   "bytes": 5631,
+   "score": 2
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/oapp-evm/contracts/oapp/libs/OAppOptionsType3.sol",
+   "bytes": 4898,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/oapp-evm/contracts/oapp/libs/OptionsBuilder.sol",
+   "bytes": 9283,
+   "score": 1
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/oapp-evm/contracts/oapp/libs/ReadCodecV1.sol",
+   "bytes": 8734,
+   "score": 1
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/oapp-evm/contracts/oapp/utils/RateLimiter.sol",
+   "bytes": 11392,
+   "score": 1
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/oapp-evm/contracts/precrime/OAppPreCrimeSimulator.sol",
+   "bytes": 5355,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/oapp-evm/contracts/precrime/PreCrime.sol",
+   "bytes": 8650,
+   "score": 4
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/oapp-evm/contracts/precrime/libs/Packet.sol",
+   "bytes": 2470,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/oapp-evm-upgradeable/contracts/oapp/OAppCoreUpgradeable.sol",
+   "bytes": 4231,
+   "score": 2
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/oapp-evm-upgradeable/contracts/oapp/OAppReceiverUpgradeable.sol",
+   "bytes": 5963,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/oapp-evm-upgradeable/contracts/oapp/OAppSenderUpgradeable.sol",
+   "bytes": 6143,
+   "score": 2
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/oapp-evm-upgradeable/contracts/oapp/OAppUpgradeable.sol",
+   "bytes": 2211,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/oapp-evm-upgradeable/contracts/oapp/libs/OAppOptionsType3Upgradeable.sol",
+   "bytes": 5291,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/oapp-evm-upgradeable/contracts/precrime/OAppPreCrimeSimulatorUpgradeable.sol",
+   "bytes": 6635,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/oapp-evm-upgradeable/contracts/precrime/PreCrimeUpgradeable.sol",
+   "bytes": 9883,
+   "score": 4
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/oapp-evm-upgradeable/contracts/precrime/extensions/PreCrimeE1Upgradeable.sol",
+   "bytes": 1381,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/oft-alt-evm/contracts/OFTAdapterAlt.sol",
+   "bytes": 4871,
+   "score": 2
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/oft-alt-evm/contracts/OFTAlt.sol",
+   "bytes": 3416,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/oft-alt-evm/contracts/OFTAltCore.sol",
+   "bytes": 20327,
+   "score": 4
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/oft-evm/contracts/Fee.sol",
+   "bytes": 1819,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/oft-evm/contracts/MintBurnOFTAdapter.sol",
+   "bytes": 4758,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/oft-evm/contracts/NativeOFTAdapter.sol",
+   "bytes": 5336,
+   "score": 3
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/oft-evm/contracts/OFT.sol",
+   "bytes": 3404,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/oft-evm/contracts/OFTAdapter.sol",
+   "bytes": 4862,
+   "score": 2
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/oft-evm/contracts/OFTCore.sol",
+   "bytes": 20358,
+   "score": 4
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/oft-evm/contracts/libs/OFTComposeMsgCodec.sol",
+   "bytes": 2991,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/oft-evm/contracts/libs/OFTMsgCodec.sol",
+   "bytes": 2906,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/oft-evm-upgradeable/contracts/oft/OFTAdapterUpgradeable.sol",
+   "bytes": 5491,
+   "score": 2
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/oft-evm-upgradeable/contracts/oft/OFTCoreUpgradeable.sol",
+   "bytes": 20755,
+   "score": 4
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/oft-evm-upgradeable/contracts/oft/OFTUpgradeable.sol",
+   "bytes": 3970,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/onft-evm/contracts/libs/ONFTComposeMsgCodec.sol",
+   "bytes": 2694,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/onft-evm/contracts/onft721/ONFT721.sol",
+   "bytes": 2191,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/onft-evm/contracts/onft721/ONFT721Adapter.sol",
+   "bytes": 2469,
+   "score": 2
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/onft-evm/contracts/onft721/ONFT721Core.sol",
+   "bytes": 8297,
+   "score": 3
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/onft-evm/contracts/onft721/libs/ONFT721MsgCodec.sol",
+   "bytes": 2833,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-devtools/packages/test-devtools-evm-foundry/contracts/OptionsHelper.sol",
+   "bytes": 6386,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v1/contracts/Endpoint.sol",
+   "bytes": 15632,
+   "score": 1
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v1/contracts/NonceContract.sol",
+   "bytes": 697,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v1/contracts/Relayer.sol",
+   "bytes": 6917,
+   "score": 7
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v1/contracts/RelayerV2.sol",
+   "bytes": 8096,
+   "score": 8
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v1/contracts/Treasury.sol",
+   "bytes": 2121,
+   "score": 6
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v1/contracts/TreasuryV2.sol",
+   "bytes": 1952,
+   "score": 6
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v1/contracts/UltraLightNode.sol",
+   "bytes": 25226,
+   "score": 12
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v1/contracts/UltraLightNodeV2.sol",
+   "bytes": 23654,
+   "score": 11
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v1/contracts/proof/FPValidator.sol",
+   "bytes": 6076,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v1/contracts/proof/MPTValidator01.sol",
+   "bytes": 7532,
+   "score": 2
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v1/contracts/proof/utility/Buffer.sol",
+   "bytes": 5431,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v1/contracts/proof/utility/LayerZeroPacket.sol",
+   "bytes": 6269,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v1/contracts/proof/utility/RLPDecode.sol",
+   "bytes": 11956,
+   "score": 1
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v1/contracts/proof/utility/UltraLightNodeEVMDecoder.sol",
+   "bytes": 1424,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/Executor.sol",
+   "bytes": 10179,
+   "score": 6
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/ExecutorFeeLib.sol",
+   "bytes": 9804,
+   "score": 5
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/MessageLibBase.sol",
+   "bytes": 528,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/PriceFeed.sol",
+   "bytes": 11869,
+   "score": 5
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/ReceiveLibBaseE2.sol",
+   "bytes": 1392,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/SendLibBase.sol",
+   "bytes": 10512,
+   "score": 1
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/SendLibBaseE2.sol",
+   "bytes": 5898,
+   "score": 2
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/SimpleReadExecutor.sol",
+   "bytes": 3545,
+   "score": 2
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/Treasury.sol",
+   "bytes": 2501,
+   "score": 4
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/Worker.sol",
+   "bytes": 6449,
+   "score": 4
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/libs/ExecutorOptions.sol",
+   "bytes": 4329,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/libs/SafeCall.sol",
+   "bytes": 4643,
+   "score": 3
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/LzExecutor.sol",
+   "bytes": 5138,
+   "score": 2
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/ReceiveUlnBase.sol",
+   "bytes": 4962,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/SendUlnBase.sol",
+   "bytes": 5315,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/UlnBase.sol",
+   "bytes": 9845,
+   "score": 1
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/dvn/DVN.sol",
+   "bytes": 15165,
+   "score": 10
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/dvn/DVNFeeLib.sol",
+   "bytes": 11599,
+   "score": 7
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/dvn/MultiSig.sol",
+   "bytes": 4779,
+   "score": 2
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/dvn/SimpleReadDVN.sol",
+   "bytes": 3818,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/dvn/adapters/CCIP/CCIPDVNAdapter.sol",
+   "bytes": 6505,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/dvn/adapters/CCIP/CCIPDVNAdapterFeeLib.sol",
+   "bytes": 3043,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/dvn/adapters/DVNAdapterBase.sol",
+   "bytes": 4680,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/dvn/adapters/axelar/AxelarDVNAdapter.sol",
+   "bytes": 7369,
+   "score": 2
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/dvn/adapters/axelar/AxelarDVNAdapterFeeLib.sol",
+   "bytes": 5283,
+   "score": 2
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/dvn/adapters/libs/DVNAdapterMessageCodec.sol",
+   "bytes": 1656,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/libs/DVNOptions.sol",
+   "bytes": 7321,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/libs/ReadCmdCodecV1.sol",
+   "bytes": 4900,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/libs/SupportedCmdTypes.sol",
+   "bytes": 1116,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/libs/UlnOptions.sol",
+   "bytes": 8483,
+   "score": 1
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/readlib/ReadLib1002.sol",
+   "bytes": 21782,
+   "score": 4
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/readlib/ReadLib1002View.sol",
+   "bytes": 3829,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/readlib/ReadLibBase.sol",
+   "bytes": 9555,
+   "score": 1
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/uln301/AddressSizeConfig.sol",
+   "bytes": 813,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/uln301/ReceiveLibBaseE1.sol",
+   "bytes": 4575,
+   "score": 2
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/uln301/ReceiveUln301.sol",
+   "bytes": 3623,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/uln301/ReceiveUln301View.sol",
+   "bytes": 3408,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/uln301/SendLibBaseE1.sol",
+   "bytes": 8190,
+   "score": 3
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/uln301/SendUln301.sol",
+   "bytes": 3549,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/uln301/TreasuryFeeHandler.sol",
+   "bytes": 1585,
+   "score": 4
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/uln302/ReceiveUln302.sol",
+   "bytes": 3822,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/uln302/ReceiveUln302View.sol",
+   "bytes": 3210,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/uln302/SendUln302.sol",
+   "bytes": 3492,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/upgradeable/WorkerUpgradeable.sol",
+   "bytes": 7384,
+   "score": 4
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/upgradeable/proxy/ProxyAdmin.sol",
+   "bytes": 3399,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/messagelib/contracts/upgradeable/proxy/TransparentUpgradeableProxy.sol",
+   "bytes": 5550,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/oapp/OApp.sol",
+   "bytes": 1525,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/oapp/OAppCore.sol",
+   "bytes": 3360,
+   "score": 2
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/oapp/OAppRead.sol",
+   "bytes": 559,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/oapp/OAppReceiver.sol",
+   "bytes": 5410,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/oapp/OAppSender.sol",
+   "bytes": 5631,
+   "score": 2
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/oapp/examples/LzReadCounter.sol",
+   "bytes": 6394,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/oapp/examples/OmniCounter.sol",
+   "bytes": 576,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/oapp/examples/OmniCounterAbstract.sol",
+   "bytes": 11053,
+   "score": 6
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/oapp/examples/OmniCounterPreCrime.sol",
+   "bytes": 3740,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/oapp/libs/OAppOptionsType3.sol",
+   "bytes": 4898,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/oapp/libs/OptionsBuilder.sol",
+   "bytes": 8406,
+   "score": 1
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/oapp/libs/ReadCmdCodecV1.sol",
+   "bytes": 8737,
+   "score": 1
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/oapp/utils/RateLimiter.sol",
+   "bytes": 10168,
+   "score": 1
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/oft/OFT.sol",
+   "bytes": 3404,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/oft/OFTAdapter.sol",
+   "bytes": 4862,
+   "score": 2
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/oft/OFTCore.sol",
+   "bytes": 18999,
+   "score": 4
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/oft/libs/OFTComposeMsgCodec.sol",
+   "bytes": 2993,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/oft/libs/OFTMsgCodec.sol",
+   "bytes": 2906,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/precrime/OAppPreCrimeSimulator.sol",
+   "bytes": 5355,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/precrime/PreCrime.sol",
+   "bytes": 8481,
+   "score": 4
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/precrime/extensions/PreCrimeE1.sol",
+   "bytes": 1015,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/oapp/contracts/precrime/libs/Packet.sol",
+   "bytes": 2470,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/protocol/contracts/EndpointV2.sol",
+   "bytes": 17544,
+   "score": 6
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/protocol/contracts/EndpointV2Alt.sol",
+   "bytes": 1888,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/protocol/contracts/EndpointV2View.sol",
+   "bytes": 364,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/protocol/contracts/EndpointV2ViewUpgradeable.sol",
+   "bytes": 3441,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/protocol/contracts/MessageLibManager.sol",
+   "bytes": 14804,
+   "score": 3
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/protocol/contracts/MessagingChannel.sol",
+   "bytes": 8583,
+   "score": 3
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/protocol/contracts/MessagingComposer.sol",
+   "bytes": 3935,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/protocol/contracts/MessagingContext.sol",
+   "bytes": 1480,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/protocol/contracts/libs/AddressCast.sol",
+   "bytes": 1466,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/protocol/contracts/libs/CalldataBytesLib.sol",
+   "bytes": 1783,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/protocol/contracts/libs/Errors.sol",
+   "bytes": 1264,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/protocol/contracts/libs/GUID.sol",
+   "bytes": 460,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/protocol/contracts/libs/Transfer.sol",
+   "bytes": 1121,
+   "score": 5
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/protocol/contracts/messagelib/BlockedMessageLib.sol",
+   "bytes": 961,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/protocol/contracts/messagelib/SimpleMessageLib.sol",
+   "bytes": 5241,
+   "score": 4
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/protocol/contracts/messagelib/libs/BitMaps.sol",
+   "bytes": 751,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/protocol/contracts/messagelib/libs/ExecutorOptions.sol",
+   "bytes": 3561,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/layerzero-v2/packages/layerzero-v2/evm/protocol/contracts/messagelib/libs/PacketV1Codec.sol",
+   "bytes": 3666,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/openzeppelin-foundry-upgrades/src/Defender.sol",
+   "bytes": 8467,
+   "score": 1
+  },
+  {
+   "rel": "cap-contracts/lib/openzeppelin-foundry-upgrades/src/LegacyUpgrades.sol",
+   "bytes": 16197,
+   "score": 2
+  },
+  {
+   "rel": "cap-contracts/lib/openzeppelin-foundry-upgrades/src/Upgrades.sol",
+   "bytes": 26444,
+   "score": 3
+  },
+  {
+   "rel": "cap-contracts/lib/openzeppelin-foundry-upgrades/src/internal/Core.sol",
+   "bytes": 20851,
+   "score": 6
+  },
+  {
+   "rel": "cap-contracts/lib/openzeppelin-foundry-upgrades/src/internal/DefenderDeploy.sol",
+   "bytes": 13777,
+   "score": 1
+  },
+  {
+   "rel": "cap-contracts/lib/openzeppelin-foundry-upgrades/src/internal/Utils.sol",
+   "bytes": 10081,
+   "score": 1
+  },
+  {
+   "rel": "cap-contracts/lib/openzeppelin-foundry-upgrades/src/internal/Versions.sol",
+   "bytes": 270,
+   "score": 0
+  },
+  {
+   "rel": "cap-contracts/lib/solidity-bytes-utils/contracts/AssertBytes.sol",
+   "bytes": 9989,
+   "score": 1
+  },
+  {
+   "rel": "cap-contracts/lib/solidity-bytes-utils/contracts/BytesLib.sol",
+   "bytes": 21676,
+   "score": 2
+  }
+ ]
+}

@@ -1,0 +1,669 @@
+{
+ "repo": "sherlock-audit/2025-01-peapods-finance",
+ "outcome": "hypotheses",
+ "model": "openai/gpt-oss-120b (Together), nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter)",
+ "sources": [
+  "openai/gpt-oss-120b (Together)",
+  "nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter)"
+ ],
+ "coverage": {
+  "scopeFiles": 86,
+  "scopeBytes": 507343,
+  "analysedBytes": 111040,
+  "analysedPct": 22,
+  "chunksPlanned": 6,
+  "chunksAnalysed": 6,
+  "filesFull": 3,
+  "filesPartial": [
+   "fraxlend/src/contracts/FraxlendPair.sol"
+  ],
+  "notAnalysedFiles": [
+   "contracts/contracts/AutoCompoundingPodLp.sol",
+   "contracts/contracts/AutoCompoundingPodLpFactory.sol",
+   "contracts/contracts/BulkPodYieldProcess.sol",
+   "contracts/contracts/DecentralizedIndex.sol",
+   "contracts/contracts/ERC20Bridgeable.sol",
+   "contracts/contracts/IndexManager.sol",
+   "contracts/contracts/IndexUtils.sol",
+   "contracts/contracts/LendingAssetVault.sol",
+   "contracts/contracts/LendingAssetVaultFactory.sol",
+   "contracts/contracts/PEAS.sol",
+   "contracts/contracts/PodUnwrapLocker.sol",
+   "contracts/contracts/ProtocolFeeRouter.sol",
+   "contracts/contracts/ProtocolFees.sol",
+   "contracts/contracts/RewardsWhitelist.sol",
+   "contracts/contracts/StakingPoolToken.sol",
+   "contracts/contracts/TokenRewards.sol",
+   "contracts/contracts/V3Locker.sol",
+   "contracts/contracts/WeightedIndex.sol",
+   "contracts/contracts/WeightedIndexFactory.sol",
+   "contracts/contracts/Zapper.sol",
+   "contracts/contracts/ccip/TokenBridge.sol",
+   "contracts/contracts/ccip/TokenRouter.sol",
+   "contracts/contracts/dex/AerodromeDexAdapter.sol",
+   "contracts/contracts/dex/CamelotDexAdapter.sol",
+   "contracts/contracts/dex/UniswapDexAdapter.sol",
+   "contracts/contracts/flash/BalancerFlashSource.sol",
+   "contracts/contracts/flash/FlashSourceBase.sol",
+   "contracts/contracts/flash/PodFlashSource.sol",
+   "contracts/contracts/flash/UniswapV3FlashSource.sol",
+   "contracts/contracts/libraries/AerodromeCommands.sol",
+   "contracts/contracts/libraries/BokkyPooBahsDateTimeLibrary.sol",
+   "contracts/contracts/libraries/FullMath.sol",
+   "contracts/contracts/libraries/PoolAddress.sol",
+   "contracts/contracts/libraries/PoolAddressAlgebra.sol",
+   "contracts/contracts/libraries/PoolAddressKimMode.sol",
+   "contracts/contracts/libraries/PoolAddressSlipstream.sol",
+   "contracts/contracts/libraries/TickMath.sol",
+   "contracts/contracts/libraries/VaultAccount.sol",
+   "contracts/contracts/lvf/LeverageFactory.sol",
+   "contracts/contracts/lvf/LeverageManagerAccessControl.sol",
+   "contracts/contracts/lvf/LeveragePositionCustodian.sol",
+   "contracts/contracts/lvf/LeveragePositions.sol",
+   "contracts/contracts/oracle/ChainlinkSinglePriceOracle.sol",
+   "contracts/contracts/oracle/DIAOracleV2SinglePriceOracle.sol",
+   "contracts/contracts/oracle/UniswapV3SinglePriceOracle.sol",
+   "contracts/contracts/oracle/V2ReservesUniswap.sol",
+   "contracts/contracts/oracle/aspTKNMinimalOracle.sol",
+   "contracts/contracts/oracle/aspTKNMinimalOracleFactory.sol",
+   "contracts/contracts/oracle/spTKNMinimalOracle.sol",
+   "contracts/contracts/twaputils/V3TwapAerodromeUtilities.sol",
+   "contracts/contracts/twaputils/V3TwapCamelotUtilities.sol",
+   "contracts/contracts/twaputils/V3TwapKimUtilities.sol",
+   "contracts/contracts/twaputils/V3TwapUtilities.sol",
+   "contracts/contracts/voting/ConversionFactorPTKN.sol",
+   "contracts/contracts/voting/ConversionFactorSPTKN.sol",
+   "contracts/contracts/voting/VotingPool.sol",
+   "contracts/lib/fuzzlib/src/Constants.sol",
+   "contracts/lib/fuzzlib/src/FuzzBase.sol",
+   "contracts/lib/fuzzlib/src/FuzzLibString.sol",
+   "contracts/lib/fuzzlib/src/Fuzzlib.sol",
+   "contracts/lib/fuzzlib/src/helpers/HelperAssert.sol",
+   "contracts/lib/fuzzlib/src/helpers/HelperBase.sol",
+   "contracts/lib/fuzzlib/src/helpers/HelperClamp.sol",
+   "contracts/lib/fuzzlib/src/helpers/HelperLog.sol",
+   "contracts/lib/fuzzlib/src/helpers/HelperMath.sol",
+   "contracts/lib/fuzzlib/src/helpers/HelperRandom.sol",
+   "contracts/lib/fuzzlib/src/libraries/LibLog.sol",
+   "contracts/lib/fuzzlib/src/platform/PlatformCrytic.sol",
+   "contracts/lib/fuzzlib/src/platform/PlatformEchidna.sol",
+   "contracts/lib/fuzzlib/src/platform/PlatformMedusa.sol",
+   "fraxlend/src/contracts/FraxlendPairAccessControl.sol",
+   "fraxlend/src/contracts/FraxlendPairAccessControlErrors.sol",
+   "fraxlend/src/contracts/FraxlendPairConstants.sol",
+   "fraxlend/src/contracts/FraxlendPairDeployer.sol",
+   "fraxlend/src/contracts/FraxlendPairRegistry.sol",
+   "fraxlend/src/contracts/FraxlendWhitelist.sol",
+   "fraxlend/src/contracts/LinearInterestRate.sol",
+   "fraxlend/src/contracts/Timelock2Step.sol",
+   "fraxlend/src/contracts/VariableInterestRate.sol",
+   "fraxlend/src/contracts/libraries/SafeERC20.sol",
+   "fraxlend/src/contracts/libraries/VaultAccount.sol",
+   "fraxlend/src/contracts/oracles/dual-oracles/DualOracleChainlinkUniV3.sol"
+  ],
+  "skipped": {
+   "tests": 229,
+   "mocks": 0,
+   "scripts": 36,
+   "vendor": 43,
+   "interfaces": 68,
+   "tooSmall": 0,
+   "tooLarge": 0,
+   "noLogic": 0,
+   "symlink": 0,
+   "unreadable": 0
+  },
+  "submodules": {
+   "declared": 3,
+   "fetched": [
+    "contracts/lib/fuzzlib"
+   ],
+   "failed": [],
+   "skipped": [
+    {
+     "path": "fraxlend/lib/forge-std",
+     "reason": "afhankelijkheid"
+    },
+    {
+     "path": "fraxlend/lib/ds-test",
+     "reason": "afhankelijkheid"
+    }
+   ]
+  },
+  "droppedHypotheses": 0,
+  "deadlineHit": false
+ },
+ "hypotheses": [
+  {
+   "title": "Missing access control on generic withdraw function",
+   "severity": "Critical",
+   "category": "ACCESS",
+   "file": "FraxlendPairCore.sol",
+   "function": "withdraw()",
+   "description": "The `withdraw(uint256 _amount, address _receiver, address _owner)` function allows any external caller to specify an arbitrary `_owner` address and withdraw assets on their behalf. There is no check that `msg.sender` is authorized (e.g., the owner of the shares or an approved operator). The function simply burns the corresponding shares from the supplied `_owner` and transfers the underlying assets to `_receiver`.",
+   "attackPath": "1. Attacker discovers a victim’s address (`victim`) that holds shares in the Fraxlend pair.  \n2. Attacker calls `withdraw(victimBalance, attackerAddress, victim)` with `_amount` equal to the victim’s full withdrawable balance.  \n3. The contract computes the required shares, burns them from `victim`’s accounting, and transfers the underlying assets to `attackerAddress`.  \n4. Victim’s position is emptied without any signature or permission from the victim.",
+   "impact": "Complete theft of a user’s deposited assets (collateral or underlying tokens), leading to direct fund loss and insolvency of affected positions.",
+   "recommendation": "Add an access control check that requires `msg.sender` to be the `_owner` or an approved operator (e.g., `require(msg.sender == _owner || isApprovedOperator(msg.sender, _owner), \"Not authorized\")`). Alternatively, make the function `onlyOwner`‑style by removing the `_owner` parameter and using `msg.sender` as the owner.",
+   "confidence": 1
+  },
+  {
+   "title": "Unchecked multiplication overflow in interest accrual calculation",
+   "severity": "High",
+   "category": "ACCOUNTING",
+   "file": "FraxlendPairCore.sol",
+   "function": "_calculateInterest()",
+   "description": "The `_calculateInterest` internal function computes the interest earned with the expression  \n`_results.interestEarned = (_deltaTime * _results.totalBorrow.amount * _results.newRate) / RATE_PRECISION;`  \nAll three operands are `uint256` and the multiplication is performed before the division. If the product exceeds 2⁵⁶‑1, the arithmetic wraps silently (Solidity 0.8+ reverts on overflow only when using the built‑in checked operators, but the multiplication is performed in unchecked context because it is a plain `*`). The subsequent overflow check (`interestEarned + totalBorrow.amount <= type(uint128).max`) occurs **after** the overflow may have already corrupted the value, allowing the function to return a drastically reduced (or zero) interest amount.",
+   "attackPath": "1. An attacker (any borrower) triggers a large borrow position so that `totalBorrow.amount` is close to `type(uint128).max`.\n2. Wait until a block where `block.timestamp - lastTimestamp` (`_deltaTime`) is also large (e.g., after a long pause).\n3. Call `addInterest(true)` (or any external function that invokes `_calculateInterest`).\n4. The unchecked multiplication overflows, producing a small `_results.interestEarned`.\n5. The contract records the under‑accrued interest, effectively allowing the attacker to avoid paying the correct interest.",
+   "impact": "Systematic under‑accrual of interest reduces protocol revenue and can lead to long‑term insolvency as borrowers pay less than they owe.",
+   "recommendation": "Perform the multiplication in a checked context or restructure the formula to divide before multiplying, e.g.,  \n`_results.interestEarned = (_deltaTime * _results.newRate * _results.totalBorrow.amount) / RATE_PRECISION;`  \nor use `SafeMath`‑style checks (`unchecked {}` only where safe). Additionally, validate that the intermediate product does not overflow before division.",
+   "confidence": 0.97
+  },
+  {
+   "title": "Share inflation with fee‑on‑transfer ERC20 tokens on deposit",
+   "severity": "High",
+   "category": "ACCOUNTING",
+   "file": "FraxlendPairCore.sol",
+   "function": "_deposit()",
+   "description": "The `_deposit` function updates the vault’s `amount` and mints fToken shares **before** transferring the underlying asset from the user. It does not verify the actual amount received, so a fee‑on‑transfer (or malicious) token can deduct a portion of the transferred amount while the contract still credits the full amount for share calculation.",
+   "attackPath": "1. Attacker deploys a custom ERC20 that on `transferFrom` sends back only `amount‑fee` tokens but returns success.\n2. Calls `deposit` (or any function that reaches `_deposit`) with `amount = X`.\n3. The contract records `X` assets and mints shares based on `X`.\n4. Only `X‑fee` tokens are actually held in the vault, giving the attacker more shares than collateral.\n5. Attacker later redeems those shares for a larger amount of assets, diluting other lenders.",
+   "impact": "Over‑issuance of fTokens drains assets from the pool, causing loss of value for honest lenders and potentially rendering the lending pair insolvent.",
+   "recommendation": "Perform a post‑transfer balance check (e.g., record `balanceBefore`, call `safeTransferFrom`, then compute `actualReceived = balanceAfter - balanceBefore`) and base share calculation on the actual received amount, or explicitly reject fee‑on‑transfer tokens.",
+   "confidence": 0.97
+  },
+  {
+   "title": "Unchecked multiplication overflow in LTV solvency check",
+   "severity": "High",
+   "category": "SOLVENCY",
+   "file": "FraxlendPairCore.sol",
+   "function": "_isSolvent()",
+   "description": "The `_isSolvent` helper calculates the loan‑to‑value ratio with  \n`_ltv = (((_borrowerAmount * _exchangeRate) / EXCHANGE_PRECISION) * LTV_PRECISION) / _collateralAmount;`  \nBoth `_borrowerAmount` (borrowed asset amount) and `_exchangeRate` (collateral‑per‑asset price) are `uint256`. Their product can overflow 256‑bit arithmetic before the division, causing the computed `_ltv` to wrap to a low value. Consequently, the function may incorrectly deem an over‑leveraged borrower as solvent.",
+   "attackPath": "1. An attacker opens a position with a very large borrow amount (close to `type(uint256).max / _exchangeRate`).\n2. The contract stores this amount in `userBorrowShares`/`totalBorrow`.\n3. When a function guarded by the `isSolvent` modifier (e.g., a borrow or leverage‑add function) runs, `_isSolvent` is called.\n4. The overflow in `_borrowerAmount * _exchangeRate` yields a small `_ltv`, passing the `maxLTV` check.\n5. The attacker can therefore borrow beyond the allowed LTV, creating an under‑collateralized position that can later be liquidated at a loss to the protocol.",
+   "impact": "Enables creation of positions with insufficient collateral, exposing the protocol to liquidation losses and potential insolvency.",
+   "recommendation": "Use safe multiplication with overflow checks or rearrange the formula to divide before multiplying, e.g.,  \n`uint256 temp = (_borrowerAmount * LTV_PRECISION) / _collateralAmount;`  \n`_ltv = (temp * _exchangeRate) / EXCHANGE_PRECISION;`  \nor employ OpenZeppelin’s `SafeMath`/`unchecked` only when proven safe.",
+   "confidence": 0.94
+  },
+  {
+   "title": "Reentrancy via ERC777 token callbacks after flash‑loan repayment",
+   "severity": "High",
+   "category": "SOLVENCY",
+   "file": "contracts/contracts/lvf/LeverageManager.sol",
+   "function": "_addLeveragePostCallback()",
+   "description": "After the flash‑loan is repaid, the contract transfers the remaining borrowed token and the refunded pTKN to the position owner using `IERC20.safeTransfer`. If either of these tokens is an ERC‑777 (or any token with a malicious `tokensReceived` hook), the transfer can invoke an arbitrary external call back into `LeverageManager` while the `workflow` flag is set to **false** (the contract is in the callback context). This allows a re‑entrancy into functions such as `addLeverage`, `removeLeverage` or `withdrawAssets` that are not protected by a re‑entrancy guard.",
+   "attackPath": "1. Attacker creates a malicious ERC‑777 token and registers it as a pod or as the borrowing asset for a position.\n2. Attacker initiates `addLeverage` (or `removeLeverage`) using that token.\n3. During the flash‑loan callback, after the contract calls `IERC20(_d.token).safeTransfer(... )`, the ERC‑777 hook `tokensReceived` is triggered.\n4. Inside the hook the attacker calls `LeverageManager.addLeverage(...)` (or another state‑changing function) on the same contract.\n5. Because the `workflow` modifier has already set `_initialised` to `false`, the re‑entered call passes the `workflow(true)` check, allowing the attacker to open a new flash‑loan or manipulate the custodian before the original operation finishes, potentially extracting excess collateral or borrowing more assets than intended.",
+   "impact": "An attacker can drain collateral, borrow unlimited assets, or lock user funds, leading to direct loss of user capital and protocol insolvency.",
+   "recommendation": "Add a non‑reentrant guard (e.g., OpenZeppelin `ReentrancyGuard`) to all external‑facing functions and especially to the flash‑loan callback, or replace `safeTransfer` with a pull‑pattern that does not invoke external code before state updates are finalized.",
+   "confidence": 0.92
+  },
+  {
+   "title": "Missing per‑position re‑entrancy protection allows nested flash‑loan operations",
+   "severity": "Medium",
+   "category": "ORDERING",
+   "file": "contracts/contracts/lvf/LeverageManager.sol",
+   "function": "callback()",
+   "description": "The `workflow` modifier toggles a single global `_initialised` flag. During a flash‑loan callback (`callback`), the flag is set to `false` before the function body executes. This permits a re‑entrant call to any `workflow(true)` function (e.g., `addLeverage`, `removeLeverage`) while the original callback is still in progress, because the guard only checks the global flag, not the specific position context.",
+   "attackPath": "1. Attacker initiates a legitimate `addLeverage` (or `removeLeverage`) which triggers a flash loan.\n2. In the flash‑loan source’s callback, the contract executes `callback`.\n3. Inside `callback`, the attacker’s malicious token (via ERC‑777 hook) or a malicious flash‑loan source calls `LeverageManager.addLeverage` for the same or a different position.\n4. The nested call passes the `workflow(true)` check (since `_initialised` is now `false`) and starts a new flash‑loan cycle, potentially borrowing additional assets before the first operation settles.\n5. The attacker can manipulate accounting (e.g., double‑count collateral, borrow more than allowed) and extract excess funds.",
+   "impact": "Enables complex re‑entrancy attacks that can lead to over‑borrowing, double‑counted collateral, and potential loss of funds or creation of under‑collateralized positions.",
+   "recommendation": "Replace the single‑boolean workflow guard with a proper re‑entrancy lock (e.g., `nonReentrant` modifier) or maintain a per‑position lock to prevent nested calls during flash‑loan callbacks.",
+   "confidence": 0.78
+  },
+  {
+   "title": "Potential denial‑of‑service via division‑by‑zero in exchange‑rate update",
+   "severity": "Medium",
+   "category": "LIVENESS",
+   "file": "FraxlendPairCore.sol",
+   "function": "_updateExchangeRate()",
+   "description": "`_updateExchangeRate` computes `_deviation` using `(_exchangeRateInfo.highExchangeRate - _exchangeRateInfo.lowExchangeRate) * DEVIATION_PRECISION / _exchangeRateInfo.highExchangeRate`. If the oracle returns a `highExchangeRate` of zero, the division reverts, causing the whole transaction to fail.",
+   "attackPath": "1. An attacker (or compromised oracle) makes the dual oracle’s `getPrices()` return `highExchangeRate = 0`.\n2. Any call to `updateExchangeRate()` (or any internal call that invokes `_updateExchangeRate`) reverts due to division by zero.\n3. Functions that depend on a successful exchange‑rate update (e.g., borrowing, liquidation) become permanently unusable, freezing the market.",
+   "impact": "The lending pair can be halted, preventing deposits, withdrawals, or borrow actions, effectively freezing user funds.",
+   "recommendation": "Add a guard that checks `highExchangeRate > 0` before performing the division and revert with a clear error or skip the update when the price is invalid.",
+   "confidence": 0.78
+  },
+  {
+   "title": "Zero‑division risk in fee‑share calculation during interest accrual",
+   "severity": "Low",
+   "category": "LIVENESS",
+   "file": "FraxlendPairCore.sol",
+   "function": "_addInterest()",
+   "description": "When protocol fees are accrued, `_addInterest` calculates `feesShare` as `(_feesAmount * _results.totalAsset.shares) / (_results.totalAsset.totalAmount(address(0)) - _feesAmount)`. If `_results.totalAsset.totalAmount(address(0))` equals `_feesAmount`, the denominator becomes zero, causing a revert and halting interest updates.",
+   "attackPath": "1. An attacker (or a sequence of deposits/borrows) drives the total asset amount to exactly match the fee amount.\n2. The next call to any external function that triggers `_addInterest` (e.g., `deposit`, `redeem`) hits the zero‑division and reverts.\n3. The contract’s state can no longer be updated, freezing interest accrual and potentially blocking further operations.",
+   "impact": "Temporary denial of service for all users; interest and fee accounting stops until the condition is manually corrected.",
+   "recommendation": "Guard against a zero denominator by checking `totalAmount > _feesAmount` before division and handling the edge case (e.g., set `feesShare = 0`).",
+   "confidence": 0.62
+  }
+ ],
+ "rawCount": 8,
+ "dropped": 0,
+ "durationMs": 247347,
+ "filesInScope": [
+  {
+   "rel": "contracts/contracts/AutoCompoundingPodLp.sol",
+   "bytes": 19431,
+   "score": 8
+  },
+  {
+   "rel": "contracts/contracts/AutoCompoundingPodLpFactory.sol",
+   "bytes": 3460,
+   "score": 4
+  },
+  {
+   "rel": "contracts/contracts/BulkPodYieldProcess.sol",
+   "bytes": 995,
+   "score": 2
+  },
+  {
+   "rel": "contracts/contracts/DecentralizedIndex.sol",
+   "bytes": 19542,
+   "score": 6
+  },
+  {
+   "rel": "contracts/contracts/ERC20Bridgeable.sol",
+   "bytes": 1797,
+   "score": 4
+  },
+  {
+   "rel": "contracts/contracts/IndexManager.sol",
+   "bytes": 4208,
+   "score": 2
+  },
+  {
+   "rel": "contracts/contracts/IndexUtils.sol",
+   "bytes": 9800,
+   "score": 8
+  },
+  {
+   "rel": "contracts/contracts/LendingAssetVault.sol",
+   "bytes": 17839,
+   "score": 8
+  },
+  {
+   "rel": "contracts/contracts/LendingAssetVaultFactory.sol",
+   "bytes": 2905,
+   "score": 4
+  },
+  {
+   "rel": "contracts/contracts/PEAS.sol",
+   "bytes": 507,
+   "score": 2
+  },
+  {
+   "rel": "contracts/contracts/PodUnwrapLocker.sol",
+   "bytes": 6837,
+   "score": 4
+  },
+  {
+   "rel": "contracts/contracts/ProtocolFeeRouter.sol",
+   "bytes": 728,
+   "score": 2
+  },
+  {
+   "rel": "contracts/contracts/ProtocolFees.sol",
+   "bytes": 799,
+   "score": 0
+  },
+  {
+   "rel": "contracts/contracts/RewardsWhitelist.sol",
+   "bytes": 1896,
+   "score": 2
+  },
+  {
+   "rel": "contracts/contracts/StakingPoolToken.sol",
+   "bytes": 3633,
+   "score": 6
+  },
+  {
+   "rel": "contracts/contracts/TokenRewards.sol",
+   "bytes": 14084,
+   "score": 7
+  },
+  {
+   "rel": "contracts/contracts/V3Locker.sol",
+   "bytes": 1216,
+   "score": 2
+  },
+  {
+   "rel": "contracts/contracts/WeightedIndex.sol",
+   "bytes": 11063,
+   "score": 3
+  },
+  {
+   "rel": "contracts/contracts/WeightedIndexFactory.sol",
+   "bytes": 4588,
+   "score": 2
+  },
+  {
+   "rel": "contracts/contracts/Zapper.sol",
+   "bytes": 12452,
+   "score": 6
+  },
+  {
+   "rel": "contracts/contracts/ccip/TokenBridge.sol",
+   "bytes": 5360,
+   "score": 7
+  },
+  {
+   "rel": "contracts/contracts/ccip/TokenRouter.sol",
+   "bytes": 2084,
+   "score": 2
+  },
+  {
+   "rel": "contracts/contracts/dex/AerodromeDexAdapter.sol",
+   "bytes": 6697,
+   "score": 4
+  },
+  {
+   "rel": "contracts/contracts/dex/CamelotDexAdapter.sol",
+   "bytes": 4502,
+   "score": 4
+  },
+  {
+   "rel": "contracts/contracts/dex/UniswapDexAdapter.sol",
+   "bytes": 7643,
+   "score": 4
+  },
+  {
+   "rel": "contracts/contracts/flash/BalancerFlashSource.sol",
+   "bytes": 2092,
+   "score": 2
+  },
+  {
+   "rel": "contracts/contracts/flash/FlashSourceBase.sol",
+   "bytes": 757,
+   "score": 0
+  },
+  {
+   "rel": "contracts/contracts/flash/PodFlashSource.sol",
+   "bytes": 1753,
+   "score": 2
+  },
+  {
+   "rel": "contracts/contracts/flash/UniswapV3FlashSource.sol",
+   "bytes": 1879,
+   "score": 2
+  },
+  {
+   "rel": "contracts/contracts/libraries/AerodromeCommands.sol",
+   "bytes": 3281,
+   "score": 0
+  },
+  {
+   "rel": "contracts/contracts/libraries/BokkyPooBahsDateTimeLibrary.sol",
+   "bytes": 2757,
+   "score": 0
+  },
+  {
+   "rel": "contracts/contracts/libraries/FullMath.sol",
+   "bytes": 5535,
+   "score": 0
+  },
+  {
+   "rel": "contracts/contracts/libraries/PoolAddress.sol",
+   "bytes": 1865,
+   "score": 2
+  },
+  {
+   "rel": "contracts/contracts/libraries/PoolAddressAlgebra.sol",
+   "bytes": 1710,
+   "score": 2
+  },
+  {
+   "rel": "contracts/contracts/libraries/PoolAddressKimMode.sol",
+   "bytes": 1710,
+   "score": 2
+  },
+  {
+   "rel": "contracts/contracts/libraries/PoolAddressSlipstream.sol",
+   "bytes": 1857,
+   "score": 2
+  },
+  {
+   "rel": "contracts/contracts/libraries/TickMath.sol",
+   "bytes": 10123,
+   "score": 3
+  },
+  {
+   "rel": "contracts/contracts/libraries/VaultAccount.sol",
+   "bytes": 1674,
+   "score": 2
+  },
+  {
+   "rel": "contracts/contracts/lvf/LeverageFactory.sol",
+   "bytes": 11556,
+   "score": 7
+  },
+  {
+   "rel": "contracts/contracts/lvf/LeverageManager.sol",
+   "bytes": 31678,
+   "score": 12
+  },
+  {
+   "rel": "contracts/contracts/lvf/LeverageManagerAccessControl.sol",
+   "bytes": 1146,
+   "score": 2
+  },
+  {
+   "rel": "contracts/contracts/lvf/LeveragePositionCustodian.sol",
+   "bytes": 1261,
+   "score": 4
+  },
+  {
+   "rel": "contracts/contracts/lvf/LeveragePositions.sol",
+   "bytes": 658,
+   "score": 2
+  },
+  {
+   "rel": "contracts/contracts/oracle/ChainlinkSinglePriceOracle.sol",
+   "bytes": 5445,
+   "score": 4
+  },
+  {
+   "rel": "contracts/contracts/oracle/DIAOracleV2SinglePriceOracle.sol",
+   "bytes": 1946,
+   "score": 4
+  },
+  {
+   "rel": "contracts/contracts/oracle/UniswapV3SinglePriceOracle.sol",
+   "bytes": 3719,
+   "score": 4
+  },
+  {
+   "rel": "contracts/contracts/oracle/V2ReservesCamelot.sol",
+   "bytes": 387,
+   "score": 2
+  },
+  {
+   "rel": "contracts/contracts/oracle/V2ReservesUniswap.sol",
+   "bytes": 390,
+   "score": 2
+  },
+  {
+   "rel": "contracts/contracts/oracle/aspTKNMinimalOracle.sol",
+   "bytes": 970,
+   "score": 4
+  },
+  {
+   "rel": "contracts/contracts/oracle/aspTKNMinimalOracleFactory.sol",
+   "bytes": 2127,
+   "score": 4
+  },
+  {
+   "rel": "contracts/contracts/oracle/spTKNMinimalOracle.sol",
+   "bytes": 12905,
+   "score": 5
+  },
+  {
+   "rel": "contracts/contracts/twaputils/V3TwapAerodromeUtilities.sol",
+   "bytes": 4702,
+   "score": 0
+  },
+  {
+   "rel": "contracts/contracts/twaputils/V3TwapCamelotUtilities.sol",
+   "bytes": 4477,
+   "score": 0
+  },
+  {
+   "rel": "contracts/contracts/twaputils/V3TwapKimUtilities.sol",
+   "bytes": 4658,
+   "score": 2
+  },
+  {
+   "rel": "contracts/contracts/twaputils/V3TwapUtilities.sol",
+   "bytes": 4411,
+   "score": 0
+  },
+  {
+   "rel": "contracts/contracts/voting/ConversionFactorPTKN.sol",
+   "bytes": 812,
+   "score": 0
+  },
+  {
+   "rel": "contracts/contracts/voting/ConversionFactorSPTKN.sol",
+   "bytes": 2421,
+   "score": 0
+  },
+  {
+   "rel": "contracts/contracts/voting/VotingPool.sol",
+   "bytes": 5199,
+   "score": 6
+  },
+  {
+   "rel": "contracts/lib/fuzzlib/src/Constants.sol",
+   "bytes": 1711,
+   "score": 0
+  },
+  {
+   "rel": "contracts/lib/fuzzlib/src/FuzzBase.sol",
+   "bytes": 313,
+   "score": 0
+  },
+  {
+   "rel": "contracts/lib/fuzzlib/src/FuzzLibString.sol",
+   "bytes": 5972,
+   "score": 2
+  },
+  {
+   "rel": "contracts/lib/fuzzlib/src/Fuzzlib.sol",
+   "bytes": 506,
+   "score": 0
+  },
+  {
+   "rel": "contracts/lib/fuzzlib/src/helpers/HelperAssert.sol",
+   "bytes": 11434,
+   "score": 1
+  },
+  {
+   "rel": "contracts/lib/fuzzlib/src/helpers/HelperBase.sol",
+   "bytes": 267,
+   "score": 0
+  },
+  {
+   "rel": "contracts/lib/fuzzlib/src/helpers/HelperClamp.sol",
+   "bytes": 10253,
+   "score": 1
+  },
+  {
+   "rel": "contracts/lib/fuzzlib/src/helpers/HelperLog.sol",
+   "bytes": 1916,
+   "score": 0
+  },
+  {
+   "rel": "contracts/lib/fuzzlib/src/helpers/HelperMath.sol",
+   "bytes": 1078,
+   "score": 0
+  },
+  {
+   "rel": "contracts/lib/fuzzlib/src/helpers/HelperRandom.sol",
+   "bytes": 672,
+   "score": 0
+  },
+  {
+   "rel": "contracts/lib/fuzzlib/src/libraries/LibLog.sol",
+   "bytes": 2745,
+   "score": 0
+  },
+  {
+   "rel": "contracts/lib/fuzzlib/src/platform/PlatformCrytic.sol",
+   "bytes": 220,
+   "score": 0
+  },
+  {
+   "rel": "contracts/lib/fuzzlib/src/platform/PlatformEchidna.sol",
+   "bytes": 157,
+   "score": 0
+  },
+  {
+   "rel": "contracts/lib/fuzzlib/src/platform/PlatformMedusa.sol",
+   "bytes": 157,
+   "score": 0
+  },
+  {
+   "rel": "fraxlend/src/contracts/FraxlendPair.sol",
+   "bytes": 29246,
+   "score": 9
+  },
+  {
+   "rel": "fraxlend/src/contracts/FraxlendPairAccessControl.sol",
+   "bytes": 9537,
+   "score": 3
+  },
+  {
+   "rel": "fraxlend/src/contracts/FraxlendPairAccessControlErrors.sol",
+   "bytes": 1549,
+   "score": 2
+  },
+  {
+   "rel": "fraxlend/src/contracts/FraxlendPairConstants.sol",
+   "bytes": 2779,
+   "score": 4
+  },
+  {
+   "rel": "fraxlend/src/contracts/FraxlendPairCore.sol",
+   "bytes": 69642,
+   "score": 11
+  },
+  {
+   "rel": "fraxlend/src/contracts/FraxlendPairDeployer.sol",
+   "bytes": 15662,
+   "score": 7
+  },
+  {
+   "rel": "fraxlend/src/contracts/FraxlendPairRegistry.sol",
+   "bytes": 5009,
+   "score": 2
+  },
+  {
+   "rel": "fraxlend/src/contracts/FraxlendWhitelist.sol",
+   "bytes": 2297,
+   "score": 0
+  },
+  {
+   "rel": "fraxlend/src/contracts/LinearInterestRate.sol",
+   "bytes": 5027,
+   "score": 0
+  },
+  {
+   "rel": "fraxlend/src/contracts/Timelock2Step.sol",
+   "bytes": 5624,
+   "score": 0
+  },
+  {
+   "rel": "fraxlend/src/contracts/VariableInterestRate.sol",
+   "bytes": 9648,
+   "score": 1
+  },
+  {
+   "rel": "fraxlend/src/contracts/libraries/SafeERC20.sol",
+   "bytes": 3136,
+   "score": 2
+  },
+  {
+   "rel": "fraxlend/src/contracts/libraries/VaultAccount.sol",
+   "bytes": 2036,
+   "score": 2
+  },
+  {
+   "rel": "fraxlend/src/contracts/oracles/dual-oracles/DualOracleChainlinkUniV3.sol",
+   "bytes": 6823,
+   "score": 4
+  }
+ ]
+}

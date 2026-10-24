@@ -1,0 +1,170 @@
+{
+ "contest": "2025-06-symbiotic-relay",
+ "hypotheses": [
+  {
+   "title": "Unprotected staticDelegateCall allows arbitrary delegatecall",
+   "severity": "High",
+   "category": "Access Control",
+   "file": "StaticDelegateCallable.sol",
+   "function": "staticDelegateCall",
+   "description": "The staticDelegateCall function is external and lacks any access control. It performs a delegatecall to any target address with arbitrary calldata, allowing an attacker to execute arbitrary code in the context of the contract. The function is intended for internal use via staticcall but is exposed to all external callers.",
+   "attackPath": "An attacker calls staticDelegateCall on a contract that inherits StaticDelegateCallable (e.g., Vault) with target set to a malicious contract and data encoding a call to approve() or transfer(), causing the vault to approve token transfers or transfer tokens to the attacker.",
+   "impact": "Complete loss of funds or unauthorized state changes in any contract inheriting StaticDelegateCallable.",
+   "recommendation": "Restrict access to staticDelegateCall so that only the contract itself or authorized callers can invoke it, for example by adding a modifier that checks msg.sender is the contract's own address."
+  },
+  {
+   "title": "Permissionless network registration enables unauthorized setMaxNetworkLimit",
+   "severity": "High",
+   "category": "Access Control",
+   "file": "BaseDelegator.sol",
+   "function": "setMaxNetworkLimit",
+   "description": "setMaxNetworkLimit restricts access to registered networks via IRegistry.isEntity, but NetworkRegistry.registerNetwork is permissionless, allowing any untrusted actor to register as a network and then call setMaxNetworkLimit on any delegator. This lets them set the maximum network limit for any subnetwork.",
+   "attackPath": "Attacker calls NetworkRegistry.registerNetwork() to become a registered network. Then calls BaseDelegator.setMaxNetworkLimit with a chosen identifier and amount, overriding the limit and potentially allowing excessive stake or restricting legitimate stake.",
+   "impact": "Incorrect stake accounting, potential for economic attacks or denial of service.",
+   "recommendation": "Add additional access control to setMaxNetworkLimit, such as only allowing the vault owner or a designated admin, or make network registration permissioned."
+  },
+  {
+   "title": "Permissionless network registration enables unauthorized setResolver",
+   "severity": "High",
+   "category": "Access Control",
+   "file": "VetoSlasher.sol",
+   "function": "setResolver",
+   "description": "setResolver restricts access to registered networks via IRegistry.isEntity, but NetworkRegistry.registerNetwork is permissionless, allowing any untrusted actor to register as a network and then call setResolver on any VetoSlasher. This lets them set the resolver for a subnetwork, influencing veto power.",
+   "attackPath": "Attacker registers as a network, then calls VetoSlasher.setResolver to set themselves or a malicious address as resolver for a subnetwork, enabling them to veto slash requests or manipulate the slashing process.",
+   "impact": "Attacker can veto legitimate slashes or allow malicious slashes, compromising the slashing mechanism.",
+   "recommendation": "Add additional access control to setResolver, such as only allowing the vault owner or a designated admin, or make network registration permissioned."
+  },
+  {
+   "title": "Permissionless network registration enables unauthorized setMiddleware",
+   "severity": "High",
+   "category": "Access Control",
+   "file": "NetworkMiddlewareService.sol",
+   "function": "setMiddleware",
+   "description": "setMiddleware restricts access to registered networks via IRegistry.isEntity, but NetworkRegistry.registerNetwork is permissionless, allowing any untrusted actor to register as a network and then call setMiddleware to set themselves as the middleware for that network. This grants them access to functions that require being the middleware, such as distributeRewards and slash.",
+   "attackPath": "Attacker registers as a network, then calls NetworkMiddlewareService.setMiddleware to set their address as the middleware. They can then call functions like DefaultStakerRewards.distributeRewards or Slasher.slash that check that msg.sender is the middleware, potentially stealing rewards or initiating unauthorized slashes.",
+   "impact": "Attacker can distribute rewards to themselves or initiate slashes, causing loss of funds or incorrect slashing.",
+   "recommendation": "Add additional access control to setMiddleware, such as only allowing the network owner or a designated admin, or make network registration permissioned."
+  },
+  {
+   "title": "Permissionless network registration allows anyone to become a network",
+   "severity": "Medium",
+   "category": "Access Control",
+   "file": "NetworkRegistry.sol",
+   "function": "registerNetwork",
+   "description": "The registerNetwork function has no access control, allowing any untrusted external actor to register as a network. This enables them to call privileged functions in other contracts that check for network status, such as setMaxNetworkLimit, setResolver, and setMiddleware.",
+   "attackPath": "Any attacker calls registerNetwork() to become a registered network, then exploits the functions listed above.",
+   "impact": "Enables a class of attacks where untrusted actors gain network-level privileges, leading to potential loss of funds or manipulation of protocol parameters.",
+   "recommendation": "Restrict registerNetwork to only allow trusted entities, e.g., by adding an owner-only modifier or requiring a prior authorization."
+  },
+  {
+   "title": "Missing nonce in signed message allows replay attacks in Ed25519Delegation",
+   "severity": "High",
+   "category": "Replay",
+   "file": "Ed25519DelegationEIP7702.sol",
+   "function": "transact()",
+   "description": "The transact function verifies an Ed25519 signature over the `data` parameter only, without including the contract's `nonce` or any unique identifier. The `nonce` state variable exists but is never incremented or checked during signature verification. This allows any valid signature to be replayed multiple times, as the signed message does not bind to a unique nonce.",
+   "attackPath": "1. Attacker observes a valid transaction (to, data, value, r, s) on-chain. 2. Attacker calls transact again with the same parameters. 3. The signature verifies again because the message is identical and nonce is not checked. 4. The call is executed again, transferring value or executing arbitrary data again.",
+   "impact": "Loss of funds or unauthorized repeated execution of arbitrary calls, as the same signature can be reused indefinitely.",
+   "recommendation": "Include the current nonce in the signed message and increment it after each use to prevent replay."
+  },
+  {
+   "title": "First-depositor share inflation via direct token donation",
+   "severity": "High",
+   "category": "Accounting / Rounding",
+   "file": "Vault.sol",
+   "function": "deposit()",
+   "description": "The vault’s share price (assets per share) can be artificially inflated by an attacker who makes the first deposit and then directly transfers a large amount of collateral to the vault contract. Because `activeStake` is only updated through deposit/withdraw/slash calls, a direct transfer increases the vault’s token balance without increasing `activeShares`, causing subsequent depositors to receive fewer shares for their deposit. The attacker can then redeem their shares for a disproportionate amount of assets.",
+   "attackPath": "1. Attacker calls deposit() with a small amount (e.g., 1 wei) and receives shares. 2. Attacker directly transfers a large amount of the collateral token to the vault address via a normal ERC20 transfer. 3. The vault’s balance increases, but `activeStake` and `activeShares` remain unchanged. 4. A victim calls deposit() – the share price is now inflated, so they receive very few shares. 5. Attacker calls redeem() or withdraw() using his shares to extract a larger portion of the vault’s total assets than what they originally deposited.",
+   "impact": "The attacker can steal funds from later depositors, potentially draining the vault of assets.",
+   "recommendation": "Implement virtual shares (e.g., by adding a constant to `totalShares` in `ERC4626Math`) or require a minimum initial deposit to mitigate the inflation attack."
+  },
+  {
+   "title": "Veto slasher executeSlash bypasses veto period when resolver not set at both times",
+   "severity": "High",
+   "category": "Integration and state consistency",
+   "file": "VetoSlasher.sol",
+   "function": "executeSlash()",
+   "description": "The executeSlash function enforces the veto deadline only if a resolver exists at both the capture timestamp and the current timestamp minus one. If either resolver is missing (zero), the veto period check is skipped, allowing immediate execution of a slash before the veto deadline. The intended design is that any resolver should be able to veto during the veto period.",
+   "attackPath": "An attacker (network middleware) calls requestSlash to create a slash request. If no resolver is set at the capture timestamp (or the resolver is later removed before executeSlash), the attacker can call executeSlash immediately without waiting for the veto deadline, because the condition `resolverAt(capture) != address(0) && resolverAt(now-1) != address(0)` fails, bypassing the veto period check.",
+   "impact": "The attacker can slash operator stakes without giving the resolver the opportunity to veto, leading to unjust loss of funds and bypassing the veto security mechanism.",
+   "recommendation": "Change the condition to enforce the veto period if either a resolver existed at capture time or a resolver exists currently. For example: `if (resolverAt(...) != address(0) || resolverAt(...) != address(0)) { require(request.vetoDeadline <= Time.timestamp(), \"VetoPeriodNotEnded\"); }`"
+  },
+  {
+   "title": "Missing chain id and contract address in signed message allows cross-chain replay",
+   "severity": "High",
+   "category": "Cross-Chain",
+   "file": "Ed25519DelegationEIP7702.sol",
+   "function": "transact()",
+   "description": "The signed message in transact is only the `data` bytes, with no inclusion of the chain id, contract address, or any domain separator. This means a signature valid on one chain can be replayed on another chain where the same contract is deployed at the same address, or even on a different contract with the same authorized public key.",
+   "attackPath": "1. Attacker obtains a valid signature for a transaction on chain A. 2. Attacker deploys the same contract at the same address on chain B (e.g., via CREATE2). 3. Attacker calls transact on chain B with the same parameters; the signature verifies and the transaction executes.",
+   "impact": "Unauthorized execution of transactions across chains, potentially draining funds from contracts on multiple chains.",
+   "recommendation": "Include the chain id and contract address (or use EIP-712 domain separator) in the signed message."
+  },
+  {
+   "title": "Missing key tag in signed message allows cross-tag key overwrite",
+   "severity": "Medium",
+   "category": "Signature",
+   "file": "KeyRegistry.sol",
+   "function": "setKey()",
+   "description": "The EIP-712 typehash for key ownership is `KeyOwnership(address operator,bytes key)` and does not include the `tag` parameter. This means a signature proving ownership of a key can be used to set that key on any tag, not just the intended one. An attacker who obtains a signature for a key on one tag can reuse it to overwrite a different key on another tag for the same operator.",
+   "attackPath": "1. Operator signs a message to set their public key on tag A. 2. Attacker (or even the operator themselves) calls setKey with the same signature but a different tag B. 3. The signature verifies because the tag is not part of the signed data. 4. The key is stored under tag B, potentially overwriting a previous key on that tag.",
+   "impact": "Loss of control over a specific key tag, which could affect authentication or verification systems relying on that tag.",
+   "recommendation": "Include the `tag` parameter in the EIP-712 typehash to bind the signature to a specific tag."
+  },
+  {
+   "title": "Permissionless operator registration enables denial-of-service via unbounded loop in view functions",
+   "severity": "Medium",
+   "category": "DoS - Unbounded Loop",
+   "file": "VotingPowerProviderLogic.sol",
+   "function": "registerOperator()",
+   "description": "The registerOperator function is publicly callable and allows any address (registered as an operator in OperatorRegistry) to become an operator in the VotingPowerProvider. The operator list grows unboundedly. Functions like getVotingPowersAt() iterate over all operators without pagination, causing out-of-gas revert once the list is large enough, making the protocol's view functions unusable and potentially breaking off-chain integrations.",
+   "attackPath": "Attacker creates many Ethereum accounts, registers them in OperatorRegistry, then calls registerOperator for each to add them to the operator list. After accumulating enough operators (e.g., thousands), any call to getVotingPowersAt() or getVotingPowers() will fail due to block gas limit, effectively freezing those queries.",
+   "impact": "The protocol's view functions become unusable, preventing operators from querying their voting power, disrupting off-chain infrastructure that relies on these views, and potentially blocking on-chain contracts that depend on these functions. Liveness of the system is compromised.",
+   "recommendation": "Implement pagination in view functions or impose a cost/barrier to register operators (e.g., require a minimum stake, or limit the number of operators via governance). Alternatively, cap the operator list size and enforce pruning."
+  },
+  {
+   "title": "Reward distribution rounding accumulates permanent dust",
+   "severity": "Medium",
+   "category": "Accounting / Rounding",
+   "file": "DefaultStakerRewards.sol",
+   "function": "claimable()",
+   "description": "When distributing rewards, each staker’s share is computed via `activeSharesOfAt.mulDiv(reward.amount, _activeSharesCache[timestamp])`. The `mulDiv` rounds down, so each claimer receives slightly less than their exact proportional entitlement. The unclaimed residual accumulates per distribution and is never redistributed or retrievable, leading to permanently locked funds.",
+   "attackPath": "No direct exploitation by an untrusted actor; the flaw is systemic. Over many distributions, the cumulative dust becomes significant. However, an attacker could repeatedly trigger small reward distributions (if allowed) to increase the dust, but the main impact is a loss of funds for stakers.",
+   "impact": "Stakers collectively receive less than the full amount of rewards distributed; the leftover tokens become stranded in the contract.",
+   "recommendation": "Use a rounding technique that ensures the sum of all claimer amounts equals the total distributed amount, e.g., by awarding the remainder to the last claimer or by using a progressive rounding mechanism."
+  },
+  {
+   "title": "Cross-chain EIP-712 domain missing chain id allows signature replay across chains",
+   "severity": "Medium",
+   "category": "Cross-Chain",
+   "file": "Settlement.sol",
+   "function": "commitValSetHeader()",
+   "description": "The `hashTypedDataV4CrossChain` function in OzEIP712 uses a domain separator that only includes the name and version, not the chain id or contract address. This means a signature for a validator set header on one chain can be replayed on another chain if the same network address (subnetwork) exists. The subnetwork includes the network address, which could be identical across chains if deployed at the same address.",
+   "attackPath": "1. Attacker observes a valid commitValSetHeader transaction on chain A. 2. Attacker deploys the same Network contract at the same address on chain B. 3. Attacker calls commitValSetHeader on chain B with the same header and proof; the signature verifies because the cross-chain domain does not bind to chain id. 4. A fraudulent validator set is committed on chain B.",
+   "impact": "Incorrect validator set commitment on another chain, potentially leading to incorrect settlement or governance decisions.",
+   "recommendation": "Include the chain id and contract address in the cross-chain domain separator, or ensure the subnetwork uniquely identifies the chain."
+  },
+  {
+   "title": "Missing nonReentrant on VaultConfigurator.create allows cross-contract reentrancy",
+   "severity": "Medium",
+   "category": "Reentrancy",
+   "file": "VaultConfigurator.sol",
+   "function": "create()",
+   "description": "The `create()` function makes external calls to factory contracts and to `Vault.setDelegator`/`Vault.setSlasher` without a `nonReentrant` modifier. If any of these external calls trigger a callback into `VaultConfigurator.create` (e.g., through a malicious token or hook), the function can be re-entered, potentially creating multiple vaults or causing inconsistent state.",
+   "attackPath": "An attacker deploys a token with a callback that, during `safeTransferFrom` in a vault deposit, calls back into `VaultConfigurator.create`. Since `create` lacks reentrancy protection, the attacker can trigger multiple vault creations in the same transaction, possibly exhausting gas or causing unexpected behavior.",
+   "impact": "Unauthorized multiple vault creations, potential gas exhaustion, or inconsistent initialization state.",
+   "recommendation": "Add the `nonReentrant` modifier to `VaultConfigurator.create()`."
+  },
+  {
+   "title": "Merkle proof leaf missing network and token allows cross-token reward claim",
+   "severity": "Medium",
+   "category": "Signature (Merkle proof)",
+   "file": "DefaultOperatorRewards.sol",
+   "function": "claimRewards()",
+   "description": "The leaf of the Merkle tree is `keccak256(abi.encode(msg.sender, totalClaimable))` and does not include the network or token address. If the same root is set for multiple tokens (or networks), a proof valid for one token can be used to claim rewards on another token, as long as the totalClaimable is the same.",
+   "attackPath": "1. Network middleware sets the same root for token A and token B. 2. User has a valid proof for token A with totalClaimable X. 3. User calls claimRewards for token B with the same proof; the root matches and the leaf is valid. 4. User claims rewards on token B even though they were not entitled.",
+   "impact": "Unauthorized claim of rewards, draining the balance of another token.",
+   "recommendation": "Include the network and token addresses in the Merkle leaf to bind the proof to a specific token and network."
+  }
+ ]
+}
