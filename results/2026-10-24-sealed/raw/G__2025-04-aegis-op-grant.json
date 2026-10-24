@@ -1,0 +1,170 @@
+{
+  "contest": "2025-04-aegis-op-grant",
+  "hypotheses": [
+    {
+      "title": "`withdrawRedeemRequest` lacks access control and can be called by anyone",
+      "severity": "High",
+      "category": "Missing Access Control",
+      "file": "AegisMinting.sol",
+      "function": "withdrawRedeemRequest()",
+      "description": "The function `withdrawRedeemRequest()` is declared as `public` with no role-based or owner-based modifier. Any untrusted external actor can call it for any `requestId`, provided the request is PENDING and expired. This allows an attacker to withdraw YUSD locked in another user's redeem request before the intended user can claim it.",
+      "attackPath": "1. Attacker observes a pending redeem request (e.g., via events). 2. After the request's `expiry` timestamp passes, attacker calls `withdrawRedeemRequest(requestId)`. 3. The contract sets the request status to WITHDRAWN and transfers the locked YUSD to `request.order.userWallet` (the original requester). While the funds go to the original user, the attacker can grief or cause denial of service by preventing the request from being approved or withdrawn by the rightful owner.",
+      "impact": "Denial of service – an attacker can force withdrawal of any expired redeem request, preventing the intended user from managing their own request and potentially causing loss of opportunity or forcing premature withdrawal.",
+      "recommendation": "Add a check that `msg.sender == request.order.userWallet` to ensure only the original requester can withdraw their own request."
+    },
+    {
+      "title": "No nonce or deadline in ClaimRequest signature",
+      "severity": "High",
+      "category": "Replay Attack",
+      "file": "AegisRewards.sol",
+      "function": "claimRewards()",
+      "description": "The ClaimRequest struct contains only claimer, ids, and amounts, with no nonce, expiry, or unique identifier. This allows the same signed request to be replayed multiple times, as the signature does not become invalid after use.",
+      "attackPath": "An attacker intercepts a valid signed ClaimRequest (e.g., from mempool or frontend). They call claimRewards() repeatedly with the same signature, each time claiming the same rewards again until the reward pool is exhausted.",
+      "impact": "Complete loss of all reward funds, as rewards can be claimed multiple times by the same user.",
+      "recommendation": "Add a nonce or expiry field to ClaimRequest and enforce it in the contract (e.g., track used nonces or check block.timestamp against expiry)."
+    },
+    {
+      "title": "Mint and redeem limits can be bypassed by resetting period start time",
+      "severity": "High",
+      "category": "Economic/Incentive Flaw",
+      "file": "AegisMinting.sol",
+      "function": "_checkMintRedeemLimit()",
+      "description": "The `_checkMintRedeemLimit()` function resets `currentPeriodStartTime` to `block.timestamp` when the current period ends. However, this reset happens *after* the check for `currentPeriodTotalAmount + yusdAmount > maxPeriodAmount`. If the period has ended, the function allows a new period to start with `currentPeriodTotalAmount = 0`, but the check for the new period uses the old `currentPeriodStartTime` which is now in the past. This allows an attacker to mint or redeem an amount greater than `maxPeriodAmount` in the new period because the check `currentPeriodTotalAmount + yusdAmount > maxPeriodAmount` is evaluated against the old period's total, which is zero after reset.",
+      "attackPath": "1. Attacker waits for the current mint/redeem period to end. 2. Attacker submits a mint/redeem order with `yusdAmount` greater than `maxPeriodAmount`. 3. The function sees the period has ended, resets `currentPeriodTotalAmount` to 0, and then adds `yusdAmount` to it. 4. The check `0 + yusdAmount > maxPeriodAmount` is false, so the transaction succeeds, bypassing the limit.",
+      "impact": "An attacker can mint or redeem an unlimited amount of YUSD in a single transaction, bypassing the intended period limits, potentially leading to insolvency or manipulation of the protocol's supply.",
+      "recommendation": "Move the period reset logic to *before* the limit check, or ensure the limit check uses the new period's start time."
+    },
+    {
+      "title": "`finalizeRewards` has a misleading TODO comment and no access control",
+      "severity": "High",
+      "category": "Missing Access Control",
+      "file": "AegisRewards.sol",
+      "function": "finalizeRewards()",
+      "description": "The function `finalizeRewards` is protected by `onlyRole(REWARDS_MANAGER_ROLE)`, but the code contains a comment `// TODO add onlyOwner modifier`. This indicates the developer intended to add additional access control but did not. If the `REWARDS_MANAGER_ROLE` is assigned to an untrusted or compromised address, they can finalize any reward, set arbitrary claim durations, and potentially lock or manipulate reward distribution.",
+      "attackPath": "1. An attacker gains the `REWARDS_MANAGER_ROLE` (e.g., through misconfiguration or compromise). 2. They call `finalizeRewards(id, 0)` on any reward, marking it finalized with no claim duration. 3. Legitimate users cannot claim the reward because `claimRewards` requires `finalized` to be true, but the reward may have been set with zero expiry, making it claimable immediately. Alternatively, they could set a very short claim duration to prevent users from claiming.",
+      "impact": "Unauthorized finalization of rewards – can cause loss of rewards for users or enable premature withdrawal by the manager.",
+      "recommendation": "Remove the TODO comment and ensure the function has appropriate access control. Consider adding a timelock or multi-signature requirement for finalization."
+    },
+    {
+      "title": "No Chainlink sequencer uptime check on L2",
+      "severity": "High",
+      "category": "Missing Sequencer Check",
+      "file": "AegisMinting.sol",
+      "function": "_getAssetUSDPriceChainlink()",
+      "description": "On L2 chains (Arbitrum, Optimism), Chainlink feeds can return stale prices if the sequencer is down. The code does not call `_feedRegistry.latestRoundData()` with a sequencer uptime feed check. This allows using prices from before a sequencer outage, enabling arbitrage.",
+      "attackPath": "An attacker waits for a sequencer outage on L2, then calls mint() with a large collateral amount. The stale Chainlink price is used, minting YUSD at an outdated rate. The attacker redeems later at the correct rate for profit.",
+      "impact": "Attacker can mint YUSD at an inflated rate and drain the system of collateral.",
+      "recommendation": "Add a sequencer uptime check using Chainlink's `ArbitrumSequencerUptimeFeed` or `OptimismSequencerUptimeFeed` before reading the price feed."
+    },
+    {
+      "title": "Reentrancy via YUSD token callback during redeem fee transfer",
+      "severity": "High",
+      "category": "Cross-contract reentrancy",
+      "file": "AegisMinting.sol",
+      "function": "approveRedeemRequest()",
+      "description": "In `approveRedeemRequest()`, the fee is transferred to `insuranceFundAddress` via `yusd.safeTransfer(insuranceFundAddress, fee)` before the state update setting `request.status = APPROVED`. If `insuranceFundAddress` is malicious, it can reenter `approveRedeemRequest()` for the same request, causing double approval and double collateral transfer.",
+      "attackPath": "1. Attacker controls `insuranceFundAddress` to reenter `approveRedeemRequest()`. 2. First call transfers fee, reentrant call sees `PENDING` status, passes checks, transfers collateral again. 3. Original call then sets status to `APPROVED`, but collateral already sent twice.",
+      "impact": "Loss of collateral assets; the contract sends more collateral than intended, draining funds.",
+      "recommendation": "Update `request.status = APPROVED` before any external call (fee transfer or collateral transfer)."
+    },
+    {
+      "title": "Blacklisted User's YUSD Locked in Redeem Request Cannot Be Withdrawn",
+      "severity": "Medium",
+      "category": "Stuck Funds",
+      "file": "AegisMinting.sol",
+      "function": "withdrawRedeemRequest()",
+      "description": "If a user is blacklisted in the YUSD contract after creating a redeem request, the `withdrawRedeemRequest` function will revert because `yusd.safeTransfer` calls `_update` which checks `isBlackListed[to]`. The user's YUSD remains locked in the contract indefinitely, and no other function can unlock it since only the user can call `withdrawRedeemRequest`.",
+      "attackPath": "1. User creates a redeem request, locking YUSD. 2. YUSD owner blacklists the user (this is a trusted action, but the user is now stuck). 3. User attempts to call `withdrawRedeemRequest` after expiry; the transfer reverts due to blacklist check. 4. Funds remain locked forever.",
+      "impact": "Permanent loss of user's YUSD; funds are stuck in the contract with no recovery path.",
+      "recommendation": "Add an admin function to force-withdraw locked YUSD to a non-blacklisted address or allow the user to transfer the request to another address."
+    },
+    {
+      "title": "Missing chainId and contract address in ClaimRequest signature",
+      "severity": "High",
+      "category": "Cross-Chain Replay",
+      "file": "AegisRewards.sol",
+      "function": "claimRewards()",
+      "description": "The ClaimRequest struct includes a domain separator that contains chainId and contract address, but the verify() function in ClaimRewardsLib.sol does not enforce that the signature was created for the current chain or contract. The domain separator is passed as a parameter and could be from a different chain if the contract is migrated or forked.",
+      "attackPath": "An attacker obtains a valid signature for a ClaimRequest on a different chain (e.g., a testnet or sidechain) where the same trusted signer key is used. The attacker replays that signature on the mainnet contract to claim rewards they are not entitled to.",
+      "impact": "Unauthorized draining of reward funds from the contract, potentially stealing all unclaimed rewards.",
+      "recommendation": "Ensure the domain separator is computed internally using block.chainid and address(this) rather than passed as a parameter, or validate that the recovered signer matches the expected signer for the current chain."
+    },
+    {
+      "title": "Missing chainId and contract address in Order signature verification",
+      "severity": "High",
+      "category": "Cross-Chain Replay",
+      "file": "AegisMinting.sol",
+      "function": "mint()",
+      "description": "The OrderLib.verify() function uses a domain separator that includes chainId and contract address, but the domain separator is passed as a parameter from the calling contract. If the contract is ever deployed on a different chain with the same trusted signer, signatures from one chain can be replayed on another.",
+      "attackPath": "An attacker obtains a valid signed Order for minting on a testnet or L2 where the same trusted signer key is used. They replay that order on the mainnet AegisMinting contract to mint YUSD without providing collateral.",
+      "impact": "Unauthorized minting of YUSD, leading to inflation and loss of backing for the stablecoin.",
+      "recommendation": "Compute the domain separator internally using block.chainid and address(this) rather than accepting it as a parameter, or validate that the domain separator matches the current chain."
+    },
+    {
+      "title": "Rewards can be claimed multiple times due to missing claim tracking update",
+      "severity": "High",
+      "category": "Economic/Incentive Flaw",
+      "file": "AegisRewards.sol",
+      "function": "claimRewards()",
+      "description": "In `claimRewards()`, the `_addressClaimedRewards` mapping is set to true *before* the reward amount is decremented. However, if the reward amount becomes zero after decrement, the `_rewards[id].amount` is not checked for underflow, and the `_addressClaimedRewards` flag is set even if the reward was already fully claimed by another user. This allows an attacker to claim the same reward ID multiple times as long as the reward amount is not zero, draining the reward pool.",
+      "attackPath": "1. Attacker calls `claimRewards()` with a reward ID that has a positive amount. 2. The function sets `_addressClaimedRewards[attacker][id] = true` and decrements `_rewards[id].amount`. 3. Attacker calls `claimRewards()` again with the same reward ID. 4. The check `_addressClaimedRewards[attacker][id]` is true, so the loop continues to the next ID, but if the attacker provides a different ID that also has a positive amount, they can claim again. The core issue is that the flag is set before the amount is decremented, and there is no check that the reward was not already fully claimed by someone else.",
+      "impact": "An attacker can drain the entire reward pool by repeatedly claiming the same reward IDs, leading to loss of funds for the protocol and legitimate users.",
+      "recommendation": "Move the `_addressClaimedRewards` assignment to after the amount decrement, and add a check that `_rewards[id].amount >= claimRequest.amounts[i]` to prevent claiming more than available."
+    },
+    {
+      "title": "Chainlink price feed decimals mismatch in YUSD oracle calculation",
+      "severity": "High",
+      "category": "Wrong units/decimals",
+      "file": "AegisMinting.sol",
+      "function": "_getAssetYUSDPriceOracle()",
+      "description": "The function computes asset/YUSD price as `(assetUSDPrice * 10**yusdUSDPriceDecimals) / yusdUSDPrice`. The assetUSDPrice comes from Chainlink with `feedDecimals` (typically 8), while yusdUSDPrice has 8 decimals. The result is scaled incorrectly: it should be `(assetUSDPrice * 10**yusdUSDPriceDecimals) / (yusdUSDPrice * 10**feedDecimals)` to normalize both to the same base. This produces a price that is off by a factor of 10**feedDecimals, causing severe mispricing in redeem calculations.",
+      "attackPath": "1) Attacker submits a redeem order with a large collateralAmount and small yusdAmount. 2) The oracle price is inflated by 10**8 due to the decimal mismatch. 3) `_calculateRedeemMinCollateralAmount` computes a much larger collateral amount than intended. 4) Attacker receives excess collateral for their YUSD.",
+      "impact": "Users can drain collateral from the protocol by exploiting the inflated oracle price, leading to insolvency.",
+      "recommendation": "Normalize both prices to the same decimal base before division: `(assetUSDPrice * 10**yusdUSDPriceDecimals) / (uint256(yusdUSDPrice) * 10**feedDecimals)`."
+    },
+    {
+      "title": "Chainlink stale price check bypassed when heartbeat is zero",
+      "severity": "High",
+      "category": "Wrong assumptions about external protocols",
+      "file": "AegisMinting.sol",
+      "function": "_getAssetUSDPriceChainlink()",
+      "description": "The stale price check `updatedAt >= block.timestamp - chainlinkAssetHeartbeat[asset]` passes trivially when `chainlinkAssetHeartbeat[asset]` is 0, because `block.timestamp - 0 = block.timestamp` and `updatedAt` is always less than or equal to `block.timestamp`. The constructor and `addSupportedAsset` allow setting heartbeat to 0, and `removeSupportedAsset` sets it to 0. This means any asset with a zero heartbeat accepts arbitrarily stale prices.",
+      "attackPath": "1) Admin adds an asset with heartbeat=0 (or it gets removed, leaving heartbeat=0). 2) Chainlink feed goes stale or is manipulated. 3) Attacker mints YUSD using a stale, inflated price, receiving more YUSD than the collateral is worth.",
+      "impact": "Protocol mints YUSD against worthless or stale collateral, causing insolvency and loss of funds for YUSD holders.",
+      "recommendation": "Reject zero heartbeat values in `_addSupportedAsset` and `setChainlinkAssetHeartbeat`, or require `updatedAt > 0` and a minimum acceptable heartbeat."
+    },
+    {
+      "title": "Reentrancy via YUSD token callback during mint fee transfer",
+      "severity": "High",
+      "category": "Cross-contract reentrancy",
+      "file": "AegisMinting.sol",
+      "function": "mint()",
+      "description": "In `mint()`, the fee is minted to `insuranceFundAddress` via `yusd.mint(insuranceFundAddress, fee)` before the collateral transfer and user mint. If `insuranceFundAddress` is a malicious contract that reenters `mint()`, it can manipulate state (e.g., inflate `_custodyTransferrableAssetFunds`) before the user's collateral is transferred, leading to accounting mismatches.",
+      "attackPath": "1. Attacker sets `insuranceFundAddress` to a contract that calls `mint()` again on reentrancy. 2. First `mint()` mints fee to attacker contract, triggering reentrant call. 3. Reentrant call passes checks, transfers collateral, and increments `_custodyTransferrableAssetFunds`. 4. Original call continues, transferring collateral again, double-counting it.",
+      "impact": "Inflated `_custodyTransferrableAssetFunds` allows draining more collateral than actually held, leading to insolvency.",
+      "recommendation": "Move the fee mint after all state updates and external transfers, or use a reentrancy guard (already present but insufficient due to cross-contract reentry)."
+    },
+    {
+      "title": "Reentrancy via YUSD token callback during depositIncome fee transfer",
+      "severity": "High",
+      "category": "Cross-contract reentrancy",
+      "file": "AegisMinting.sol",
+      "function": "depositIncome()",
+      "description": "In `depositIncome()`, the fee is minted to `insuranceFundAddress` via `yusd.mint(insuranceFundAddress, fee)` before the reward mint and `aegisRewards.depositRewards()` call. If `insuranceFundAddress` reenters `depositIncome()`, it can cause multiple mints for the same collateral, inflating reward accounting.",
+      "attackPath": "1. Attacker sets `insuranceFundAddress` to reenter `depositIncome()`. 2. First call mints fee, reentrant call passes checks, mints rewards again. 3. Original call then mints rewards again, doubling reward issuance.",
+      "impact": "Over-issuance of YUSD rewards, diluting value and potentially causing insolvency.",
+      "recommendation": "Move fee mint after all state updates and before external calls, or use a reentrancy guard that prevents cross-contract reentry."
+    },
+    {
+      "title": "Redeem request can be approved multiple times for the same locked YUSD",
+      "severity": "High",
+      "category": "Economic/Incentive Flaw",
+      "file": "AegisMinting.sol",
+      "function": "approveRedeemRequest()",
+      "description": "In `approveRedeemRequest()`, the function checks `request.status != RedeemRequestStatus.PENDING` but does not update the status to APPROVED until after the collateral transfer and YUSD burn. If the function reverts due to insufficient funds or other reasons, the status remains PENDING, allowing the same request to be approved again. This can lead to double-spending of the same locked YUSD.",
+      "attackPath": "1. Attacker creates a redeem request and locks YUSD. 2. Attacker calls `approveRedeemRequest()` with an amount that passes the checks but causes a revert (e.g., due to insufficient collateral balance). 3. The revert does not change the status, so the request remains PENDING. 4. Attacker calls `approveRedeemRequest()` again, potentially with a different amount, and the request is approved, burning the same YUSD twice.",
+      "impact": "An attacker can cause the protocol to burn YUSD twice for the same locked YUSD, leading to a loss of funds for the protocol and potential insolvency.",
+      "recommendation": "Set `request.status = RedeemRequestStatus.APPROVED` immediately after the initial checks, before any external calls, or use a reentrancy guard to prevent re-entry."
+    }
+  ]
+}

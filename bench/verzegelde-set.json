@@ -1,0 +1,1169 @@
+{
+ "zaad": "0x91b7371d9902f60b3515633ffda7f89f7537bcce9a132a62fef21694f54ddd1d",
+ "contests": [
+  {
+   "contest": "2025-03-symm-io-stacking",
+   "sourceRepo": "sherlock-audit/2025-03-symm-io-stacking",
+   "inScopeKb": 53,
+   "inScopeFiles": 7,
+   "issues": [
+    {
+     "id": "H-1",
+     "severity": "High",
+     "title": "USDC rewards will not be distributed if `_updateRewardsStates` is triggered too often",
+     "finders": 25,
+     "files": [
+      "token/contracts/staking/SymmStaking.sol"
+     ],
+     "excerpt": "### Summary https://github.com/sherlock-audit/2025-03-symm-io-stacking/blob/main/token/contracts/staking/SymmStaking.sol#L402-L423 _updateRewardsStates can be triggered as often as each block (2 seconds) via deposit/withdraw/claim/notifyRewardAmount e.g. if there's 1209.6e6 USDC rewards for one week (604800 seconds) https://github.com/sherlock-audit/2025-03-symm-io-stacking/blob/main/token/contracts/staking/SymmStaking.sol#L374 rate = 1209_600000 / 604800 = 2000 \"usdc units\" per second https://github.com/sherlock-audit/2025-03-symm-io-stacking/blob/main/token/contracts/staking/SymmStaking.sol#L194-L202 if SYMM total staked supply is 1_000_000e18 (~26560 usd), and we call `deposit` each block, then [`perTokenStored` will be increased by](https://github.com/sherlock-audit/2025-03-symm-io-stacking/blob/main/token/contracts/staking/SymmStaking.sol#L412): 2 * 2000 * 1e18 / 1_000_000e18 = 4_000 / 1_000_000 = 0 Therefore, `perTokenStored` will not increase, but [`lastUpdated` will be increased](https://github.com/sherlock-audit/2025-03-symm-io-stacking/blob/main/token/contracts/staking/SymmStaking.sol#L413), therefore users will not receive any USDC rewards for staking. In this particular example, triggering `_updateRewardsStates` once in 249 blocks would be sufficient, as it would still result in rewards rounding down to zero. ### Root Cause Lack of upscaling for tokens with less tha"
+    },
+    {
+     "id": "M-1",
+     "severity": "Medium",
+     "title": "Incorrect initializer modifier in Vesting contract prevents proper initialization",
+     "finders": 18,
+     "files": [
+      "token/contracts/vesting/Vesting.sol",
+      "token/contracts/vesting/SymmVesting.sol"
+     ],
+     "excerpt": "## Description: In the Symmio protocol, the `Vesting` contract is designed to be inherited by `SymmVesting`. However, the `__vesting_init()` function in `Vesting` uses the `initializer` modifier instead of the `onlyInitializing` modifier: https://github.com/sherlock-audit/2025-03-symm-io-stacking/blob/main/token/contracts/vesting/Vesting.sol#L76 ```solidity // Vesting.sol function __vesting_init(address admin, uint256 _lockedClaimPenalty, address _lockedClaimPenaltyReceiver) public initializer { __AccessControlEnumerable_init(); __Pausable_init(); __ReentrancyGuard_init(); // ...rest of initialization... } ``` Meanwhile, in the inheriting contract: https://github.com/sherlock-audit/2025-03-symm-io-stacking/blob/main/token/contracts/vesting/SymmVesting.sol#L55 ```solidity // SymmVesting.sol function initialize( address admin, address _lockedClaimPenaltyReceiver, address _pool, // ...other parameters... ) public initializer { // ...checks... __vesting_init(admin, 500000000000000000, _lockedClaimPenaltyReceiver); // ...additional initialization... } ``` According to [OpenZeppelin's documentation](https://docs.openzeppelin.com/contracts/4.x/api/proxy#Initializable-initializer--) and best practices, the `initializer` modifier should only be used in the final initialization function of an inheritance chain, while initialization functions of parent contracts should use the [onlyInitia"
+    },
+    {
+     "id": "M-2",
+     "severity": "Medium",
+     "title": "Readding the reward token causes userRewardPerTokenPaid to be incorrect for some users, resulting in them receiving too many rewards.",
+     "finders": 3,
+     "files": [
+      "token/contracts/staking/SymmStaking.sol"
+     ],
+     "excerpt": "### Summary New users who deposit during the time when the reward token is not added do not get their `userRewardPerTokenPaid` updated for this token, so it remains 0. When the token is re-added, however, `perTokenStored` for this token is not 0 because it retains the previous state. This leads to a situation where users who joined in the meantime when the reward token was not added, can receive all the previous rewards of the token when new rewards are notified, effectively taking them away from other users. ### Root Cause https://github.com/sherlock-audit/2025-03-symm-io-stacking/blob/main/token/contracts/staking/SymmStaking.sol#L319-L328 Here you can see that when removing a reward token, the token is only removed from the `rewardTokens` list without resetting the other state. That means if the token is added again, it takes over the previous state. The problem is that if `perTokenStored` for the reward token is not 0 when it is removed, it will also not be 0 when the token is re-added. If new users make a deposit while the token is not added, they do not get `userRewardPerTokenPaid` updated for this token because the token is no longer in the `rewardTokens` list. Normally `userRewardPerTokenPaid` is always updated before a deposit through `_updateRewardsState` to ensure that a user does not receive rewards that existed before the deposit for the deposited amount: https://gi"
+    },
+    {
+     "id": "M-3",
+     "severity": "Medium",
+     "title": "Bad check in `Vesting.sol::_resetVestingPlans` will prevent users from adding additional liquidity in `SymmVesting.sol`",
+     "finders": 28,
+     "files": [
+      "token/contracts/vesting/Vesting.sol"
+     ],
+     "excerpt": "### Summary The `_resetVestingPlans` check makes it impossible to increase a user's locked tokens if the increase does not push the new amount above the total unlocked tokens. This is problematic as it will prevent users from adding additional liquidity to the `SymmVesting.sol` after a certain number of their lp tokens have been unlocked. ### Root Cause In [Vesting.sol:231](https://github.com/sherlock-audit/2025-03-symm-io-stacking/blob/main/token/contracts/vesting/Vesting.sol#L231), the check will cause a revert when a user tries to add additional liquidity ### Internal Pre-conditions The user must already have some vested lp tokens ### External Pre-conditions NIL ### Attack Path NIL ### Impact Users are unable to add additional liquidity ### PoC Follow the guide [here](https://hardhat.org/hardhat-runner/docs/advanced/hardhat-and-foundry) to integrate foundry into this codebase. Then add the following test into a new file: ```solidity // SPDX-License-Identifier: MIT pragma solidity >=0.8.18; import {SymmStaking} from \"../../contracts/staking/SymmStaking.sol\"; import {Symmio} from \"../../contracts/token/symm.sol\"; import {MockERC20} from \"../../contracts/mock/MockERC20.sol\"; import {TransparentUpgradeableProxy} from \"@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol\"; import {SymmVesting} from \"../../contracts/vesting/SymmVesting.sol\"; import {Test, cons"
+    },
+    {
+     "id": "M-4",
+     "severity": "Medium",
+     "title": "Malicious User can dilute staking Rewards to a longer timeframe",
+     "finders": 100,
+     "files": [
+      "token/contracts/staking/SymmStaking.sol"
+     ],
+     "excerpt": "### Summary The `SymmStaking` contract allows anyone to add new rewards using the `notifyRewardAmount` function. However, if new rewards are continuously added while existing rewards are still active, the total rewards get spread over a longer period. A malicious actor can exploit this by repeatedly adding tiny amounts, effectively delaying stakers from receiving their full rewards. ### Root Cause * `notifyRewardAmount` function can be called by anyone, with any reward amount. * Each time it's called, the reward rate is recalculated as: * `amount / state.duration` (if the previous reward period has ended). * [`(amount + leftover) / state.duration`](https://github.com/sherlock-audit/2025-03-symm-io-stacking/blob/main/token/contracts/staking/SymmStaking.sol#L374) (if the previous reward period is still ongoing). The issue arises when an attacker keeps adding tiny amounts (e.g., 1 wei) repeatedly. While the total rewards (amount + leftover) barely change, the duration (state.duration) remains fixed at 1 week, causing the reward rate to drop significantly over time. **Example:** 1. Alice is the only staker, and 100 USDC is added as a reward. 2. Halfway through, Alice has earned 50 USDC. 3. A malicious user then adds just 1 wei USDC as a new reward. 4. This recalculates the reward rate, cutting it in half: * From `100e6 / 1 week` → `50e6 / 1 week`. 5. The attacker can repeat this pr"
+    },
+    {
+     "id": "M-5",
+     "severity": "Medium",
+     "title": "Double spending attack in the Vesting contract",
+     "finders": 2,
+     "files": [
+      "token/contracts/vesting/Vesting.sol"
+     ],
+     "excerpt": "### Summary The function resetVestingPlans() is called by an administrator account and resets vesting plans for a list of users, with the corresponding amount provided as input. The function calls _resetVestingPlans(), where it checks whether the given amount is greater than or equal to the claimed amount for the user. After that, it calls resetAmount() from LibVestingPlan. In this function, the state is updated, the new amount is recorded, and claimedAmount is set to 0. ### Root Cause The issue here is that this can lead to double spending. Even though the user executing the request is trusted, they cannot know whether another transaction has been executed before theirs, in which the user whose vesting plan is being reset has withdrawn their locked amount by paying a penalty fee. If this happens, the user will be able to claim the same amount again after the reset, which would harm other users who might not be able to claim their rewards. https://github.com/sherlock-audit/2025-03-symm-io-stacking/blob/main/token/contracts/vesting/Vesting.sol#L222-L237 ### Internal Pre-conditions None ### External Pre-conditions None ### Attack Path 1. Trusted user sends a transaction for executes resetVestingPlans() 2. Regular user subject of this reset sends a transaction that is executed before the first one and claim their locked tokens as they pay a penalty 3. After the reset the user is a"
+    }
+   ]
+  },
+  {
+   "contest": "2025-05-yearn-ybold",
+   "sourceRepo": "sherlock-audit/2025-05-yearn-ybold",
+   "inScopeKb": 38,
+   "inScopeFiles": 7,
+   "issues": [
+    {
+     "id": "H-1",
+     "severity": "High",
+     "title": "A malicious attacker can steal 25% of the funds of the first depositor in a strategy",
+     "finders": 1,
+     "files": [
+      "yv3-liquityv2-sp-strategy/src/Strategy.sol"
+     ],
+     "excerpt": "### Summary Inflatability of the `TokenizedStrategy` share value, combined with the lack of an initial deposit via the `StrategyFactory`, allows a malicious attacker to steal 25% of the first depositor's funds. ### Root Cause The [Strategy](https://github.com/sherlock-audit/2025-05-yearn-ybold/blob/88a3b89c05fd6e59ec130c79659195cd05d872af/yv3-liquityv2-sp-strategy/src/Strategy.sol#L13) contract inherits it's vault logic from Yearn's `BaseStrategy` which delegates to the logic of the `TokenizedStrategy` contract. The issue is that the `Strategy` does not perform an initial deposit into the vault during construction, allowing an attacker to inflate the share value to steal from a depositor. ### Internal Pre-conditions N/A ### External Pre-conditions N/A ### Attack Path The following attack uses a malicious admin to make the attack easier and quicker: - set profit max unlock time to zero (helps make the attack's setup instant) - immediately report the 1 wei profit (helps immediately achieve the state of totalAssets=2, totalShares=1) The README states that admins should not be able to steal depositor funds: > if any role is able to set a value in a way that could result in the theft of depositor funds, this would be considered a valid finding. No role should be capable of stealing from depositors or permanently blocking withdrawals. Nonetheless, the attack is still possible without"
+    },
+    {
+     "id": "H-2",
+     "severity": "High",
+     "title": "Attacker can deposit after the keeper reports a loss, but before the collateral auction to steal from other depositors",
+     "finders": 2,
+     "files": [
+      "contracts/src/StabilityPool.sol"
+     ],
+     "excerpt": "### Summary An attacker can exploit the timing between when a loss is reported and when the associated collateral is later auctioned and reported as profit. By depositing in between these events, the attacker mints undervalued shares and redeems them at a profit, stealing from prior depositors. ### Root Cause If there have been [liquidations in the Stability Pool](https://github.com/liquity/bold/blob/36139d909fcc4d2c2918d7fd2b20b11951138ccb/contracts/src/StabilityPool.sol#L24-L25) that reduced the strategy's BOLD balance, and the resulting collateral has not yet been auctioned, the strategy temporarily holds unprocessed collateral gains. When the keeper calls `report()` during this state, the strategy records a loss, since the BOLD balance decreased but the collateral value has not yet been realized. This lowers the price per share. An attacker can exploit this by depositing right after the loss is reported, minting shares at a discounted rate. Then, once the collateral is auctioned and converted back to BOLD, the next `report()` reflects a profit, restoring the price per share. The attacker can now redeem their shares at this higher valuation, extracting more than they put in. The loss is effectively socialized onto the original depositors, whose share value was diluted by the attacker's well-timed entry and exit. ### Internal Pre-conditions `management` has to do only **one**"
+    },
+    {
+     "id": "M-1",
+     "severity": "Medium",
+     "title": "No maximum on `dustThreshold` allows management to lock user funds",
+     "finders": 1,
+     "files": [
+      "yv3-liquityv2-sp-strategy/src/Strategy.sol"
+     ],
+     "excerpt": "### Summary Because there is no maximum amount on `dustThreshold`, management can increase it to an absurdly high number. By doing this, they stop all auctions from happening. Users will continue to lose BOLD to liquidations but will not be able to receive anything in return, therefore leading to permanent locking of funds users are owed. ### Root Cause [Strategy.sol#L155:](https://github.com/sherlock-audit/2025-05-yearn-ybold/blob/main/yv3-liquityv2-sp-strategy/src/Strategy.sol#L155) /// @notice Set the dust threshold for the strategy /// @param _dustThreshold New dust threshold function setDustThreshold( uint256 _dustThreshold ) external onlyManagement { require(_dustThreshold >= MIN_DUST_THRESHOLD, \"!minDust\"); dustThreshold = _dustThreshold; } This function allows management to set dust threshold. It has a minimum amount, but no maximum. If a maximum is added it will stop management from being able to lock user funds. ### Internal Pre-conditions 1. Admin sets `dustThreshold` absurdly high 2. Users funds owed to them from liquidations are locked as collateral in the strategy contract ### External Pre-conditions 1. Liquidations must occur for it to have an actual effect ### Attack Path 1. Management sees a large amount of incoming liquidations 2. Management sets dustThreshold very high so auctions cannot occur 3. User funds taken by liquidations are permanently locked ### Imp"
+    }
+   ]
+  },
+  {
+   "contest": "2025-04-aegis-op-grant",
+   "sourceRepo": "sherlock-audit/2025-04-aegis-op-grant",
+   "inScopeKb": 47,
+   "inScopeFiles": 7,
+   "issues": [
+    {
+     "id": "H-1",
+     "severity": "High",
+     "title": "Insolvency as `YUSD` will depeg overtime as the redemption fees are disbursed with no collaterals backing them.",
+     "finders": 37,
+     "files": [],
+     "excerpt": "## Summary On the call to `approveRedeemRequest()` the collateral amount which was used initially to get the `yusdAmount` in the `mint()` function, is calculated via the `_calculateRedeemMinCollateralAmount()`. Here's a run down, please take a good gander. ```solidity File: AegisMinting.sol function approveRedeemRequest(string calldata requestId, uint256 amount) external nonReentrant onlyRole(FUNDS_MANAGER_ROLE) whenRedeemUnpaused { RedeemRequest storage request = _redeemRequests[keccak256(abi.encode(requestId))]; if (request.timestamp == 0 || request.status != RedeemRequestStatus.PENDING) { revert InvalidRedeemRequest(); } if (amount == 0 || amount > request.order.collateralAmount) { revert InvalidAmount(); } uint256 collateralAmount = _calculateRedeemMinCollateralAmount(request.order.collateralAsset, amount, request.order.yusdAmount); //code snip ... some checks. uint256 availableAssetFunds = _untrackedAvailableAssetBalance(request.order.collateralAsset); if (availableAssetFunds < collateralAmount) { revert NotEnoughFunds(); } // Take a fee, if it's applicable // @audit fee amount is taken without accounting for the collateral backing thereby leading to a depegging of the YUSD (uint256 burnAmount, uint256 fee) = _calculateInsuranceFundFeeFromAmount(request.order.yusdAmount, redeemFeeBP); if (fee > 0) { yusd.safeTransfer(insuranceFundAddress, fee); } request.status = RedeemReq"
+    },
+    {
+     "id": "M-1",
+     "severity": "Medium",
+     "title": "Collateral can get stuck in the minting contract under certain conditions or be accounted as profit",
+     "finders": 2,
+     "files": [
+      "aegis-contracts/contracts/AegisMinting.sol"
+     ],
+     "excerpt": "### Summary The predominant narrative of Aegis is that they aren't holding any funds in their minting contract. This means that all collateral which was transferred to the contract for the purpose of minting YUSD is transferred to their custodial partners for safekeeping OR is accounted for as profit which would result in YUSD being minted in exchange for it, and then said collateral transferred to their custodial partners for safekeeping. This warrants the need for a 2-step redeem flow which first registers the redeem request, and then withdraws the needed collateral from the custodial partners after which the redeem can be accepted and the collateral transferred to the user. The problem with this approach is that these funds are \"untracked\", together with the profit. There are multiple ways in which collateral can get \"stuck\" in the contract OR be mistaken for profit: - A redeem request was rejected or cancelled; - The redeem request acceptance reverts due to any number of reasons such as the user was placed on a blacklist and/or the order has expired; - A `depositIncome` call mistakenly accounts untracked collateral funds as profit, resulting in the minting of non-collateralized YUSD which contributes to its de-pegging. ### Root Cause The current design of the system doesn't account (virtually) for both the funds which are to-be-redeemed, as well as the income (i.e. profit)."
+    },
+    {
+     "id": "M-2",
+     "severity": "Medium",
+     "title": "A whale adversary can grief the redeem functionality through redeem limit consumption",
+     "finders": 18,
+     "files": [
+      "aegis-contracts/contracts/AegisMinting.sol"
+     ],
+     "excerpt": "### Summary The failure to not account redemptions into the limit after the transaction has been approved can lead to griefing attempts by users with sizeable YUSD token balance meanwhile the redemption can still expire. ### Root Cause In [`AegisMinting.sol:785-802`](https://github.com/sherlock-audit/2025-04-aegis-op-grant/blob/main/aegis-contracts/contracts/AegisMinting.sol#L785-L803), the _checkMintRedeemLimit function increments limits.currentPeriodTotalAmount when a user creates a redeem request, but neither the withdrawRedeemRequest function (lines 373-390) nor the _rejectRedeemRequest function (lines 702-711) decrements this counter when YUSD is returned to the user. ```solidity function _checkMintRedeemLimit(MintRedeemLimit storage limits, uint256 yusdAmount) internal { // ... validation checks ... limits.currentPeriodTotalAmount += yusdAmount; // Incremented but never decremented on withdraw/reject } ``` ### Internal Pre-conditions N/A ### External Pre-conditions 1. Adversary needs to have enough YUSD tokens to make redeem requests that approach redeemLimit.maxPeriodAmount. ### Attack Path 1. Adversary identifies the current redeemLimit.maxPeriodAmount and redeemLimit.periodDuration. 2. Adversary creates multiple valid Order structs for OrderType.REDEEM with different nonces and additionalData (to create unique request IDs). 3. Attacker obtains valid signatures for thes"
+    }
+   ]
+  },
+  {
+   "contest": "2025-07-mellow-flexible-vaults",
+   "sourceRepo": "sherlock-audit/2025-07-mellow-flexible-vaults",
+   "inScopeKb": 142,
+   "inScopeFiles": 39,
+   "issues": [
+    {
+     "id": "H-1",
+     "severity": "High",
+     "title": "`Consensus`.`checkSignatures` doesn't check duplication of signers",
+     "finders": 44,
+     "files": [
+      "flexible-vaults/src/queues/SignatureQueue.sol",
+      "flexible-vaults/src/permissions/Consensus.sol",
+      "flexible-vaults/src/queues/SignatureDepositQueue.sol",
+      "flexible-vaults/src/queues/SignatureRedeemQueue.sol"
+     ],
+     "excerpt": "### Summary [`SignatureQueue`.`validateOrder`](https://github.com/sherlock-audit/2025-07-mellow-flexible-vaults/blob/main/flexible-vaults/src/queues/SignatureQueue.sol#L105) checks signatures using [`Consensus`.`checkSignatures`](https://github.com/sherlock-audit/2025-07-mellow-flexible-vaults/blob/main/flexible-vaults/src/permissions/Consensus.sol#L21C14-L48). But this doesn't check duplication of signers, so malicious attacker can bypass `threshold` checking. ### Root Cause [`SignatureDepositQueue`.`deposit`](https://github.com/sherlock-audit/2025-07-mellow-flexible-vaults/blob/main/flexible-vaults/src/queues/SignatureDepositQueue.sol#L12) and [`SignatureRedeemQueue`.`redeem`](https://github.com/sherlock-audit/2025-07-mellow-flexible-vaults/blob/main/flexible-vaults/src/queues/SignatureRedeemQueue.sol#L14) uses [`SignatureQueue`.`validateOrder`](https://github.com/sherlock-audit/2025-07-mellow-flexible-vaults/blob/main/flexible-vaults/src/queues/SignatureQueue.sol#L105). This checks signatures using [`Consensus`.`checkSignatures`](https://github.com/sherlock-audit/2025-07-mellow-flexible-vaults/blob/main/flexible-vaults/src/permissions/Consensus.sol#L21C14-L48). ```solidity function checkSignatures(bytes32 orderHash, Signature[] calldata signatures) public view returns (bool) { ConsensusStorage storage $ = _consensusStorage(); @> if (signatures.length == 0 || signatures.lengt"
+    },
+    {
+     "id": "H-2",
+     "severity": "High",
+     "title": "RedeemQueue Accounting Mismatch Between Batch Creation and Claim Eligibility",
+     "finders": 16,
+     "files": [
+      "flexible-vaults/src/queues/RedeemQueue.sol"
+     ],
+     "excerpt": "### Summary The RedeemQueue contract contains a critical vulnerability where _handleReport processes fewer redemption requests than what users can claim, leading to accounting inconsistencies and potential loss of funds. The issue occurs due to a mismatch between the timestamp boundary logic in batch creation versus claim eligibility checks. ### Root Cause The vulnerability stems from inconsistent timestamp boundary handling between two functions: _handleReport: Uses upperLookupRecent(timestamp) followed by latestEligibleIndex--, which excludes the last redemption request before the report timestamp claim: Uses latestEligibleTimestamp from prices, allowing claims for any timestamp ≤ report timestamp This creates a scenario where users can claim from batches that don't contain their shares, causing accounting mismatches. ```solidity function claim(address receiver, uint32[] calldata timestamps) external nonReentrant returns (uint256 assets) { ... //@audit users can claim up to higher price saved (bool hasRequest, uint256 shares) = callerRequests.tryGet(timestamp); if (!hasRequest) { continue; } if (shares != 0) { uint256 index = $.prices.lowerLookup(timestamp); if (index >= batchIterator) { continue; } ... } function _handleReport(uint224 priceD18, uint32 timestamp) internal override { RedeemQueueStorage storage $ = _redeemQueueStorage(); Checkpoints.Trace224 storage timestamps "
+    },
+    {
+     "id": "H-3",
+     "severity": "High",
+     "title": "Unable to withdraw native tokens because vault and redeem hooks do not handle native tokens",
+     "finders": 15,
+     "files": [
+      "flexible-vaults/src/modules/ShareModule.sol",
+      "flexible-vaults/src/hooks/BasicRedeemHook.sol"
+     ],
+     "excerpt": "### Summary The vault and redeem hook do not handle native token, preventing them from processing native token withdrawal requests. Users cannot withdraw native tokens. ### Root Cause The vault is generally implemented to support native tokens, and native tokens are included in the [supported token list](https://github.com/sherlock-audit/2025-07-mellow-flexible-vaults/tree/eca8836d68d65bcbfc52c6f04cf6b4b1597555bf?tab=readme-ov-file#q-if-you-are-integrating-tokens-are-you-allowing-only-whitelisted-tokens-to-work-with-the-codebase-or-any-complying-with-the-standard-are-they-assumed-to-have-certain-properties-eg-be-non-reentrant-are-there-any-types-of-weird-tokens-you-want-to-integrate). However, when querying token balances during withdrawal, it does not consider the case where the asset token is a native token. This causes withdrawals to fail. 1. RedeemQueue and SignatureRedeemQueue call `vault.getLiquidAssets` to query the token balance for processing withdrawals. If no hook is used, it calls ERC20's `balanceOf`. If the asset is a native token, this function call fails and the transaction is reverted. [modules/ShareModule.sol#L150](https://github.com/sherlock-audit/2025-07-mellow-flexible-vaults/blob/eca8836d68d65bcbfc52c6f04cf6b4b1597555bf/flexible-vaults/src/modules/ShareModule.sol#L150) ```solidity function getLiquidAssets() public view returns (uint256) { ... address hook ="
+    },
+    {
+     "id": "H-4",
+     "severity": "High",
+     "title": "Protocol Fee Multiple Accrual in Oracle.submitReports",
+     "finders": 9,
+     "files": [
+      "flexible-vaults/src/oracles/Oracle.sol"
+     ],
+     "excerpt": "### Summary The `Oracle.submitReports` function processes multiple asset reports in a single transaction, but the `ShareModule.handleReport` function calculates and accrues protocol fees for each report individually without considering that the timestamp should only be updated once per batch. This leads to multiple fee accruals when non-base assets are processed before the base asset, resulting in excessive protocol fees being charged. ### Root Cause The issue stems from the interaction between [`Oracle.submitReports`](https://github.com/sherlock-audit/2025-07-mellow-flexible-vaults/blob/eca8836d68d65bcbfc52c6f04cf6b4b1597555bf/flexible-vaults/src/oracles/Oracle.sol#L103-L121) and `ShareModule.handleReport`. In `ShareModule.handleReport`, the fee calculation uses the current timestamp and the last stored timestamp to calculate protocol fees: ```solidity // In ShareModule.handleReport (lines 281-283) uint256 fees = feeManager_.calculateFee(address(this), asset, priceD18, shareManager_.totalShares()); if (fees != 0) { shareManager_.mint(feeManager_.feeRecipient(), fees); } ``` The `FeeManager.calculateFee` function calculates protocol fees based on the time difference: ```solidity // In FeeManager.calculateFee (lines 81-83) uint256 timestamp = $.timestamps[vault]; if (timestamp != 0 && block.timestamp > timestamp) { shares += Math.mulDiv(totalShares, $.protocolFeeD6 * (block.time"
+    },
+    {
+     "id": "H-5",
+     "severity": "High",
+     "title": "Incorrect performance fee calculation in `FeeManager`",
+     "finders": 5,
+     "files": [
+      "flexible-vaults/src/managers/FeeManager.sol"
+     ],
+     "excerpt": "### Summary The performance fee calculation in `FeeManager.calculateFee` uses an incorrect formula that doesn't properly convert price differences to share amounts. The current implementation leads to incorrect fee calculations. ### Root Cause The root cause is in the performance fee calculation formula in [`FeeManger.calculateFee`](https://github.com/sherlock-audit/2025-07-mellow-flexible-vaults/blob/main/flexible-vaults/src/managers/FeeManager.sol#L78) function : ```solidity shares = Math.mulDiv(minPriceD18_ - priceD18, $.performanceFeeD6 * totalShares, 1e24); ``` This formula incorrectly assumes that the price difference `(minPriceD18_ - priceD18)` can be directly multiplied by the total shares to calculate fee shares. Following formula comparison will be help to understand issue: - definition of price: `share = price * asset` - current formula: `feeShare = priceDifference * totalShare Example1: minPriceD18=100e18, priceD18=90e18, performanceFee=1e5(10%) feeShare = 10e18 * 1e5 * totalShare / 1e24 = totalShare This means that performance fee share is the same as total share. -> Incorrect result. Example2: Let's imagine that asset is USDC with decimal 6, and vault share price is $1. In this case, `priceD18` for `USDC` is `1e30`, not `1e18` to ensure share decimal as 18. ### Internal Pre-conditions . ### External Pre-conditions . ### Attack Path . ### Impact Incorrect performan"
+    },
+    {
+     "id": "H-6",
+     "severity": "High",
+     "title": "Redeems through RedeemQueue avoid paying management and performance fee.",
+     "finders": 3,
+     "files": [
+      "flexible-vaults/src/queues/RedeemQueue.sol"
+     ],
+     "excerpt": "### Summary When a user calls `redeem`, the amount of shares they want to redeem is immediately burned, effectively removing the shares from `activeShares` ```solidity IShareManager shareManager_ = IShareManager(IShareModule(vault_).shareManager()); shareManager_.burn(caller, shares); { IFeeManager feeManager = IShareModule(vault_).feeManager(); uint256 fees = feeManager.calculateRedeemFee(shares); if (fees > 0) { shareManager_.mint(feeManager.feeRecipient(), fees); shares -= fees; } } ``` However, although the shares are burned, the funds actually remain within the vault up until a report is handled and it handles said redeems. For these reasons these funds should also be subject to performance and management fees (both for the time period between last fee accrual and creating redeem request and also after creating redeem request and up to report handling. As the code does considers for `totalShares` only the `allocated` and minted shares, but not the ones waiting in redeem queue, the shares in redeem queue effectively bypass the necessary fees. ### Root Cause Flawed logic. ### Code https://github.com/sherlock-audit/2025-07-mellow-flexible-vaults/blob/main/flexible-vaults/src/queues/RedeemQueue.sol#L98 ### Attack Path 1. Reports are handled once a day. 2. Last report is at 00:00. 3. User creates a redeem request at 12:00. (12 hours since last report) 4. A new report comes at 0"
+    },
+    {
+     "id": "M-1",
+     "severity": "Medium",
+     "title": "Flawed Logic in `ShareManager` Inverts Transfer Whitelist Behavior",
+     "finders": 63,
+     "files": [
+      "flexible-vaults/src/managers/ShareManager.sol"
+     ],
+     "excerpt": "### Summary The `updateChecks` function in `ShareManager.sol:L139` contains flawed logic that inverts the intended behavior of the transfer whitelist feature. Instead of allowing transfers from whitelisted accounts, the code incorrectly blocks them, rendering the security feature unusable and creating behavior that is opposite to the documentation. ### Vulnerability Detail The `updateChecks` function is responsible for enforcing security policies before any share modification. When the `hasTransferWhitelist` flag is enabled, it is supposed to check if a transfer is permitted. The logic for this check is as follows: https://github.com/sherlock-audit/2025-07-mellow-flexible-vaults/blob/main/flexible-vaults/src/managers/ShareManager.sol#L139 Here, `info` represents the sender's account data. The code reverts if the sender's `canTransfer` flag is `true`. This is a direct contradiction of the feature's documented intent in the `IShareManager.sol` interface: ```solidity /// @notice Whether the account is allowed to transfer (send or receive) shares when the `hasTransferWhitelist` flag is active. bool canTransfer; ``` The documentation clearly states that `canTransfer: true` should **allow** an account to send or receive shares. The current implementation enforces the opposite, blocking whitelisted senders. Furthermore, the project's test suite (`ShareManager.t.sol`) confirms this fla"
+    },
+    {
+     "id": "M-2",
+     "severity": "Medium",
+     "title": "ETH redemptions via `SignatureRedeemQueue` are broken due to missing `receive` function",
+     "finders": 9,
+     "files": [
+      "flexible-vaults/src/queues/SignatureRedeemQueue.sol",
+      "flexible-vaults/src/modules/ShareModule.sol"
+     ],
+     "excerpt": "## Summary The `SignatureRedeemQueue` contract lacks a `receive()` function, causing ETH redemptions to fail. ## Root Cause This is the call flow of [SignatureRedeemQueue.redeem](https://github.com/sherlock-audit/2025-07-mellow-flexible-vaults/blob/main/flexible-vaults/src/queues/SignatureRedeemQueue.sol#L13-L27) when users attempt to redeem ETH: ```js SignatureRedeemQueue.redeem(...) └─ vault_.callHook(order.requested) └─ ShareModule.callHook(...) └─ TransferLibrary.sendAssets(asset, queue, assets) • if asset == ETH → Address.sendValue(queue, assets) ``` [ShareModule.callHook()](https://github.com/sherlock-audit/2025-07-mellow-flexible-vaults/blob/main/flexible-vaults/src/modules/ShareModule.sol#L264-L265) ends with ```js if (!$.isDepositQueue[queue]) { TransferLibrary.sendAssets(asset, queue, assets); // ETH goes here } ``` If `asset == ETH` the helper executes `Address.sendValue(payable(queue), assets)` – __an empty-data call__ to the queue contract. Neither `SignatureRedeemQueue` nor `SignatureQueue` (base contract) implement either `receive()` or a `payable fallback`, so the ETH transfer would revert ## Internal pre-conditions N/A ## External pre-conditions N/A ## Attack Scenario N/A ## Impact ETH users cannot redeem through Signature queues - the transaction always fails. ## Mitigation Add a `receive()` function once in the shared base contract: ```js // SignatureQueue.so"
+    },
+    {
+     "id": "M-3",
+     "severity": "Medium",
+     "title": "stETH edge case in transfer rounding can cause denial of service for depositors and redeemers.",
+     "finders": 4,
+     "files": [
+      "flexible-vaults/src/queues/DepositQueue.sol"
+     ],
+     "excerpt": "### Summary The use of stETH, which can transfer 1-2 [wei](https://docs.lido.fi/guides/lido-tokens-integration-guide/#1-2-wei-corner-case) less than requested due to its internal share-based accounting and rounding, will cause a denial of service for depositors and redeemers as the contract will revert when attempting to transfer more stETH than it actually holds. ### Root Cause The root cause of the issue lies in how the queue contracts handle the `assets `variable during deposits, cancellations, and batch processing. When a user deposits stETH, the contract assumes that the exact amount specified by the user is received and records this value in its internal accounting. However, due to stETH’s internal share-based accounting and rounding, the contract may actually receive 1-2 wei less than the requested amount. This discrepancy is not accounted for in the contract’s logic. As a result, when a user later cancels their deposit or when a batch is processed in the `_handleReport `function, the contract attempts to transfer the full recorded assets amount to the user or the vault using `TransferLibrary.sendAssets`. If the contract’s actual stETH balance is less than the recorded assets due to the initial shortfall, the transfer will revert. This leads to a denial of service for users attempting to cancel, claim, or process deposits/redeems, as the contract cannot fulfill the trans"
+    },
+    {
+     "id": "M-4",
+     "severity": "Medium",
+     "title": "Protocol Fee Exponential Compounding in ShareModule.handleReport",
+     "finders": 4,
+     "files": [
+      "flexible-vaults/src/modules/ShareModule.sol"
+     ],
+     "excerpt": "### Summary The protocol fee calculation in `ShareModule.handleReport` function suffers from exponential compounding instead of linear accumulation. When `handleReport` is called frequently (e.g., daily), the protocol fee is applied to the current total shares which includes all previously accrued fees, leading to higher-than-intended fee extraction. ### Root Cause In [`ShareModule.handleReport`](https://github.com/sherlock-audit/2025-07-mellow-flexible-vaults/blob/eca8836d68d65bcbfc52c6f04cf6b4b1597555bf/flexible-vaults/src/modules/ShareModule.sol#L281-L284) at line 281-284: ```solidity uint256 fees = feeManager_.calculateFee(address(this), asset, priceD18, shareManager_.totalShares()); if (fees != 0) { shareManager_.mint(feeManager_.feeRecipient(), fees); } ``` The issue is that `shareManager_.totalShares()` includes all previously minted shares, including fees that were already taken. This means each subsequent fee calculation is based on an inflated share count, leading to exponential compounding rather than linear fee accumulation. The `FeeManager.calculateFee` function calculates fees based on the current total shares: ```solidity function calculateFee(address vault, address asset, uint256 priceD18, uint256 totalShares) external view returns (uint256) { // ... other fee calculations ... uint256 protocolFee = (totalShares * protocolFeeRate * timeElapsed) / (365 days * 1e6)"
+    },
+    {
+     "id": "M-5",
+     "severity": "Medium",
+     "title": "cancelDepositRequest() always reverts due to modifying FenwickTree with wrong index",
+     "finders": 28,
+     "files": [
+      "flexible-vaults/src/queues/DepositQueue.sol",
+      "flexible-vaults/src/libraries/FenwickTreeLibrary.sol"
+     ],
+     "excerpt": "### Summary In `DepositQueue:cancelDepositRequest()` , the code uses the latest `price` checkpoint instead of `index` when attempting to remove a user’s pending deposit from the Fenwick tree. Because the timestamp-based request array has length < price, the index is out of bounds and the function always reverts, making it impossible for depositors to cancel their queued deposits. ### Root Cause The [`DepositQueue:cancelDepositRequest()`](https://github.com/sherlock-audit/2025-07-mellow-flexible-vaults/blob/eca8836d68d65bcbfc52c6f04cf6b4b1597555bf/flexible-vaults/src/queues/DepositQueue.sol#L98-L117) calls: ```solidity (bool exists, uint32 timestamp, uint256 index) = $.prices.latestCheckpoint(); //@audit index is actually the price .. $.requests.modify(index, -int256(assets)); //@audit priceD18 instead of index will result in IndexOutOfBounds error ``` Here, `$.prices` is the oracle-price checkpoint trace, not the timestamp trace that indexes the `$.requests` Fenwick tree. As a result, the retrieved `index` does not corresponds to a valid slot in the `$.requests`, causing `modify()` to revert with [`IndexOutOfBounds`](https://github.com/sherlock-audit/2025-07-mellow-flexible-vaults/blob/eca8836d68d65bcbfc52c6f04cf6b4b1597555bf/flexible-vaults/src/libraries/FenwickTreeLibrary.sol#L70-L71). ### Internal Pre-conditions - At least one price report has been processed - A user has a p"
+    },
+    {
+     "id": "M-6",
+     "severity": "Medium",
+     "title": "Targeted-lockup bypass: freshly minted shares can be transferred immediately in the same `transfer()` or `transferFrom()` call",
+     "finders": 1,
+     "files": [
+      "flexible-vaults/src/managers/TokenizedShareManager.sol",
+      "flexible-vaults/src/managers/ShareManager.sol"
+     ],
+     "excerpt": "### Summary `TokenizedShareManager` is designed so that every newly minted share is subject to a per account targeted lock-up (`lockedUntil = now + targetedLockup`). However, because `TokenizedShareManager._update()` calls `claimShares(from)` before executing the actual ERC-20 transfer, and because `mint()` sets `lockedUntil` after the prior lock check, a user who has any allocated (yet-unclaimed) shares can: 1. trigger a mint via `claimShares` in the `_update` function (through a `transfer` or `transferFrom`), 2. have those shares credited to their balance, and 3. pass them to another address in the same transaction, all without ever being prevented by the lock-up. ### Root Cause https://github.com/sherlock-audit/2025-07-mellow-flexible-vaults/blob/main/flexible-vaults/src/managers/TokenizedShareManager.sol#L46-L55 ```solidity function _update(address from, address to, uint256 value) internal override { updateChecks(from, to); // ① lock check executes here if (from != address(0)) { claimShares(from); // ② mints & sets new lock, the updateChecks in next _update calls are //bypassed since from is address(0) and to is the \"from\" here } if (to != address(0)) { claimShares(to); } super._update(from, to, value); // ③ transfer executes after mint } ``` `claimShares(from)` →` mintAllocatedShares() `→ `mint()` → `ERC-20 _mint()`, the new entered `_update(address(0), from, value)` passe"
+    },
+    {
+     "id": "M-7",
+     "severity": "Medium",
+     "title": "DoS in Redemption Due to Unchecked Asset Support in Subvaults",
+     "finders": 6,
+     "files": [
+      "flexible-vaults/src/queues/SignatureRedeemQueue.sol",
+      "flexible-vaults/src/hooks/BasicRedeemHook.sol",
+      "flexible-vaults/src/managers/RiskManager.sol"
+     ],
+     "excerpt": "### Summary In Mellow Flexible Vaults, the `getLiquidAssets()` logic aggregates token balances from all subvaults without checking whether a given asset is supported by each subvault. Since subvaults are expected to restrict supported assets via the allowedAssets mapping, calling `hookPullAssets()` on a subvault holding an unsupported asset (even 1 wei) will trigger a revert due to the `NotAllowedAsset` check inside `modifySubvaultBalance()`. This leads to a denial-of-service condition as any user can send a trivial amount of the queue asset (1 wei) to a `subvault` that doesn't support it. As a result, future redemption requests for that asset via `redeem()` will revert during the `callHook()` phase, making redemptions impossible. ### Root Cause The root cause lies in the fact that the system aggregates `IERC20(asset).balanceOf(subvault)` across all subvaults during `getLiquidAssets()` and then attempts to `hookPullAssets()` from each of them, without verifying if the asset is permitted by that subvault. If even a single subvault holds a non-zero balance of an unsupported asset, `modifySubvaultBalance()` will revert. ### Internal Pre-conditions A `Subvault` exists but does not include the given asset in its `allowedAssets`. ### External Pre-conditions nill ### Attack Path 1. Attacker identifies a subvault that does not support the redemption asset. 2. Sends 1 wei of the redempt"
+    },
+    {
+     "id": "M-8",
+     "severity": "Medium",
+     "title": "Malicious Users Can Perpetually Lock `feeRecipient` Shares via Targeted Lockup Reset",
+     "finders": 9,
+     "files": [
+      "flexible-vaults/src/queues/DepositQueue.sol",
+      "flexible-vaults/src/queues/RedeemQueue.sol",
+      "flexible-vaults/src/modules/ShareModule.sol"
+     ],
+     "excerpt": "### Summary The protocol mints fee shares to the `feeRecipient` during deposits, redemptions, and protocol fee collection. However, the `ShareManager.mint()` function applies the `targetLockup` to **all recipients**, including the `feeRecipient`. Since this lock resets on every mint, a malicious user can repeatedly trigger minting operation and redeeming minimal amounts to **continually reset the lock timer**. As a result, the `feeRecipient`'s shares remain perpetually locked and unusable, leading to a DOS where protocol fees become inaccessible. ### Root Cause The protocol mints shares to the `feeRecipient` address in three cases: deposit fees, redeem fees, and protocol fees. Each of these cases calls the `mint` function in the `shareManager` contract, which directly mints tokens to the `feeRecipient` address based on calculations from the `FeeManager` contract. **1. `calculateDepositFee`**: Calculates the deposit fee in shares based on the amount. **2. `calculateRedeemFee`**: Calculates the redeem fee in shares based on the amount. **3. `calculateFee`**: Calculates the combined performance and protocol fee in shares. [DepositQueue](https://github.com/sherlock-audit/2025-07-mellow-flexible-vaults/blob/main/flexible-vaults/src/queues/DepositQueue.sol#L176-L186) ```solidity { IShareManager shareManager_ = vault_.shareManager(); uint256 shares = Math.mulDiv(assets, reducedPriceD1"
+    },
+    {
+     "id": "M-9",
+     "severity": "Medium",
+     "title": "Stuck `stETH` rewards in queue contracts",
+     "finders": 3,
+     "files": [
+      "flexible-vaults/src/queues/DepositQueue.sol"
+     ],
+     "excerpt": "### Summary `stETH` rewards can be stuck in queue contracts because the contracts are not compatible with rebasing tokens, specifically `stETH`. ### Root Cause The system integrates with `stETH` but the implementation is not compatible with `stETH` (since `stETH` is rebase token). For example with the contract `DepositQueue` 1. At request deposit phase, [`assets` amount](https://github.com/sherlock-audit/2025-07-mellow-flexible-vaults/blob/main/flexible-vaults/src/queues/DepositQueue.sol#L77) of `stETH` is sent from depositor to the queue 2. The request then needs to wait for deposit interval and oracle timeout 3. When oracle reports valid price, the [amount `assets`](https://github.com/sherlock-audit/2025-07-mellow-flexible-vaults/blob/main/flexible-vaults/src/queues/DepositQueue.sol#L189) at step (1) is sent from queue to the vault Indeed, within the time period in step (2) above, Lido system can report rewards (happening daily, positive or negative) and the `stETH` share price increases in case positive, resulting the queue's `stETH` balance increases to be more than `assets`. So, this means that the reward part is not accounted by the queue Oppositely, in negative case, the queue's `stETH` balance can decrease causing it is unable to execute the step (3) (although Lido claims that the negative case [has not happened](https://docs.lido.fi/guides/lido-tokens-integration-guide"
+    }
+   ]
+  },
+  {
+   "contest": "2025-06-notional-exponent",
+   "sourceRepo": "sherlock-audit/2025-06-notional-exponent",
+   "inScopeKb": 178,
+   "inScopeFiles": 31,
+   "issues": [
+    {
+     "id": "H-1",
+     "severity": "High",
+     "title": "Cross-contract reentrancy allows YIELD_TOKEN theft for the `GenericERC4626` `WithdrawalRequestManager` variant",
+     "finders": 5,
+     "files": [
+      "contracts/trading/adapters/UniV3Adapter.sol"
+     ],
+     "excerpt": "- https://github.com/notional-finance/leveraged-vaults/blob/7e0abc3e118db0abb20c7521c6f53f1762fdf562/contracts/trading/adapters/UniV3Adapter.sol#L60-L72 ^ The only validations in-place are the tokenIn and tokenOut sanitizations, but not the whole multihop path though. <img width=\"815\" height=\"481\" alt=\"Image\" src=\"https://sherlock-files.ams3.digitaloceanspaces.com/gh-images/b8f9b6b7-8401-4160-aa5a-c678f49bb7f7\" /> _NOTE_ This is the Trading module we have: https://etherscan.io/address/0x179a2d2408bfbc21b72d59c4a74e5010f07dc823#code ![Image](https://sherlock-files.ams3.digitaloceanspaces.com/gh-images/b2d7e6ee-c3ab-44b9-bb85-1986f4418d07) https://etherscan.io/address/0xE592427A0AEce92De3Edee1F18E0157C05861564#code <-- UniswapV3 router ## Description Since the `WithdrawalRequestManager` allows `onlyVault` operations for multiple different strategy \"vaults\",.. A combination of a default reentrancy + cross-contract reentrancy is possible... ...Through which `YIELD_TOKEN`s can be drained from the `WithdrawalRequestManager`... ...---> to the yield strategy where the strategy's `depositAsset != WithdrawalRequestManager.STAKE_TOKEN`. This way, the strategy will record a higher surplus (aka delta) of `YIELD_TOKEN`s in the current `YIELD_TOKEN.balanceOf(address(this))` and will mint more shares to the malicious user's account. `onlyApprovedVault` permits any caller whitelisted in the `is"
+    },
+    {
+     "id": "H-2",
+     "severity": "High",
+     "title": "Attacker can drain the entire suppliers on Morpho market by inflating collateral price",
+     "finders": 1,
+     "files": [
+      "notional-v4/src/AbstractYieldStrategy.sol",
+      "notional-v4/src/single-sided-lp/AbstractSingleSidedLP.sol"
+     ],
+     "excerpt": "### Summary When `initiateWithdraw()` is called, the user’s collateral in Morpho (i.e., their shares) is **not burned**, but the underlying LP tokens are used to initiate a withdrawal request. At the same time, the **`effectiveSupply()` is decreased** due to the shares being escrowed. This means the user can **donate yield tokens to the strategy** and artificially **inflate the collateral price on Morpho**, while their original deposit remains safely **secured in the withdrawal process** untouched and retrievable. ### Root Cause [https://github.com/sherlock-audit/2025-06-notional-exponent/blob/82c87105f6b32bb362d7523356f235b5b07509f9/notional-v4/src/AbstractYieldStrategy.sol#L280-L307](https://github.com/sherlock-audit/2025-06-notional-exponent/blob/82c87105f6b32bb362d7523356f235b5b07509f9/notional-v4/src/AbstractYieldStrategy.sol#L280-L307) We can see that when `initiateWithdraw()` is called, the user's assets are registered as a withdrawal request in the `WithdrawRequestManager`, and `s_escrowedShares` is increased. Since the shares are not burned, `totalSupply()` remains the same before and after the `initiateWithdraw` call. However, because `escrowedShares` increases, the `effectiveSupply()` becomes smaller: [https://github.com/sherlock-audit/2025-06-notional-exponent/blob/82c87105f6b32bb362d7523356f235b5b07509f9/notional-v4/src/AbstractYieldStrategy.sol#L149-L151](https://"
+    },
+    {
+     "id": "H-3",
+     "severity": "High",
+     "title": "`DineroWithdrawRequestManager` vulnerable to token overwithdrawal via batch ID overlap",
+     "finders": 10,
+     "files": [
+      "notional-v4/src/withdraws/Dinero.sol"
+     ],
+     "excerpt": "### Summary Some users may profit while others incur losses because the `DineroWithdrawRequestManager` contract does not track the balance of each `upxETH` token per withdrawal request, even though a single `upxETH` token may be associated with multiple requests. ### Root Cause When a user initiates a withdrawal request through `DineroWithdrawRequestManager`, the contract executes the `_initiateWithdrawImpl()` function. This function captures `PirexETH.batchId()` before and after calling `PirexETH::initiateRedemption()`: [DineroWithdrawRequestManager::_initiateWithdrawImpl()](https://github.com/sherlock-audit/2025-06-notional-exponent/blob/82c87105f6b32bb362d7523356f235b5b07509f9/notional-v4/src/withdraws/Dinero.sol#L17) function: ```solidity function _initiateWithdrawImpl( address /* account */, uint256 amountToWithdraw, bytes calldata /* data */ ) override internal returns (uint256 requestId) { ... => uint256 initialBatchId = PirexETH.batchId(); pxETH.approve(address(PirexETH), amountToWithdraw); PirexETH.initiateRedemption(amountToWithdraw, address(this), false); => uint256 finalBatchId = PirexETH.batchId(); uint256 nonce = ++s_batchNonce; => return nonce << 240 | initialBatchId << 120 | finalBatchId; } ``` When the user later finalizes the withdrawal via `_finalizeWithdrawImpl()`, the contract attempts to redeem all `upxETH` tokens within the range `[initialBatchId, finalBa"
+    },
+    {
+     "id": "H-4",
+     "severity": "High",
+     "title": "When users borrow directly from Morpho price of the collateral will not be accurate",
+     "finders": 2,
+     "files": [
+      "notional-v4/src/AbstractYieldStrategy.sol",
+      "notional-v4/src/single-sided-lp/AbstractSingleSidedLP.sol"
+     ],
+     "excerpt": "### Summary When users have a withdrawal request, the Morpho price oracle will price the request based on the requested value instead of the share amount. However, if users choose to borrow directly from Morpho bypassing the lending router the shares will be priced based on their raw share value, not the request value. ### Root Cause As seen in the following lines: * [`AbstractYieldStrategy.sol#L118-L120`](https://github.com/sherlock-audit/2025-06-notional-exponent/blob/82c87105f6b32bb362d7523356f235b5b07509f9/notional-v4/src/AbstractYieldStrategy.sol#L118-L120) * [`AbstractSingleSidedLP.sol#L300-L303`](https://github.com/sherlock-audit/2025-06-notional-exponent/blob/82c87105f6b32bb362d7523356f235b5b07509f9/notional-v4/src/single-sided-lp/AbstractSingleSidedLP.sol#L300-L303) If the transient `t_currentAccount` variable is set and the user has a withdrawal request, then the price will be based on the withdrawal request value. However, if the user is borrowing **directly** not via the lending router the `t_currentAccount` is never set. This causes the call to fall back to `super.convertToAssets(shares)`, which prices based on yield token holdings instead. This introduces a discrepancy: a user with an active withdrawal request is not holding yield tokens, but their shares will still be priced as if they are—potentially leading to mispricing or incorrect collateral valuation. ### I"
+    },
+    {
+     "id": "H-5",
+     "severity": "High",
+     "title": "`migrateRewardPool` Fails Due to Incompatible Storage Design in `CurveConvexLib`",
+     "finders": 5,
+     "files": [
+      "notional-v4/src/rewards/AbstractRewardManager.sol",
+      "notional-v4/src/interfaces/IRewardManager.sol",
+      "notional-v4/tests/TestRewardManager.sol"
+     ],
+     "excerpt": "### Summary The [`migrateRewardPool`](https://github.com/sherlock-audit/2025-06-notional-exponent/blob/main/notional-v4/src/rewards/AbstractRewardManager.sol#L44-L65) function in the `AbstractRewardManager` contract is designed to migrate rewards from an old Convex reward pool to a new one by updating internal storage, withdrawing from old reward pool and depositing into the new reward pool. This mechanism relies on writing to local storage slots (e.g., `_getRewardPoolSlot()`), via delegatecall from a yield strategy contract. In practice, this fails because when `CurveConvex2Token` is deployed, it deploys `CurveConvexLib`, where reward pool address is immutable. The `CurveConvex2Token` stores the address of `CurveConvexLib` into another immutable variable. Since the reward pool address is immutable in `CurveConvexLib`, whenever Lp token is minted, the `CurveConvex2Token` deposit them to the same reward pool even if reward pool is changed in reward manager. There is no migration possible in `CurveConvex2Token`. This breaks the core migration functionality, despite the function being exposed and annotated for use when the reward pool changes. This violates the IRewardManager interface contract [NATSPEC](https://github.com/sherlock-audit/2025-06-notional-exponent/blob/main/notional-v4/src/interfaces/IRewardManager.sol#L82-L86), which states that `migrateRewardPool` should be used "
+    },
+    {
+     "id": "H-6",
+     "severity": "High",
+     "title": "DoS might happen to `DineroWithdrawRequestManager#_initiateWithdrawImpl()` due to overflow on `++s_batchNonce`",
+     "finders": 7,
+     "files": [
+      "notional-v4/src/withdraws/Dinero.sol"
+     ],
+     "excerpt": "### Summary When `DineroWithdrawRequestManager#initiateWithdraw()` is called to initiate WETH withdrawal, [`DineroWithdrawRequestManager#_initiateWithdrawImpl()`](https://github.com/sherlock-audit/2025-06-notional-exponent/blob/main/notional-v4/src/withdraws/Dinero.sol#L17-L39) will be executed to initiate a redemption from `PirexETH`: ```solidity function _initiateWithdrawImpl( address /* account */, uint256 amountToWithdraw, bytes calldata /* data */ ) override internal returns (uint256 requestId) { if (YIELD_TOKEN == address(apxETH)) { // First redeem the apxETH to pxETH before we initiate the redemption amountToWithdraw = apxETH.redeem(amountToWithdraw, address(this), address(this)); } uint256 initialBatchId = PirexETH.batchId(); pxETH.approve(address(PirexETH), amountToWithdraw); // TODO: what do we put for should trigger validator exit? PirexETH.initiateRedemption(amountToWithdraw, address(this), false); uint256 finalBatchId = PirexETH.batchId(); @> uint256 nonce = ++s_batchNonce; // May require multiple batches to complete the redemption require(initialBatchId < MAX_BATCH_ID); require(finalBatchId < MAX_BATCH_ID); // Initial and final batch ids may overlap between requests so the nonce is used to ensure uniqueness return nonce << 240 | initialBatchId << 120 | finalBatchId; } ``` The returned `requestId` is composed by three variables: `nonce`, `initialBatchId`, and `fina"
+    },
+    {
+     "id": "H-7",
+     "severity": "High",
+     "title": "`RewardManagerMixin.claimAccountRewards` lacks of necessary param check.",
+     "finders": 5,
+     "files": [
+      "notional-v4/src/rewards/RewardManagerMixin.sol",
+      "notional-v4/src/routers/AbstractLendingRouter.sol"
+     ],
+     "excerpt": "### Summary In current implementation, `RewardManagerMixin.claimAccountRewards` function doesn't check `account` paramm, if the `MORPHO` is passed in as `account`, rewards will be transferred to `MORPHO`. Which isn't correct. ### Root Cause 1. As [RewardManagerMixin.claimAccountRewards](https://github.com/sherlock-audit/2025-06-notional-exponent/blob/82c87105f6b32bb362d7523356f235b5b07509f9/notional-v4/src/rewards/RewardManagerMixin.sol#L155-L177) shows, the function can be called by anyone, and the `account` param can be any address. 2. If the `msg.sender` isn't a lending router, the `sharesHeld` will be calculated by `balanceOf(account)` in [RewardManagerMixin.sol#L160-L164](https://github.com/sherlock-audit/2025-06-notional-exponent/blob/82c87105f6b32bb362d7523356f235b5b07509f9/notional-v4/src/rewards/RewardManagerMixin.sol#L160-L164) ```solidity 155 function claimAccountRewards( 156 address account, 157 uint256 sharesHeld 158 ) external nonReentrant returns (uint256[] memory rewards) { 159 uint256 effectiveSupplyBefore = effectiveSupply(); 160 if (!ADDRESS_REGISTRY.isLendingRouter(msg.sender)) { 161 // If the caller is not a lending router we get the shares held in a 162 // native token account. 163 sharesHeld = balanceOf(account); 164 } ... 177 } ``` 3. While a normal user calls `AbstractLendingRouter.enterPosition` to enter a vault, the vault will mint vaultToken in [Abst"
+    },
+    {
+     "id": "H-8",
+     "severity": "High",
+     "title": "Incorrect assumption that one (1) Pendle Standard Yield (SY) token is equal to one (1) Yield Token when computing the price in the oracle",
+     "finders": 2,
+     "files": [
+      "notional-v4/tests/TestPTStrategyImpl.sol",
+      "notional-v4/src/oracles/PendlePTOracle.sol",
+      "contracts/interfaces/IStandardizedYield.sol"
+     ],
+     "excerpt": "### Summary - ### Root Cause - Incorrect assumption that one (1) Pendle Standard Yield (SY) token is equal to one (1) Yield Token when computing the price in the oracle ### Internal Pre-conditions - ### External Pre-conditions - ### Attack Path When deploying the Pendle yield strategy, the deployer can choose to set the `useSyOracleRate_` to true or false. If `useSyOracleRate_` is set to true, the `PENDLE_ORACLE.getPtToSyRate()` function will be used to get the PT rate. An example of such a setup is shown in the test script provided with the codebase, where the `useSyOracleRate_` setting is set to true in Line 115 below. https://github.com/sherlock-audit/2025-06-notional-exponent/blob/main/notional-v4/tests/TestPTStrategyImpl.sol#L111 ```solidity File: TestPTStrategyImpl.sol 079: function deployYieldStrategy() internal override { 080: strategyName = \"Pendle PT\"; 081: address(deployCode(\"PendlePTLib.sol:PendlePTLib\")); 082: 083: setMarketVariables(); 084: bool isSUSDe = tokenOut == address(sUSDe); 085: ..SNIP.. 106: } 107: 108: w = ERC20(y.yieldToken()); 109: // NOTE: is tokenOut the right token to use here? 110: (AggregatorV2V3Interface baseToUSDOracle, ) = TRADING_MODULE.priceOracles(address(tokenOut)); 111: PendlePTOracle pendleOracle = new PendlePTOracle( 112: market, 113: baseToUSDOracle, 114: false, 115: true, // @audit-info useSyOracleRate_ 116: 15 minutes, 117: \"Pendle P"
+    },
+    {
+     "id": "H-9",
+     "severity": "High",
+     "title": "Hardcoded `useEth = true` in `remove_liquidity_one_coin` or `remove_liquidity` lead to stuck fund",
+     "finders": 2,
+     "files": [
+      "notional-v4/src/single-sided-lp/CurveConvex2Token.sol",
+      "notional-v4/src/single-sided-lp/AbstractSingleSidedLP.sol",
+      "notional-v4/src/AbstractYieldStrategy.sol"
+     ],
+     "excerpt": "### Summary - ### Root Cause - ### Internal Pre-conditions - ### External Pre-conditions - ### Attack Path Assume the Curve V2 pool with two-token setup. The following are some of the Curve pools that fit into this example. https://www.curve.finance/dex/ethereum/pools/teth/deposit/ (t/ETH) - LP Token - https://etherscan.io/address/0x752ebeb79963cf0732e9c0fec72a49fd1defaeac - Coin 0 - 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2 (WETH) - Coin 1 - 0xCdF7028ceAB81fA0C6971208e83fa7872994beE5 (T) https://www.curve.finance/dex/ethereum/pools/cvxeth/deposit/ (cvxeth) - LP Token - https://etherscan.io/address/0xb576491f1e6e5e62f1d8f26062ee822b40b0e0d4 - Coin 0 - 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2 (WETH) - Coin 1 - 0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B (CVX) Curve Pool's Coin 0 is WETH, and thus `ETH_INDEX` is set to 0 during deployment. I have checked the source code and confirmed that `ETH_INDEX` is 0. Readers can access the LP token's etherscan link above to view the source code and see that the `ETH_INDEX` is set to 0. Note that the Yield Strategy vault's `TOKEN_1` is equal to Curve Pool's Coin 0 and is set to WETH. Assume that the Yield Strategy (YS) vault's asset is WETH, and we will enter the pool on a single-sided basis, with all deposited assets being in WETH. The `msgValue` at Line 237 will be zero as `TOKEN_1` is in WETH and not Native ETH (0x0). Thus, the conditio"
+    },
+    {
+     "id": "H-10",
+     "severity": "High",
+     "title": "Malicious user can change the `TradeType` to steal funds from the vault or withdraw request manager",
+     "finders": 2,
+     "files": [
+      "leveraged-vaults/contracts/trading/TradingUtils.sol",
+      "leveraged-vaults/contracts/trading/adapters/ZeroExAdapter.sol",
+      "notional-v4/src/single-sided-lp/AbstractSingleSidedLP.sol",
+      "notional-v4/src/withdraws/AbstractWithdrawRequestManager.sol"
+     ],
+     "excerpt": "### Summary - ### Root Cause - ### Internal Pre-conditions - ### External Pre-conditions - ### Attack Path **Instance 1 - Yield Strategy Vault** Assume the following: - The asset token of a yield strategy vault is WBTC - The yield token of the vault is the LP token of a Curve Pool (DAI/WBTC) - 1 WBTC is worth 100,000 DAI - WBTC's decimals is 8. DAI's decimals is 18. When redeeming the LP token, the vault received back 10,000 DAI and 1 WBTC. The intention of the `_executeRedemptionTrades` function is to swap all non-asset token (DAI in this example) to asset token (WBTC), as per the comment at Line 235 below. Thus, the `t.tradeType` must always be set to `TradeType.EXACT_IN_SINGLE` so that exact amount of 10,000 DAI (10000e18) will be swapped for arbitrary amount of WBTC (asset token). In this case, it should receive 0.1 WBTC after swapping in 10,000 DAI. > [!NOTE] > > The `t.minPurchaseAmount` should also be set to the maximum value possible, so that maximum allowance will be granted to the external DEX protocol to pull tokens from Notional. Refer to [here](https://github.com/sherlock-audit/2023-02-notional/blob/b33adfbe2d47ab602b4d626bb73ebd78bf7d5622/leveraged-vaults/contracts/trading/TradingUtils.sol#L118). In EXACT_OUT trades, approval will be given based on `trade.limit` value. > [!NOTE] > > This attack will work for any trading adapters, as demonstrated in the scenario be"
+    },
+    {
+     "id": "H-11",
+     "severity": "High",
+     "title": "Missing Slippage Protection in Expired PT Redemption Causes User Fund Loss",
+     "finders": 11,
+     "files": [
+      "notional-v4/src/staking/PendlePTLib.sol"
+     ],
+     "excerpt": "## Summary: When PT tokens are expired, the `_redeemPT` function calls `redeemExpiredPT` which performs `sy.redeem` with `minTokenOut: 0`, allowing SY contracts that perform external DEX swaps to cause slippage losses without protection in both instant redemption and withdraw initiation flows. ## Vulnerability Details: The vulnerability occurs in the `_redeemPT` function which handles both expired and non-expired PT redemption. When `PT.isExpired()` returns true, it calls `PendlePTLib.redeemExpiredPT`. The [`redeemExpiredPT`](https://github.com/sherlock-audit/2025-06-notional-exponent/blob/82c87105f6b32bb362d7523356f235b5b07509f9/notional-v4/src/staking/PendlePTLib.sol#L87) function performs the redemption by calling `sy.redeem` with `minTokenOut: 0`. This means there's no slippage protection when the SY contract performs external DEX swaps or trades to convert the redeemed tokens to the target `tokenOutSy`. **Code Snippet:** ```solidity function redeemExpiredPT( IPPrincipalToken pt, IPYieldToken yt, IStandardizedYield sy, address tokenOutSy, uint256 netPtIn ) external returns (uint256 netTokenOut) { // PT Tokens are known to be ERC20 compliant pt.transfer(address(yt), netPtIn); uint256 netSyOut = yt.redeemPY(address(sy)); @-> netTokenOut = sy.redeem(address(this), netSyOut, tokenOutSy, 0, true); // AUDIT: no slippage protection } ``` This affects two critical flows: 1. **Insta"
+    },
+    {
+     "id": "M-1",
+     "severity": "Medium",
+     "title": "Hard-Coded Mainnet WETH Address Breaks All Non-Mainnet Deployments",
+     "finders": 4,
+     "files": [
+      "notional-v4/src/utils/Constants.sol"
+     ],
+     "excerpt": "## Summary The protocol’s core contracts (strategies, routers, and withdraw-request managers) all reference a single compile-time constant: ```solidity WETH9 constant WETH = WETH9(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2); ``` This is the Ethereum-mainnet WETH9. When the same bytecode is deployed to chains like Arbitrum, Base, or any L2/sidechain whose wrapped-ETH token lives at a different address, every call to `WETH.withdraw()` or `WETH.deposit{value:...}()` will either revert or no-op. ## Vulnerability Description [https://github.com/sherlock-audit/2025-06-notional-exponent/blob/82c87105f6b32bb362d7523356f235b5b07509f9/notional-v4/src/utils/Constants.sol#L19](https://github.com/sherlock-audit/2025-06-notional-exponent/blob/82c87105f6b32bb362d7523356f235b5b07509f9/notional-v4/src/utils/Constants.sol#L19) Throughout the codebase—e.g. in `AbstractStakingStrategy`, `CurveConvexLib`, `EtherFiWithdrawRequestManager`, and others—`WETH` is declared as a constant pointing at mainnet’s `0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2` address. > Ethereum, in the future we will consider Base or Arbitrum On chains where that address has no code or contains an unrelated contract: `withdraw()` reverts → funds are stranded inside withdraw-managers (EtherFi, Dinero, Origin, etc.) and strategies during exits. `deposit{value: …}()` emits no ERC-20, so accounting under-flows on the very next bal"
+    },
+    {
+     "id": "M-2",
+     "severity": "Medium",
+     "title": "Incorrect `tokensClaimed` calculation in `EthenaCooldownHolder::_finalizeCooldown()` blocks withdrawals",
+     "finders": 21,
+     "files": [
+      "notional-v4/src/withdraws/Ethena.sol"
+     ],
+     "excerpt": "### Summary Users are unable to withdraw tokens from the `EthenaWithdrawRequestManager` contract when initiating a withdrawal while `sUSDe.cooldownDuration()` is set to `0`, due to flawed logic in the `EthenaCooldownHolder::_finalizeCooldown()` function. ### Root Cause When a user initiates a withdrawal request via the `EthenaWithdrawRequestManager` contract, it internally calls `EthenaCooldownHolder::_startCooldown()`: [EthenaCooldownHolder::_startCooldown()](https://github.com/sherlock-audit/2025-06-notional-exponent/blob/82c87105f6b32bb362d7523356f235b5b07509f9/notional-v4/src/withdraws/Ethena.sol#L16) function: ```solidity function _startCooldown(uint256 cooldownBalance) internal override { uint24 duration = sUSDe.cooldownDuration(); if (duration == 0) { // If the cooldown duration is set to zero, can redeem immediately => sUSDe.redeem(cooldownBalance, address(this), address(this)); } else { ... } } ``` If `cooldownDuration` is `0`, the `sUSDe` is immediately redeemed for `USDe`, and the `USDe` tokens are transferred to the `EthenaCooldownHolder` contract. Later, when the user finalizes their withdrawal, `EthenaCooldownHolder::_finalizeCooldown()` is called: [EthenaCooldownHolder::_finalizeCooldown()](https://github.com/sherlock-audit/2025-06-notional-exponent/blob/82c87105f6b32bb362d7523356f235b5b07509f9/notional-v4/src/withdraws/Ethena.sol#L30) function: ```solidity funct"
+    },
+    {
+     "id": "M-3",
+     "severity": "Medium",
+     "title": "Single sided strategy cant do trades for ETH pools",
+     "finders": 2,
+     "files": [
+      "notional-v4/src/single-sided-lp/CurveConvex2Token.sol",
+      "notional-v4/src/single-sided-lp/AbstractSingleSidedLP.sol",
+      "contracts/trading/TradingUtils.sol"
+     ],
+     "excerpt": "### Summary When users deposit the \"asset\" into the single-sided Curve LP strategy, the asset is sold for the Curve pool’s underlying tokens. However, there is an edge case when one of the pool’s underlying tokens is **ETH**, in which case the trade execution fails because the `TRADING_MODULE` sends back **ETH** when ETH is requested, but the code expects **WETH** to be received. ### Root Cause First, when the ConvexCurve yield strategy is deployed, `TOKEN_1` and `TOKEN_2` are written to storage as follows: [https://github.com/sherlock-audit/2025-06-notional-exponent/blob/82c87105f6b32bb362d7523356f235b5b07509f9/notional-v4/src/single-sided-lp/CurveConvex2Token.sol#L54-L55](https://github.com/sherlock-audit/2025-06-notional-exponent/blob/82c87105f6b32bb362d7523356f235b5b07509f9/notional-v4/src/single-sided-lp/CurveConvex2Token.sol#L54-L55) Curve pools use the address `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE` to show that one of the pool’s assets is native ETH. Here, we can see that if that’s the case, it’s set to `ETH_ADDRESS`, which is `address(0)`. We can also confirm this from the comments above those lines. [https://github.com/sherlock-audit/2025-06-notional-exponent/blob/82c87105f6b32bb362d7523356f235b5b07509f9/notional-v4/src/single-sided-lp/AbstractSingleSidedLP.sol#L181-L219](https://github.com/sherlock-audit/2025-06-notional-exponent/blob/82c87105f6b32bb362d7523356f"
+    },
+    {
+     "id": "M-4",
+     "severity": "Medium",
+     "title": "Liquidations can be frontrunned to avoid by paying as little as 1 share.",
+     "finders": 3,
+     "files": [
+      "src/interfaces/IMorpho.sol",
+      "src/Morpho.sol"
+     ],
+     "excerpt": "### Summary The protocol integrates with Morpho which internally handeles the debt repayment in a way that when Liquidtions will be frontrunned via repayment with just 1 share it can easily be avoided. https://github.com/morpho-org/morpho-blue/blob/731e3f7ed97cf15f8fe00b86e4be5365eb3802ac/src/interfaces/IMorpho.sol#L247 ### Root Cause The internal accounting method of Morpho leads to this bug. ### Internal Pre-conditions None ### External Pre-conditions None ### Attack Path During full liquidation the liquidator calls `liquidate()` which further calls `_liquidate` on MorphoLendingRouter: ```jsx function _liquidate( address liquidator, address vault, address liquidateAccount, uint256 sharesToLiquidate, uint256 debtToRepay ) internal override returns (uint256 sharesToLiquidator) { MarketParams memory m = marketParams(vault); (sharesToLiquidator, /* */) = MORPHO.liquidate( m, liquidateAccount, sharesToLiquidate, debtToRepay, abi.encode(m.loanToken, liquidator) ); } ``` The above function simply calls the `MORPHO.liquidate()` with full `sharesToLiquidate` and `debtToRepay`, Now if we see the implementation of [Morpho.sol](https://github.com/morpho-org/morpho-blue/blob/731e3f7ed97cf15f8fe00b86e4be5365eb3802ac/src/Morpho.sol#L384-L385): ```jsx position[id][borrower].borrowShares -= repaidShares.toUint128(); market[id].totalBorrowShares -= repaidShares.toUint128(); ``` The `debtToRepa"
+    },
+    {
+     "id": "M-5",
+     "severity": "Medium",
+     "title": "Minting yield tokens single sided can be impossible if CURVE_V2 dexId is used on redemptions",
+     "finders": 1,
+     "files": [
+      "notional-v4/src/single-sided-lp/CurveConvex2Token.sol",
+      "notional-v4/src/single-sided-lp/AbstractSingleSidedLP.sol",
+      "contracts/trading/adapters/CurveV2Adapter.sol",
+      "contracts/trading/TradingUtils.sol"
+     ],
+     "excerpt": "### Summary In single-sided yield strategies, both underlying tokens of the pool have infinite allowance set on the pool contract. When a user chooses to withdraw, they can withdraw with both tokens and then sell the underlying tokens for the \"asset\". If the user selects **CURVE\\_V2** and sets the swap pool to be the **same pool** that the strategy is currently LP'ing into, then the `TRADING_MODULE` will **revoke the token allowances (set to 0)** for security. This breaks the strategy, as it will no longer have the required token allowance to deposit into the yield strategy, effectively making deposits impossible. ### Root Cause Let's go through an example with explanations. Assume the yield strategy's yield token is the Convex crvUSD-USDC LP token and the asset is USDC. First, when the strategy is deployed, both USDC and crvUSD will be infinitely approved to the pool to mint LP tokens: [https://github.com/sherlock-audit/2025-06-notional-exponent/blob/82c87105f6b32bb362d7523356f235b5b07509f9/notional-v4/src/single-sided-lp/CurveConvex2Token.sol#L169-L178](https://github.com/sherlock-audit/2025-06-notional-exponent/blob/82c87105f6b32bb362d7523356f235b5b07509f9/notional-v4/src/single-sided-lp/CurveConvex2Token.sol#L169-L178) Now, say Alice comes and wants to withdraw her shares double-sided to crvUSD and USDC and then sells the USDC for crvUSD in the same pool: [https://github.co"
+    },
+    {
+     "id": "M-6",
+     "severity": "Medium",
+     "title": "Withdrawals ongoing for OETH, apxETH, weETH, and almost any LST are overpriced by the oracle",
+     "finders": 3,
+     "files": [
+      "notional-v4/src/staking/AbstractStakingStrategy.sol",
+      "notional-v4/src/withdraws/AbstractWithdrawRequestManager.sol",
+      "notional-v4/src/withdraws/Origin.sol"
+     ],
+     "excerpt": "### Summary When users initiate a withdrawal, if the yield token has a specific withdrawal method, the withdrawal will be initialized and for LSTs, this means unstaking from the beacon chain, which can take hours, days, or even weeks. While the withdrawal is not finalized, the price of the token is assumed to be the same as the yield token for example, the OETH amount held in the Withdraw Request Manager contract. However, once the withdrawal is initialized on the beacon chain, LSTs stop earning yield. Therefore, the oracle will always **overprice** the token. ### Root Cause As we can see, when `initiateWithdraw` is called for an LST (e.g., OETH), the OETH will be taken from the yield strategy and sent to the Withdraw Request Manager to initialize the withdrawal process from the beacon chain: [https://github.com/sherlock-audit/2025-06-notional-exponent/blob/82c87105f6b32bb362d7523356f235b5b07509f9/notional-v4/src/staking/AbstractStakingStrategy.sol#L64-L74](https://github.com/sherlock-audit/2025-06-notional-exponent/blob/82c87105f6b32bb362d7523356f235b5b07509f9/notional-v4/src/staking/AbstractStakingStrategy.sol#L64-L74) [https://github.com/sherlock-audit/2025-06-notional-exponent/blob/82c87105f6b32bb362d7523356f235b5b07509f9/notional-v4/src/withdraws/AbstractWithdrawRequestManager.sol#L97-L120](https://github.com/sherlock-audit/2025-06-notional-exponent/blob/82c87105f6b32bb362"
+    },
+    {
+     "id": "M-7",
+     "severity": "Medium",
+     "title": "Rounding discrepancy between `MorphoLendingRouter::healthFactor` and `Morpho::repay` causes position migration failures",
+     "finders": 12,
+     "files": [
+      "notional-v4/src/routers/MorphoLendingRouter.sol",
+      "src/Morpho.sol",
+      "notional-v4/src/routers/AbstractLendingRouter.sol"
+     ],
+     "excerpt": "### Summary A flaw in how borrow assets are calculated in `MorphoLendingRouter::healthFactor` causes position migrations to revert under specific conditions. The function underestimates the true debt owed by rounding down, while `Morpho` internally rounds up for repayment. This discrepancy leads to insufficient asset transfers during `AbstractLendingRouter::migratePosition`, breaking a core protocol feature. Although the rounding difference may not appear initially, it inevitably emerges over time as interest accrues and the market grows, causing migrations that once worked to start failing silently, making this a latent but critical bug. ### Root Cause In `MorphoLendingRouter::healthFactor`, the borrowed assets are calculated using integer division: [MorphoLendingRouter::healthFactor#L279](https://github.com/sherlock-audit/2025-06-notional-exponent/blob/82c87105f6b32bb362d7523356f235b5b07509f9/notional-v4/src/routers/MorphoLendingRouter.sol#L279) ```solidity if (position.borrowShares > 0) { borrowed = (uint256(position.borrowShares) * uint256(market.totalBorrowAssets)) / uint256(market.totalBorrowShares); } ``` However, In `Morpho::_isHealthy` and `Morpho::repay`, the equivalent borrow amount is calculated using a rounding-up approach: [Morpho::_isHealthy#L532](https://github.com/morpho-org/morpho-blue/blob/c75dc8244032b30768217599ae8f1c11e9b43a35/src/Morpho.sol#L532) ```solid"
+    },
+    {
+     "id": "M-8",
+     "severity": "Medium",
+     "title": "Emission rewards will keep accruing even the yield strategy is empty",
+     "finders": 1,
+     "files": [
+      "notional-v4/src/rewards/AbstractRewardManager.sol",
+      "notional-v4/src/AbstractYieldStrategy.sol"
+     ],
+     "excerpt": "### Summary When there are no depositors in the yield strategy, emission rewards should stop accruing. However, the current implementation incorrectly assumes that effectiveSupply will never be zero its minimum value is hardcoded to 1e6 due to virtual shares. As a result, rewards continue to accrue even when the strategy is completely empty, which is unintended behavior. ### Root Cause As we can see [here](https://github.com/sherlock-audit/2025-06-notional-exponent/blob/82c87105f6b32bb362d7523356f235b5b07509f9/notional-v4/src/rewards/AbstractRewardManager.sol#L298), when `effectiveSupply < 0`, reward emissions should **not** accrue—this is intended to ensure rewards are only distributed when there are actual depositors in the yield strategy. However, this assumption is incorrect because `effectiveSupply` is **never zero** due to `VIRTUAL_SHARES`, even when there are no real depositors! See: [https://github.com/sherlock-audit/2025-06-notional-exponent/blob/82c87105f6b32bb362d7523356f235b5b07509f9/notional-v4/src/AbstractYieldStrategy.sol#L149-L151](https://github.com/sherlock-audit/2025-06-notional-exponent/blob/82c87105f6b32bb362d7523356f235b5b07509f9/notional-v4/src/AbstractYieldStrategy.sol#L149-L151) ### Internal Pre-conditions None needed ### External Pre-conditions None needed ### Attack Path Happens naturally ### Impact All the emission rewards will accrue to rewardPerTok"
+    },
+    {
+     "id": "M-9",
+     "severity": "Medium",
+     "title": "OETH Strategy Broken as Rebasing Not Enabled",
+     "finders": 3,
+     "files": [
+      "notional-v4/src/withdraws/Origin.sol"
+     ],
+     "excerpt": "### Summary The Yield Strategy using Origin ETH is not functioning as intended due to a design flaw. It utilizes Origin ETH with rebasing turned off. Since rebasing is required to receive ETH yield rewards, the strategy fails to generate yield. The Notional Protocol team confirmed that the protocol should ideally migrate to Wrapped OETH to enable proper yield accrual. ### Root Cause The issue lies in the design, specifically in [`Origin.sol:_stakeTokens{...}`](https://github.com/sherlock-audit/2025-06-notional-exponent/blob/82c87105f6b32bb362d7523356f235b5b07509f9/notional-v4/src/withdraws/Origin.sol#L25), where the Origin Vault is used to exchange WETH for OETH. However, the OETH used has rebasing disabled, which prevents it from generating yield. According to the Origin Protocol documentation: > *By default, OUSD, OETH, OS and Super OETH held on smart contracts will not participate in the rebasing nature of the token and will forfeit any yield unless the smart contract explicitly opts in.* [ref](https://docs.originprotocol.com/yield-bearing-tokens/core-concepts/rebasing-and-smart-contracts) ### Internal Pre-conditions None ### External Pre-conditions None ### Attack Path This is a design flaw and has been confirmed by the protocol team. ### Impact Core functionality is broken — the strategy fails to generate yield. This can result in a high risk of liquidation since the debt "
+    },
+    {
+     "id": "M-10",
+     "severity": "Medium",
+     "title": "Incorrect asset matching for ETH/WETH leads to potential DoS of exitPosition in CurveConvexStrategy",
+     "finders": 6,
+     "files": [
+      "notional-v4/src/single-sided-lp/CurveConvex2Token.sol",
+      "notional-v4/src/single-sided-lp/AbstractSingleSidedLP.sol"
+     ],
+     "excerpt": "### Summary When redeeming shares in `CurveConvexStrategy`, the `_executeRedemptionTrades` function is intended to skip swap logic for the primary token. However, when the strategy's asset is WETH and one of the exit tokens is ETH_ADDRESS, the comparison `(address(tokens[i]) == address(asset))` fails because ETH and WETH have different addresses. This leads to an unnecessary swap attempt using invalid trade parameters, potentially causing a denial of service (DoS). --- ### Root Cause In the CurveConvex strategy, when redeeming shares (via `exitPosition` or `initiateWithdraw`), LP tokens are first unstaked and exited from the pool using `unstakeAndExitPool()`. If one of the pool tokens is native ETH and the strategy’s `ASSET` is WETH, the strategy wraps ETH into WETH. https://github.com/sherlock-audit/2025-06-notional-exponent-sylvarithos/blob/82c87105f6b32bb362d7523356f235b5b07509f9/notional-v4/src/single-sided-lp/CurveConvex2Token.sol#L205 ```solidity function unstakeAndExitPool( uint256 poolClaim, uint256[] memory _minAmounts, bool isSingleSided ) external returns (uint256[] memory exitBalances) { _unstakeLpTokens(poolClaim); exitBalances = _exitPool(poolClaim, _minAmounts, isSingleSided); 205 if (ASSET == address(WETH)) { if (TOKEN_1 == ETH_ADDRESS) { WETH.deposit{value: exitBalances[0]}(); } else if (TOKEN_2 == ETH_ADDRESS) { WETH.deposit{value: exitBalances[1]}(); } } } ``"
+    },
+    {
+     "id": "M-11",
+     "severity": "Medium",
+     "title": "Users unable to claim rewards when Curve LP tokens are staked to Curve Gauge.",
+     "finders": 5,
+     "files": [
+      "notional-v4/src/single-sided-lp/CurveConvex2Token.sol",
+      "notional-v4/src/rewards/AbstractRewardManager.sol"
+     ],
+     "excerpt": "### Summary According to the contest sponsors the `AbstractRewardManager` acts as the core logic contract for both Booster and Gauge Reward Managers. But claiming rewards for gauge branch is not implemented. ### Vulnerability details The issue here lies when the `CONVEX_BOOSTER` is not initialised. When a user enters a position via Notional, their assets are deposited to a curve pool and the vault receives LP tokens which are further staked for rewards in the Curve Gauge. When we take a look at the [`_stakeLpTokens`](https://github.com/sherlock-audit/2025-06-notional-exponent/blob/main/notional-v4/src/single-sided-lp/CurveConvex2Token.sol#L291-L298) used to stake the LP tokens, we see they are directly staked to Curve Gauge if Booster is not initialised. But the issue is claiming rewards is only implemented for the Convex Strategy and not for this scenario when LP tokens are staked to Gauge Strategy. Lets look at the flow of reward claim --> 1. User calls `claimRewards` on the router 2. `RewardManagerMixin::claimAccountRewards` is called 3. `RewardManagerMixing::_updateAccountRewards` is invoked 4. Delegate call to `updateAccountRewards` on `AbstractRewardManager` 5. This internally calls the `_claimVaultRewards` Given that the `AbstractRewardManager` is the underlying core contract logic for reward claim. Here we notice that the `_claimVaultRewards` function has a check `if (r"
+    },
+    {
+     "id": "M-12",
+     "severity": "Medium",
+     "title": "`PendlePTOracle._getPTRate` isn't correct for some market",
+     "finders": 1,
+     "files": [
+      "notional-v4/src/oracles/PendlePTOracle.sol",
+      "notional-v4/src/interfaces/IPendle.sol"
+     ],
+     "excerpt": "### Summary Quoting from the [comment](https://github.com/sherlock-audit/2025-06-notional-exponent/blob/main/notional-v4/src/oracles/PendlePTOracle.sol#L60C) >ptRate is always returned in 1e18 decimals The `PendlePTOracle._getPTRate` function assumes `ptRate` is always in 1e18 decimals, which isn't correct for some market. ### Root Cause In function [PendlePTOracle._getPTRate](https://github.com/sherlock-audit/2025-06-notional-exponent/blob/82c87105f6b32bb362d7523356f235b5b07509f9/notional-v4/src/oracles/PendlePTOracle.sol#L60-L66), two AIP will be called: `PENDLE_ORACLE.getPtToSyRate` and `PENDLE_ORACLE.getPtToAssetRate`. ```solidity 60 /// @dev ptRate is always returned in 1e18 decimals 61 function _getPTRate() internal view returns (int256) { 62 uint256 ptRate = useSyOracleRate ? 63 PENDLE_ORACLE.getPtToSyRate(pendleMarket, twapDuration) : 64 PENDLE_ORACLE.getPtToAssetRate(pendleMarket, twapDuration); 65 return ptRate.toInt(); 66 } ``` 1. function `PENDLE_ORACLE.getPtToAssetRate` will always return ptRate in 1e18 decimals 2. function `PENDLE_ORACLE.getPtToSyRate` will return ptRate in larger decimals for some markets. For example: market 0x83916356556f51dcBcB226202c3efeEfc88d5eaA, 0x9471d9c5B57b59d42B739b00389a6d520c33A7a9, 0x08946D1070bab757931d39285C12FEf4313b667B, 0x1C3bA40210fa290de13c62Fe1a9EfcB694725D10, 0x0271A803f0d3Dec9cCd105A4A4d41e6Ee1458765, 0xEDda7526EC81055F2af"
+    },
+    {
+     "id": "M-13",
+     "severity": "Medium",
+     "title": "Incompatibility of `ERC20::approve` function with USDT tokens on Ethereum Mainnet chain",
+     "finders": 14,
+     "files": [
+      "contracts/token/ERC20/ERC20.sol",
+      "notional-v4/src/routers/AbstractLendingRouter.sol",
+      "notional-v4/src/routers/MorphoLendingRouter.sol",
+      "notional-v4/src/staking/AbstractStakingStrategy.sol"
+     ],
+     "excerpt": "## Summary The `ERC-20` standard specifies that [`approve`](https://github.com/Creepybits/openzeppelin/blob/ecafeabad405536f647ac07567a1d74ad60eb14f/contracts/token/ERC20/ERC20.sol#L81) function should return a bool indicating success. However, some widely-used tokens such as `USDT` omit the return value. When interacting with such tokens using high-level Solidity calls (`ERC20(token).approve`), the EVM expects a return value. If none is returned, decoding fails and the transaction reverts. ## Root Cause The [`AbstractLendingRouter::_enterOrMigrate`](https://github.com/sherlock-audit/2025-06-notional-exponent/blob/82c87105f6b32bb362d7523356f235b5b07509f9/notional-v4/src/routers/AbstractLendingRouter.sol#L222C5-L245C6) function, [`MorphoLendingRouter::_supplyCollateral`](https://github.com/sherlock-audit/2025-06-notional-exponent/blob/82c87105f6b32bb362d7523356f235b5b07509f9/notional-v4/src/routers/MorphoLendingRouter.sol#L150C5-L164C6) function, [`AbstractStakingStrategy::_mintYieldToken`](https://github.com/sherlock-audit/2025-06-notional-exponent/blob/82c87105f6b32bb362d7523356f235b5b07509f9/notional-v4/src/staking/AbstractStakingStrategy.sol#L77C5-L81C1) and GenericERC4626::_stakeTokens use the `ERC20::approve` function to approve a given amount of asset/token: ```solidity function _enterOrMigrate( address onBehalf, address vault, address asset, uint256 assetAmount, bytes me"
+    },
+    {
+     "id": "M-14",
+     "severity": "Medium",
+     "title": "Value of Etherna's Withdrawal Request is incorrect",
+     "finders": 1,
+     "files": [
+      "notional-v4/src/withdraws/Ethena.sol",
+      "notional-v4/src/withdraws/AbstractWithdrawRequestManager.sol"
+     ],
+     "excerpt": "### Summary - ### Root Cause - ### Internal Pre-conditions - ### External Pre-conditions - ### Attack Path In Notional, when pricing a withdrawal request that has not been finalized yet, it will always price it against the number of yield tokens within the withdrawal request. This is the correct approach most of the time. For instance, it is correct to price the withdrawal request with wstETH using the wstETH price, because any slashing that occurs during the 7-day waiting period will affect the amount of ETH received at the end. This also applies to other Liquid Staking Tokens (LST) such as EtherFi's weETH. If a major slashing event occurs, the market price of the LST will decrease accordingly and be reflected in the price provided by the oracle providers (e.g., Chainlink). This is because the market will take into consideration the adverse event that has occurred. This is how the normal market functions. That being said, there are instances where it is incorrect to price the withdrawal request using the yield token's price. This generally applies to staking tokens that do not involve slashing, and the amount of tokens received at the end of the wait period is already predetermined when initiating the withdrawal and will not change regardless of subsequent events that may occur. Tokens that fit this category are often stable assets such as USDe. When the WithdrawRequestManager"
+    },
+    {
+     "id": "M-15",
+     "severity": "Medium",
+     "title": "Loss of reward tokens during initiating withdrawal due to cooldown",
+     "finders": 6,
+     "files": [
+      "notional-v4/src/rewards/AbstractRewardManager.sol",
+      "notional-v4/src/AbstractYieldStrategy.sol",
+      "notional-v4/src/rewards/RewardManagerMixin.sol"
+     ],
+     "excerpt": "### Summary - ### Root Cause - ### Internal Pre-conditions - ### External Pre-conditions - ### Attack Path In Line 191 below, if the cooldown has not over yet, the protocol will skip the claiming of rewards from external protocols. https://github.com/sherlock-audit/2025-06-notional-exponent/blob/main/notional-v4/src/rewards/AbstractRewardManager.sol#L191 ```solidity File: AbstractRewardManager.sol 183: /// @notice Executes a claim against the given reward pool type and updates internal 184: /// rewarder accumulators. 185: function _claimVaultRewards( 186: uint256 effectiveSupplyBefore, 187: VaultRewardState[] memory state 188: ) internal { 189: RewardPoolStorage memory rewardPool = _getRewardPoolSlot(); // @audit-ok 190: if (rewardPool.rewardPool == address(0)) return; 191: if (block.timestamp < rewardPool.lastClaimTimestamp + rewardPool.forceClaimAfter) return; ``` Concerning tracking of rewards, the invariant is that whenever there is a change in `effectiveSupplyBefore` (aka total supply), the protocol must claim the rewards and update the reward accumulation state variable based on the current `effectiveSupplyBefore` before updating the new `effectiveSupply` value. However, this is not always true because the protocol will sometimes skip claiming rewards. https://github.com/sherlock-audit/2025-06-notional-exponent/blob/main/notional-v4/src/AbstractYieldStrategy.sol#L150 ```s"
+    },
+    {
+     "id": "M-16",
+     "severity": "Medium",
+     "title": "Users will be unfairly liquidated if collateral value drops after initiating withdraw request",
+     "finders": 1,
+     "files": [
+      "notional-v4/src/AbstractYieldStrategy.sol"
+     ],
+     "excerpt": "### Summary - ### Root Cause - ### Internal Pre-conditions - ### External Pre-conditions - ### Attack Path One of the most critical features of the new Notional exponent is that it allows users to `initiateWithdraw` of their shares while they are being held as collateral on lending protocols. An important note here is that after a user has initiated a withdrawal, this doesn't mean that the user has exited their positions. In fact, the user have not exited their positions yet, and initiating a withdrawal simply allows the underlying staking tokens assigned to the external protocol's redemption queue in advance so that users can skip the redemption waiting period if they intend to withdraw later (It's up to the users whether they want to exit the position or not). After a user initiates a withdrawal, a withdrawal request will be created and tagged to their account. If there is a pending withdrawal request, the users can no longer mint any new Yield Strategy vault shares, as shown in Line 197 below. https://github.com/sherlock-audit/2025-06-notional-exponent/blob/main/notional-v4/src/AbstractYieldStrategy.sol#L197 ```solidity File: AbstractYieldStrategy.sol 191: function mintShares( 192: uint256 assetAmount, 193: address receiver, 194: bytes calldata depositData 195: ) external override onlyLendingRouter setCurrentAccount(receiver) nonReentrant returns (uint256 sharesMinted) { 196"
+    },
+    {
+     "id": "M-17",
+     "severity": "Medium",
+     "title": "User unable to migrate under certain edge case",
+     "finders": 14,
+     "files": [
+      "notional-v4/src/routers/AbstractLendingRouter.sol",
+      "notional-v4/src/routers/MorphoLendingRouter.sol",
+      "src/Morpho.sol",
+      "src/libraries/UtilsLib.sol"
+     ],
+     "excerpt": "### Summary - ### Root Cause - ### Internal Pre-conditions - ### External Pre-conditions - ### Attack Path During migration, the `assetToRepay` parameter of the `_exitWithRepay` function is always set to `type(uint256).max`, as shown in Line 237 below. https://github.com/sherlock-audit/2025-06-notional-exponent/blob/main/notional-v4/src/routers/AbstractLendingRouter.sol#L237 ```solidity File: AbstractLendingRouter.sol 221: /// @dev Enters a position or migrates shares from a previous lending router 222: function _enterOrMigrate( 223: address onBehalf, 224: address vault, 225: address asset, 226: uint256 assetAmount, 227: bytes memory depositData, 228: address migrateFrom 229: ) internal returns (uint256 sharesReceived) { 230: if (migrateFrom != address(0)) { 231: // Allow the previous lending router to repay the debt from assets held here. 232: ERC20(asset).checkApprove(migrateFrom, assetAmount); 233: sharesReceived = ILendingRouter(migrateFrom).balanceOfCollateral(onBehalf, vault); 234: 235: // Must migrate the entire position 236: ILendingRouter(migrateFrom).exitPosition( 237: onBehalf, vault, address(this), sharesReceived, type(uint256).max, bytes(\"\") 238: ); 239: } else { ``` Assume that Bob has supplied collateral, but no debt, and he wants to migrate from the previous lending router to a new lending router. Since `assetToRepay` is set to `type(uint256).max`, the `assetToR"
+    },
+    {
+     "id": "M-18",
+     "severity": "Medium",
+     "title": "Reducing liquidity in the hardcoded Curve sDAI/sUSDe pool leads to unnecessary slippage loss",
+     "finders": 1,
+     "files": [
+      "notional-v4/src/staking/PendlePT_sUSDe.sol"
+     ],
+     "excerpt": "### Summary - ### Root Cause - ### Internal Pre-conditions - ### External Pre-conditions - ### Attack Path Maker's Savings DAI (sDAI) is the old version of SKY's Savings USDS (sUSDS). The OG Maker DAI protocol has migrated to the new SKY protocol. sDAI is issued by old Maker DAI while sUSDS is issued by new SKY protocol. This part of the code, where sUSDe is swapped to sDAI and then swapped to the asset token, is taken from the old Notional code during the period when Maker had not migrated to SKY yet. In the past, the sDAI/sUSDe curve pool has had larger liquidity. However, eventually, the liquidity in the hardcoded Curve sDAI/sUSDe (0x167478921b907422F8E88B43C4Af2B8BEa278d3A) pool will decrease as users migrate over to the newer sUSDS since the newer SKY protocol is where the majority of the incentives are allocated at the moment. Users will be incentivized to move to sUSDS over time. The following is the on-chain liquidity data of the Curve sDAI/sUSDe pool, showing that the balance of sDAI steadily decreases over time, aligned with the points mentioned above. - 12 month ago (Apr-06-2024)(19600000) - 6.4 million sDAI - 6 month ago (Jan-11-2025)(Block - 21600000) - 6.2 million sDAI - 3 months ago (Apr-04-2025) 22196000 - 5.6 million sDAI - Today (Jul-13-2025) - 5.2 million sDAI If the liquidity is reduced or decreased to a lower level, the users are still forced to swap with t"
+    },
+    {
+     "id": "M-19",
+     "severity": "Medium",
+     "title": "Unable to deposit to Convex in Arbitrum",
+     "finders": 4,
+     "files": [
+      "notional-v4/src/single-sided-lp/CurveConvex2Token.sol"
+     ],
+     "excerpt": "### Summary - ### Root Cause - ### Internal Pre-conditions - ### External Pre-conditions - ### Attack Path Per the contest's README, Base and Arbitrum are in-scope for this contest. Sherlock's Judge has further confirmed this in the Discord channel. > Q: On what chains are the smart contracts going to be deployed? > Ethereum, in the future we will consider Base or Arbitrum It was found that the Curve LP token will be deposited to Convex via the `IConvexBooster(CONVEX_BOOSTER).deposit(CONVEX_POOL_ID, lpTokens, true)` interface/function. https://github.com/sherlock-audit/2025-06-notional-exponent/blob/main/notional-v4/src/single-sided-lp/CurveConvex2Token.sol#L291 ```solidity File: CurveConvex2Token.sol 291: function _stakeLpTokens(uint256 lpTokens) internal { 292: if (CONVEX_BOOSTER != address(0)) { 293: bool success = IConvexBooster(CONVEX_BOOSTER).deposit(CONVEX_POOL_ID, lpTokens, true); 294: require(success); 295: } else { 296: ICurveGauge(CURVE_GAUGE).deposit(lpTokens); 297: } 298: } ``` The following is that Booster contract address taken from the official documentation (https://docs.convexfinance.com/convexfinance/faq/contract-addresses): Ethereum - Booster(main deposit contract): [0xF403C135812408BFbE8713b5A23a04b3D48AAE31](https://etherscan.io/address/0xF403C135812408BFbE8713b5A23a04b3D48AAE31) ```python //deposit lp tokens and stake function deposit(uint256 _pid, uint25"
+    },
+    {
+     "id": "M-20",
+     "severity": "Medium",
+     "title": "Lack of minimum debt threshold enables unliquidatable small positions",
+     "finders": 11,
+     "files": [
+      "notional-v4/src/routers/AbstractLendingRouter.sol"
+     ],
+     "excerpt": "### Summary The protocol allows users to repay debt partially through the `exitPosition()` function, even if a minimal amount of debt remains (e.g., 1 wei). Since liquidation incentives are proportional to the repaid debt and gas costs are fixed, such positions offer no economic incentive for liquidators. As a result, these small debt positions accumulate over time, becoming unliquidatable and potentially leading to long-term protocol insolvency. ### Root Cause When users open a position without providing upfront collateral by calling [`enterPosition()` ](https://github.com/sherlock-audit/2025-06-notional-exponent/blob/main/notional-v4/src/routers/AbstractLendingRouter.sol#L56)with a non-zero `borrowAmount` and a `depositAssetAmount` of zero. The protocol takes a flashloan from Morpho for the borrow amount, mints shares with it, supplies those shares as collateral to Morpho, and then borrows the same amount to repay the flashloan resulting in a position where collateral equals the borrowed amount. If a deposit is provided, the collateral becomes greater than the debt. So `collateral` can be `>=` `borrowAmmount` . This logic enables fully collateralized positions with little or no initial user capital. ```javascript //AbstractLendingRouter.sol L56: function enterPosition( address onBehalf, address vault, uint256 depositAssetAmount, uint256 borrowAmount, bytes calldata depositDat"
+    },
+    {
+     "id": "M-21",
+     "severity": "Medium",
+     "title": "Funds stuck if one of the withdrawal requests cannot be finalized",
+     "finders": 6,
+     "files": [
+      "notional-v4/src/single-sided-lp/AbstractSingleSidedLP.sol"
+     ],
+     "excerpt": "### Summary - ### Root Cause - Handling of multiple withdraw requests (WRs) is not robust enough, and the failure of one can cause the entire WRs to be stuck even though the rest of the WRs have finalized successfully. - Lack of minimum position size could cause a revert to occur during redemption, blocking the WR from finalizing. See the main report for more details. ### Internal Pre-conditions - ### External Pre-conditions - ### Attack Path Both WRs must be finalized before the redemption is allowed to be executed, as shown in Line 397 below. https://github.com/sherlock-audit/2025-06-notional-exponent/blob/main/notional-v4/src/single-sided-lp/AbstractSingleSidedLP.sol#L397 ```solidity File: AbstractSingleSidedLP.sol 378: function finalizeAndRedeemWithdrawRequest( 379: address sharesOwner, 380: uint256 sharesToRedeem 381: ) external override returns (uint256[] memory exitBalances, ERC20[] memory withdrawTokens) { 382: ERC20[] memory tokens = TOKENS(); 383: 384: exitBalances = new uint256[](tokens.length); 385: withdrawTokens = new ERC20[](tokens.length); 386: 387: WithdrawRequest memory w; 388: for (uint256 i; i < tokens.length; i++) { 389: IWithdrawRequestManager manager = ADDRESS_REGISTRY.getWithdrawRequestManager(address(tokens[i])); 390: (w, /* */) = manager.getWithdrawRequest(address(this), sharesOwner); 391: 392: uint256 yieldTokensBurned = uint256(w.yieldTokenAmount) * "
+    },
+    {
+     "id": "M-22",
+     "severity": "Medium",
+     "title": "Setup with `asset = WETH` and a Curve pool that contains Native ETH will lead to a loss for the users",
+     "finders": 1,
+     "files": [
+      "notional-v4/src/single-sided-lp/CurveConvex2Token.sol",
+      "notional-v4/src/single-sided-lp/AbstractSingleSidedLP.sol"
+     ],
+     "excerpt": "### Summary - ### Root Cause - ### Internal Pre-conditions - ### External Pre-conditions - ### Attack Path Assume a Yield Strategy vault where its asset is WETH and the Curve Pool is Native ETH/wstETH. In this case, calling the `TOKENS()` function will return: - tokens[0] = Curve's `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE` = Converted to `0x0000` (Native ETH) during initialization - tokens[1] = 0xB82381A3fBD3FaFA77B3a7bE693342618240067b (wstETH) https://github.com/sherlock-audit/2025-06-notional-exponent/blob/main/notional-v4/src/single-sided-lp/CurveConvex2Token.sol#L162 ```solidity File: CurveConvex2Token.sol 162: function TOKENS() internal view override returns (ERC20[] memory) { 163: ERC20[] memory tokens = new ERC20[](_NUM_TOKENS); 164: tokens[0] = ERC20(TOKEN_1); 165: tokens[1] = ERC20(TOKEN_2); 166: return tokens; 167: } ``` The `_PRIMARY_INDEX` will be set to 0, which is the first token of the Curve pool. The condition at Line 59 will evaluate to `True`. https://github.com/sherlock-audit/2025-06-notional-exponent/blob/main/notional-v4/src/single-sided-lp/CurveConvex2Token.sol#L59 ```solidity File: CurveConvex2Token.sol 57: // Assets may be WETH, so we need to unwrap it in this case. 58: _PRIMARY_INDEX = 59: (TOKEN_1 == _asset || (TOKEN_1 == ETH_ADDRESS && _asset == address(WETH))) ? 0 : 60: (TOKEN_2 == _asset || (TOKEN_2 == ETH_ADDRESS && _asset == address(WETH))) ? "
+    },
+    {
+     "id": "M-23",
+     "severity": "Medium",
+     "title": "Unable to support Curve Pool with Native ETH",
+     "finders": 3,
+     "files": [
+      "notional-v4/src/single-sided-lp/CurveConvex2Token.sol",
+      "notional-v4/src/single-sided-lp/AbstractSingleSidedLP.sol"
+     ],
+     "excerpt": "### Summary - ### Root Cause - ### Internal Pre-conditions - ### External Pre-conditions - ### Attack Path If any of the tokens of the Curve Pool are Native ETH (0xEEEEE...), the `_rewriteAltETH()` function at Lines 54 and 55 will rewrite the address from 0xEEEEE to 0x00000. https://github.com/sherlock-audit/2025-06-notional-exponent/blob/main/notional-v4/src/single-sided-lp/CurveConvex2Token.sol#L54 ```solidity File: CurveConvex2Token.sol 39: constructor( 40: uint256 _maxPoolShare, 41: address _asset, 42: address _yieldToken, 43: uint256 _feeRate, 44: address _rewardManager, 45: DeploymentParams memory params, 46: IWithdrawRequestManager _withdrawRequestManager 47: ) AbstractSingleSidedLP(_maxPoolShare, _asset, _yieldToken, _feeRate, _rewardManager, 18, _withdrawRequestManager) { 48: CURVE_POOL_TOKEN = ERC20(params.poolToken); 49: 50: // We interact with curve pools directly so we never pass the token addresses back 51: // to the curve pools. The amounts are passed back based on indexes instead. Therefore 52: // we can rewrite the token addresses from ALT Eth (0xeeee...) back to (0x0000...) which 53: // is used by the vault internally to represent ETH. 54: TOKEN_1 = _rewriteAltETH(ICurvePool(params.pool).coins(0)); 55: TOKEN_2 = _rewriteAltETH(ICurvePool(params.pool).coins(1)); ``` Assume a Curve pool with the first token is Native ETH, while the second token is a normal ERC20"
+    },
+    {
+     "id": "M-24",
+     "severity": "Medium",
+     "title": "Convex cannot be configured for the Yield Strategy vault in Arbitrum even though Convex is available in Arbitrum",
+     "finders": 12,
+     "files": [
+      "notional-v4/src/single-sided-lp/CurveConvex2Token.sol"
+     ],
+     "excerpt": "### Summary - ### Root Cause - ### Internal Pre-conditions - ### External Pre-conditions - ### Attack Path Per the contest's README, Base and Arbitrum are in-scope for this contest. Sherlock's Judge has further confirmed this in the Discord channel. > Q: On what chains are the smart contracts going to be deployed? > Ethereum, in the future we will consider Base or Arbitrum However, it was observed that Convex cannot be configured for the Yield Strategy vault in Arbitum even though Convex is available in Arbitrum. In Line 137, the `block.chainid == CHAIN_ID_MAINNET` condition will always be false in Arbitrum and thus the `convexBooster` can never be configured. https://github.com/sherlock-audit/2025-06-notional-exponent/blob/main/notional-v4/src/single-sided-lp/CurveConvex2Token.sol#L137 ```solidity File: CurveConvex2Token.sol 115: constructor( 116: address _token1, 117: address _token2, 118: address _asset, 119: uint8 _primaryIndex, 120: DeploymentParams memory params 121: ) { 122: TOKEN_1 = _token1; 123: TOKEN_2 = _token2; 124: ASSET = _asset; 125: _PRIMARY_INDEX = _primaryIndex; 126: 127: CURVE_POOL = params.pool; 128: CURVE_GAUGE = params.gauge; 129: CURVE_POOL_TOKEN = ERC20(params.poolToken); 130: CURVE_INTERFACE = params.curveInterface; 131: 132: // If the convex reward pool is set then get the booster and pool id, if not then 133: // we will stake on the curve gauge direc"
+    },
+    {
+     "id": "M-25",
+     "severity": "Medium",
+     "title": "Revert in `getWithdrawRequestValue()` function will brick the account",
+     "finders": 1,
+     "files": [
+      "notional-v4/src/single-sided-lp/AbstractSingleSidedLP.sol"
+     ],
+     "excerpt": "### Summary - ### Root Cause - Revert can occur in `getWithdrawRequestValue()` function, which the critical `price()` function depends on, due to a lack of proper error handling. - Incorrect assumption that the exit balance will never be zero under any circumstances. ### Internal Pre-conditions - ### External Pre-conditions - ### Attack Path **Main Issue** It was found that when computing the value of the withdraw request, it will attempt to loop through all Cruve's pool tokens and check if there is a withdraw request for the current token. If not, the transaction will revert in Line 332 below. The issue is that if it is ever possible to cause a revert in Line 332, it will be a serious issue because Morpho can no longer fetch the price. The Notional's `price()` relies on the `getWithdrawRequestValue()` function. If the `price()` reverts when Morpho is reading it, the affected account's position will be stuck forever, as none of the operations (exit position, repay debt, withdraw collateral, liquidation) can be performed. https://github.com/sherlock-audit/2025-06-notional-exponent/blob/main/notional-v4/src/single-sided-lp/AbstractSingleSidedLP.sol#L332 ```solidity File: AbstractSingleSidedLP.sol 319: function getWithdrawRequestValue( 320: address account, 321: address asset, 322: uint256 shares 323: ) external view returns (uint256 totalValue) { 324: ERC20[] memory tokens = TOKE"
+    },
+    {
+     "id": "M-26",
+     "severity": "Medium",
+     "title": "`initializeMarket` can be frontran, preventing markets from being configured in `MorphoLendingRouter `",
+     "finders": 14,
+     "files": [
+      "notional-v4/src/routers/MorphoLendingRouter.sol"
+     ],
+     "excerpt": "### Summary `initializeMarket` can be frontran, creating the same morpho market as the expected when initializing. ### Root Cause In [MorphoLendingRouter.sol#L51](https://github.com/sherlock-audit/2025-06-notional-exponent/blob/main/notional-v4/src/routers/MorphoLendingRouter.sol#L51), the router will try to initialize a market for a certain market params configuration. Note that `initializeMarket` is the only way to store data for the vault in the corresponding `s_morphoParams` mapping, and it is critical that this mapping is written to, as `marketParams()` wwill [fetch some of the data from the stored mapping(https://github.com/sherlock-audit/2025-06-notional-exponent/blob/main/notional-v4/src/routers/MorphoLendingRouter.sol#L59), and this function is [used across the whole router contract](https://github.com/sherlock-audit/2025-06-notional-exponent/blob/main/notional-v4/src/routers/MorphoLendingRouter.sol#L77). The problem is that anybody can frontrun the initialization by directly calling morpho's `createMarket()` function, creating the same market. After that, the initialization will fail because Morpho [ensures that the same market can only be created once](https://etherscan.io/address/0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb#code#F1#L154). Because of this, markets initializations will be dos'ed, and the router won't be usable for the corresponding vault with the desire"
+    }
+   ]
+  },
+  {
+   "contest": "2025-05-dodo-cross-chain-dex",
+   "sourceRepo": "sherlock-audit/2025-05-dodo-cross-chain-dex",
+   "inScopeKb": 73,
+   "inScopeFiles": 9,
+   "issues": [
+    {
+     "id": "H-1",
+     "severity": "High",
+     "title": "Missing swap-withdrawal validation enables accumulated token drainage",
+     "finders": 12,
+     "files": [
+      "omni-chain-contracts/contracts/GatewayCrossChain.sol"
+     ],
+     "excerpt": "### Summary Missing validation between swap output token and target withdrawal token will cause a loss of accumulated token balances for the protocol and users as an attacker will craft malicious cross-chain transactions with mismatched swap parameters to drain tokens that have accumulated in the contract from legitimate operations. ### Root Cause In [GatewayCrossChain.sol](https://github.com/sherlock-audit/2025-05-dodo-cross-chain-dex/blob/d4834a468f7dad56b007b4450397289d4f767757/omni-chain-contracts/contracts/GatewayCrossChain.sol#L465-L508) the `onCall` function performs a token swap using `_doMixSwap()` with `params.toToken` as the output, but then withdraws using `decoded.targetZRC20` without validating that these tokens match. This allows an attacker to swap to one token type but withdraw a different accumulated token type. ```solidity // Swap occurs with params.toToken as output uint256 outputAmount = _doMixSwap(decoded.swapDataZ, amount, params); ``` In [_handleBitcoinWithdraw](https://github.com/sherlock-audit/2025-05-dodo-cross-chain-dex/blob/d4834a468f7dad56b007b4450397289d4f767757/omni-chain-contracts/contracts/GatewayCrossChain.sol#L371-L376) withdraws the `decoded.targetZRC20` ```solidity // _handleBitcoinWithdraw: withdraw( externalId, decoded.receiver, decoded.targetZRC20, // Uses targetZRC20 (no validation against swap output) outputAmount - gasFee ); ``` In [_"
+    },
+    {
+     "id": "H-2",
+     "severity": "High",
+     "title": "Any attacker will steal accumulated ZRC20 tokens from `GatewayTransferNative` contract",
+     "finders": 8,
+     "files": [
+      "omni-chain-contracts/contracts/GatewayTransferNative.sol"
+     ],
+     "excerpt": "### Summary Missing msg.value validation for native token withdrawals will cause a complete loss of accumulated ZRC20 tokens for the protocol as attackers will abuse the native token placeholder to bypass transferFrom validation while targeting real ZRC20 contracts through malicious message crafting. ### Root Cause In [GatewayTransferNative.sol:534-537](https://github.com/sherlock-audit/2025-05-dodo-cross-chain-dex/blob/d4834a468f7dad56b007b4450397289d4f767757/omni-chain-contracts/contracts/GatewayTransferNative.sol#L534-L537) there is missing validation of msg.value against the claimed amount parameter when zrc20 equals `_ETH_ADDRESS_` , allowing users to claim arbitrary native token amounts without actually sending them. ```solidity function withdrawToNativeChain( address zrc20, uint256 amount, bytes calldata message ) external payable { if(zrc20 != _ETH_ADDRESS_) { require(IZRC20(zrc20).transferFrom(msg.sender, address(this), amount), \"INSUFFICIENT ALLOWANCE: TRANSFER FROM FAILED\"); } // ← Missing: require(msg.value >= amount, \"INSUFFICIENT NATIVE TOKEN\"); } ``` ### Internal Pre-conditions None ### External Pre-conditions None ### Attack Path 1. Attacker identifies accumulated ZRC20 tokens in the GatewayTransferNative contract (e.g., 1000 USDC.ZRC20) 2. Attacker crafts a malicious message where decoded.targetZRC20 points to the real USDC.ZRC20 contract address 3. Attacker ca"
+    },
+    {
+     "id": "H-3",
+     "severity": "High",
+     "title": "Attacker can steal an  high-value token due to lack of swap execution",
+     "finders": 11,
+     "files": [
+      "omni-chain-contracts/contracts/GatewayTransferNative.sol"
+     ],
+     "excerpt": "### Summary Whenever [`withdrawToNativeChain`](https://github.com/sherlock-audit/2025-05-dodo-cross-chain-dex/blob/d4834a468f7dad56b007b4450397289d4f767757/omni-chain-contracts/contracts/GatewayTransferNative.sol#L530) or[`onCall`](https://github.com/sherlock-audit/2025-05-dodo-cross-chain-dex/blob/d4834a468f7dad56b007b4450397289d4f767757/omni-chain-contracts/contracts/GatewayTransferNative.sol#L395) is called on the [`GatewayTransferNative`](https://github.com/sherlock-audit/2025-05-dodo-cross-chain-dex/blob/d4834a468f7dad56b007b4450397289d4f767757/omni-chain-contracts/contracts/GatewayTransferNative.sol#L20C10-L20C31) . The [`_doMixSwap()`](https://github.com/sherlock-audit/2025-05-dodo-cross-chain-dex/blob/d4834a468f7dad56b007b4450397289d4f767757/omni-chain-contracts/contracts/GatewayTransferNative.sol#L425) is trigger and the function returns the original token amount without enforcing a swap when `swapData` is empty. If `decoded.targetZRC20 != zrc20`, this leads to unexpected token transfers, allowing Attacker to bypass swaps and drain higher-value assets held by the contract. ### Root Cause https://github.com/sherlock-audit/2025-05-dodo-cross-chain-dex/blob/d4834a468f7dad56b007b4450397289d4f767757/omni-chain-contracts/contracts/GatewayTransferNative.sol#L430 ```solidity if (swapData.length == 0) { return amount; } ``` This check skips the swap entirely when `swapData` is "
+    },
+    {
+     "id": "H-4",
+     "severity": "High",
+     "title": "`GatewayTransferNative.withdrawToNativeChain` Allows Swapping Arbitrary Contract ZRC20s by Misusing Deposited Token Amount",
+     "finders": 31,
+     "files": [
+      "omni-chain-contracts/contracts/GatewayTransferNative.sol"
+     ],
+     "excerpt": "### Summary The [`GatewayTransferNative.withdrawToNativeChain`](https://github.com/sherlock-audit/2025-05-dodo-cross-chain-dex/blob/main/omni-chain-contracts/contracts/GatewayTransferNative.sol#L530-L534) function allows users to specify DODO swap parameters via the `message` argument. It fails to validate that the input token for this swap (`params.fromToken` derived from `message`) matches the `zrc20` token actually deposited by the user for the transaction. Instead, the contract uses the deposited `amount` of `zrc20` to approve its _own balance_ of `params.fromToken` for the swap. An attacker can deposit a low-value `zrc20` and provide a `message` instructing the contract to swap a different, valuable token it holds, leading to fund drain. The swapped proceeds are then processed for withdrawal to an external chain or transfer on ZetaChain as specified by other parts of the `message`. ### Root Cause The bug lies in `GatewayTransferNative` when `withdrawToNativeChain` calls `_doMixSwap`. 1. **User Input:** User calls `withdrawToNativeChain`. - `zrc20` and `amount` are the primary deposit by the user directly to this function. - `message` is decoded using `SwapDataHelperLib.decodeMessage` into `DecodedMessage memory decoded`. The DODO swap parameters `MixSwapParams memory params` are derived from `decoded.swapDataZ`. Crucially, `params.fromToken` and `params.fromTokenAmount` ar"
+    },
+    {
+     "id": "H-5",
+     "severity": "High",
+     "title": "Unauthorized Claim of Non-EVM Chain Refunds in `claimRefund` Function",
+     "finders": 62,
+     "files": [
+      "omni-chain-contracts/contracts/GatewayCrossChain.sol"
+     ],
+     "excerpt": "### Summary The `claimRefund` function in both `GatewayTransferNative.sol` and `GatewayCrossChain.sol` contains a critical authorization flaw that allows any user to claim refunds intended for non-EVM chains (such as Bitcoin). This occurs due to improper access control logic that fails to properly validate the caller's authority when the refund is for a non-EVM address. ### Root Cause The vulnerability stems from flawed conditional logic in the [`claimRefund`](https://github.com/sherlock-audit/2025-05-dodo-cross-chain-dex/blob/main/omni-chain-contracts/contracts/GatewayCrossChain.sol#L571) function: ```solidity function claimRefund(bytes32 externalId) external { RefundInfo storage refundInfo = refundInfos[externalId]; address receiver = msg.sender; // Default to caller if(refundInfo.walletAddress.length == 20) { receiver = address(uint160(bytes20(refundInfo.walletAddress))); } require(bots[msg.sender] || msg.sender == receiver, \"INVALID_CALLER\"); // ... transfer logic } ``` **The problem**: When `walletAddress.length != 20` (non-EVM addresses), `receiver` remains `msg.sender`, making the authorization check `require(bots[msg.sender] || msg.sender == msg.sender)`, which simplifies to `require(bots[msg.sender] || true)` - always passing for any caller. ### Internal Pre-conditions Attacker monitors `EddyCrossChainRefund` events for refunds with non-EVM addresses ### External Pre-c"
+    },
+    {
+     "id": "M-1",
+     "severity": "Medium",
+     "title": "Incorrect amount of zrc20 approved in GatewayTransferNative causing loss of fund and DOS",
+     "finders": 9,
+     "files": [
+      "omni-chain-contracts/contracts/GatewayCrossChain.sol"
+     ],
+     "excerpt": "### Summary In `GatewayTransferNative.sol::_handleEvmOrSolanaWithdraw()`, the contract approved `outputAmount+gasFee` tokens to `GatewayZEVM` but the `GatewayZEVM` will only use `outputAmount` tokens. Attackers could make use of this extra approved `gasFee` to attack the contract using the public function `GatewayTransferNative::withdraw()`. ### Root Cause https://github.com/sherlock-audit/2025-05-dodo-cross-chain-dex/blob/main/omni-chain-contracts/contracts/GatewayCrossChain.sol#L379C5-L440C6 When users want to withdraw tokens from zetachain to an evm chain, the function above will be called. For simplicity, let's consider that user wants to withdraw ETH to Ethereum from zetachain. He calls `withdrawToNativeChain(ETH,1000e18,message)`. The `_handleFeeTransfer()` function will take 1000 ether from user and send 0.5% to `TreasurySafe`. Now `outputAmount=amount=995ether`, and then `_handleEvmOrSolanaWithdraw()` is called. In this function, `GatewayTransferNative` approve `GatewayZEVM` for `outputAmount+gasFee` ETH but it set `amountsOutTarget` to `outputAmount-gasFee`. Finally in `GatewayZEVM` contract, only `outputAmount-gasFee` ETH and `gasFee` ETH for gasfee is charged. After the transaction, there are still `gasFee` amount of ETH in allowance of `GatewayTransferNative` to `GatewayZEVM`. If now `GatewayTransferNative` has a positive ETH balance (for example, in refunds) , it's"
+    },
+    {
+     "id": "M-2",
+     "severity": "Medium",
+     "title": "ETH Address Approval Attempt Causes All Zeta Swaps to Revert",
+     "finders": 13,
+     "files": [
+      "omni-chain-contracts/contracts/GatewayTransferNative.sol"
+     ],
+     "excerpt": "### Summary Attempting to call `approve()` on the ETH placeholder address will cause transaction reverts for all users trying to swap ETH as the contract treats the non-contract ETH address as an ERC20 token. https://github.com/sherlock-audit/2025-05-dodo-cross-chain-dex/blob/main/omni-chain-contracts/contracts/GatewayTransferNative.sol#L425-L434 ### Root Cause In `GatewayTransferNative_doMixSwap` , the contract unconditionally calls `IZRC20(params.fromToken).approve(DODOApprove, amount)` without checking if `params.fromToken` is the ETH placeholder address (`0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE`), which is not a valid contract. A similar issue exists in the GatewayCrossChain contract, where `approve()` is also called without validating whether the token is native ETH. ### Internal Pre-conditions 1. User needs to call `withdrawToNativeChain()` with `zrc20` parameter as `_ETH_ADDRESS_` 2. The decoded message needs to contain `swapData.length > 0` to trigger the swap logic ### External Pre-conditions None ### Attack Path 1. User calls `withdrawToNativeChain()` with ETH address and swap data 2. Function calls `_doMixSwap()` with `params.fromToken` set to ETH address 3. `_doMixSwap()` attempts to call `approve()` on the ETH placeholder address 4. Transaction reverts because ETH address is not a valid ERC20 contract ### Impact All users attempting to swap Zeta cannot execute t"
+    },
+    {
+     "id": "M-3",
+     "severity": "Medium",
+     "title": "`onCall` function has missing fee deduction update prior swap.",
+     "finders": 28,
+     "files": [
+      "omni-chain-contracts/contracts/GatewayTransferNative.sol"
+     ],
+     "excerpt": "### Summary During zrc-20 `depositAndCall` operation, [onCall](https://github.com/sherlock-audit/2025-05-dodo-cross-chain-dex/blob/main/omni-chain-contracts/contracts/GatewayTransferNative.sol#L357) function of `GatewayTransferNative` contract will revert due to missing update of `amount` to be used in swap in DODO Router. This amount is already deducted by platform fees, therefore need to be updated prior to the swap operation. The swap execution will always pull up a whole amount but in reality this is already deducted by fees, therefore guaranteed revert due to insufficient funds. This can also be opportunity as attack vector for malicious attacker depending on situation like if the contract `GatewayTransferNative` has refund stored in it prior `depositAndCall` operation. ### Root Cause The real root cause is the missing update on the `amount` to be swapped in DODO Router. This `amount` should be deducted by platform fees prior to the swap operation to avoid revert. Look at line 370, the platform fees is already physically transferred to the protocol treasury, however this amount was never updated prior to the swap operation in line 395, this will cause guaranteed revert. ```Solidity File: GatewayTransferNative.sol 357: function onCall( 358: MessageContext calldata context, 359: address zrc20, // this could be wzeta token 360: uint256 amount, // @audit this should be updated"
+    },
+    {
+     "id": "M-4",
+     "severity": "Medium",
+     "title": "Bug in AccountEncoder causes wrong Solana account permissions",
+     "finders": 7,
+     "files": [
+      "omni-chain-contracts/contracts/libraries/AccountEncoder.sol"
+     ],
+     "excerpt": "### Summary When users bridge assets to Solana, they specify a list of accounts and if accounts should be read-only (protected) versus writable (modifiable). This is a critical security feature that prevents unauthorized access to user funds. However, a data parsing bug in `AccountEncoder` systematically corrupts these permission settings, marking user accounts as writable when they should be protected as read-only. This affects 100% of Solana bridge transactions. As a consequence, potential unauthorized token transfers or account state changes can occur. ### Root Cause Library `AccountEncoder` implements [decompressAccounts](https://github.com/sherlock-audit/2025-05-dodo-cross-chain-dex/blob/main/omni-chain-contracts/contracts/libraries/AccountEncoder.sol#L19) function which takes bytes array as input and parses account info out of it: ```solidity function decompressAccounts(bytes memory input) internal pure returns (Account[] memory accounts) { assembly { let ptr := add(input, 32) // Read accounts length (uint16) let len := add(shl(8, byte(0, mload(ptr))), byte(1, mload(ptr))) ptr := add(ptr, 2) // Allocate memory for Account[] array accounts := mload(0x40) mstore(accounts, len) let arrData := add(accounts, 32) // Prepare memory for Account structs let freePtr := add(arrData, mul(len, 32)) for { let i := 0 } lt(i, len) { i := add(i, 1) } { let acc := freePtr freePtr := add(fr"
+    },
+    {
+     "id": "M-5",
+     "severity": "Medium",
+     "title": "Executing withdrawToNativeChain with Zeta as fromToken will not be possible",
+     "finders": 6,
+     "files": [
+      "omni-chain-contracts/contracts/GatewayTransferNative.sol"
+     ],
+     "excerpt": "### Summary Executing withdrawToNativeChain with ZETA as fromToken will fail when a non-zero fee is set, due to a mismatch between msg.value and fromTokenAmount passed to mixSwap. ### Root Cause When a user wants to execute withdrawToNativeChain with ZETA as fromToken, they send some ZETA with msg.value, set the zrc20 variable to the native token, and specify the same amount of ZETA as sent via msg.value. After that, the fee gets paid (let's imagine that the issue where it's not possible to pay the fee when ZETA is the zrc20 is fixed), and now _doMixSwap is called and the full msg.value is sent to the mixSwap, even though the fee was paid with a fraction of that value. The swap will fail because there will be a mismatch between msg.value and fromTokenAmount (the value sent to mixSwap should be mixSwap{value: msg.value-fee}(...)), which would be adjusted to account for the fee that was transferred to EddyTreasurySafe. ```solidity function mixSwap( address fromToken, address toToken, uint256 fromTokenAmount, uint256 expReturnAmount, uint256 minReturnAmount, address[] memory mixAdapters, address[] memory mixPairs, address[] memory assetTo, uint256 directions, bytes[] memory moreInfos, bytes memory feeData, uint256 deadLine ) external payable judgeExpired(deadLine) returns (uint256) { require(mixPairs.length > 0, \"DODORouteProxy: PAIRS_EMPTY\"); require(mixPairs.length == mixAdapter"
+    },
+    {
+     "id": "M-6",
+     "severity": "Medium",
+     "title": "GatewayTransferNative does not collect platform fee when native asset is bridged",
+     "finders": 4,
+     "files": [
+      "omni-chain-contracts/contracts/GatewayTransferNative.sol"
+     ],
+     "excerpt": "### Summary The `withdrawToNativeChain` function of `GatewayTransferNative` fails to collect platform fees when users bridge native asset. While the function is designed to accept native asset payments through its payable modifier, the fee collection mechanism silently fails due to a low-level call to a non-contract address. This allows users to bridge native asset while completely bypassing the platform's fee collection, resulting in lost revenue for the protocol. ### Root Cause User will provide `_ETH_ADDRESS_` as `zrc20` param in [withdrawToNativeChain](https://github.com/sherlock-audit/2025-05-dodo-cross-chain-dex/blob/main/omni-chain-contracts/contracts/GatewayTransferNative.sol#L530C14-L530C35) function when bridging native asset. Then, internal function `_handleFeeTransfer` is called: ```solidity function withdrawToNativeChain(address zrc20, uint256 amount, bytes calldata message) external payable { if (zrc20 != _ETH_ADDRESS_) { require( IZRC20(zrc20).transferFrom(msg.sender, address(this), amount), \"INSUFFICIENT ALLOWANCE: TRANSFER FROM FAILED\" ); } // ... // Transfer platform fees uint256 platformFeesForTx = _handleFeeTransfer(zrc20, amount); // platformFee = 5 <> 0.5% amount -= platformFeesForTx; ``` There, transfer helper is used to collect fees: ```solidity function _handleFeeTransfer(address zrc20, uint256 amount) internal returns (uint256 platformFeesForTx) { plat"
+    },
+    {
+     "id": "M-7",
+     "severity": "Medium",
+     "title": "Attacker can overwrite legitimate refundsInfo by triggering `GatewayTransferNative::onRevert`",
+     "finders": 30,
+     "files": [
+      "omni-chain-contracts/contracts/GatewayTransferNative.sol"
+     ],
+     "excerpt": "### Summary The `GatewayTransferNative::onRevert` function allows an attacker to overwrite legitimate, pending refunds. This is because `GatewayTransferNative` used RevertMessage to do accounting of refunds. However, the `revertMessage` should be validated. ### Root Cause The `onRevert` function does not validate whether a `RefundInfo` already exists for a given `externalId` before creating a new one. It blindly overwrites the storage slot. ### Internal Pre-conditions None. ### External Pre-conditions None. ### Attack Path 1. Attacker monitors for a legitimate user's transaction to fail, causing `onAbort` to be called. A `RefundInfo` is stored with the key `VICTIM_EXTERNAL_ID`. The contract now holds, for example, 1000e6 zUSDC that is meant for the victim in `refundInfo`. 2. The attacker initiates a cross-chain transaction that is designed to fail and trigger `GatewayTransferNatice::onRevert.` He can make any contract on destination evm chain as follows ```solidity contract AttackerContract{ constructor(){ } function onCall ( MessageContext calldata context, address zrc20, uint256 amount, bytes calldata message ) external override onlyGateway { // always revert revert(); } } ``` This can be done by calling `GatewayZEVM::withdrawAndCall` specifying the following details: ```solidity function withdrawAndCall( bytes memory receiver, // attackerContract uint256 amount, // 1 address"
+    },
+    {
+     "id": "M-8",
+     "severity": "Medium",
+     "title": "False “pool exists” detection via `balanceOf()` leads to broken swap paths",
+     "finders": 14,
+     "files": [
+      "omni-chain-contracts/contracts/GatewayCrossChain.sol"
+     ],
+     "excerpt": "### Summary The function `_existsPairPool()` in `GatewayCrossChain.sol` and `GatewayTransferNative.sol` uses `ERC20.balanceOf()` at a computed UniswapV2 pair address to infer pool existence. Because any address can hold tokens—even without a deployed pair contract—this check produces false positives. Consequently, `getPathForTokens()` may return a direct token–token path that does not actually exist, triggering downstream transaction reverts and denial of service. ### Root Cause In both contracts, `_existsPairPool()` is implemented as follows: https://github.com/sherlock-audit/2025-05-dodo-cross-chain-dex/blob/main/omni-chain-contracts/contracts/GatewayCrossChain.sol#L207-L220 This logic never verifies that `pool` has deployed contract code, nor does it read real reserves via `getReserves()`. It thus treats any stray token balances at that address as liquidity. ### Internal Pre-conditions 1. A call to `getPathForTokens(tokenA, tokenB)` is made. 2. `_existsPairPool()` returns `true` because the computed address holds non-zero balances of both tokens. 3. The actual UniswapV2 pair contract was never deployed at that address. ### External Pre-conditions 1. An EOA or arbitrary contract receives `tokenA` and `tokenB` transfers at the computed pool address. 2. The true UniswapV2 factory has not created a pair for `(tokenA, tokenB)`. ### Attack Path 1. Attacker transfers small amounts "
+    },
+    {
+     "id": "M-9",
+     "severity": "Medium",
+     "title": "Improper ETH Refund Handling in GatewaySend.onRevert()",
+     "finders": 21,
+     "files": [
+      "omni-chain-contracts/contracts/GatewaySend.sol"
+     ],
+     "excerpt": "### Summary The GatewaySend contract’s onRevert() function mishandles native ETH refunds for failed cross-chain transactions by using TransferHelper.safeTransfer(), which is designed exclusively for ERC20 tokens. When the function attempts to refund ETH, it tries to call an ERC20 transfer() method on this non-existent contract address, causing the transaction to fail. As a result, ETH remains trapped in the contract, preventing users from recovering their funds. ### Root Cause https://github.com/sherlock-audit/2025-05-dodo-cross-chain-dex/blob/main/omni-chain-contracts/contracts/GatewaySend.sol#L394C6-L396C76 ### Internal Pre-conditions N/A ### External Pre-conditions N/A ### Attack Path A user attempts to bridge 3 ETH from Ethereum to polygon Chain via depositAndCall(). The transaction fails on the destination chain, and the ZetaChain Gateway returns the ETH to GatewaySend. The onRevert() function tries to refund the ETH using TransferHelper.safeTransfer(ETH_ADDRESS, user, 3 ETH), which fails because ETH_ADDRESS is not an ERC20 contract. The ETH remains stuck in the contract, leaving the user unable to recover their funds. ### Impact Fund Lockup: ETH from failed transactions becomes trapped, causing permanent loss for users. User Experience Degradation: Inability to recover funds undermines trust in the bridging system. ### PoC _No response_ ### Mitigation native transfer shou"
+    },
+    {
+     "id": "M-10",
+     "severity": "Medium",
+     "title": "Wrong encoding of `BTC` receiver in revert options",
+     "finders": 15,
+     "files": [
+      "omni-chain-contracts/contracts/GatewayCrossChain.sol"
+     ],
+     "excerpt": "### Summary BTC addresses are casted to 20 bytes resulting in incorrect addresses ### Root Cause When gateway calls `GatewayCrossChain::onCall` or user calls `GatewayTransferNative::withdrawToNativeChain` to withdraw zBTC (BTC to native chain), the `_handleBitcoinWithdraw` constructs the revertOtions with `decoded.receiver` but casts the `decoded.receiver` to 20 bytes which is wrong for BTC wallets (BTC addresses are bech32): https://github.com/sherlock-audit/2025-05-dodo-cross-chain-dex/blob/main/omni-chain-contracts/contracts/GatewayCrossChain.sol#L363-L377 ```solidity function _handleBitcoinWithdraw( bytes32 externalId, DecodedMessage memory decoded, uint256 outputAmount, uint256 gasFee ) internal { if (gasFee >= outputAmount) revert NotEnoughToPayGasFee(); IZRC20(decoded.targetZRC20).approve( address(gateway), outputAmount + gasFee ); withdraw( //==> call withdraw here externalId, decoded.receiver, //==> second parameter is decoded.receiver which is the BTC wallet to receive funds decoded.targetZRC20, outputAmount - gasFee ); } ``` https://github.com/sherlock-audit/2025-05-dodo-cross-chain-dex/blob/main/omni-chain-contracts/contracts/GatewayCrossChain.sol#L291 ```solidity function withdraw( bytes32 externalId, bytes memory sender, //==> second parameter is decoded.receiver which is the BTC wallet to receive funds address outputToken, uint256 amount ) internal { gateway.with"
+    },
+    {
+     "id": "M-11",
+     "severity": "Medium",
+     "title": "Boolean Return Assumption in transferFrom() Causes Token Compatibility Issues",
+     "finders": 47,
+     "files": [
+      "omni-chain-contracts/contracts/GatewaySend.sol"
+     ],
+     "excerpt": "### Summary The GatewaySend contract incorrectly uses raw IERC20.transferFrom() calls wrapped in require() statements, expecting a boolean return value from all ERC20 tokens. However, tokens like USDT, which have a void return type, cause these calls to fail even when the transfer succeeds, as Solidity interprets the missing return as false. This makes the contract incompatible with major non-standard tokens, despite importing TransferHelper for safe transfers, which is not consistently applied. ### Root Cause https://github.com/sherlock-audit/2025-05-dodo-cross-chain-dex/blob/main/omni-chain-contracts/contracts/GatewaySend.sol#L232C1-L242C10 ### Internal Pre-conditions N/A ### External Pre-conditions N/A ### Attack Path A user, Charlie, tries to bridge 5,000 USDT from Ethereum to Polygon using depositAndCall(). After approving the GatewaySend contract to spend 5,000 USDT, Charlie initiates the transfer. The contract calls IERC20(USDT).transferFrom(charlie, contract, 5000), which successfully transfers the tokens, reducing Charlie’s balance and increasing the contract’s balance. However, since USDT’s transferFrom returns void instead of true, Solidity interprets this as false, triggering the require() failure with the error \"INSUFFICIENT AMOUNT: ERC20 TRANSFER FROM FAILED.\" The transaction reverts, wasting Charlie’s gas fees and preventing the bridge operation. ### Impact Trans"
+    },
+    {
+     "id": "M-12",
+     "severity": "Medium",
+     "title": "An attacker will steal value from cross-chain swaps by manipulating liquidity used in `_swapAndSendERC20Tokens()`",
+     "finders": 24,
+     "files": [
+      "omni-chain-contracts/contracts/GatewayCrossChain.sol"
+     ],
+     "excerpt": "### Summary The reliance on spot reserves from `UniswapV2Library.getAmountsIn()` will cause a loss of value for cross-chain users as an attacker will manipulate liquidity pools to skew price quotes and steal excess input tokens. ### Root Cause In [`gatewayCrossChaine.sol:_swapAndSendERC20Tokens()`](https://github.com/sherlock-audit/2025-05-dodo-cross-chain-dex/blob/d4834a468f7dad56b007b4450397289d4f767757/omni-chain-contracts/contracts/GatewayCrossChain.sol#L309), the contract uses `UniswapV2Library.getAmountsIn()` to estimate how many `targetZRC20` tokens are needed to obtain gasFee in `gasZRC20`. This quote is then used to swap tokens without checking for liquidity manipulation, allowing attackers to front-run the contract and change pool pricing. ### Internal Pre-conditions . ### External Pre-conditions . ### Attack Path 1. Attacker identifies a low-liquidity or custom pool for a token pair used in `getPathForTokens()`. 2. Attacker front-runs a cross-chain user operation, sending a transaction that manipulates the reserves in the pool (e.g via a flashloan ). 3. The contract executes `_swapAndSendERC20Tokens()` using skewed reserves from `getAmountsIn()`, miscalculating the required amount. 4. As a result, the attacker receives an overpayment or manipulates swap slippage to extract value. 5. After the swap completes, the attacker reverts the pool to its original state and pro"
+    }
+   ]
+  },
+  {
+   "contest": "2025-01-perennial-v2-4-update",
+   "sourceRepo": "sherlock-audit/2025-01-perennial-v2-4-update",
+   "inScopeKb": 475,
+   "inScopeFiles": 85,
+   "issues": [
+    {
+     "id": "H-1",
+     "severity": "High",
+     "title": "Anyone can steal all funds from the `market` due to incorrect health accounting for pending pnl from difference of intent price and market price when multiple intents are used.",
+     "finders": 1,
+     "files": [
+      "perennial-v2/packages/perennial/contracts/types/Guarantee.sol"
+     ],
+     "excerpt": "### Summary When user opens position from signed intent, pending orders are created for 2 accounts (intent taker and maker) with user-specified price. Upon settlement, there is some pnl realized to both accounts due to difference of intent price and market price. The intent price is specified by the user and can be any number within the limits set by the protocols off the latest commited price. The issue is that this pnl is accounted for in account health only for one (current) intent. If there are multiple intents pending for the same account, then all the other intents are ignored and thus attacker can send multiple intents, each of which keeps account healthy, but all of them combined put account into highly negative collateral, which is ignored by health check. This allows attacker to withdraw inflated profit from the other account, stealing all funds from the `market`. ### Root Cause When account health is checked, collateral is adjusted for only current intent (`newGuarantee`) in `InvariantLib.validate`: https://github.com/sherlock-audit/2024-08-perennial-v2-update-3-panprog/blob/ac46a2fc8baf6c827ee20c69eecae66561a5c65f/perennial-v2/packages/perennial/contracts/types/Guarantee.sol#L71 All the other intents (at this, or previous pending orders) are ignored. ### Internal Pre-conditions None. ### External Pre-conditions None. ### Attack Path Since intents can be easily creat"
+    },
+    {
+     "id": "H-2",
+     "severity": "High",
+     "title": "`InvariantLib` uses current position for margin check allowing to withdraw collateral while the position decrease is only pending and can cause unexpected immediate user liquidation.",
+     "finders": 1,
+     "files": [
+      "perennial-v2/packages/core/contracts/libs/InvariantLib.sol"
+     ],
+     "excerpt": "### Summary In normal `update`, the `InvariantLib.validate` uses the `currentPosition` for margin check: ```solidity if ( !PositionLib.margined( updateContext.currentPositionLocal.magnitude(), context.latestOracleVersion, context.riskParameter, updateContext.collateralization, context.local.collateral.add(newGuarantee.priceAdjustment(context.latestOracleVersion.price)) // apply price override adjustment from intent if present ) ) revert IMarket.MarketInsufficientMarginError(); ``` However, during liquidation (`protected = true`), `latestPosition` is used for maintenence check: ```solidity if (context.latestPositionLocal.maintained( context.latestOracleVersion, context.riskParameter, context.local.collateral )) return false; // latest position is properly maintained ``` The latest position is position at the last commited price, while current position is expected position when price is commited for the current epoch (latest + pending). These are 2 totally different values. Usage of `currentPosition` in margined check means that user is allowed to withdraw collateral based on \"pending\" position (which might still be invalidated). This is wrong by itself, but usage of `latestPosition` in liquidation maintenence check means that normal updates and liquidations are disconnected: perfectly fine normal `update` can easily cause unexpected immediate liquidation after the user withdraws"
+    },
+    {
+     "id": "H-3",
+     "severity": "High",
+     "title": "Intent orders are guaranteed to execute, but fees from these orders are not accounted in collateral, allowing user to withdraw all collateral ignoring these pending fees.",
+     "finders": 1,
+     "files": [
+      "perennial-v2/packages/core/contracts/libs/CheckpointLib.sol",
+      "perennial-v2/packages/core/contracts/libs/InvariantLib.sol"
+     ],
+     "excerpt": "### Summary In normal `update`, all orders are pending and might be invalidated if invalid price is commited for the corresponding epoch (no pricefeed available or price commit timeout). However, when `Intent`s are used, these orders are guaranteed to be accepted (`invalidation = 0` for them). In particular, this feature allows to open and close orders via `Intent`s even when open order epoch is not commited yet. The issue is that the fees for the orders are pending and not included in collateral calculations. At the same time, since `Intent` orders are guaranteed, user can open them, close them and withdraw all collateral ignoring any pending fees. Then, after the price for the corresponding epoch is commited, the fees are added to user collateral (which is 0), thus user goes into bad debt. These fees taken are distributed to admin and part of them becomes claimable by the referrer. This means that attacker can open, close, withdraw all collateral at 0 cost, and after epoch price is commited, the referrer (also controlled by attacker) can claim part of the fees. Essentially, attacker steals funds from the market via claiming fees which become bad debt of the abandoned account. ### Root Cause Trade fees are only applied to account collateral when advancing checkpoints (which happens after the epoch price is commited): https://github.com/sherlock-audit/2025-01-perennial-v2-4-upd"
+    },
+    {
+     "id": "H-4",
+     "severity": "High",
+     "title": "When account is liquidated (protected), liquidator can increase account's position to any value up to `2**62 - 1` breaking all market accounting and stealing all market funds.",
+     "finders": 1,
+     "files": [
+      "perennial-v2/packages/core/contracts/libs/InvariantLib.sol"
+     ],
+     "excerpt": "### Summary Previously, there was a check which enforced position to only decrease during liquidation. However, the check is gone and in the current code only the condition of `pending.negative == latestPosition.magnitude`: ```solidity if (!context.pendingLocal.neg().eq(context.latestPositionLocal.magnitude())) return false; // no pending zero-cross, liquidate with full close ``` If account (before liquidation) is already in this state (for example, user has closed his position fully, but it's still pending - in this case `pendingLocal.neg()` will equal `latestPositionLocal.magnitude()` before the liquidation), then liquidator can increase position, and since it doesn't influence neither latest position nor pending negative (closing), it's allowed. Moreover, all collateral and position size checks are ignored during liquidation, so account position can be increased to any value, including max that can be stored: 2**62 - 1. If this is done, all market accounting is messed up as any slight price change will create huge profit or loss for makers and the liquidated account. This can be abused by attacker to steal all market funds. ### Root Cause Incorrect check when liquidating the account (lack of enforcement to only reduce the position): https://github.com/sherlock-audit/2025-01-perennial-v2-4-update/blob/main/perennial-v2/packages/core/contracts/libs/InvariantLib.sol#L121 ### In"
+    },
+    {
+     "id": "M-1",
+     "severity": "Medium",
+     "title": "Vault.settle(account=coordinator) will lose profitShares",
+     "finders": 1,
+     "files": [
+      "perennial-v2/packages/vault/contracts/Vault.sol"
+     ],
+     "excerpt": "### Summary `Vault.settle()` turns a portion of the profit into `profitShares` for `coordinator`. Use method `_credit()` to save `profitShares` to `storage`. But it doesn't update the memory variable `context.local.shares`. It doesn't take into account the case where `account == coordinator`. This way, if you maliciously specify that the settlement account is `coordinator`, `settle()` will end up overwriting the new value with the old value in memory. Resulting in loss of `profitShares`. ### Root Cause [/Vault.sol#L390](https://github.com/sherlock-audit/2025-01-perennial-v2-4-update/blob/main/perennial-v2/packages/vault/contracts/Vault.sol#L390) `settle()` call `_credit()` ```solidity function _settle(Context memory context, address account) private { ... while ( context.global.current > context.global.latest && context.latestTimestamp >= (nextCheckpoint = _checkpoints[context.global.latest + 1].read()).timestamp ) { // process checkpoint UFixed6 profitShares; (context.mark, profitShares) = nextCheckpoint.complete( context.mark, context.parameter, _checkpointAtId(context, nextCheckpoint.timestamp) ); context.global.shares = context.global.shares.add(profitShares); @=> _credit(coordinator, profitShares); ``` in [Vault.sol#L424](https://github.com/sherlock-audit/2025-01-perennial-v2-4-update/blob/main/perennial-v2/packages/vault/contracts/Vault.sol#L424) save to storage but don't"
+    },
+    {
+     "id": "M-2",
+     "severity": "Medium",
+     "title": "Some accounts using Intents to trade might be liquidated while healthy or be unliquidatable while being unhealthy.",
+     "finders": 1,
+     "files": [
+      "perennial-v2/packages/core/contracts/libs/InvariantLib.sol"
+     ],
+     "excerpt": "### Summary When user trades using signed intents, pending order is created using the price specified by the user. Upon settlement, there is some pnl realized due to difference of intent price and market price. The issue is that this difference is added to account only when checking margin to add pending order, but when protection (liquidation) is validated, collateral doesn't include pending intent's pnl from the difference of intent and market price. As such, user can be unfairly liquidated if price moves against him but he has enough collateral (with pnl from pending intent orders). If there is a loss from intent price difference, then this loss is not added when checking liquidation either, thus liquidation will revert as if account is healthy. ### Root Cause When protection is validated, only account's collateral is checked in `InvariantLib.validate`: https://github.com/sherlock-audit/2025-01-perennial-v2-4-update/blob/main/perennial-v2/packages/core/contracts/libs/InvariantLib.sol#L127 Note that when position is opened, intent price adjustment is added to account's collateral: https://github.com/sherlock-audit/2025-01-perennial-v2-4-update/blob/main/perennial-v2/packages/core/contracts/libs/InvariantLib.sol#L92 ### Internal Pre-conditions - User account is close to liquidation - Position is opened or closed via Intent with intent price far enough from the latest oracle pr"
+    },
+    {
+     "id": "M-3",
+     "severity": "Medium",
+     "title": "Liquidations are temporarily blocked if user's pending position close amount is greater than the latest position size.",
+     "finders": 1,
+     "files": [
+      "perennial-v2/packages/core/contracts/libs/InvariantLib.sol"
+     ],
+     "excerpt": "### Summary A new feature in v2.4 is guaranteed position change via Intents: since the price is provided in Intent itself, it doesn't need corresponding epoch oracle price to be valid. This makes it possible to close positions even when position opening in still pending (if all orders are from Intents), as such pending negative (pending position closure) is allowed to be greater than latest position size for intent orders: ```solidity if ( context.pendingLocal.invalidation != 0 && // pending orders are partially invalidatable context.pendingLocal.neg().gt(context.latestPositionLocal.magnitude()) // total pending close is greater than latest position ) revert IMarket.MarketOverCloseError(); ``` The issue is that liquidation order is always a \"normal\" order (invalidation == 1), thus this condition is always enforced for liquidations. However, if pending negative is already greater than latest position magnitude, it's impossible to create liquidation order which will satisfy this condition (order can only increase pending negative and can't influence latest position). In such situations liquidations will temporarily be impossible until some pending order becomes commited and the condition can be satisfied. ### Root Cause Incorrect validation for protected orders in case `pendingLocal.neg > latestPosition.magnitude()`: https://github.com/sherlock-audit/2025-01-perennial-v2-4-update"
+    }
+   ]
+  },
+  {
+   "contest": "2025-07-malda",
+   "sourceRepo": "sherlock-audit/2025-07-malda",
+   "inScopeKb": 265,
+   "inScopeFiles": 38,
+   "issues": [
+    {
+     "id": "H-1",
+     "severity": "High",
+     "title": "Rebalancer can steal funds from markets by sending to custom receiver through Everclear Bridge",
+     "finders": 9,
+     "files": [
+      "malda-lending/src/rebalancer/bridges/EverclearBridge.sol"
+     ],
+     "excerpt": "### Description The rebalancer contract is called on `sendMsg` with a message encoded as bytes (`_msg.message`). This message is specific for the bridge contract, and in the case of `EverclearBridge` it is of the form `IntentParams`: [EverclearBridge.sol#L40-L50](https://github.com/sherlock-audit/2025-07-malda/blob/main/malda-lending/src/rebalancer/bridges/EverclearBridge.sol#L40-L50): ```solidity struct IntentParams { uint32[] destinations; //@audit receiver is left unchecked bytes32 receiver; address inputAsset; bytes32 outputAsset; uint256 amount; uint24 maxFee; uint48 ttl; bytes data; IFeeAdapter.FeeParams feeParams; } ``` We notice that the parameter `receiver` is left entirely unchecked, and the rebalancer EOA can provide an address controlled by it, stealing the user funds which should be send for rebalancing. [EverclearBridge.sol#L111-L121](https://github.com/sherlock-audit/2025-07-malda/blob/main/malda-lending/src/rebalancer/bridges/EverclearBridge.sol#L111-L121): ```solidity (bytes32 id,) = everclearFeeAdapter.newIntent( params.destinations, params.receiver, params.inputAsset, params.outputAsset, params.amount, params.maxFee, params.ttl, params.data, params.feeParams ); ``` ### Recommendation Check that `params.receiver` is a valid market on the destination chain ## Discussion **sherlock-admin2** The protocol team fixed this issue in the following PRs/commits: https:/"
+    },
+    {
+     "id": "M-1",
+     "severity": "Medium",
+     "title": "Wrong direction of rounding in redeem may lead to drain if exchange rate grows large",
+     "finders": 1,
+     "files": [
+      "malda-lending/src/mToken/mToken.sol"
+     ],
+     "excerpt": "## Description In the mToken contract, forked from compound v2, the same wrong direction rounding is introduced in the `__redeem` function: [mToken.sol#L614-L630](https://github.com/sherlock-audit/2025-07-malda/blob/main/malda-lending/src/mToken/mToken.sol#L614-L630): ```solidity if (redeemTokensIn > 0) { /* * We calculate the exchange rate and the amount of underlying to be redeemed: * redeemTokens = redeemTokensIn * redeemAmount = redeemTokensIn x exchangeRateCurrent */ redeemTokens = redeemTokensIn; redeemAmount = mul_ScalarTruncate(exchangeRate, redeemTokensIn); } else { /* * We get the current exchange rate and calculate the amount to be redeemed: * redeemTokens = redeemAmountIn / exchangeRate * redeemAmount = redeemAmountIn */ >> redeemTokens = div_(redeemAmountIn, exchangeRate); //@audit should round up, as this is the amount of tokens pulled from user redeemAmount = redeemAmountIn; } ``` This wrong direction of rounding leads to pull less shares from the user while the amount sent out is the same as requested. In most cases the losses should be negligible (1 wei of shares per operation), because the division operates at 1e18 precision, and the exchange rate starts as a small value initially (0.02). ### Inflating exchange rate We will show that the first depositor is able to increase the exchange rate by an arbitrary factor, by using the rounding against him during `mint"
+    },
+    {
+     "id": "M-2",
+     "severity": "Medium",
+     "title": "First depositor can brick market by forcing very large borrow rate",
+     "finders": 5,
+     "files": [
+      "malda-lending/src/interest/JumpRateModelV4.sol",
+      "malda-lending/src/mToken/mToken.sol",
+      "malda-lending/src/mToken/mTokenStorage.sol"
+     ],
+     "excerpt": "### Description The borrow rate is computed in `JumpRateModelV4` as a function of the utilisation: [JumpRateModelV4.sol#L140-L150](https://github.com/sherlock-audit/2025-07-malda/blob/main/malda-lending/src/interest/JumpRateModelV4.sol#L140-L150): ```solidity function getBorrowRate(uint256 cash, uint256 borrows, uint256 reserves) public view override returns (uint256) { uint256 util = utilizationRate(cash, borrows, reserves); if (util <= kink) { return util * multiplierPerBlock / 1e18 + baseRatePerBlock; } else { uint256 normalRate = kink * multiplierPerBlock / 1e18 + baseRatePerBlock; uint256 excessUtil = util - kink; return excessUtil * jumpMultiplierPerBlock / 1e18 + normalRate; } } ``` Utilization rate being defined as: [JumpRateModelV4.sol#L127-L135](https://github.com/sherlock-audit/2025-07-malda/blob/main/malda-lending/src/interest/JumpRateModelV4.sol#L127-L135): ```solidity function utilizationRate(uint256 cash, uint256 borrows, uint256 reserves) public pure override returns (uint256) { if (borrows == 0) { return 0; } return borrows * 1e18 / (cash + borrows - reserves); } ``` We notice that utilizationRate can be greater than 1e18, when `cash + borrows - reserves` < `borrows`. In the following section, we will show a scenario where the ratio can become very big. #### First depositor manipulation Assuming a 18 decimals market: 1. Alice the first depositor can mint for 1e"
+    },
+    {
+     "id": "M-3",
+     "severity": "Medium",
+     "title": "Migrator severily underestimates slippage by using underlying instead of shares",
+     "finders": 8,
+     "files": [
+      "malda-lending/src/migration/Migrator.sol"
+     ],
+     "excerpt": "### Description `Migrator.sol` implements a slippage protection: [Migrator.sol#L90-L100](https://github.com/sherlock-audit/2025-07-malda/blob/main/malda-lending/src/migration/Migrator.sol#L90-L100): ```solidity // 2. Mint mTokens in all v2 markets for (uint256 i; i < posLength; ++i) { Position memory position = positions[i]; if (position.collateralUnderlyingAmount > 0) { //@audit compute slippage value uint256 minCollateral = position.collateralUnderlyingAmount - (position.collateralUnderlyingAmount * 1e4 / 1e5); ImErc20Host(position.maldaMarket).mintOrBorrowMigration( true, position.collateralUnderlyingAmount, msg.sender, address(0), minCollateral ); } } ``` Unfortunately, the slippage value computed uses underlying tokens, whereas the shares amount should be used. Since exchange rate should be close to 0.02, the slippage parameter is wrong by at least an order of magnitude. ### Recommendation Underlying amount should be divided by exchange rate to have a correct slippage value: [Migrator.sol#L90-L100](https://github.com/sherlock-audit/2025-07-malda/blob/main/malda-lending/src/migration/Migrator.sol#L90-L100): ```diff // 2. Mint mTokens in all v2 markets for (uint256 i; i < posLength; ++i) { Position memory position = positions[i]; if (position.collateralUnderlyingAmount > 0) { - uint256 minCollateral = - position.collateralUnderlyingAmount - (position.collateralUnderlyingAmou"
+    },
+    {
+     "id": "M-4",
+     "severity": "Medium",
+     "title": "Blacklist can be completely bypassed on outHere endpoint in mTokenGateway",
+     "finders": 17,
+     "files": [
+      "malda-lending/src/mToken/extension/mTokenGateway.sol"
+     ],
+     "excerpt": "### Description The mTokenGateway exposes the `outHere` endpoint to allow withdrawal on an extension chain. This endpoint is protected by two `ifNotBlacklisted` modifiers: [mTokenGateway.sol#L254-L262](https://github.com/sherlock-audit/2025-07-malda/blob/main/malda-lending/src/mToken/extension/mTokenGateway.sol#L254-L262): ```solidity /** * @inheritdoc ImTokenGateway */ function outHere(bytes calldata journalData, bytes calldata seal, uint256[] calldata amounts, address receiver) external notPaused(OperationType.AmountOutHere) ifNotBlacklisted(msg.sender) ifNotBlacklisted(receiver) { ``` Unfortunately both can be bypassed, because: 1. `msg.sender` can be any address in `allowedCallers` for the `_sender` in the journal data 2. receiver value passed to the endpoint is overwritten by `_sender` in `_outHere`: [mTokenGateway.sol#L281-L286](https://github.com/sherlock-audit/2025-07-malda/blob/main/malda-lending/src/mToken/extension/mTokenGateway.sol#L281-L286): ```solidity function _outHere(bytes memory journalData, uint256 amount, address receiver) internal { (address _sender, address _market,, uint256 _accAmountOut, uint32 _chainId, uint32 _dstChainId,) = mTokenProofDecoderLib.decodeJournal(journalData); // temporary overwrite; will be removed in future implementations receiver = _sender; ``` So a blacklisted user can still use `outHere` to withdraw their funds. ### Recommendation "
+    },
+    {
+     "id": "M-5",
+     "severity": "Medium",
+     "title": "Rebalancer can send to unallowed destination chains through EverclearBridge",
+     "finders": 1,
+     "files": [
+      "malda-lending/src/rebalancer/bridges/EverclearBridge.sol"
+     ],
+     "excerpt": "### Description The rebalancer contract is called on `sendMsg` with a message encoded as bytes (`_msg.message`). This message is specific for the bridge contract, and in the case of `EverclearBridge` it is of the form `IntentParams`: [EverclearBridge.sol#L40-L50](https://github.com/sherlock-audit/2025-07-malda/blob/main/malda-lending/src/rebalancer/bridges/EverclearBridge.sol#L40-L50): ```solidity struct IntentParams { uint32[] destinations; bytes32 receiver; address inputAsset; bytes32 outputAsset; uint256 amount; uint24 maxFee; uint48 ttl; bytes data; IFeeAdapter.FeeParams feeParams; } ``` We notice that multiple destination chains can be provided (`destinations`); Out of these chains, it is only checked that one is the `_dstChainId` provided as argument of `sendMsg`: [EverclearBridge.sol#L95-L102](https://github.com/sherlock-audit/2025-07-malda/blob/main/malda-lending/src/rebalancer/bridges/EverclearBridge.sol#L95-L102): ```solidity bool found; for (uint256 i; i < destinationsLength; ++i) { if (params.destinations[i] == _dstChainId) { found = true; break; } } require(found, Everclear_DestinationNotValid()); ``` However, the intent is created on Everclear using all the provided destinations, and can be fulfilled on any of the chains of the list. If it is fulfilled on a chain that Malda does not handle, the funds are lost. ### Recommendation `destinations` should be checked to"
+    },
+    {
+     "id": "M-6",
+     "severity": "Medium",
+     "title": "`EverclearBridge` does not pull tokens from the Rebalancer, causing all rebalancing operations to fail",
+     "finders": 21,
+     "files": [
+      "malda-lending/src/rebalancer/bridges/EverclearBridge.sol"
+     ],
+     "excerpt": "### Summary The `EverclearBridge` contract does not transfer tokens from the Rebalancer contract before attempting to perform bridging operations. It assumes custody of tokens without actually calling `safeTransferFrom` to pull tokens from the Rebalancer. As a result, the bridge contract does not have the required tokens, causing all rebalancing attempts to fail. ### Root Cause In `EverclearBridge.sol`, the [`sendMsg`](https://github.com/sherlock-audit/2025-07-malda/blob/main/malda-lending/src/rebalancer/bridges/EverclearBridge.sol#L79C4-L123C6) function does not call `IERC20(_token).safeTransferFrom(msg.sender, address(this), params.amount)` to transfer tokens from the Rebalancer to itself. Without this transfer, the bridge cannot perform any bridging logic that requires token custody. ### Internal Pre-conditions 1. The Rebalancer approves the bridge contract to spend tokens. 2. The Rebalancer calls `sendMsg` on the bridge contract without transferring tokens. ### External Pre-conditions None. ### Attack Path 1. The Rebalancer approves the bridge contract. 2. The bridge contract attempts to perform bridging logic but fails due to lack of token custody. 3. No tokens are bridged and rebalancing fails. ### Impact All rebalancing operations using the bridge contract will fail, resulting in a complete denial of service for cross-chain liquidity movement. This can halt protocol oper"
+    },
+    {
+     "id": "M-7",
+     "severity": "Medium",
+     "title": "Incorrect transfer size validation after time window reset can lead to rebalancing DoS",
+     "finders": 56,
+     "files": [
+      "malda-lending/src/rebalancer/Rebalancer.sol"
+     ],
+     "excerpt": "### Summary Using stale `TransferInfo` in the `Rebalancer::sendMsg` function will cause a false `Rebalancer_TransferSizeExcedeed` revert for EOA rebalancers as in normal use flow, the contract checks the old transfer size even after resetting it for a new time window, leading to unexpected reverts and potential disruption of rebalancing operations. ```solidity TransferInfo memory transferInfo = currentTransferSize[_msg.dstChainId][_msg.token]; uint256 transferSizeDeadline = transferInfo.timestamp + transferTimeWindow; if (transferSizeDeadline < block.timestamp) { currentTransferSize[_msg.dstChainId][_msg.token] = TransferInfo(_amount, block.timestamp); } else { currentTransferSize[_msg.dstChainId][_msg.token].size += _amount; } uint256 _maxTransferSize = maxTransferSizes[_msg.dstChainId][_msg.token]; if (_maxTransferSize > 0) { require(transferInfo.size + _amount < _maxTransferSize, Rebalancer_TransferSizeExcedeed()); //@audit if `transferSizeDeadline < block.timestamp` than `transferInfo` won't be updated but we changed `currentTransferSize` to be `TransferInfo(_amount, block.timestamp)` so we will check using the old transfer size + amount instead in this case using only amount which will lead to unexpected DoS } ``` ### Root Cause In `Rebalancer.sol`, the `sendMsg` function resets `currentTransferSize[_msg.dstChainId][_msg.token]` to `TransferInfo(_amount, block.timestamp)` "
+    },
+    {
+     "id": "M-8",
+     "severity": "Medium",
+     "title": "mErc20Host: It is not possible to permissionlessly call \"external\" endpoints when source chain is Eth mainnet, because l1Inclusion flag cannot be set to true",
+     "finders": 3,
+     "files": [
+      "malda-lending/src/mToken/host/mErc20Host.sol"
+     ],
+     "excerpt": "### Description We see that in order to submit a proof to the `malda-lending` contracts permissionlessly (user is not proof forwarder or batch proof forwarder), the l1Inclusion flag has to be set: [mErc20Host.sol#L378-L399](https://github.com/sherlock-audit/2025-07-malda/blob/main/malda-lending/src/mToken/host/mErc20Host.sol#L378-L399): ```solidity function _verifyProof(bytes calldata journalData, bytes calldata seal) internal view { require(journalData.length > 0, mErc20Host_JournalNotValid()); // Decode the dynamic array of journals. bytes[] memory journals = _decodeJournals(journalData); // Check the L1Inclusion flag for each journal. bool isSequencer = _isAllowedFor(msg.sender, _getProofForwarderRole()) || _isAllowedFor(msg.sender, _getBatchProofForwarderRole()); if (!isSequencer) { for (uint256 i = 0; i < journals.length; i++) { > (,,,,,, bool L1Inclusion) = mTokenProofDecoderLib.decodeJournal(journals[i]); > if (!L1Inclusion) { > revert mErc20Host_L1InclusionRequired(); > } } } // verify it using the IZkVerifier contract verifier.verifyInput(journalData, seal); } ``` However if attempting to request a proof for data originating from the ETH mainnet, with `l1Inclusion` flag set, it will panic in `viewcalls.rs`, during the `get_env_input_for_l1_inclusion_and_l2_block_number` call: [viewcalls.rs#L933-L970](https://github.com/sherlock-audit/2025-07-malda/blob/main/malda-zk-co"
+    },
+    {
+     "id": "M-9",
+     "severity": "Medium",
+     "title": "The rebalancing system is broken when everclear bridge contract is used",
+     "finders": 13,
+     "files": [
+      "malda-lending/src/rebalancer/bridges/EverclearBridge.sol"
+     ],
+     "excerpt": "### Summary The [sendMsg](https://github.com/sherlock-audit/2025-07-malda/blob/798d00b879b8412ca4049ba09dba5ae42464cfe7/malda-lending/src/rebalancer/bridges/EverclearBridge.sol#L110) in EverclearBridge contract only approves the **transfer amount** (not including the fee) for the **FeeAdapter** when calling `newIntent`. However, the **FeeAdapter** attempts to pull **both the amount and the fee** from the bridge contract. This results in a revert due to insufficient allowance causing cross-chain rebalancing to fail. ### Root Cause The root case stem from a mismatch between the **approved amount** and the **actual amount required** by the `FeeAdaptor`. The sendMsg() in everclearBridge.sol is as follows: ```solidity function sendMsg( uint256 _extractedAmount, address _market, uint32 _dstChainId, address _token, bytes memory _message, bytes memory // unused ) external payable onlyRebalancer { IntentParams memory params = _decodeIntent(_message); require(params.inputAsset == _token, Everclear_TokenMismatch()); require(_extractedAmount >= params.amount, BaseBridge_AmountMismatch()); uint256 destinationsLength = params.destinations.length; require(destinationsLength > 0, Everclear_DestinationsLengthMismatch()); bool found; for (uint256 i; i < destinationsLength; ++i) { if (params.destinations[i] == _dstChainId) { found = true; break; } } require(found, Everclear_DestinationNotValid())"
+    },
+    {
+     "id": "M-10",
+     "severity": "Medium",
+     "title": "Unenforced maxFee and ttl Parameters in sendMsg Function",
+     "finders": 2,
+     "files": [
+      "malda-lending/src/rebalancer/bridges/EverclearBridge.sol"
+     ],
+     "excerpt": "### Summary In the [EverclearBridge](https://github.com/sherlock-audit/2025-07-malda/blob/main/malda-lending/src/rebalancer/bridges/EverclearBridge.sol#L79) which is used by rebalancer to send cross-chain intents using `Everclear` does not enforce that the `maxFee` and `ttl` parameters are set to 0, as required for the netting pathway. The Everclear documentation specifies that rebalancers must use the netting pathway, where maxFee == 0 (no solver fees) and ttl == 0 (immediate processing by the hub). However, the contract passes these parameters to everclearFeeAdapter.newIntent without validation, allowing non-zero values that could misroute intents to the unsupported solver pathway. ### Root Cause The `sendMsg` function in `EverclearBridge.sol` lacks validation checks to ensure `params.maxFee == 0 and params.ttl == 0` before calling everclearFeeAdapter.newIntent as specified in the everclear docs.. ```solidity function sendMsg( uint256 _extractedAmount, address _market, uint32 _dstChainId, address _token, bytes memory _message, bytes memory // unused ) external payable onlyRebalancer { IntentParams memory params = _decodeIntent(_message); require(params.inputAsset == _token, Everclear_TokenMismatch()); require(_extractedAmount >= params.amount, BaseBridge_AmountMismatch()); uint256 destinationsLength = params.destinations.length; require(destinationsLength > 0, Everclear_Desti"
+    },
+    {
+     "id": "M-11",
+     "severity": "Medium",
+     "title": "There is no endpoint for triggering `liquidateExternal` from extension chain to be executed by proof forwarder",
+     "finders": 4,
+     "files": [
+      "malda-lending/src/mToken/extension/mTokenGateway.sol"
+     ],
+     "excerpt": "### Description mErcHost has a `liquidateExternal` endpoint for using liquidity coming from other chains to perform a liquidation, but there's no equivalent endpoint in mTokenGateway to trigger the liquidation on host chain. > Please note that `supplyOnHost` can be used to increase `accAmountIn`, but there's no way to specify the borrower which should be liquidated. [mTokenGateway.sol#L224-L252](https://github.com/sherlock-audit/2025-07-malda/blob/main/malda-lending/src/mToken/extension/mTokenGateway.sol#L224-L252): ```solidity function supplyOnHost(uint256 amount, address receiver, bytes4 lineaSelector) external payable override notPaused(OperationType.AmountIn) onlyAllowedUser(msg.sender) ifNotBlacklisted(msg.sender) ifNotBlacklisted(receiver) { // checks require(amount > 0, mTokenGateway_AmountNotValid()); require(msg.value >= gasFee, mTokenGateway_NotEnoughGasFee()); IERC20(underlying).safeTransferFrom(msg.sender, address(this), amount); // effects accAmountIn[receiver] += amount; emit mTokenGateway_Supplied( msg.sender, receiver, accAmountIn[receiver], accAmountOut[receiver], amount, uint32(block.chainid), LINEA_CHAIN_ID, //@audit can specify selector, but not borrower to liquidate on host chain >> lineaSelector ); } ``` ### Impact `liquidateExternal` cannot be called from extension chains to be executed by proof forwarder. Since as we have seen in some issues such as [l1I"
+    },
+    {
+     "id": "M-12",
+     "severity": "Medium",
+     "title": "Rebalancer can drain market funds via excessive bridge fees",
+     "finders": 1,
+     "files": [
+      "malda-lending/src/rebalancer/Rebalancer.sol",
+      "malda-lending/src/rebalancer/bridges/EverclearBridge.sol"
+     ],
+     "excerpt": "### Summary The `REBALANCER_EOA` role, which is considered semi-trusted, can drain funds from any market by specifying an arbitrarily high `maxFee` when initiating a bridge transfer through `EverclearBridge.sol`. This violates the trust assumption that the Rebalancer \"cannot transfer user funds\" and can only perform DDoS-style attacks, as it allows for a slow but steady extraction of value from the protocol's liquidity pools. ### Root Cause The [`Rebalancer::sendMsg`](https://github.com/sherlock-audit/2025-07-malda/blob/main/malda-lending/src/rebalancer/Rebalancer.sol#L129) function allows the `REBALANCER_EOA` to pass an unchecked `_message` blob to the selected bridge contract. The [`EverclearBridge.sendMsg`](https://github.com/sherlock-audit/2025-07-malda/blob/main/malda-lending/src/rebalancer/bridges/EverclearBridge.sol#L79) function decodes this message to extract bridging parameters, including a `maxFee`. However, the bridge contract fails to validate this `maxFee` against any protocol-defined limit, instead passing it directly to the external [`everclearFeeAdapter.newIntent`](https://github.com/sherlock-audit/2025-07-malda/blob/main/malda-lending/src/rebalancer/bridges/EverclearBridge.sol#L111-L117) call. A malicious `REBALANCER_EOA` can therefore set this fee to an extreme value, causing the protocol to lose most of the bridged amount to fees. ### Internal Pre-conditions"
+    },
+    {
+     "id": "M-13",
+     "severity": "Medium",
+     "title": "```WrapAndSupply::wrapAndSupplyOnExtensionMarket```  preventes users from supplying on host",
+     "finders": 26,
+     "files": [
+      "malda-lending/src/utils/WrapAndSupply.sol",
+      "malda-lending/src/mToken/extension/mTokenGateway.sol"
+     ],
+     "excerpt": "### Summary [```WrapAndSupply::wrapAndSupplyOnExtensionMarket```](https://github.com/sherlock-audit/2025-07-malda/blob/798d00b879b8412ca4049ba09dba5ae42464cfe7/malda-lending/src/utils/WrapAndSupply.sol#L78) first calls ```deposit``` to the ```underlying``` token contract implementation via the [``_wrap()`` function](https://github.com/sherlock-audit/2025-07-malda/blob/798d00b879b8412ca4049ba09dba5ae42464cfe7/malda-lending/src/utils/WrapAndSupply.sol#L93-L100) , which takes all the ``msg.value`` provided in the transaction, and turns it into the minted tokens. As a result, the subsequent call to ``supplyOnHost`` [can potentialy always lead to revert if gasFee is set](https://github.com/sherlock-audit/2025-07-malda/blob/798d00b879b8412ca4049ba09dba5ae42464cfe7/malda-lending/src/mToken/extension/mTokenGateway.sol#L235), since all of the ``msg.value`` is used AND since all of this happens in single transactoin. There is no amount left for the ``gasFee``. This is a problem because it disrupts the implementation of the crucial functionality for setting gas fees. Transactions passing through the ``WrapAndSupply`` service for extension markets are only successful when gasFee = 0. ### Root Cause [The functionality that wraps a native coint into its wrapped version](https://github.com/sherlock-audit/2025-07-malda/blob/798d00b879b8412ca4049ba09dba5ae42464cfe7/malda-lending/src/utils/WrapA"
+    },
+    {
+     "id": "M-14",
+     "severity": "Medium",
+     "title": "MixedPriceOracleV4.sol :: getUnderlyingPrice()/getPirce() will not work for some tokens because API3 and EO oracles return prices using different decimals, causing DOS scenario.",
+     "finders": 15,
+     "files": [
+      "malda-lending/src/oracles/MixedPriceOracleV4.sol"
+     ],
+     "excerpt": "### Summary `getUnderlyingPrice()`/`getPrice()` are used to obtain the price of the assets in USD. It does this by querying two different oracles, in this case, API3 and EO oracles. The problem is that these oracles return prices with different decimals, causing the function to always end up using the EO oracle’s price. ### Root Cause [getUnderlyingPrice()](https://github.com/sherlock-audit/2025-07-malda/blob/798d00b879b8412ca4049ba09dba5ae42464cfe7/malda-lending/src/oracles/MixedPriceOracleV4.sol#L114) calls `_getPriceUSD()`, which in turn calls `_getLatestPrice()`, implemented as follows: ```solidity function _getLatestPrice(string memory symbol, PriceConfig memory config) internal view returns (uint256, uint256) { if (config.api3Feed == address(0) || config.eOracleFeed == address(0)) revert MixedPriceOracle_MissingFeed(); //get both prices @> (, int256 apiV3Price,, uint256 apiV3UpdatedAt,) = IDefaultAdapter(config.api3Feed).latestRoundData(); @> (, int256 eOraclePrice,, uint256 eOracleUpdatedAt,) = IDefaultAdapter(config.eOracleFeed).latestRoundData(); // check if ApiV3 price is up to date uint256 _staleness = _getStaleness(symbol); bool apiV3Fresh = block.timestamp - apiV3UpdatedAt <= _staleness; // check delta @> uint256 delta = _absDiff(apiV3Price, eOraclePrice); uint256 deltaBps = (delta * PRICE_DELTA_EXP) / uint256(eOraclePrice < 0 ? -eOraclePrice : eOraclePrice); uint2"
+    },
+    {
+     "id": "M-15",
+     "severity": "Medium",
+     "title": "If Across Bridging fails, all funds intended for bridging will become locked",
+     "finders": 6,
+     "files": [
+      "malda-lending/src/rebalancer/bridges/AcrossBridge.sol"
+     ],
+     "excerpt": "### Summary If the Across bridging process fails, funds intended for bridging become locked in the Rebalancer contract, making them inaccessible. ### Root Cause When the Across bridge calls the depositV3Now function, the depositor is set as the Rebalancer. According to the Across documentation, if a deposit expires or a fill fails, funds are refunded to the depositor on the origin chain. When the bridging process using Across fails, the refunded assets are returned to the Rebalancer, making them completely locked and inaccessible. From Across docs: - `In cases where a slow fill can't or does not happen and a relayer does not fill the intent, the intent expires. Like a slow fill, this expiry must be optimistically verified, which takes a few hours. Once this verification is done, the user is then refunded their money on the origin chain.` As seen bellow, Rebalancer is set as depositor: ```solidity function _depositV3Now(bytes memory _message, address _token, uint32 _dstChainId, address _market) private { DecodedMessage memory msgData = _decodeMessage(_message); // approve and send with Across SafeApprove.safeApprove(_token, address(acrossSpokePool), msgData.inputAmount); IAcrossSpokePoolV3(acrossSpokePool).depositV3Now( // no need for `msg.value`; fee is taken from amount msg.sender, //depositor address(this), //recipient _token, address(0), //outputToken is automatically resolv"
+    },
+    {
+     "id": "M-16",
+     "severity": "Medium",
+     "title": "Bridges don't support all of the listed assets",
+     "finders": 2,
+     "files": [],
+     "excerpt": "### Summary / ### Root Cause Across and Everclear, don't support all of the assets that are listed as supported. That will result in inability to rebalance markets for that specific tokens ### Internal Pre-conditions / ### External Pre-conditions / ### Attack Path No specific attack path, since the bridge don't support these assets ### Impact Rebalancing will be impossible for those markets. ### PoC _No response_ ### Mitigation _No response_ ## Discussion **sherlock-admin2** The protocol team fixed this issue in the following PRs/commits: https://github.com/malda-protocol/malda-lending/pull/100"
+    }
+   ]
+  }
+ ]
+}

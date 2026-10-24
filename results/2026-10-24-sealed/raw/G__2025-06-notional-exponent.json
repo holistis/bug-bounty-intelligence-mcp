@@ -1,0 +1,170 @@
+{
+  "contest": "2025-06-notional-exponent",
+  "hypotheses": [
+    {
+      "title": "Missing sequencer uptime check in PendlePTOracle._calculateBaseToQuote()",
+      "severity": "High",
+      "category": "Stale Oracle Price",
+      "file": "PendlePTOracle.sol",
+      "function": "_calculateBaseToQuote()",
+      "description": "The `_calculateBaseToQuote()` override in PendlePTOracle does not call `_checkSequencer()` before returning the price. The base class `AbstractCustomOracle` only calls `_checkSequencer()` inside `latestRoundData()`, but PendlePTOracle overrides `_calculateBaseToQuote()` directly, bypassing that guard. If the L2 sequencer goes down, the oracle will return a stale price from the Pendle TWAP without detecting the outage.",
+      "attackPath": "An attacker waits for the L2 sequencer to go down, then calls any function that relies on the PendlePTOracle price (e.g., `healthFactor()` or `convertToAssets()`). The oracle returns a stale TWAP price that does not reflect current market conditions, allowing the attacker to borrow or liquidate at an outdated rate.",
+      "impact": "Incorrect pricing can lead to under-collateralized positions, enabling flash loan attacks or wrongful liquidations, potentially causing loss of funds for the protocol or its users.",
+      "recommendation": "Add `_checkSequencer();` at the beginning of `_calculateBaseToQuote()` in PendlePTOracle.sol."
+    },
+    {
+      "title": "Missing sequencer uptime check in Curve2TokenOracle._calculateBaseToQuote()",
+      "severity": "High",
+      "category": "Stale Oracle Price",
+      "file": "Curve2TokenOracle.sol",
+      "function": "_calculateBaseToQuote()",
+      "description": "Similar to PendlePTOracle, the `_calculateBaseToQuote()` override in Curve2TokenOracle does not call `_checkSequencer()`. The base class `AbstractCustomOracle` only checks the sequencer in `latestRoundData()`, but this override bypasses that. If the L2 sequencer goes down, the oracle will return a stale LP token price without detecting the outage.",
+      "attackPath": "An attacker waits for the L2 sequencer to go down, then interacts with any vault that uses the Curve2TokenOracle (e.g., via `healthFactor()` or `convertToAssets()`). The oracle returns a stale price based on old pool balances and Chainlink rates, allowing the attacker to exploit mispriced collateral.",
+      "impact": "Stale pricing can lead to under-collateralized loans or wrongful liquidations, causing financial loss to the protocol.",
+      "recommendation": "Add `_checkSequencer();` at the beginning of `_calculateBaseToQuote()` in Curve2TokenOracle.sol."
+    },
+    {
+      "title": "Missing deadline check in trade execution allows stale orders",
+      "severity": "High",
+      "category": "Signature/Replay",
+      "file": "AbstractWithdrawRequestManager.sol",
+      "function": "_preStakingTrade()",
+      "description": "The `_preStakingTrade()` function hardcodes `deadline: block.timestamp` when constructing a `Trade` struct. This means the trade will never expire, allowing a malicious actor to replay a stale trade order at a later time when market conditions have changed unfavorably. The deadline is meant to protect against slippage over time, but setting it to `block.timestamp` effectively disables this protection.",
+      "attackPath": "An attacker can wait for a favorable trade to be submitted, then front-run or back-run the transaction to execute the same trade parameters at a later block when the price has moved against the protocol, causing the trade to execute at a worse rate.",
+      "impact": "Loss of funds due to trades executing at stale, unfavorable prices; the protocol may receive fewer yield tokens than expected.",
+      "recommendation": "Pass a proper `deadline` parameter from the caller instead of hardcoding `block.timestamp`."
+    },
+    {
+      "title": "Missing deadline in trade execution across multiple files",
+      "severity": "High",
+      "category": "Signature/Replay",
+      "file": "AbstractYieldStrategy.sol",
+      "function": "_executeTrade()",
+      "description": "The `_executeTrade()` function in `AbstractYieldStrategy.sol` does not enforce a deadline on trades. When constructing `Trade` structs in `_mintYieldTokens()` and `_redeemShares()`, the `deadline` field is set to `block.timestamp`, which means trades never expire. This allows trades to be executed at any future block, enabling stale price attacks.",
+      "attackPath": "An attacker can observe a pending trade transaction and wait for the market to move against the protocol before allowing the trade to execute, or can replay the trade parameters in a different context to exploit price changes.",
+      "impact": "Loss of funds due to trades executing at stale, unfavorable prices; the protocol may receive fewer assets or pay more than expected.",
+      "recommendation": "Pass a proper `deadline` parameter from the caller instead of hardcoding `block.timestamp`."
+    },
+    {
+      "title": "Missing deadline in trade execution across multiple files",
+      "severity": "High",
+      "category": "Signature/Replay",
+      "file": "AbstractSingleSidedLP.sol",
+      "function": "_executeDepositTrades()",
+      "description": "In `_executeDepositTrades()`, the `Trade` struct's `deadline` is hardcoded to `block.timestamp`. This means deposit trades never expire, allowing stale trade execution. The same issue exists in `_executeRedemptionTrades()` where `deadline` is also set to `block.timestamp`.",
+      "attackPath": "An attacker can wait for a deposit or redemption trade to be submitted, then delay execution until market conditions change unfavorably, causing the trade to execute at a worse rate.",
+      "impact": "Loss of funds due to trades executing at stale, unfavorable prices; the protocol may receive fewer pool tokens or pay more for redemptions.",
+      "recommendation": "Pass a proper `deadline` parameter from the caller instead of hardcoding `block.timestamp`."
+    },
+    {
+      "title": "Missing deadline in trade execution across multiple files",
+      "severity": "High",
+      "category": "Signature/Replay",
+      "file": "AbstractStakingStrategy.sol",
+      "function": "_executeInstantRedemption()",
+      "description": "In `_executeInstantRedemption()`, the `Trade` struct's `deadline` is hardcoded to `block.timestamp`. This means redemption trades never expire, allowing stale trade execution. The same issue exists in `_redeemShares()` where trades are constructed with `deadline: block.timestamp`.",
+      "attackPath": "An attacker can wait for a redemption trade to be submitted, then delay execution until market conditions change unfavorably, causing the trade to execute at a worse rate.",
+      "impact": "Loss of funds due to trades executing at stale, unfavorable prices; the protocol may receive fewer assets than expected.",
+      "recommendation": "Pass a proper `deadline` parameter from the caller instead of hardcoding `block.timestamp`."
+    },
+    {
+      "title": "Missing deadline in trade execution across multiple files",
+      "severity": "High",
+      "category": "Signature/Replay",
+      "file": "PendlePT.sol",
+      "function": "_mintYieldTokens()",
+      "description": "In `_mintYieldTokens()`, the `Trade` struct's `deadline` is hardcoded to `block.timestamp`. This means trades never expire, allowing stale trade execution. The same issue exists in `_executeInstantRedemption()` where `deadline` is also set to `block.timestamp`.",
+      "attackPath": "An attacker can wait for a mint or redemption trade to be submitted, then delay execution until market conditions change unfavorably, causing the trade to execute at a worse rate.",
+      "impact": "Loss of funds due to trades executing at stale, unfavorable prices; the protocol may receive fewer PT tokens or pay more for redemptions.",
+      "recommendation": "Pass a proper `deadline` parameter from the caller instead of hardcoding `block.timestamp`."
+    },
+    {
+      "title": "Missing deadline in trade execution across multiple files",
+      "severity": "High",
+      "category": "Signature/Replay",
+      "file": "PendlePT_sUSDe.sol",
+      "function": "_executeInstantRedemption()",
+      "description": "In `_executeInstantRedemption()`, the `Trade` struct's `deadline` is hardcoded to `block.timestamp` for both the sDAI trade and the DAI-to-asset trade. This means these trades never expire, allowing stale trade execution.",
+      "attackPath": "An attacker can wait for a redemption trade to be submitted, then delay execution until market conditions change unfavorably, causing the trade to execute at a worse rate.",
+      "impact": "Loss of funds due to trades executing at stale, unfavorable prices; the protocol may receive fewer assets than expected.",
+      "recommendation": "Pass a proper `deadline` parameter from the caller instead of hardcoding `block.timestamp`."
+    },
+    {
+      "title": "Unauthorized Callers Can Trigger Reward Claims and Manipulate Reward Accounting",
+      "severity": "High",
+      "category": "Missing Access Control",
+      "file": "notional-v4/src/rewards/AbstractRewardManager.sol",
+      "function": "updateAccountRewards()",
+      "description": "The `updateAccountRewards` function is external and lacks any access control modifier. It can be called by any untrusted external actor. The function claims vault rewards and updates the reward debt for a specified account, which can be manipulated to steal rewards or corrupt accounting.",
+      "attackPath": "1. An attacker calls `updateAccountRewards` with a victim's address and a manipulated `effectiveSupplyBefore` value. 2. The function claims rewards and updates the victim's reward debt based on the attacker-supplied values. 3. This can cause the victim to lose accrued rewards or the attacker to claim rewards they are not entitled to.",
+      "impact": "Loss of funds for users due to incorrect reward distribution and accounting manipulation.",
+      "recommendation": "Add an access control modifier, such as `onlyLendingRouter` or `onlyUpgradeAdmin`, to restrict calls to `updateAccountRewards`."
+    },
+    {
+      "title": "Rounding in tokenization can cause dust accumulation and value loss",
+      "severity": "High",
+      "category": "Rounding/Precision Loss",
+      "file": "notional-v4/src/withdraws/AbstractWithdrawRequestManager.sol",
+      "function": "tokenizeWithdrawRequest()",
+      "description": "When a partial tokenization occurs, `yieldTokenAmount` is computed as `s_withdraw.yieldTokenAmount * sharesAmount / s_withdraw.sharesAmount`. This division rounds down, leaving residual dust in the source account. Over repeated tokenizations, the dust accumulates and is never claimable, causing a permanent loss of value for the protocol or users.",
+      "attackPath": "An attacker repeatedly tokenizes small fractions of a withdraw request, each time the rounding truncates a tiny amount. After many iterations, the attacker can extract more value than their proportional share, leaving the residual stuck in the source account.",
+      "impact": "Gradual loss of funds due to rounding dust; accounting mismatch between shares and underlying yield tokens.",
+      "recommendation": "Round in favor of the protocol (e.g., round up the transferred amount or round down the remaining amount) and consider a minimum transfer threshold."
+    },
+    {
+      "title": "Virtual shares and yield tokens can cause first-depositor inflation attack",
+      "severity": "High",
+      "category": "First-Depositor Attack",
+      "file": "notional-v4/src/AbstractYieldStrategy.sol",
+      "function": "convertSharesToYieldToken()",
+      "description": "The conversion formulas add `VIRTUAL_YIELD_TOKENS = 1` and `VIRTUAL_SHARES = 1e6` to prevent division by zero. However, the first depositor can exploit this by depositing a tiny amount, receiving a disproportionately large share of the virtual tokens, then manipulating the ratio to extract more value than deposited.",
+      "attackPath": "An attacker deposits 1 wei of asset, receives shares based on the virtual constants. They then wait for others to deposit, and redeem their shares, extracting more than their fair share due to the inflated initial ratio.",
+      "impact": "Loss of funds for subsequent depositors; protocol insolvency.",
+      "recommendation": "Use a more robust initialization (e.g., mint initial shares to a dead address) or require a minimum deposit amount."
+    },
+    {
+      "title": "Zero-amount deposit can mint shares due to virtual constants",
+      "severity": "Medium",
+      "category": "Zero-Amount Edge Case",
+      "file": "notional-v4/src/AbstractYieldStrategy.sol",
+      "function": "_mintSharesGivenAssets()",
+      "description": "The function returns 0 if `assets == 0`, but the check is after `_accrueFees()` and before `_mintYieldTokens`. If `_mintYieldTokens` is overridden to not revert on zero input, a zero-amount deposit could still trigger fee accrual and state changes without minting shares, causing accounting drift.",
+      "attackPath": "An attacker calls `mintShares` with `assetAmount = 0`, which passes the zero check but still executes `_accrueFees()` and potentially other logic, altering the fee state without any actual deposit.",
+      "impact": "Fee accrual manipulation; potential denial of service by resetting fee timers without value.",
+      "recommendation": "Move the zero-amount check to the very beginning of the function, before any state changes."
+    },
+    {
+      "title": "Zero slippage guard in PendlePT_sUSDe._executeInstantRedemption() for sDAI trade",
+      "severity": "Medium",
+      "category": "Slippage Missing",
+      "file": "PendlePT_sUSDe.sol",
+      "function": "_executeInstantRedemption()",
+      "description": "In the first leg of the redemption trade (sUSDe -> sDAI), the `limit` parameter is hardcoded to `0`, meaning no minimum purchase amount is enforced. The comment states \"no slippage guard is set here, it is enforced in the second leg,\" but the second leg only enforces `params.minPurchaseAmount` for the DAI-to-asset trade. If the sUSDe/sDAI Curve pool is manipulated (e.g., via a flash loan), the vault could receive far fewer sDAI than expected, and the second leg's slippage check may not catch the loss.",
+      "attackPath": "An attacker flash-loans a large amount of sUSDe or sDAI to manipulate the Curve pool's spot price. The vault's redemption trade executes at a manipulated rate, receiving significantly less sDAI. The second leg's slippage check only applies to the DAI-to-asset trade, so the loss is not caught.",
+      "impact": "The vault receives fewer assets than expected, causing a loss of funds for the user or the protocol.",
+      "recommendation": "Set a non-zero `limit` for the sUSDe-to-sDAI trade, or compute a dynamic minimum based on the oracle price."
+    },
+    {
+      "title": "Dinero withdraw finalization loops over unbounded batch range causing DoS",
+      "severity": "High",
+      "category": "Denial of Service",
+      "file": "Dinero.sol",
+      "function": "_finalizeWithdrawImpl()",
+      "description": "In `_finalizeWithdrawImpl`, the loop `for (uint256 i = initialBatchId; i <= finalBatchId; i++)` iterates over every batch ID between the initial and final batch IDs. An attacker can initiate a withdraw request that spans a very large range of batch IDs (e.g., by waiting for a large gap between `initialBatchId` and `finalBatchId`), causing the loop to exceed the block gas limit when finalizing. This permanently blocks the victim's withdraw request from being finalized, freezing their funds.",
+      "attackPath": "1. Attacker calls `initiateWithdraw` on the DineroWithdrawRequestManager with a large amount, causing `PirexETH.initiateRedemption` to span many batches. 2. The `requestId` encodes a large range between `initialBatchId` and `finalBatchId`. 3. When the victim or any caller invokes `finalizeRequestManual` or `finalizeAndRedeemWithdrawRequest`, the loop in `_finalizeWithdrawImpl` iterates over the entire range, exceeding the block gas limit and reverting. 4. The victim's withdraw request is stuck forever.",
+      "impact": "Permanent freezing of user funds in the withdraw request; the user cannot redeem their staked tokens.",
+      "recommendation": "Cap the number of batches that can be iterated in a single transaction, or allow partial finalization per batch, or store the next batch to process so the loop can be resumed across multiple transactions."
+    },
+    {
+      "title": "Withdraw request tokenization can double-claim rewards",
+      "severity": "High",
+      "category": "Economic & Incentive Flaws",
+      "file": "AbstractYieldStrategy.sol",
+      "function": "_withdraw()",
+      "description": "When `_withdraw()` is called, it calls `_accrueFees()` and then `convertSharesToYieldToken(sharesHeld)` to compute the yield token amount. However, the escrowed shares are added to `s_escrowedShares` *after* the reward claim in `RewardManagerMixin._initiateWithdraw()`. If a user tokenizes their withdraw request to another account, the original account's shares are removed from escrow but the new account's shares are not escrowed. This allows the new account to claim rewards on the same underlying yield tokens that were already claimed by the original account before the withdraw was initiated.",
+      "attackPath": "1. User A initiates a withdraw request, escrowing their shares and claiming rewards. 2. User A tokenizes the withdraw request to User B. 3. User B now holds the withdraw request but has no escrowed shares. 4. User B can claim rewards on the same underlying yield tokens again via `claimRewardTokens()` or `claimAccountRewards()`.",
+      "impact": "Double-claiming of rewards, inflating reward distribution and draining reward pools.",
+      "recommendation": "Ensure that when a withdraw request is tokenized, the reward debt is transferred proportionally to the new account, or prevent reward claims on tokenized withdraw requests."
+    }
+  ]
+}

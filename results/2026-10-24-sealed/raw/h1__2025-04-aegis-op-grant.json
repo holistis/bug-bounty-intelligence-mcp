@@ -1,0 +1,27 @@
+{
+  "contest": "2025-04-aegis-op-grant",
+  "hypotheses": [
+    {
+      "title": "OrderLib.verify lacks nonce replay protection, enabling order replay",
+      "severity": "High",
+      "category": "SOLVENCY",
+      "file": "OrderLib.sol",
+      "function": "verify",
+      "description": "The `verify` function validates the order signature, sender, amounts and expiry, but never checks whether `order.nonce` has been used before. Because the library holds no state, the same signed order can be submitted repeatedly until it expires, allowing repeated execution of mint, redeem or deposit‑income actions.",
+      "attackPath": "1. Attacker obtains a valid signed `Order` (e.g., a mint order) from the trusted off‑chain signer.  \n2. Calls the protocol’s mint/redeem function with the same order data multiple times before `order.expiry`.  \n3. Each call passes `OrderLib.verify` because the signature, sender and amounts are still valid, and no nonce reuse check exists.  \n4. The protocol mints additional YUSD or redeems collateral repeatedly, draining assets.",
+      "impact": "Unlimited or repeated minting/redeeming can exhaust collateral reserves, causing loss of funds and potential insolvency of the stable‑coin system.",
+      "recommendation": "Store a mapping of used nonces (e.g., `mapping(address => mapping(uint256 => bool)) usedNonces`) in the contract that calls `OrderLib.verify` and revert if a nonce has already been processed. Alternatively, include the nonce in a hash that is checked against a replay‑guard registry."
+    },
+    {
+      "title": "ClaimRewardsLib.verify lacks replay protection, allowing claim replay",
+      "severity": "Medium",
+      "category": "SOLVENCY",
+      "file": "ClaimRewardsLib.sol",
+      "function": "verify",
+      "description": "The `verify` function checks the claimer’s address, the signer’s identity and that `ids` and `amounts` arrays match in length, but the `ClaimRequest` struct contains no nonce, timestamp or expiration field. Consequently, a signed claim can be submitted multiple times, enabling double‑spending of reward tokens if the rewards contract does not track processed claims.",
+      "attackPath": "1. Attacker (or a legitimate claimer) obtains a signed `ClaimRequest` from the trusted signer.  \n2. Calls the rewards‑claim function repeatedly with the same `ids` and `amounts`.  \n3. Each call passes `ClaimRewardsLib.verify` because the signature remains valid and there is no replay guard.  \n4. The rewards contract transfers the same YUSD amounts each time, draining the rewards pool.",
+      "impact": "Repeated reward claims lead to loss of reward funds, reducing protocol incentives and potentially exhausting the reward reserve.",
+      "recommendation": "Add a unique identifier (e.g., a nonce or claim ID) and/or an expiry timestamp to `ClaimRequest`, and have the rewards contract record processed claim IDs to reject duplicates."
+    }
+  ]
+}

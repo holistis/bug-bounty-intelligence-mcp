@@ -1,0 +1,82 @@
+{
+  "contest": "2025-07-mellow-flexible-vaults",
+  "hypotheses": [
+    {
+      "title": "Unprotected `setVault` in ShareManager allows attacker to hijack vault reference",
+      "severity": "Critical",
+      "category": "ACCESS",
+      "file": "flexible-vaults/src/managers/ShareManager.sol",
+      "function": "setVault(address)",
+      "description": "The `setVault` function can be called by any external address before the vault is initialized. It lacks any access‑control check, allowing an attacker to set the internal vault reference to a malicious contract.",
+      "attackPath": "1. Deploy a malicious contract implementing the `IShareModule` interface. 2. Call `setVault(maliciousContract)` on the ShareManager proxy before the legitimate admin does. 3. Subsequent calls that rely on `vault()` (e.g., `claimShares`, `allocateShares` checks) will interact with the attacker‑controlled contract, enabling fund diversion or denial of service.",
+      "impact": "Complete takeover of the ShareManager’s vault linkage, enabling theft of deposited assets, arbitrary share minting, or protocol shutdown.",
+      "recommendation": "Restrict `setVault` to a privileged role (e.g., `DEFAULT_ADMIN_ROLE`) and make it callable only during contract initialization via an initializer function."
+    },
+    {
+      "title": "Unprotected `setVault` in Oracle permits attacker to redirect price reports",
+      "severity": "Critical",
+      "category": "ACCESS",
+      "file": "flexible-vaults/src/oracles/Oracle.sol",
+      "function": "setVault(address)",
+      "description": "The `setVault` function in the Oracle contract is external and lacks any role check. It can be invoked by any address before the vault is set, allowing the attacker to point the Oracle to a malicious vault contract.",
+      "attackPath": "1. Deploy a malicious contract that implements `IShareModule`. 2. Call `setVault(maliciousContract)` on the Oracle before the legitimate admin does. 3. When `submitReports` is later called, the Oracle will invoke `vault.handleReport` on the attacker‑controlled contract, enabling manipulation of price handling, fee extraction, or denial of service.",
+      "impact": "Attacker can manipulate or block price updates, potentially causing incorrect price validation, loss of funds, or protocol freeze.",
+      "recommendation": "Add an `onlyRole` (e.g., `SET_VAULT_ROLE` or admin) guard to `setVault` and ensure it can only be called once during initialization."
+    },
+    {
+      "title": "Unrestricted `mintAllocatedShares` enables arbitrary share minting from allocated pool",
+      "severity": "High",
+      "category": "SOLVENCY",
+      "file": "flexible-vaults/src/managers/ShareManager.sol",
+      "function": "mintAllocatedShares(address,uint256)",
+      "description": "`mintAllocatedShares` is an external function without any access control. It allows any caller to mint shares from the pool of `allocatedShares` as long as the pool has a positive balance, bypassing the intended queue‑only restriction.",
+      "attackPath": "1. Wait for a legitimate queue to call `allocateShares`, increasing `allocatedShares`. 2. As an untrusted external user, call `mintAllocatedShares(attacker, value)` with `value ≤ allocatedShares`. 3. The function reduces `allocatedShares` and calls `mint`, which only requires `onlyVaultOrQueue` (the vault is the caller, not the attacker). Since the vault is the internal caller, the mint succeeds, granting the attacker newly minted shares.",
+      "impact": "Attacker can arbitrarily inflate their share balance, diluting existing shareholders and extracting value from the vault.",
+      "recommendation": "Restrict `mintAllocatedShares` to a privileged role (e.g., only the vault or authorized queues) using `onlyVaultOrQueue` or a dedicated role check."
+    },
+    {
+      "title": "Unrestricted proxy creation via Factory.create()",
+      "severity": "Low",
+      "category": "ACCESS",
+      "file": "flexible-vaults/src/factories/Factory.sol",
+      "function": "create(uint256,address,bytes)",
+      "description": "The `create` function in `Factory.sol` is public and does not restrict who can call it. Any external address can deploy a new TransparentUpgradeableProxy pointing to any implementation version that the factory has accepted.",
+      "attackPath": "1. Attacker calls `Factory.create` with a valid `version` that the factory has already accepted. 2. The factory deploys a proxy with the attacker‑chosen `owner` address. 3. The attacker now controls the proxy admin and can upgrade the proxy to any implementation, potentially mimicking a legitimate vault and tricking users into interacting with it.",
+      "impact": "Allows anyone to spin up arbitrary vault‑like contracts, facilitating phishing or user confusion; does not directly drain funds but can be used to harvest assets from unsuspecting users.",
+      "recommendation": "Add an access‑control modifier (e.g., `onlyRole(CREATE_ENTITY_ROLE)`) to `create` so that only trusted accounts can deploy new entities."
+    },
+    {
+      "title": "Missing overflow check in FenwickTreeLibrary.modify()",
+      "severity": "High",
+      "category": "ACCOUNTING",
+      "file": "flexible-vaults/src/libraries/FenwickTreeLibrary.sol",
+      "function": "modify(Tree storage,uint256,int256)",
+      "description": "The `modify` function updates a Fenwick tree element by adding an `int256` delta without checking for overflow/underflow of the stored `int256` values. If an attacker can cause a sufficiently large cumulative delta, the stored value can wrap around, corrupting prefix‑sum calculations used for accounting.",
+      "attackPath": "1. Attacker interacts with a contract that uses the Fenwick tree for balance tracking (e.g., order queues). 2. By submitting many orders with large `value` arguments, the attacker forces the internal `_values` mapping to overflow. 3. Subsequent reads (`get`) return incorrect sums, allowing the attacker to claim more assets than entitled.",
+      "impact": "Corrupted accounting can lead to over‑minting of shares or unauthorized asset withdrawals, endangering protocol solvency.",
+      "recommendation": "Add explicit overflow/underflow checks (e.g., using `SafeMath` or `unchecked` with manual bounds) before updating `_values[index]`."
+    },
+    {
+      "title": "Potential denial‑of‑service in BasicRedeemHook due to incorrect vault reference",
+      "severity": "Medium",
+      "category": "LIVENESS",
+      "file": "flexible-vaults/src/hooks/BasicRedeemHook.sol",
+      "function": "callHook(address,uint256)",
+      "description": "`BasicRedeemHook.callHook` casts `address(this)` to `IVaultModule`, assuming the hook is executed via `delegatecall` from the vault. If the hook is invoked via a regular external call (as is the case with a standard `IHook` call), `address(this)` refers to the hook contract itself, which does not implement the required vault functions, causing the call to revert.",
+      "attackPath": "1. An attacker triggers a redemption that uses this hook (e.g., by submitting a redeem order). 2. The hook reverts because the vault interface calls fail. 3. The redemption transaction reverts, leaving the user's shares burned but assets not returned, effectively locking funds.",
+      "impact": "Users can be prevented from redeeming their shares, leading to a loss of liquidity and potential fund lock‑up.",
+      "recommendation": "Change the hook to receive the vault address as a parameter (or use `msg.sender` if the vault calls the hook via `delegatecall`) instead of `address(this)`."
+    },
+    {
+      "title": "LidoDepositHook uses unchecked external calls that enable re‑entrancy",
+      "severity": "Medium",
+      "category": "ORDERING",
+      "file": "flexible-vaults/src/hooks/LidoDepositHook.sol",
+      "function": "callHook(address,uint256)",
+      "description": "`LidoDepositHook.callHook` performs an external `Address.sendValue` to the `wsteth` contract and then optionally `functionDelegateCall` to a `nextHook`. Neither call is protected against re‑entrancy, and the hook does not update any internal state before the external calls.",
+      "attackPath": "1. Attacker supplies a malicious `nextHook` address when the hook is configured. 2. During `functionDelegateCall`, the malicious contract re‑enters the original queue’s `claim` function before the current deposit is fully settled. 3. The re‑entered call can process the same order again, leading to double‑minting of shares or double‑withdrawal of assets.",
+      "impact": "Allows an attacker to inflate share balances or extract assets multiple times, compromising protocol solvency.",
+      "recommendation": "Apply the Checks‑Effects‑Interactions pattern: update internal accounting (e.g., mark order as processed) before making any external calls, and consider using a re‑entrancy guard."
+    }
+  ]
+}

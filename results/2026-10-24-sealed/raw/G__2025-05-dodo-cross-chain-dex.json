@@ -1,0 +1,170 @@
+{
+  "contest": "2025-05-dodo-cross-chain-dex",
+  "hypotheses": [
+    {
+      "title": "Unauthorized `withdraw()` function in GatewayTransferNative",
+      "severity": "High",
+      "category": "Access Control",
+      "file": "GatewayTransferNative.sol",
+      "function": "withdraw()",
+      "description": "The `withdraw()` function in `GatewayTransferNative` is declared as `public` with no access control modifier, allowing any external caller to invoke it. This function calls `gateway.withdraw()` with arbitrary `sender`, `outputToken`, and `amount` parameters, which can drain funds from the contract.",
+      "attackPath": "An untrusted external actor calls `withdraw(externalId, sender, outputToken, amount)` with arbitrary parameters, causing the gateway to transfer tokens from this contract to any address specified in `sender`.",
+      "impact": "Complete loss of all tokens held by the contract, as any attacker can withdraw funds to any address.",
+      "recommendation": "Change the visibility of `withdraw()` to `internal` or add the `onlyGateway` modifier."
+    },
+    {
+      "title": "Incorrect assumption about msg.sender in claimRefund allows unauthorized refund claims",
+      "severity": "High",
+      "category": "Wrong Assumptions About msg.sender",
+      "file": "GatewayCrossChain.sol",
+      "function": "claimRefund()",
+      "description": "The `claimRefund()` function allows `msg.sender` to claim a refund if `bots[msg.sender]` is true OR `msg.sender == receiver`. The `receiver` is derived from `refundInfo.walletAddress` only if its length is 20 bytes; otherwise, `receiver` defaults to `msg.sender`. This means any user can call `claimRefund` with a `walletAddress` of length != 20, and the check `msg.sender == receiver` will always pass, allowing anyone to drain any refund.",
+      "attackPath": "An attacker calls `claimRefund(externalId)` for any existing refund entry. Since `refundInfo.walletAddress` is not 20 bytes (e.g., it's 32 bytes for Solana), `receiver` is set to `msg.sender`. The require passes, and the attacker steals the refunded tokens.",
+      "impact": "Theft of all refunded tokens from any cross-chain transaction that resulted in a refund with a non-EVM wallet address (e.g., Bitcoin or Solana).",
+      "recommendation": "Always use the stored `walletAddress` as the receiver, regardless of its length. Remove the fallback to `msg.sender` when `walletAddress.length != 20`."
+    },
+    {
+      "title": "Fee rounding always truncates, never rounds up in protocol's favor",
+      "severity": "Medium",
+      "category": "Accounting & Rounding",
+      "file": "GatewayCrossChain.sol",
+      "function": "_handleFeeTransfer()",
+      "description": "The platform fee is computed as `(amount * feePercent) / 1000` using integer division, which always truncates (rounds down). This means the protocol receives slightly less than the intended fee on every transaction, and the user benefits from the truncated remainder. Over many transactions, the cumulative loss to the protocol can become material.",
+      "attackPath": "An attacker can repeatedly submit many small-amount cross-chain swaps. Each swap's fee is truncated down, so the attacker pays less fee than intended. The attacker gains the truncated dust amounts over many transactions.",
+      "impact": "Gradual loss of protocol fee revenue; the protocol's accounting drifts below the intended fee percentage.",
+      "recommendation": "Use a rounding-up formula such as `(amount * feePercent + 999) / 1000` to ensure the protocol always receives at least the intended fee."
+    },
+    {
+      "title": "Unbounded loops in decodeCompressedMixSwapParams can cause out-of-gas revert",
+      "severity": "High",
+      "category": "Denial of Service",
+      "file": "SwapDataHelperLib.sol",
+      "function": "decodeCompressedMixSwapParams()",
+      "description": "The function iterates over user-supplied arrays (mixAdapters, mixPairs, assetTo, moreInfo) with lengths read directly from untrusted calldata. An attacker can craft a message with extremely large length values, causing the loops to consume all available gas and revert the transaction, blocking cross-chain swaps.",
+      "attackPath": "Attacker calls depositAndCall() or withdrawToNativeChain() with a message where the swapData contains inflated length fields (e.g., adapterLen=255, pairLen=255, etc.), causing the for-loops to iterate hundreds of times and exhaust gas.",
+      "impact": "Legitimate cross-chain swaps fail due to out-of-gas reverts; funds can be stuck in the contract if the revert occurs after token transfers but before withdrawal.",
+      "recommendation": "Enforce a maximum total length or gas limit for the decoded arrays, or use fixed-size arrays with bounded iteration."
+    },
+    {
+      "title": "Unbounded loops in AccountEncoder.decompressAccounts can cause out-of-gas",
+      "severity": "High",
+      "category": "Denial of Service",
+      "file": "AccountEncoder.sol",
+      "function": "decompressAccounts()",
+      "description": "The function reads a uint16 length from untrusted input and then loops that many times, allocating memory for each account. An attacker can set the length to a very high value (e.g., 65535), causing the loop to exhaust gas or exceed block gas limit, freezing the cross-chain message processing.",
+      "attackPath": "Attacker calls withdrawToNativeChain() or onCall() with a message containing a compressed accounts blob where the first 2 bytes encode a large length, triggering the loop in decompressAccounts() during Solana encoding.",
+      "impact": "Cross-chain swaps to Solana can be griefed; the transaction reverts after gas is consumed, potentially after token transfers, leading to stuck funds.",
+      "recommendation": "Cap the maximum number of accounts that can be decompressed (e.g., max 10) and validate before looping."
+    },
+    {
+      "title": "Approvals left open after Uniswap swap in _swapAndSendERC20Tokens",
+      "severity": "High",
+      "category": "Approvals Left Open",
+      "file": "GatewayCrossChain.sol",
+      "function": "_swapAndSendERC20Tokens()",
+      "description": "After calling `swapTokensForExactTokens`, the contract approves the UniswapRouter for `amountInMax` and the gateway for `gasFee` and `targetAmount - amounts[0]`. These approvals are never revoked. If the UniswapRouter or gateway is malicious or compromised, they could later drain the contract's token balance up to the approved amounts.",
+      "attackPath": "An attacker who compromises the UniswapRouter or gateway address (or if the router is a proxy that retains allowances) can call `transferFrom` on the contract's tokens after the swap, stealing the approved amounts.",
+      "impact": "Loss of all tokens held by the contract that were approved to the UniswapRouter or gateway, potentially draining the contract's entire balance of those tokens.",
+      "recommendation": "After the swap, reset approvals to zero by calling `approve(router, 0)` and `approve(gateway, 0)` for the respective tokens."
+    },
+    {
+      "title": "`claimRefund()` allows unauthorized refund claims in GatewayTransferNative",
+      "severity": "High",
+      "category": "Access Control",
+      "file": "GatewayTransferNative.sol",
+      "function": "claimRefund()",
+      "description": "Identical vulnerability as in GatewayCrossChain. The `claimRefund()` function allows any caller to claim a refund if `bots[msg.sender]` is true or if `msg.sender == receiver`. The `receiver` defaults to `msg.sender` when `walletAddress.length != 20`, enabling unauthorized claims.",
+      "attackPath": "An attacker calls `claimRefund(externalId)` for a refund where `walletAddress.length != 20`. Since `receiver` defaults to `msg.sender`, the attacker can claim the refund even if they are not the intended recipient.",
+      "impact": "Theft of refunded tokens intended for other users, leading to loss of funds.",
+      "recommendation": "Remove the fallback to `msg.sender` when `walletAddress.length != 20` and require explicit authorization for all refund claims."
+    },
+    {
+      "title": "Slippage calculation truncates, allowing swaps at worse-than-expected rates",
+      "severity": "Medium",
+      "category": "Accounting & Rounding",
+      "file": "GatewayCrossChain.sol",
+      "function": "_swapAndSendERC20Tokens()",
+      "description": "The maximum input amount for the Uniswap swap is computed as `amountsQuote[0] + (slippage * amountsQuote[0]) / 1000`. The division truncates, so the actual allowed slippage is slightly less than the configured `slippage` basis points. This means the swap may revert more often than intended, but also the user's output amount is computed as `targetAmount - amounts[0]` where `amounts[0]` is the actual input used, which could be higher than the quote due to slippage, potentially leaving the user with less than expected.",
+      "attackPath": "An attacker can manipulate the swap path or front-run to cause the actual swap input to be at the maximum allowed, which due to truncation may be slightly less than the intended slippage cap, but the output calculation subtracts the actual input, which could be higher than the quote, reducing the user's final amount.",
+      "impact": "Users may receive slightly less output than expected due to imprecise slippage accounting; protocol may appear to shortchange users.",
+      "recommendation": "Round up the slippage addition: `(slippage * amountsQuote[0] + 999) / 1000` to ensure the cap is at least the intended slippage."
+    },
+    {
+      "title": "No check for zero-amount transfers in fee and swap logic",
+      "severity": "Low",
+      "category": "Accounting & Rounding",
+      "file": "GatewayCrossChain.sol",
+      "function": "onCall()",
+      "description": "If `amount` is zero, `_handleFeeTransfer` computes `platformFeesForTx = 0`, and the subsequent swap and withdrawal proceed with zero amounts. The `_doMixSwap` function returns `amount` (0) when `swapData` is empty, but if swapData is non-empty, it will attempt to approve and call DODORouteProxy with zero `fromTokenAmount`, which may revert or waste gas. Zero-amount operations can be used to spam events or cause unnecessary gas consumption.",
+      "attackPath": "An attacker can craft a message with `amount = 0` and call `onCall` via the gateway. The contract will process the zero-amount transaction, emitting events and potentially calling external contracts with zero value.",
+      "impact": "Event spam, wasted gas, potential denial-of-service through event log bloat; no direct fund loss but degrades protocol efficiency.",
+      "recommendation": "Add a `require(amount > 0, \"ZERO_AMOUNT\")` check at the beginning of `onCall()` and `withdrawToNativeChain()`."
+    },
+    {
+      "title": "Missing deadline check in DODO mixSwap allows stale transaction execution",
+      "severity": "High",
+      "category": "Slippage/Deadline",
+      "file": "GatewayCrossChain.sol",
+      "function": "_doMixSwap()",
+      "description": "The `_doMixSwap` function passes `params.deadline` directly to the DODO router without validating it against `block.timestamp`. The deadline is user-supplied and can be zero or in the past, allowing swaps to execute at unfavorable prices long after the user intended. This is a classic missing-deadline vulnerability that enables MEV exploitation.",
+      "attackPath": "1) User submits a cross-chain swap with a deadline. 2) A malicious validator or MEV bot delays the transaction until the market moves against the user. 3) The swap executes at a worse price because the deadline is not enforced on-chain.",
+      "impact": "Users receive significantly less output than expected, leading to direct financial loss due to price slippage.",
+      "recommendation": "Add a check `require(params.deadline >= block.timestamp, \"EXPIRED\")` before calling `mixSwap`."
+    },
+    {
+      "title": "Reentrancy via DODORouteProxy.mixSwap before state update",
+      "severity": "High",
+      "category": "Cross-contract reentrancy",
+      "file": "GatewayCrossChain.sol",
+      "function": "_doMixSwap()",
+      "description": "In `_doMixSwap()`, the contract approves tokens and then calls `IDODORouteProxy(DODORouteProxy).mixSwap()`, an external call that can reenter the calling contract before any state changes. Since `onCall()` calls `_doMixSwap()` before updating any state, a malicious DODORouteProxy or token callback can reenter `onCall()` or other functions with the same context, manipulating balances or approvals.",
+      "attackPath": "1. Attacker crafts a swapData that causes DODORouteProxy to call back into GatewayCrossChain. 2. During reentrancy, the contract's token approvals or balances are in an intermediate state. 3. Attacker exploits this to drain funds or bypass checks.",
+      "impact": "Loss of funds due to double-spending or unauthorized token transfers.",
+      "recommendation": "Add a reentrancy guard (e.g., OpenZeppelin's ReentrancyGuard) to `onCall()` and `withdrawToNativeChain()`, or move all state updates before external calls."
+    },
+    {
+      "title": "Reentrancy via gateway.withdrawAndCall in withdrawAndCall",
+      "severity": "High",
+      "category": "Cross-contract reentrancy",
+      "file": "GatewayCrossChain.sol",
+      "function": "withdrawAndCall()",
+      "description": "`withdrawAndCall()` calls `gateway.withdrawAndCall()` which is an external call to the GatewayZEVM contract. The GatewayZEVM may call back into this contract via `onRevert()` or `onAbort()` during the same transaction. Since `withdrawAndCall()` is called after state changes (e.g., fee transfer), a reentrant call could observe inconsistent state or trigger duplicate refunds.",
+      "attackPath": "1. Attacker triggers a cross-chain swap that leads to `withdrawAndCall()`. 2. The GatewayZEVM calls `onRevert()` reentrantly before the original call completes. 3. The reentrant call manipulates `refundInfos` or transfers tokens again.",
+      "impact": "Double-spending of refunds or loss of funds due to reentrant state manipulation.",
+      "recommendation": "Add a reentrancy guard to `onCall()`, `onRevert()`, and `onAbort()`, or ensure all state updates are completed before external calls."
+    },
+    {
+      "title": "Reentrancy via gateway.withdraw in withdraw function",
+      "severity": "High",
+      "category": "Cross-contract reentrancy",
+      "file": "GatewayCrossChain.sol",
+      "function": "withdraw()",
+      "description": "`withdraw()` calls `gateway.withdraw()` which is an external call that can trigger `onRevert()` on this contract if the withdrawal fails. Since `withdraw()` is called after token approvals and state updates, a reentrant call from `onRevert()` can manipulate the contract's state, such as `refundInfos`, leading to incorrect refunds.",
+      "attackPath": "1. Attacker initiates a cross-chain swap that calls `withdraw()`. 2. The GatewayZEVM triggers `onRevert()` reentrantly. 3. The reentrant call modifies `refundInfos` or transfers tokens, causing a double refund or loss.",
+      "impact": "Loss of funds due to reentrant refund manipulation.",
+      "recommendation": "Use a reentrancy guard on all gateway-facing functions (`onCall`, `onRevert`, `onAbort`)."
+    },
+    {
+      "title": "Reentrancy via DODORouteProxy.mixSwap in GatewaySend",
+      "severity": "High",
+      "category": "Cross-contract reentrancy",
+      "file": "GatewaySend.sol",
+      "function": "_doMixSwap()",
+      "description": "In `_doMixSwap()`, the contract approves tokens and then calls `IDODORouteProxy(DODORouteProxy).mixSwap{value: msg.value}()`. This external call can reenter `onCall()` or `depositAndCall()` before state updates. Since `depositAndCall()` increments `globalNonce` before the swap, a reentrant call could reuse the same nonce or manipulate balances.",
+      "attackPath": "1. Attacker calls `depositAndCall()` with a malicious DODORouteProxy that reenters `onCall()`. 2. During reentrancy, the contract's token balance is still the original amount, allowing the attacker to trigger another swap or withdraw funds.",
+      "impact": "Loss of funds due to double-spending or unauthorized token transfers.",
+      "recommendation": "Add a reentrancy guard to `depositAndCall()` and `onCall()`, or move the nonce increment after the external call."
+    },
+    {
+      "title": "Refund claimable by anyone if walletAddress is not 20 bytes",
+      "severity": "Medium",
+      "category": "Unauthorized claim / theft",
+      "file": "GatewayCrossChain.sol",
+      "function": "claimRefund()",
+      "description": "In `claimRefund`, if `refundInfo.walletAddress.length != 20`, the receiver defaults to `msg.sender`, and the check `bots[msg.sender] || msg.sender == receiver` passes for any caller (since receiver == msg.sender). This means any external actor can claim a refund for a non-EVM wallet (e.g., Bitcoin or Solana) if they know the externalId, which is emitted in events.",
+      "attackPath": "1) Attacker monitors `EddyCrossChainRefund` events to obtain externalId. 2) Attacker calls `claimRefund(externalId)` with a walletAddress that is not 20 bytes (e.g., Bitcoin). 3) The contract sends the refund to the attacker.",
+      "impact": "Theft of user funds intended for non-EVM wallets.",
+      "recommendation": "For non-20-byte walletAddress, require the caller to be a whitelisted bot or implement a proof-of-ownership mechanism."
+    }
+  ]
+}

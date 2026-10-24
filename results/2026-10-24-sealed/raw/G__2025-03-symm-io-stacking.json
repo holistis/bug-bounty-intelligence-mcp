@@ -1,0 +1,170 @@
+{
+  "contest": "2025-03-symm-io-stacking",
+  "hypotheses": [
+    {
+      "title": "Unbounded loop over rewardTokens array in _updateRewardsStates can cause DoS",
+      "severity": "High",
+      "category": "Denial of Service",
+      "file": "SymmStaking.sol",
+      "function": "_updateRewardsStates()",
+      "description": "The _updateRewardsStates() function iterates over the entire rewardTokens array without any upper bound. An attacker can add many reward tokens via configureRewardToken() (which only requires REWARD_MANAGER_ROLE, but if that role is compromised or if the array grows large enough from legitimate additions), causing any call to deposit(), withdraw(), claimRewards(), or notifyRewardAmount() to revert due to gas limits. This permanently blocks all user staking and reward operations.",
+      "attackPath": "1. Attacker gains or is granted REWARD_MANAGER_ROLE (or the array is grown by admin). 2. Attacker calls configureRewardToken() repeatedly to add hundreds of unique token addresses to rewardTokens. 3. Any subsequent user call to deposit(), withdraw(), or claimRewards() triggers _updateRewardsStates() which loops over the huge array, exceeding block gas limit and reverting. 4. All funds become stuck and rewards unclaimable.",
+      "impact": "Complete denial of service: users cannot deposit, withdraw, or claim rewards. All staked funds and pending rewards are frozen indefinitely.",
+      "recommendation": "Cap the number of reward tokens to a reasonable maximum (e.g., 10-20) in configureRewardToken(), or implement paginated/off-chain reward distribution."
+    },
+    {
+      "title": "Reward rate manipulation via deposit/withdraw timing",
+      "severity": "High",
+      "category": "Economic Flaw",
+      "file": "SymmStaking.sol",
+      "function": "deposit()",
+      "description": "The `_updateRewardsStates()` call inside `deposit()` updates `rewardPerTokenStored` and `lastUpdated` for the receiver, but the deposit amount is added to `totalSupply` AFTER the update. This means the reward rate calculation for the current block uses the OLD totalSupply, while the user's balance is updated. A user can deposit right before a reward period ends to earn rewards on the new balance without diluting the per-token rate for that period.",
+      "attackPath": "1. Attacker monitors pending reward notifications. 2. Just before `periodFinish`, attacker deposits a large amount. 3. The reward per token is calculated using the old (smaller) totalSupply, so the attacker's new deposit earns rewards at the higher rate. 4. After periodFinish, the rate resets, and attacker withdraws.",
+      "impact": "Attacker extracts excess rewards from the reward pool, diluting rewards for honest stakers and potentially draining the reward contract.",
+      "recommendation": "Update reward states AFTER modifying totalSupply and balanceOf, or snapshot the reward state before the deposit and apply it to the new balance."
+    },
+    {
+      "title": "Rescue tokens can drain staking reward funds",
+      "severity": "High",
+      "category": "Inconsistent state between contracts",
+      "file": "SymmStaking.sol",
+      "function": "rescueTokens()",
+      "description": "`rescueTokens` allows the DEFAULT_ADMIN_ROLE to transfer any token, including whitelisted reward tokens and the staking token, out of the contract without checking pending rewards or staked balances. This breaks the accounting invariant that reward tokens in the contract back `pendingRewards` and that staking token balance equals `totalSupply`.",
+      "attackPath": "An admin (trusted) calls `rescueTokens` on a reward token with pending rewards, removing the backing tokens. Users then call `claimRewards` and the transfer fails, freezing their rewards. (Note: attacker is admin, but the flaw is state inconsistency exploitable by any user who then cannot claim.)",
+      "impact": "Insolvency of the staking contract; user rewards become unclaimable; staked token withdrawals can fail.",
+      "recommendation": "Restrict `rescueTokens` to only non-reward, non-staking tokens, or require that the rescued amount does not exceed the surplus above `pendingRewards`/`totalSupply`."
+    },
+    {
+      "title": "Public initializer allows reinitialization of vesting contract",
+      "severity": "High",
+      "category": "Access Control",
+      "file": "Vesting.sol",
+      "function": "__vesting_init()",
+      "description": "The `__vesting_init` function is marked `public` and uses the `initializer` modifier. While the `initializer` modifier prevents re-initialization in the same contract, the `SymmVesting` contract inherits from `Vesting` and calls `__vesting_init` in its own `initialize` function. However, `__vesting_init` being public means any external caller can attempt to call it directly on the proxy, and if the `initializer` modifier has been consumed by the parent `initialize`, it will revert. The issue is that `__vesting_init` is public and can be called by anyone before the `SymmVesting.initialize` is called, allowing an attacker to set arbitrary admin, penalty, and receiver values.",
+      "attackPath": "1. Attacker calls `__vesting_init` directly on the proxy before the legitimate `initialize` is called. 2. Attacker sets admin to their own address and arbitrary penalty/receiver. 3. Legitimate `initialize` call will revert because `initializer` modifier is already consumed.",
+      "impact": "Attacker gains admin and role privileges, can set up vesting plans, claim tokens on behalf of users, and potentially drain funds.",
+      "recommendation": "Make `__vesting_init` internal or add access control to restrict who can call it."
+    },
+    {
+      "title": "First-depositor can steal rewards via precision loss in rewardPerToken",
+      "severity": "High",
+      "category": "Accounting/Rounding",
+      "file": "SymmStaking.sol",
+      "function": "deposit()",
+      "description": "The rewardPerToken calculation uses integer division with 1e18 precision. An attacker can deposit 1 wei of staking token, wait for rewards to accrue, then withdraw, causing the perTokenStored value to round down to zero repeatedly while rewards accumulate in the contract. This allows the attacker to claim rewards without staking meaningful value.",
+      "attackPath": "1. Attacker deposits 1 wei of stakingToken. 2. Reward manager notifies a large reward. 3. Due to rounding, rewardPerToken increases by less than 1 wei per second, so earned() rounds to 0 for the attacker. 4. Attacker waits for reward period to finish, then claims rewards - the rounding causes rewards to be stuck or claimable by the attacker if they later deposit more.",
+      "impact": "Rewards can be stolen or permanently locked in the contract, causing loss of funds for legitimate stakers.",
+      "recommendation": "Implement a minimum deposit amount or use a virtual offset (like ERC4626's virtual shares/asset) to prevent precision loss attacks."
+    },
+    {
+      "title": "AirdropHelper can be reconfigured mid-airdrop causing double-spend",
+      "severity": "Medium",
+      "category": "Economic Flaw",
+      "file": "AirdropHelper.sol",
+      "function": "configureAirdrop()",
+      "description": "The `configureAirdrop()` function can be called while an airdrop is in progress (nextAirdropIndex > 0). It appends new recipients and amounts to the existing arrays without resetting nextAirdropIndex, so previously processed recipients can be re-added and paid again.",
+      "attackPath": "1. Owner configures airdrop with recipients A, B, C. 2. Owner calls transferAirdrops(2), paying A and B. 3. Owner calls configureAirdrop with [A, B] again. 4. Owner calls transferAirdrops(2), paying A and B again. 5. A and B receive double the intended amount.",
+      "impact": "Double-spending of airdrop funds; loss of tokens from the contract.",
+      "recommendation": "Reject configureAirdrop if nextAirdropIndex > 0, or reset the airdrop state before reconfiguring."
+    },
+    {
+      "title": "Stale spot-price used in liquidity quote without TWAP or oracle",
+      "severity": "High",
+      "category": "PRICES AND ORACLES",
+      "file": "SymmVesting.sol",
+      "function": "getLiquidityQuote()",
+      "description": "`getLiquidityQuote()` reads the current live pool balances (`POOL.getCurrentLiveBalances()`) and total supply to compute the USDC required and LP amount. These spot balances can be manipulated by a flash loan or a large swap right before the call, causing the quote to reflect a stale or manipulated price. The function is used in `_addLiquidity()` to determine `usdcIn` and `expectedLpAmount`, and the slippage check only compares against `minLpAmount` (which can be zero) or a default 1% slippage, not against a time-weighted average price.",
+      "attackPath": "1. Attacker takes a flash loan to temporarily swap a large amount of SYMM for USDC in the pool, skewing the ratio. 2. Attacker calls `addLiquidity()` with a small `minLpAmount` (or zero) and a large `maxUsdcIn`. 3. `getLiquidityQuote()` returns a manipulated `usdcIn` and `expectedLpAmount`. 4. The router executes the swap at the manipulated price, and the attacker receives far fewer LP tokens than fair value, or the contract pays excessive USDC.",
+      "impact": "Loss of funds for the contract (and its users) due to paying inflated USDC or receiving deflated LP tokens; the attacker can extract value from the vesting contract.",
+      "recommendation": "Use a time-weighted average price (TWAP) from the pool instead of spot balances, or add a minimum LP amount check that is enforced relative to a trusted oracle price."
+    },
+    {
+      "title": "Unbounded loop over rewardTokens array in _claimRewardsFor can cause DoS",
+      "severity": "High",
+      "category": "Denial of Service",
+      "file": "SymmStaking.sol",
+      "function": "_claimRewardsFor()",
+      "description": "The _claimRewardsFor() function iterates over all reward tokens to transfer rewards. If the rewardTokens array grows large (e.g., 100+ tokens), the loop may exceed block gas limit when transferring tokens, permanently preventing any user from claiming rewards. This is triggered by claimRewards() or claimFor().",
+      "attackPath": "1. Attacker (or admin) adds many reward tokens to rewardTokens via configureRewardToken(). 2. User calls claimRewards(). 3. The loop in _claimRewardsFor() attempts to transfer tokens for each reward token, but runs out of gas and reverts. 4. User can never claim any rewards, and pendingRewards for all tokens remain stuck.",
+      "impact": "All users' reward claims are permanently blocked. Pending rewards become trapped in the contract.",
+      "recommendation": "Limit the number of reward tokens or allow users to claim rewards for specific tokens individually rather than all at once."
+    },
+    {
+      "title": "Missing deadline in PERMIT2 approval allows replay",
+      "severity": "High",
+      "category": "Replay / Missing Deadline",
+      "file": "SymmVesting.sol",
+      "function": "_addLiquidity()",
+      "description": "The PERMIT2.approve() calls use block.timestamp as the deadline, which means the approval never expires. An attacker who observes a valid addLiquidity transaction can replay the same PERMIT2 approval signature in a later block to drain USDC from the user again.",
+      "attackPath": "1. User calls addLiquidity() with valid parameters. 2. Attacker observes the PERMIT2.approve() call and the user's USDC approval. 3. Attacker replays the approval signature in a new transaction to the router, spending the user's USDC again before the user revokes.",
+      "impact": "Loss of funds for the user whose USDC is spent multiple times without consent.",
+      "recommendation": "Use a future deadline (e.g., block.timestamp + 1 hours) instead of block.timestamp so the approval expires."
+    },
+    {
+      "title": "No nonce in PERMIT2 approvals enables replay",
+      "severity": "High",
+      "category": "Replay / Missing Nonce",
+      "file": "SymmVesting.sol",
+      "function": "_addLiquidity()",
+      "description": "The PERMIT2.approve() calls do not include a nonce, so the same approval can be reused multiple times. An attacker can replay the approval to call the router repeatedly, spending the user's tokens until the approval is revoked or the balance is exhausted.",
+      "attackPath": "1. User calls addLiquidity() with a valid PERMIT2 approval. 2. Attacker captures the approval data. 3. Attacker calls the router with the same approval multiple times, each time spending the user's USDC and SYMM.",
+      "impact": "Loss of funds for the user due to repeated token transfers without consent.",
+      "recommendation": "Include a unique nonce in each PERMIT2.approve() call and track used nonces."
+    },
+    {
+      "title": "Reward rate truncation to zero when amount is less than duration",
+      "severity": "Medium",
+      "category": "Wrong units/rounding",
+      "file": "SymmStaking.sol",
+      "function": "_addRewardsForToken()",
+      "description": "In `_addRewardsForToken`, `state.rate = amount / state.duration` truncates. If `amount < duration` (e.g., 1 wei reward over 1 week), `rate` becomes 0, so no rewards are ever distributed even though tokens were transferred in and `pendingRewards` increased. This locks user funds in the contract as unclaimable dust.",
+      "attackPath": "An untrusted user calls `notifyRewardAmount` with a whitelisted token and an amount smaller than the reward duration (e.g., 100 wei). The contract accepts the transfer, sets rate=0, and the reward is never paid out.",
+      "impact": "Permanent loss of small reward amounts; accounting inconsistency between `pendingRewards` and actual distributable rewards.",
+      "recommendation": "Revert or require `amount >= state.duration` before setting the rate, or handle the dust case explicitly."
+    },
+    {
+      "title": "pendingRewards can underflow during reward claims",
+      "severity": "High",
+      "category": "Accounting",
+      "file": "SymmStaking.sol",
+      "function": "_claimRewardsFor()",
+      "description": "The pendingRewards[token] is decremented by the reward amount without checking if it has sufficient balance. If pendingRewards was not properly incremented (e.g., due to rounding in _addRewardsForToken where rate = amount / duration truncates), the actual claimable rewards can exceed pendingRewards, causing an underflow revert.",
+      "attackPath": "1. Reward manager notifies a small amount (e.g., 1 wei) for a token. 2. rate = 1 / duration = 0, so no rewards accrue. 3. pendingRewards is incremented by 1. 4. Later, a larger reward is notified, and users claim more than pendingRewards, causing underflow.",
+      "impact": "Users cannot claim their earned rewards, freezing funds in the contract.",
+      "recommendation": "Add a check that pendingRewards >= reward before decrementing, or use SafeERC20's safeTransfer with proper accounting."
+    },
+    {
+      "title": "notifyRewardAmount can be griefed by front-running with zero-amount tokens",
+      "severity": "Medium",
+      "category": "Griefing / Denial of Service",
+      "file": "SymmStaking.sol",
+      "function": "notifyRewardAmount()",
+      "description": "The notifyRewardAmount() function iterates over user-supplied tokens and amounts arrays. An attacker can call this function with a very large array (e.g., 1000 entries) where most amounts are zero (which are skipped via `if (amount == 0) continue;`), but the loop still iterates over all entries, consuming gas. This can be repeated to grief the contract and temporarily block legitimate reward notifications due to gas costs.",
+      "attackPath": "1. Attacker calls notifyRewardAmount() with a large array (e.g., 1000 entries) of whitelisted tokens and zero amounts. 2. The loop iterates 1000 times, consuming significant gas but doing nothing. 3. Legitimate reward manager's notifyRewardAmount() call may revert if block gas limit is approached, or the attacker can front-run to waste block space.",
+      "impact": "Temporary denial of service for reward notifications; increased gas costs for the reward manager.",
+      "recommendation": "Reject arrays larger than a reasonable limit (e.g., 20) in notifyRewardAmount(), or require that all amounts be non-zero."
+    },
+    {
+      "title": "No chain ID or contract address in PERMIT2 approvals",
+      "severity": "High",
+      "category": "Cross-Chain Replay",
+      "file": "SymmVesting.sol",
+      "function": "_addLiquidity()",
+      "description": "The PERMIT2.approve() calls do not include a chain ID or contract address in the signed data. This allows the same approval to be replayed on a different chain (e.g., an L2 or fork) where the same token and router addresses exist, enabling unauthorized token transfers.",
+      "attackPath": "1. User approves PERMIT2 on mainnet. 2. Attacker observes the approval data. 3. Attacker replays the approval on a sidechain where the same contracts are deployed, spending the user's tokens there.",
+      "impact": "Loss of funds across chains due to replay of approvals.",
+      "recommendation": "Include chain ID and contract address in the PERMIT2 approval data or use a domain-separated approval scheme."
+    },
+    {
+      "title": "Claimable amount not checked before resetting vesting plan",
+      "severity": "Medium",
+      "category": "Accounting Error",
+      "file": "Vesting.sol",
+      "function": "_resetVestingPlans()",
+      "description": "The `_resetVestingPlans()` function calls `_claimUnlockedToken()` before resetting, but if the user has claimable tokens and the new amount is less than the unlocked amount, the function reverts with `AlreadyClaimedMoreThanThis`. However, the `_claimUnlockedToken` call already reduces `totalVested` and transfers tokens, so a revert leaves `totalVested` undercounted.",
+      "attackPath": "1. Admin calls resetVestingPlans with a new amount smaller than unlocked amount. 2. `_claimUnlockedToken` executes, reducing totalVested and transferring tokens. 3. The subsequent check `amount < vestingPlan.unlockedAmount()` reverts. 4. totalVested is now permanently undercounted, breaking accounting.",
+      "impact": "Incorrect totalVested accounting; potential for double-claim or insolvency if totalVested is used for other calculations.",
+      "recommendation": "Perform the amount check BEFORE calling _claimUnlockedToken, or use a try-catch pattern to revert state changes."
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "contest": "2025-05-dodo-cross-chain-dex",
+  "hypotheses": [
+    {
+      "title": "Incorrect calldata slicing in `BytesHelperLib.bytesToAddress`",
+      "severity": "Critical",
+      "category": "SOLVENCY",
+      "file": "omni-chain-contracts/contracts/libraries/BytesHelperLib.sol",
+      "function": "bytesToAddress()",
+      "description": "The function extracts a 20‑byte address from calldata by copying the slice into memory and then loading from `add(b, 20)`. In Solidity, the first 32 bytes of a `bytes` memory variable store its length, so the address data starts at offset 32. Loading from offset 20 reads part of the length field and returns a corrupted address.",
+      "attackPath": "1. Attacker crafts a cross‑chain payload where the first 20 bytes encode a chosen address.\n2. The contract calls `bytesToAddress(message, 0)` (e.g., in `decodeNativeMessage`) to obtain `targetZRC20`.\n3. Because of the wrong offset, the returned address is not the one supplied; it can be any value the attacker can influence (e.g., zero address or an address they control).\n4. Subsequent logic uses this malformed address to route withdrawals or fee transfers, allowing the attacker to redirect funds to an address of their choice or cause loss of assets.",
+      "impact": "Funds can be withdrawn to an attacker‑controlled address or locked forever, leading to total loss of user assets.",
+      "recommendation": "Load the address from `add(b, 32)` (skip the length word) or use `assembly { output := shr(96, calldataload(add(data.offset, offset))) }` directly on calldata without the intermediate copy."
+    },
+    {
+      "title": "Incorrect calldata slicing in `BytesHelperLib.bytesToUint32`",
+      "severity": "High",
+      "category": "SETTLEMENT",
+      "file": "omni-chain-contracts/contracts/libraries/BytesHelperLib.sol",
+      "function": "bytesToUint32()",
+      "description": "Similar to the address helper, this function copies a 4‑byte slice into memory and loads from `add(b, 4)`. The length word occupies the first 32 bytes, so the loaded value contains part of the length and garbage, yielding an incorrect `uint32`.",
+      "attackPath": "1. Attacker supplies a payload where a 4‑byte field (e.g., destination chain ID) is critical.\n2. The contract reads the field via `bytesToUint32`, obtaining a malformed value.\n3. The malformed chain ID can cause the contract to route a cross‑chain withdrawal to an unintended chain or to a chain where the attacker controls the receiving address.\n4. This misrouting enables theft or permanent loss of the transferred assets.",
+      "impact": "Misrouting of cross‑chain transfers, resulting in loss or theft of funds.",
+      "recommendation": "Load the 4‑byte word from `add(b, 32)` (skip the length) or directly read from calldata with proper offset handling."
+    },
+    {
+      "title": "Reentrancy in refund claim allows double withdrawal",
+      "severity": "High",
+      "category": "ORDERING",
+      "file": "GatewayCrossChain.sol",
+      "function": "(implicit claimRefund function)",
+      "description": "The contract transfers the refund token to the receiver via `TransferHelper.safeTransfer` before deleting the stored refund record. If the transferred token is a malicious ERC‑20 that executes a callback (e.g., via `transfer` to a contract with a fallback that calls back into the refund function), the attacker can re‑enter the function and trigger a second transfer before the original record is cleared.",
+      "attackPath": "1. Attacker deploys a malicious ERC‑20 token that overrides `transfer` to call back into the refund claim function.\n2. Attacker (or a compromised bot) initiates a refund claim for a valid `externalId` that points to the malicious token.\n3. During `TransferHelper.safeTransfer`, the token’s `transfer` invokes the attacker’s fallback, which calls the same refund claim function again.\n4. The second call passes the same `externalId`; the contract still sees the refund record (not yet deleted) and transfers the tokens again.\n5. After the re‑entrant call returns, the original execution proceeds to delete the refund record, but the attacker has already extracted the funds twice.",
+      "impact": "The attacker can drain the contract of any refundable token balance, leading to loss of user funds and potential insolvency of the protocol.",
+      "recommendation": "Follow the Checks‑Effects‑Interactions pattern: delete the refund record (or otherwise mark it as claimed) before performing the external token transfer. Alternatively, use a non‑reentrant guard (`nonReentrant` modifier) on the function."
+    },
+    {
+      "title": "Unauthorized refund claim when walletAddress length ≠ 20 bytes",
+      "severity": "High",
+      "category": "ACCESS",
+      "file": "omni-chain-contracts/contracts/GatewayTransferNative.sol",
+      "function": "claimRefund()",
+      "description": "`claimRefund` determines the receiver based on the length of `refundInfo.walletAddress`. If the stored `walletAddress` is not exactly 20 bytes, the function sets `receiver = msg.sender` and the access check (`bots[msg.sender] || msg.sender == receiver`) always passes. Refunds generated from `onRevert`/`onAbort` with a `revertMessage` length other than 52 bytes (i.e., walletAddress length ≠ 20) can therefore be claimed by any external caller.",
+      "attackPath": "1. Attacker monitors `EddyCrossChainRefund` events to obtain an `externalId` whose `walletAddress` length is not 20 bytes.  \n2. Calls `claimRefund(externalId)`; the function sets `receiver = msg.sender`.  \n3. The `require` passes (msg.sender == receiver), and the contract transfers the refunded tokens to the attacker.  \n4. Refund is cleared, but the attacker has taken funds intended for another user.",
+      "impact": "Funds allocated for a legitimate user’s cross‑chain refund can be stolen by any attacker, leading to direct loss of user assets.",
+      "recommendation": "Store the receiver as a proper `address` type (or enforce `walletAddress.length == 20`) and require `msg.sender` to equal that address (or be an authorized bot) before transferring. Remove the length‑based shortcut."
+    },
+    {
+      "title": "`decodeCompressedMixSwapParams` returns non‑empty arrays for empty `swapData`",
+      "severity": "Medium",
+      "category": "ACCOUNTING",
+      "file": "omni-chain-contracts/contracts/libraries/SwapDataHelperLib.sol",
+      "function": "decodeCompressedMixSwapParams()",
+      "description": "When `data.length == 0`, the function returns `mixAdapters`, `mixPairs`, and `assetTo` each initialized with length 1 (containing a zero address). Callers that expect zero‑length arrays will instead iterate over a single element and may interact with address 0.",
+      "attackPath": "1. Attacker sends a cross‑chain request with an empty `swapData` field.\n2. Downstream logic (e.g., the DODO mix‑swap handler) loops over `mixAdapters` or `mixPairs` assuming they are empty.\n3. The loop executes once with a zero address, causing a call to `address(0)` or a transfer to the zero address.\n4. This can either cause a revert (denial‑of‑service) or, if the zero address is treated as a valid token, result in loss of funds.",
+      "impact": "Potential DoS of swap functionality or accidental loss of tokens to the zero address.",
+      "recommendation": "Return empty arrays (`new address[](0)`) when `data.length == 0` and ensure callers handle zero‑length correctly."
+    },
+    {
+      "title": "Unrestricted claimRefund allows unauthorized withdrawal when refund payload lacks a destination address",
+      "severity": "High",
+      "category": "SOLVENCY",
+      "file": "GatewayCrossChain.sol",
+      "function": "claimRefund()",
+      "description": "The `claimRefund` function is publicly callable and does not verify that the stored `RefundInfo.walletAddress` corresponds to the caller. If a refund entry has an empty or malformed `walletAddress` (e.g., length ≠ 20, which can occur when the gateway aborts a cross‑chain operation without providing a receiver address), the function defaults the payout to `msg.sender`. An attacker can therefore claim any such refund and drain the contract of the associated tokens.",
+      "attackPath": "1. Attacker monitors `EddyCrossChainRefund` events emitted by `onAbort`/`onRevert` and obtains the `externalId` of a refund whose `walletAddress` length is 0 (or otherwise not 20 bytes).  \n2. The attacker calls `claimRefund(externalId)` from their address.  \n3. Inside `claimRefund`, `refundInfo.walletAddress.length` is not 20, so `receiver` remains `msg.sender`.  \n4. The contract transfers the full `refundInfo.amount` of `refundInfo.token` to the attacker via `TransferHelper.safeTransfer`.  \n5. The attacker repeats the process for any other refunds with missing/invalid wallet addresses, extracting funds that should be returned to the original user.",
+      "impact": "Unauthorized parties can steal tokens that were meant to be refunded to legitimate users, leading to direct loss of user funds and potential insolvency of the contract.",
+      "recommendation": "Enforce that `walletAddress` is exactly 20 bytes and that the caller matches this address (or is an authorized relayer). Reject or revert the claim if the stored address is empty or malformed, and clear the refund entry before transferring funds to prevent re‑entrancy."
+    }
+  ]
+}

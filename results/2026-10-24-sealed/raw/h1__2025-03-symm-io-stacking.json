@@ -1,0 +1,49 @@
+{
+  "contest": "2025-03-symm-io-stacking",
+  "hypotheses": [
+    {
+      "title": "Uninitialized contract can be taken over via `initialize`",
+      "severity": "Critical",
+      "category": "ACCESS",
+      "file": "SymmVesting.sol",
+      "function": "initialize()",
+      "description": "The `initialize` function is the only place where admin and role addresses are set, but there is no protection against it being called after deployment if the proxy has not been initialized. An attacker can call `initialize` first, set themselves as `admin`, and gain the DEFAULT_ADMIN_ROLE, allowing them to grant/revoke any role, pause the contract, and rescue tokens.",
+      "attackPath": "1. Deploy the upgradeable proxy pointing to `SymmVesting` without calling `initialize`.  \n2. As an external actor, call `initialize` with `admin` set to the attacker’s address (all other parameters can be any valid non‑zero addresses).  \n3. The internal `__vesting_init` grants the caller admin privileges.  \n4. Attacker now controls all privileged functions (role management, pausing, token rescue, etc.).",
+      "impact": "Full takeover of the contract – attacker can drain funds, pause or unpause the protocol, change reward/vesting parameters, and effectively render the system compromised.",
+      "recommendation": "Ensure the proxy’s implementation contract is initialized in the deployment script and add a check (e.g., `require(!initialized, \"already initialized\")`) or use OpenZeppelin’s `initializer` modifier correctly with a constructor that disables further initialization. Consider making `initialize` internal and expose a separate, only‑owner‑callable setup function."
+    },
+    {
+      "title": "Division‑by‑zero in `getLiquidityQuote` enables denial‑of‑service",
+      "severity": "Medium",
+      "category": "LIVENESS",
+      "file": "SymmVesting.sol",
+      "function": "getLiquidityQuote(uint256)",
+      "description": "`getLiquidityQuote` computes `usdcAmount = (symmAmount * usdcBalance) / symmBalance;` without checking that `symmBalance` is non‑zero. If the SYMM balance of the pool becomes zero (e.g., an attacker drains SYMM from the pool), any call to `addLiquidity` will revert due to a division‑by‑zero, blocking all users from adding liquidity.",
+      "attackPath": "1. Identify the pool address used by the contract.  \n2. Use a separate contract or account to swap out or otherwise remove all SYMM from the pool, making `symmBalance == 0`.  \n3. Any user calling `addLiquidity` (or `addLiquidityByPercentage`) triggers `getLiquidityQuote`, which reverts, causing the transaction to fail.",
+      "impact": "Permanent (until SYMM is re‑added to the pool) denial‑of‑service for all users attempting to add liquidity, effectively freezing the vesting‑to‑LP conversion feature.",
+      "recommendation": "Add an explicit check `require(symmBalance > 0, \"Pool SYMM balance zero\")` before performing the division, and consider fallback logic or a graceful revert with a clear error message."
+    },
+    {
+      "title": "Missing safe‑ERC20 transfer check allows silent token loss",
+      "severity": "Medium",
+      "category": "ACCOUNTING",
+      "file": "Vesting.sol",
+      "function": "claimUnlockedToken()",
+      "description": "The contract transfers reward tokens using `IERC20(token).transfer(...)` without checking the returned boolean or using `SafeERC20`. If the token contract returns `false` (or is a non‑standard ERC‑20 that does not revert on failure), the state variables (`totalVested`, `claimedAmount`) are still updated while the user receives no tokens, creating an accounting mismatch and permanent loss of claimable value.",
+      "attackPath": "1. Attacker deploys a malicious ERC‑20 token that implements `transfer` to always return `false` (or reverts silently).  \n2. The attacker (or any user) calls `claimUnlockedToken(maliciousToken)` on the Vesting contract.  \n3. The contract updates `totalVested` and `vestingPlan.claimedAmount` before the transfer.  \n4. The transfer returns `false`; the contract does not revert, so no tokens are sent.  \n5. The user’s claimable balance is now zero while the contract’s accounting shows the tokens as claimed, effectively burning the tokens.",
+      "impact": "Users can lose vested tokens permanently; the contract’s accounting becomes inconsistent, potentially undermining trust and causing disputes.",
+      "recommendation": "Replace raw `transfer` calls with `SafeERC20.safeTransfer` (or check the returned bool) to ensure the transfer succeeded before updating state."
+    },
+    {
+      "title": "Unrestricted virtual mint hook enables arbitrary token creation via claim functions",
+      "severity": "High",
+      "category": "SOLVENCY",
+      "file": "Vesting.sol",
+      "function": "claimUnlockedToken()",
+      "description": "The internal `_ensureSufficientBalance` calls a virtual hook `_mintTokenIfPossible` when the contract’s token balance is insufficient. The base implementation is a no‑op, but any derived contract (e.g., `SymmVesting`) can override this hook to mint tokens without any access control. Because claim functions (`claimUnlockedToken`, `claimLockedToken`) are public and callable by any user, an attacker can trigger the mint hook to create unlimited tokens and withdraw them.",
+      "attackPath": "1. Attacker identifies that a derived Vesting contract overrides `_mintTokenIfPossible` to call the token’s `mint` function without restrictions.  \n2. The attacker calls `claimUnlockedToken(token)` (or `claimLockedToken`) for a token for which the contract holds insufficient balance.  \n3. `_ensureSufficientBalance` detects the deficit and invokes the overridden `_mintTokenIfPossible`, minting the exact needed amount to the Vesting contract.  \n4. The claim proceeds, transferring the newly minted tokens to the attacker.  \n5. Repeating the call allows the attacker to mint and withdraw unlimited tokens.",
+      "impact": "Unlimited creation and extraction of the vested token, draining the protocol’s token supply and breaking its economic model.",
+      "recommendation": "Restrict the mint hook with proper access control (e.g., only allow the contract’s admin or a designated minter) or remove the hook entirely; alternatively, ensure the hook cannot be overridden to perform unrestricted minting."
+    }
+  ]
+}

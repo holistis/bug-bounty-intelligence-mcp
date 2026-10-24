@@ -1,0 +1,170 @@
+{
+  "contest": "2025-07-malda",
+  "hypotheses": [
+    {
+      "title": "Exchange Rate Manipulation via First Mint Dust Attack",
+      "severity": "High",
+      "category": "Unfair Distribution / Accounting Flaw",
+      "file": "mToken.sol",
+      "function": "__mint()",
+      "description": "On the first mint, `totalSupply` is set to 1000 and 1000 mTokens are minted to `address(0)`, then `mintTokens -= 1000`. This permanently burns 1000 mTokens. An attacker can front-run the first mint by supplying a tiny amount (e.g., 1 wei) to set `totalSupply` to 1000 and then immediately redeem, leaving the market with a distorted exchange rate. Subsequent users receive fewer mTokens per underlying unit.",
+      "attackPath": "1. Attacker calls `mint(1 wei)` before any legitimate user. 2. `totalSupply` becomes 1000, 1000 mTokens go to `address(0)`. 3. Attacker redeems their 1 mToken for underlying, extracting value. 4. Next user mints 1000e18 underlying but receives far fewer mTokens because the exchange rate is inflated by the burned supply.",
+      "impact": "First legitimate supplier suffers severe dilution; attacker can extract value with minimal capital. Protocol accounting is permanently skewed.",
+      "recommendation": "Remove the dust-mint protection or use a separate initialization function that sets `totalSupply` and `accountTokens[address(0)]` atomically before any user interaction."
+    },
+    {
+      "title": "First-depositor donation attack via initial mint",
+      "severity": "High",
+      "category": "Accounting and Rounding",
+      "file": "mToken.sol",
+      "function": "__mint()",
+      "description": "When totalSupply is zero, the first minter receives mintTokens minus 1000, but the 1000 dead-share tokens are assigned to address(0). An attacker can front-run the first deposit by donating a tiny amount of underlying, causing the exchange rate to be set artificially high, then the dead shares inflate the attacker's eventual redemption value.",
+      "attackPath": "1. Attacker calls mint() with 1 wei of underlying before any other deposit. 2. The exchange rate is computed from totalCash + totalBorrows - totalReserves, so 1 wei yields a very small number of mTokens. 3. The dead 1000 mTokens are minted to address(0). 4. Later, a legitimate user deposits a large amount, diluting the attacker's share. 5. The attacker redeems, receiving more underlying than deposited due to the skewed exchange rate.",
+      "impact": "Loss of funds for subsequent depositors; attacker can extract excess underlying.",
+      "recommendation": "Do not mint dead shares to address(0). Instead, set totalSupply = mintTokens and skip the dead-share logic, or burn the first minter's tokens proportionally."
+    },
+    {
+      "title": "ChainlinkOracle lacks staleness check and round validation",
+      "severity": "High",
+      "category": "Stale Oracle Price",
+      "file": "ChainlinkOracle.sol",
+      "function": "_getLatestPrice()",
+      "description": "The `_getLatestPrice()` function reads `latestRoundData()` but only validates that the price is greater than zero. It does not check the `updatedAt` timestamp for staleness, nor does it validate the `answeredInRound` against the current round. This allows the protocol to use stale or invalid prices from the Chainlink feed.",
+      "attackPath": "An attacker can wait for a period of time when the Chainlink price feed has not been updated (e.g., during a market halt or network issue). The attacker then performs a borrow or liquidation transaction using the stale price, which may not reflect the true market value.",
+      "impact": "Using stale prices can lead to incorrect collateral valuations, allowing users to borrow more than their collateral is worth or causing unfair liquidations, potentially leading to protocol insolvency.",
+      "recommendation": "Add a staleness check by comparing `block.timestamp - updatedAt` against a maximum acceptable threshold, and also verify that `answeredInRound >= roundId`."
+    },
+    {
+      "title": "MixedPriceOracleV4 uses eOracle price without positive check",
+      "severity": "High",
+      "category": "Invalid Price",
+      "file": "MixedPriceOracleV4.sol",
+      "function": "_getLatestPrice()",
+      "description": "In the fallback branch where the API3 price is stale or the delta is too high, the code uses the eOracle price but only checks its staleness. It does not check if `eOraclePrice` is greater than zero. If the eOracle feed returns a negative or zero price, it will be cast to a uint256, resulting in a huge or zero value.",
+      "attackPath": "An attacker can manipulate the eOracle feed to return a negative price, or the feed could malfunction. When the API3 price is stale or deviates, the oracle will use this invalid eOracle price, leading to incorrect collateral valuations.",
+      "impact": "A zero price would allow users to borrow against worthless collateral, while a huge price (from a negative int256) would make liquidations extremely profitable, draining the protocol.",
+      "recommendation": "Add a `require(eOraclePrice > 0, MixedPriceOracle_InvalidPrice())` check in the fallback branch before using the eOracle price."
+    },
+    {
+      "title": "Missing nonce and chain ID in referral signature enables replay across chains",
+      "severity": "High",
+      "category": "Replay & Cross-Chain",
+      "file": "ReferralSigning.sol",
+      "function": "claimReferral()",
+      "description": "The signed message hash uses only `msg.sender`, `referrer`, and a per-user nonce, but omits `block.chainid` and the contract address. An attacker can capture a valid signature on one chain and replay it on another chain where the same contract is deployed, claiming a referral without the user's consent. The nonce is per-user, so a single replay works once per user per chain.",
+      "attackPath": "1. Attacker observes a valid `claimReferral` transaction on chain A. 2. Attacker extracts the signature and parameters. 3. Attacker submits the same signature to the same contract on chain B (or a different contract with identical logic). 4. The signature verifies because the chain ID and contract address are not part of the signed data, and the nonce on chain B is still 0 for that user. 5. Attacker claims the referral reward on chain B.",
+      "impact": "Unauthorized referral claims on other chains, draining referral rewards and inflating referral counts.",
+      "recommendation": "Include `block.chainid` and `address(this)` in the signed message hash, e.g., `keccak256(abi.encode(block.chainid, address(this), msg.sender, referrer, nonces[msg.sender]))`."
+    },
+    {
+      "title": "Reward Accrual on Zero-Balance Accounts After Full Repayment",
+      "severity": "High",
+      "category": "Double Claim / Reward Gaming",
+      "file": "RewardDistributor.sol",
+      "function": "_notifyBorrower()",
+      "description": "When a borrower fully repays, `_borrowBalanceStored()` returns 0, but `_notifyBorrower()` still calculates `borrowerDelta = mul_(borrowerAmount, deltaIndex)` where `borrowerAmount` is 0. The borrower's `rewardAccrued` is not reset or reduced. If the borrower later borrows again, the old `borrowerIndex` is reused, causing the delta to include rewards from the prior epoch, effectively allowing double accrual on the same debt.",
+      "attackPath": "1. Borrower borrows and accrues rewards. 2. Borrower fully repays (balance=0). 3. Borrower borrows again in the same market. 4. `_notifyBorrower()` uses the stale `borrowerIndex` from step 1, so `deltaIndex` includes rewards from the period when balance was zero, inflating the new reward.",
+      "impact": "Attacker can claim rewards multiple times on the same underlying debt, draining the reward pool and unfairly extracting value from other suppliers.",
+      "recommendation": "In `_notifyBorrower()`, when `borrowerAmount == 0`, reset `accountState.borrowerIndex[mToken]` to `REWARD_INITIAL_INDEX` to prevent stale index reuse."
+    },
+    {
+      "title": "Double counting of totalUnderlying in repay and mint",
+      "severity": "High",
+      "category": "Accounting and Rounding",
+      "file": "mToken.sol",
+      "function": "__repay() and __mint()",
+      "description": "In __repay(), totalUnderlying is increased by actualRepayAmount. In __mint(), totalUnderlying is increased by actualMintAmount. However, totalUnderlying is also decreased in __borrow() and __redeem(). If a user repays a borrow that was never actually borrowed (e.g., via a bug or reentrancy), totalUnderlying can be inflated, causing the exchange rate to be wrong.",
+      "attackPath": "1. Attacker calls repay() with a large amount without having a borrow balance. 2. The repay succeeds (since _borrowBalanceStored returns 0, but the check is only for repayAmount == type(uint256).max). 3. totalUnderlying increases, but no borrow is reduced. 4. The exchange rate increases, allowing the attacker to redeem more underlying than they deposited.",
+      "impact": "Inflation of totalUnderlying leads to incorrect exchange rate; attacker can drain funds.",
+      "recommendation": "Ensure that repay only succeeds if the borrower has an outstanding borrow balance. Add a require(accountBorrowsPrev > 0) before processing repay."
+    },
+    {
+      "title": "ChainlinkOracle getPrice uses mToken symbol instead of underlying",
+      "severity": "High",
+      "category": "Wrong Oracle Pair",
+      "file": "ChainlinkOracle.sol",
+      "function": "getPrice()",
+      "description": "The `getPrice()` function fetches the price using the mToken's symbol (e.g., \"mUSDC\") instead of the underlying asset's symbol (e.g., \"USDC\"). Since the `priceFeeds` mapping is keyed by underlying asset symbols, this will likely revert with `ChainlinkOracle_NoPriceFeed()` or return a price for a non-existent feed.",
+      "attackPath": "An external actor calls `getPrice()` on a market. The function attempts to look up a price feed for the mToken's symbol, which does not exist, causing a revert. This breaks any functionality that relies on this function.",
+      "impact": "The `getPrice()` function is broken for all markets, preventing any external integrations or internal logic that depends on it from working correctly.",
+      "recommendation": "Change `getPrice()` to fetch the price using the underlying asset's symbol, similar to `getUnderlyingPrice()`."
+    },
+    {
+      "title": "Unbounded loop over user-controlled markets array can DoS claimMalda",
+      "severity": "High",
+      "category": "Denial of Service",
+      "file": "Operator.sol",
+      "function": "claimMalda(address,address[])",
+      "description": "`claimMalda(address holder, address[] memory mTokens)` iterates over a user-supplied `mTokens` array without any length limit. Each iteration makes external calls to `_updateMaldaBorrowIndex`, `_distributeBorrowerMalda`, `_updateMaldaSupplyIndex`, and `_distributeSupplierMalda`, each of which loops over all reward tokens and performs external calls. An attacker can pass an arbitrarily large array, causing the transaction to exceed the block gas limit and revert, permanently blocking the holder from claiming rewards through this path.",
+      "attackPath": "1. Attacker calls `claimMalda(victim, hugeArray)` with an array containing thousands of market addresses. 2. The loop iterates over each market, performing multiple external calls per iteration. 3. The transaction runs out of gas and reverts. 4. The victim cannot claim rewards via this function because any call with a large array reverts.",
+      "impact": "Permanent denial of service for reward claiming; user's accrued MALDA rewards become stuck and unclaimable.",
+      "recommendation": "Remove the user-supplied `mTokens` array parameter or enforce a maximum array length limit (e.g., 10) in `claimMalda`."
+    },
+    {
+      "title": "Blacklisted user's funds can be permanently frozen",
+      "severity": "High",
+      "category": "Stuck Funds",
+      "file": "Operator.sol",
+      "function": "beforeMTokenRedeem",
+      "description": "`beforeMTokenRedeem` has the `ifNotBlacklisted(redeemer)` modifier, which reverts if the redeemer is blacklisted. A blacklisted user cannot redeem their mTokens, transfer them (due to `beforeMTokenTransfer` also checking blacklist), or use them as collateral. Since only the owner or guardian can unblacklist, and the blacklist is a permanent state change, the user's funds are effectively frozen indefinitely unless an admin intervenes.",
+      "attackPath": "1. A user supplies assets and receives mTokens. 2. An admin or guardian blacklists the user. 3. The user attempts to redeem their mTokens but the transaction reverts due to the blacklist check. 4. The user's funds are stuck in the protocol.",
+      "impact": "Permanent freezing of user funds; user cannot redeem, transfer, or use their collateral.",
+      "recommendation": "Allow blacklisted users to redeem their own funds (only block new interactions like mint/borrow), or provide a mechanism for blacklisted users to withdraw."
+    },
+    {
+      "title": "Missing deadline in Across bridge message allows indefinite replay",
+      "severity": "High",
+      "category": "Replay & Cross-Chain",
+      "file": "AccrossBridge.sol",
+      "function": "sendMsg()",
+      "description": "The `DecodedMessage` includes `deadline` and `exclusivityDeadline` fields, but the contract never validates that the current block timestamp is before these deadlines. A rebalancer can reuse the same `_message` bytes across multiple `sendMsg` calls, causing the bridge to process the same intent repeatedly. The `nonce` in `Rebalancer` increments per message but the bridge does not check for duplicate nonces.",
+      "attackPath": "1. A rebalancer (authorized role) calls `sendMsg` with a valid message. 2. The rebalancer captures the `_message` bytes. 3. The rebalancer calls `sendMsg` again with the same `_message` and a new `nonce`. 4. The bridge processes the message again, transferring the same amount of tokens across the bridge a second time.",
+      "impact": "Double-spending of bridged assets, draining liquidity from the source market and causing insolvency on the destination.",
+      "recommendation": "Validate that `block.timestamp <= msgData.deadline` in `sendMsg()` and reject expired messages."
+    },
+    {
+      "title": "Liquidation Incentive Can Exceed 100% Leading to Insolvency",
+      "severity": "High",
+      "category": "Insolvency / Parameter Flaw",
+      "file": "Operator.sol",
+      "function": "setLiquidationIncentive()",
+      "description": "The `setLiquidationIncentive()` function allows the owner to set any value for `liquidationIncentiveMantissa` without an upper bound. If set above 1e18 (100%), the liquidator receives more collateral value than the debt repaid, draining reserves and potentially making the protocol insolvent. There is no check that `liquidationIncentiveMantissa <= 1e18`.",
+      "attackPath": "1. Owner (or compromised owner) sets `liquidationIncentiveMantissa` to 2e18 (200%). 2. Liquidator repays 100 DAI of a borrower's debt. 3. `liquidateCalculateSeizeTokens()` returns collateral worth 200 DAI. 4. Liquidator seizes excess collateral, reducing protocol reserves.",
+      "impact": "Protocol can be drained of collateral, causing insolvency and losses for suppliers. Even without malicious owner, a bug in governance could set an excessive incentive.",
+      "recommendation": "Add a require statement in `setLiquidationIncentive()` to enforce `newLiquidationIncentiveMantissa <= 1e18`."
+    },
+    {
+      "title": "Rebalancer max transfer size check uses stale transferInfo",
+      "severity": "High",
+      "category": "State consistency",
+      "file": "Rebalancer.sol",
+      "function": "sendMsg()",
+      "description": "In `sendMsg()`, the max transfer size check compares `transferInfo.size + _amount` against `_maxTransferSize`, but `transferInfo` is the value loaded *before* the current transfer is added to `currentTransferSize`. When the time window has not expired, `currentTransferSize[...].size` is incremented by `_amount`, but the check uses the old `transferInfo.size`, so the cumulative size is never properly enforced across multiple calls within the same window.",
+      "attackPath": "1) Attacker (REBALANCER_EOA) calls `sendMsg()` with `_amount` = 60% of `_maxTransferSize`; the check passes (60% < 100%). 2) Attacker calls again with `_amount` = 60%; the check uses stale `transferInfo.size` = 60%, so 60% + 60% = 120% > 100% would revert, but the check uses `transferInfo.size` (old) + `_amount` = 60% + 60% = 120% which is still > 100%, so it reverts. 3) However, if the attacker splits into smaller amounts, e.g., 40% + 40% + 40%, each check uses the stale `transferInfo.size` from the start of the call, so the third call sees `transferInfo.size` = 80% (from the second call's update) and 80% + 40% = 120% > 100% reverts. The flaw is that the check should use the updated `currentTransferSize` value, but it uses the pre-update `transferInfo`, so the limit is effectively enforced on the *previous* cumulative value, allowing the cumulative to exceed the limit by up to `_amount` in the final call.",
+      "impact": "The max transfer size limit can be exceeded, allowing an attacker to move more funds out of the protocol than intended, potentially draining liquidity from markets.",
+      "recommendation": "Use the updated `currentTransferSize` value in the max size check, e.g., `require(currentTransferSize[_msg.dstChainId][_msg.token].size < _maxTransferSize, ...)`."
+    },
+    {
+      "title": "Rounding in redeem tokens calculation favours user",
+      "severity": "Medium",
+      "category": "Accounting and Rounding",
+      "file": "mToken.sol",
+      "function": "__redeem()",
+      "description": "When redeemTokensIn > 0, redeemAmount = mul_ScalarTruncate(exchangeRate, redeemTokensIn). The truncation (division by 1e18) rounds down, giving the user slightly less underlying than the exact fraction. However, when redeemAmountIn > 0, redeemTokens = div_(redeemAmountIn, exchangeRate) which rounds down, giving the user more mTokens burned than necessary. Both directions can cause a small systematic loss or gain for the protocol.",
+      "attackPath": "1. User calls redeemUnderlying() with a redeemAmount that is not an exact multiple of the exchange rate. 2. The computed redeemTokens is rounded down, so the user burns more mTokens than the exact amount needed. 3. The protocol loses a tiny amount of underlying per redemption.",
+      "impact": "Slow, cumulative loss of underlying assets from the protocol; over time, totalUnderlying drifts from real holdings.",
+      "recommendation": "Ensure rounding always favours the protocol: for redeemTokensIn, round up the redeemAmount; for redeemAmountIn, round up the redeemTokens. Use mul_ScalarTruncateAddUInt with a ceiling or add 1 after division."
+    },
+    {
+      "title": "Outflow Volume Limit Can Be Bypassed by Resetting Timestamp",
+      "severity": "Medium",
+      "category": "Timing / Limit Bypass",
+      "file": "Operator.sol",
+      "function": "checkOutflowVolumeLimit()",
+      "description": "The `checkOutflowVolumeLimit()` resets `cumulativeOutflowVolume` to 0 when `block.timestamp > lastOutflowResetTimestamp + outflowResetTimeWindow`. An attacker can wait for the window to expire, then make a large outflow just after the reset, bypassing the intended per-window limit. The reset happens on the first call after expiry, not at a fixed schedule, so the attacker can time their transaction to reset the counter.",
+      "attackPath": "1. Attacker monitors `lastOutflowResetTimestamp`. 2. After `outflowResetTimeWindow` (1 hour) passes, attacker calls `mintExternal()` with a large amount. 3. `checkOutflowVolumeLimit()` resets `cumulativeOutflowVolume` to 0 and then allows the large outflow. 4. Attacker repeats every hour, draining the protocol.",
+      "impact": "Outflow volume caps are ineffective, allowing attackers to extract large amounts of liquidity in a short time, potentially causing insolvency.",
+      "recommendation": "Use a fixed epoch-based reset (e.g., reset at the start of each hour) instead of resetting on first interaction after expiry."
+    }
+  ]
+}
