@@ -1,0 +1,7 @@
+[runner] Start job oos-olas | model: qwen2.5:7b
+[runner] Repo: code-423n4/2026-01-olas
+[runner] Ollama warm-up...
+[runner] Warm-up overgeslagen (cloud-bron actief)
+[runner] Clone https://github.com/code-423n4/2026-01-olas ...
+[runner] Clone OK
+[runner] FOUT: Geen .sol bestanden gevonden na clone
