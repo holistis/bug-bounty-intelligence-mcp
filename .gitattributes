@@ -5,3 +5,4 @@ pipeline/ops/** -text
 bench/** -text
 results/2026-10-24-dev-set/** -text
 results/2026-10-24-dev-set-2/** -text
+results/2026-10-24-sealed/** -text

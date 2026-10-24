@@ -1,0 +1,38 @@
+{
+  "contest": "2025-05-yearn-ybold",
+  "hypotheses": [
+    {
+      "title": "increaseAllowance can overflow allowing allowance reset",
+      "severity": "Low",
+      "category": "ACCOUNTING",
+      "file": "FlatTokenizedStrategy.sol",
+      "function": "increaseAllowance(address,uint256)",
+      "description": "The `increaseAllowance` function adds `addedValue` to the current allowance using unchecked arithmetic. If the sum exceeds `type(uint256).max`, it wraps around to a low value, unintentionally reducing the spender’s allowance. An attacker can trigger this overflow to effectively revoke a spender’s allowance, causing denial‑of‑service for legitimate users.",
+      "attackPath": "1. Attacker (token holder) calls `increaseAllowance(spender, largeValue)` when the current allowance is already close to `type(uint256).max`.\n2. The unchecked addition overflows, setting the allowance to a small number.\n3. The spender can no longer transfer the intended amount, disrupting normal operation.",
+      "impact": "Denial of service for legitimate spenders; may halt vault interactions that depend on allowance.",
+      "recommendation": "Use checked addition (e.g., require(allowance + addedValue >= allowance)) or OpenZeppelin’s `SafeMath`‑style overflow check before updating the allowance."
+    },
+    {
+      "title": "Missing re‑entrancy protection on token transfer hooks",
+      "severity": "Medium",
+      "category": "ORDERING",
+      "file": "FlatTokenizedStrategy.sol",
+      "function": "_transfer(address,address,uint256)",
+      "description": "The internal `_transfer` function invokes the virtual hooks `_beforeTokenTransfer` and `_afterTokenTransfer` without any re‑entrancy guard. A derived contract could override these hooks to perform an external call that re‑enters `transfer`/`transferFrom`, potentially allowing double‑spending or balance manipulation.",
+      "attackPath": "1. Attacker holds tokens and initiates a `transfer` to a contract they control.\n2. The malicious contract’s overridden `_beforeTokenTransfer` (or `_afterTokenTransfer`) calls back into the token’s `transferFrom` for the same amount.\n3. Because balances have not been fully settled and no re‑entrancy guard exists, the second call succeeds, moving more tokens than intended.",
+      "impact": "Potential loss of funds through double‑spend, breaking accounting invariants and compromising solvency.",
+      "recommendation": "Add a non‑reentrant modifier (e.g., OpenZeppelin’s `nonReentrant`) around `_transfer` or restrict hooks from making external calls that affect token balances."
+    },
+    {
+      "title": "Malformed Solidity pragma statement with conflicting version specifiers",
+      "severity": "Low",
+      "category": "LIVENESS",
+      "file": "yv3-liquityv2-sp-strategy/lib/tokenized-strategy/flattened/FlatTokenizedStrategy.sol",
+      "function": "",
+      "description": "The pragma statement `pragma solidity >=0.8.18 ^0.8.0 ^0.8.1;` contains three conflicting version specifiers. The `>=0.8.18` requires version 0.8.18 or higher, while `^0.8.0` allows 0.8.x but not 0.9.0, and `^0.8.1` allows 0.8.1+. This creates ambiguity about which compiler versions are actually supported and may lead to unexpected compilation behavior or version selection.",
+      "attackPath": "Not directly exploitable by an attacker, but could cause deployment failures, inconsistent compilation across environments, or silent use of an unintended compiler version with different semantics.",
+      "impact": "Potential build/reproducibility issues; may lead to deployment with unexpected compiler version.",
+      "recommendation": "Fix the pragma to a single clear version range, e.g., `pragma solidity ^0.8.18;` or `pragma solidity >=0.8.18 <0.9.0;`."
+    }
+  ]
+}

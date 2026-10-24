@@ -1,0 +1,170 @@
+{
+  "contest": "2025-07-mellow-flexible-vaults",
+  "hypotheses": [
+    {
+      "title": "SignatureQueue.initialize can be called by anyone to set arbitrary consensus",
+      "severity": "High",
+      "category": "Access Control",
+      "file": "flexible-vaults/src/queues/SignatureQueue.sol",
+      "function": "initialize()",
+      "description": "The `initialize` function is `external initializer` with no access control. While `initializer` prevents re-initialization of the same proxy, the function is callable by any untrusted actor on a freshly deployed proxy before the legitimate deployer calls it. An attacker can front-run the deployment transaction and set `$.consensus` to a malicious contract they control, as long as it is registered in `consensusFactory`.",
+      "attackPath": "1. Attacker monitors the mempool for a `SignatureQueue` proxy deployment. 2. Attacker calls `initialize()` with their own `consensus_` address (registered in the factory) and arbitrary asset/vault. 3. Legitimate deployer's `initialize` call reverts due to `initializer` guard. 4. Attacker now controls the consensus for the queue, allowing them to sign and execute arbitrary orders.",
+      "impact": "Complete loss of funds - attacker can forge orders, drain assets from the queue, and mint/burn shares at will.",
+      "recommendation": "Add an access control modifier (e.g., `onlyOwner` or a factory-only check) to `initialize()`, or use a constructor-based initialization pattern."
+    },
+    {
+      "title": "RiskManager.setVault can be called by anyone to set vault address",
+      "severity": "High",
+      "category": "Access Control",
+      "file": "flexible-vaults/src/managers/RiskManager.sol",
+      "function": "setVault()",
+      "description": "The `setVault` function has no access control modifier. It only checks that `vault_` is non-zero and that `$.vault` is not already set. An untrusted attacker can call this function on a newly deployed RiskManager proxy before the legitimate `VaultConfigurator` does, setting the vault to an arbitrary address they control.",
+      "attackPath": "1. Attacker monitors for a new RiskManager proxy deployment. 2. Attacker calls `setVault()` with their own malicious contract address. 3. Legitimate `VaultConfigurator.create()` call to `setVault()` reverts with `InvalidInitialization()`. 4. Attacker's contract is now the vault, and all role checks in RiskManager query the attacker's ACL, granting them full control.",
+      "impact": "Complete compromise of risk management - attacker can set arbitrary limits, modify balances, and bypass all access controls.",
+      "recommendation": "Add an access control check (e.g., `onlyOwner` or a factory-only modifier) to `setVault()`."
+    },
+    {
+      "title": "ShareManager.setVault can be called by anyone to set vault address",
+      "severity": "High",
+      "category": "Access Control",
+      "file": "flexible-vaults/src/managers/ShareManager.sol",
+      "function": "setVault()",
+      "description": "The `setVault` function has no access control modifier. It only checks that `vault_` is non-zero and that `$.vault` is not already set. An untrusted attacker can call this on a newly deployed ShareManager proxy before the legitimate `VaultConfigurator` does, setting the vault to an arbitrary address.",
+      "attackPath": "1. Attacker monitors for a new ShareManager proxy deployment. 2. Attacker calls `setVault()` with their own malicious contract. 3. Legitimate `VaultConfigurator.create()` call reverts. 4. Attacker's contract is now the vault, and all role checks in ShareManager query the attacker's ACL, allowing them to mint/burn shares and set flags.",
+      "impact": "Complete compromise of share accounting - attacker can mint unlimited shares, burn others' shares, and manipulate the entire vault.",
+      "recommendation": "Add an access control check (e.g., `onlyOwner` or a factory-only modifier) to `setVault()`."
+    },
+    {
+      "title": "Oracle.setVault can be called by anyone to set vault address",
+      "severity": "High",
+      "category": "Access Control",
+      "file": "flexible-vaults/src/oracles/Oracle.sol",
+      "function": "setVault()",
+      "description": "The `setVault` function has no access control modifier. It only checks that `vault_` is non-zero and that `$.vault` is not already set. An untrusted attacker can call this on a newly deployed Oracle proxy before the legitimate `VaultConfigurator` does, setting the vault to an arbitrary address.",
+      "attackPath": "1. Attacker monitors for a new Oracle proxy deployment. 2. Attacker calls `setVault()` with their own malicious contract. 3. Legitimate `VaultConfigurator.create()` call reverts. 4. Attacker's contract is now the vault, and all role checks in Oracle query the attacker's ACL, allowing them to submit/accept reports and manipulate prices.",
+      "impact": "Complete compromise of price oracle - attacker can set arbitrary prices, causing incorrect share valuations, fee calculations, and potential insolvency.",
+      "recommendation": "Add an access control check (e.g., `onlyOwner` or a factory-only modifier) to `setVault()`."
+    },
+    {
+      "title": "Reentrancy via hook callback in SignatureDepositQueue.deposit()",
+      "severity": "High",
+      "category": "Reentrancy",
+      "file": "SignatureDepositQueue.sol",
+      "function": "deposit()",
+      "description": "The deposit() function calls vault_.callHook(order.ordered) after transferring assets to the vault but before updating risk manager state. The hook can be a malicious contract that re-enters the deposit function, causing double-counting of assets and shares.",
+      "attackPath": "1. Attacker deploys a malicious hook contract. 2. Attacker calls deposit() with a valid order. 3. The hook callback re-enters deposit() before nonce increment, allowing the same order to be executed multiple times. 4. Each re-entrant call mints shares and modifies vault balance.",
+      "impact": "Unlimited minting of shares, draining of vault assets, insolvency.",
+      "recommendation": "Move the nonce increment and state updates before the external hook call, or use a reentrancy guard that covers the entire function."
+    },
+    {
+      "title": "Reentrancy via hook callback in SignatureRedeemQueue.redeem()",
+      "severity": "High",
+      "category": "Reentrancy",
+      "file": "SignatureRedeemQueue.sol",
+      "function": "redeem()",
+      "description": "The redeem() function calls vault_.callHook(order.requested) after burning shares but before sending assets and updating risk manager. A malicious hook can re-enter redeem() to burn the same shares again or manipulate state.",
+      "attackPath": "1. Attacker sets up a malicious hook. 2. Attacker calls redeem() with valid order. 3. Hook re-enters redeem() before nonce increment, allowing multiple redemptions from the same order. 4. Each call burns shares and sends assets.",
+      "impact": "Double-spending of shares, draining vault assets, insolvency.",
+      "recommendation": "Increment nonce and complete all state changes before calling the external hook."
+    },
+    {
+      "title": "Missing chainId and contract address in EIP-712 signature",
+      "severity": "High",
+      "category": "Cross-chain replay",
+      "file": "flexible-vaults/src/queues/SignatureQueue.sol",
+      "function": "hashOrder()",
+      "description": "The EIP-712 typed data hash does not include the chainId or the verifying contract address. The domain separator from EIP712Upgradeable may not bind the signature to a specific chain or contract instance, allowing a valid order to be replayed on a different chain or against a different vault contract.",
+      "attackPath": "An attacker observes a valid signed Order on Ethereum mainnet. They then submit the same order (with the same nonce, deadline, etc.) on a sidechain or L2 where the same contract code is deployed, or against a different vault contract that uses the same queue address. The signature validates because the domain separator does not include chainId or contract address.",
+      "impact": "Cross-chain replay of deposits or redemptions, leading to double-minting of shares or double-withdrawal of assets.",
+      "recommendation": "Include block.chainid and address(this) in the EIP-712 domain separator or in the ORDER_TYPEHASH struct."
+    },
+    {
+      "title": "RedeemQueue claim() can claim same request twice if batch not yet processed",
+      "severity": "High",
+      "category": "Double-claim / accounting error",
+      "file": "RedeemQueue.sol",
+      "function": "claim()",
+      "description": "In `RedeemQueue.claim()`, the function iterates over user-provided timestamps and subtracts `shares` from the batch only if `index < batchIterator`. However, if a user calls `claim()` with a timestamp whose batch has not yet been processed (index >= batchIterator), the request is skipped but not removed from `callerRequests`. The user can call `claim()` again later with the same timestamp after the batch is processed, claiming the same shares twice. The batch's `shares` and `assets` are only decremented on the first successful claim, so the second claim subtracts from the batch again, potentially draining more assets than intended.",
+      "attackPath": "1. User submits a redeem request via `redeem()`. 2. Before the batch is handled, user calls `claim()` with that timestamp; the function skips it (index >= batchIterator) and does not remove the request. 3. After the batch is handled (batchIterator advances), user calls `claim()` again with the same timestamp; now index < batchIterator, so the function subtracts shares/assets from the batch and sends assets to the user. 4. The request is removed only after the second call, but the first call left it intact, allowing the double claim.",
+      "impact": "Attacker can claim assets twice for the same redeem request, draining the vault of more assets than entitled, leading to insolvency and loss of funds for other users.",
+      "recommendation": "In `claim()`, remove the request from `callerRequests` immediately when it is skipped (index >= batchIterator), or track claimed requests separately to prevent re-claiming."
+    },
+    {
+      "title": "Consensus.checkSignatures allows duplicate signer signatures to bypass threshold",
+      "severity": "High",
+      "category": "Access Control",
+      "file": "flexible-vaults/src/permissions/Consensus.sol",
+      "function": "checkSignatures()",
+      "description": "The `checkSignatures` function does not track which signers have already signed. It only checks that `signatures.length >= threshold` and that each signer is a valid signer. An attacker who controls a single signer can submit the same signature multiple times to meet the threshold requirement.",
+      "attackPath": "1. Attacker compromises or controls one signer key. 2. Attacker crafts an order and signs it once. 3. Attacker calls `deposit`/`redeem` with the same signature repeated `threshold` times. 4. `checkSignatures` returns true because all signatures are from valid signers and length meets threshold.",
+      "impact": "Bypass of multi-signature consensus - a single compromised signer can execute arbitrary orders, draining funds or minting shares.",
+      "recommendation": "Track and enforce that each signer appears only once in the signatures array (e.g., using a mapping or sorting check)."
+    },
+    {
+      "title": "DepositQueue fee rounding causes share inflation and asset loss",
+      "severity": "High",
+      "category": "Rounding / Fee Accounting",
+      "file": "DepositQueue.sol",
+      "function": "_handleReport()",
+      "description": "In `_handleReport`, `shares = Math.mulDiv(assets, reducedPriceD18, 1 ether)` rounds down, and `fees = Math.mulDiv(assets, priceD18, 1 ether) - shares`. The fee is computed as the difference between the full-price shares and the reduced-price shares, but since `shares` rounds down, the fee is inflated by the rounding dust. This dust is minted to the fee recipient, diluting existing shareholders beyond the intended fee, and the vault receives fewer shares per asset than the price implies.",
+      "attackPath": "An attacker repeatedly deposits small amounts (e.g., 1 wei) into the deposit queue. Each deposit triggers `_handleReport` where the rounding error in `shares` is captured as extra fee shares minted to the fee recipient, slowly draining value from all other shareholders.",
+      "impact": "Over time, the fee recipient accumulates shares that were not earned, diluting all other holders; the protocol's share accounting drifts from actual asset value, causing insolvency or unfair value extraction.",
+      "recommendation": "Compute fees separately with explicit rounding that favours the protocol: `fees = Math.mulDiv(assets, priceD18 - reducedPriceD18, 1 ether, Math.Rounding.Ceil)` and `shares = Math.mulDiv(assets, reducedPriceD18, 1 ether, Math.Rounding.Floor)`."
+    },
+    {
+      "title": "[TransferLibrary.sendAssets reverts on zero transfer for ERC20 tokens]",
+      "severity": "Low",
+      "category": "Revert on zero transfer",
+      "file": "flexible-vaults/src/libraries/TransferLibrary.sol",
+      "function": "sendAssets()",
+      "description": "The `sendAssets` function uses `safeTransfer` for ERC20 tokens. Some ERC20 tokens (e.g., USDT) revert on a zero-value transfer. In `RedeemQueue.claim`, if a user claims a request with zero assets (e.g., due to a rounding error), the function will call `sendAssets` with `assets = 0`, causing the transaction to revert and blocking the claim.",
+      "attackPath": "1. User has a redeem request that, due to rounding, results in 0 assets. 2. User calls `claim`. 3. The loop processes the request, calculates `assets_ = 0`, and removes it. 4. After the loop, `sendAssets` is called with `assets = 0`. 5. If the asset is a token that reverts on zero transfer, the transaction reverts, and the user cannot claim.",
+      "impact": "User's redeem request cannot be claimed, and their shares are burned but assets are not received.",
+      "recommendation": "Skip the `sendAssets` call if `assets == 0`."
+    },
+    {
+      "title": "RedeemQueue.handleBatches() can be called repeatedly to drain vault without sufficient liquid assets",
+      "severity": "High",
+      "category": "Insolvency / bad debt",
+      "file": "RedeemQueue.sol",
+      "function": "handleBatches()",
+      "description": "In `handleBatches()`, the function checks `liquidAssets` only at the start of the loop and stops if `demand + batch.assets > liquidAssets`. However, `liquidAssets` is fetched once and not updated after each batch is processed. If multiple batches are processed in one call, the cumulative `demand` may exceed the actual liquid assets available after the first batch is pulled, because `vault_.callHook(demand)` and `modifyVaultBalance` are called only once at the end. This can lead to pulling more assets than the vault actually has, causing a shortfall.",
+      "attackPath": "1. Attacker submits multiple redeem requests. 2. Attacker calls `handleBatches()` with a large `batches` value. 3. The function sums `demand` across batches until it exceeds `liquidAssets`, but the check is done incrementally; if `liquidAssets` is 100 and two batches each require 60, the first batch (60) is within limit, but the second batch (60) pushes demand to 120 > 100, so the loop breaks. However, if `liquidAssets` is 100 and the first batch requires 100, the loop adds it, then the second batch (1) would push demand to 101 > 100, so it breaks. But if `liquidAssets` is 100 and the first batch requires 50, the second batch requires 60, the loop adds both (demand=110 > 100) and breaks, but `counter` is 2, so both batches are processed, pulling 110 assets when only 100 are available.",
+      "impact": "Vault can be forced to send more assets than it holds, leading to insolvency and failed transfers, locking funds or causing reverts.",
+      "recommendation": "Check `liquidAssets` after each batch addition, or pull assets incrementally per batch and update `liquidAssets` accordingly."
+    },
+    {
+      "title": "FeeManager.calculateFee uses incorrect time unit for protocol fee",
+      "severity": "High",
+      "category": "Wrong constants or units",
+      "file": "flexible-vaults/src/managers/FeeManager.sol",
+      "function": "calculateFee()",
+      "description": "The protocol fee calculation uses `365e6 days` as the denominator, which equals 365,000,000 days (approximately 1 million years). This makes the protocol fee essentially zero in practice. The intent was likely `365 days` (one year) or `365e6` seconds (approximately 11.5 years), but the current formula makes the fee negligible.",
+      "attackPath": "An attacker can exploit the near-zero protocol fee by keeping funds in the vault indefinitely without incurring meaningful fees, while the protocol expects to collect fees over time.",
+      "impact": "Protocol loses expected fee revenue; the fee mechanism is effectively broken.",
+      "recommendation": "Change `365e6 days` to `365 days` or use the correct time unit for the intended fee rate."
+    },
+    {
+      "title": "FeeManager.updateState can be called by anyone to manipulate fee state",
+      "severity": "Medium",
+      "category": "Access Control",
+      "file": "flexible-vaults/src/managers/FeeManager.sol",
+      "function": "updateState()",
+      "description": "The `updateState` function has no access control. It uses `_msgSender()` as the vault address and updates `minPriceD18` and `timestamps` for that vault. An untrusted attacker can call this function with any asset, and if the asset matches the base asset for a vault, they can manipulate the minimum price and timestamp, affecting fee calculations.",
+      "attackPath": "1. Attacker identifies a vault with a base asset. 2. Attacker calls `updateState(asset, 1)` (or any low price). 3. This sets `minPriceD18` to 1, causing `calculateFee` to compute excessive performance fees on the next legitimate report. 4. Alternatively, attacker sets a future timestamp to prevent fee accrual.",
+      "impact": "Incorrect fee calculations - can cause excessive fees to be minted to the fee recipient, diluting shareholder value, or prevent legitimate fees from accruing.",
+      "recommendation": "Restrict `updateState` to be callable only by the vault or the oracle (e.g., add `onlyVault` or `onlyOracle` modifier)."
+    },
+    {
+      "title": "SignatureQueue validates price against stale or zero oracle report",
+      "severity": "High",
+      "category": "Stale/zero price validation",
+      "file": "SignatureQueue.sol",
+      "function": "validateOrder()",
+      "description": "In `validateOrder()`, the computed `priceD18` is checked with `oracle_.validatePrice(priceD18, order.asset)`. However, `validatePrice` in `Oracle.sol` only compares against the stored `report.priceD18` and does not check `report.timestamp` for staleness. If the stored report is old (e.g., from months ago) or was never set (priceD18 == 0), the validation may pass or fail incorrectly, allowing orders to execute at manipulated or outdated prices.",
+      "attackPath": "An attacker submits a signed order with a `priceD18` that matches an old, stale report price. Since `validatePrice` does not check `report.timestamp`, the order passes validation and executes at the stale price, even if the current market price has moved significantly.",
+      "impact": "Users can deposit or redeem at outdated prices, leading to incorrect share minting/burning and potential loss of funds for other vault participants.",
+      "recommendation": "In `validateOrder()`, additionally check that the oracle report is fresh (e.g., `block.timestamp - report.timestamp <= maxStaleness`) and that `report.priceD18 != 0` before accepting the order."
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "contest": "2025-07-malda",
+  "hypotheses": [
+    {
+      "title": "Unrestricted external seize() allows arbitrary token confiscation",
+      "severity": "Critical",
+      "category": "SOLVENCY",
+      "file": "malda-lending/src/mToken/mToken.sol",
+      "function": "seize()",
+      "description": "The public `seize` function is exposed without any access control, allowing any external caller to invoke `_seize` directly. `_seize` only checks that the borrower and liquidator are different and that the borrower holds enough mTokens, but it does not verify that the caller is an authorized market (the seizer token) or that a liquidation has occurred. Consequently, an attacker can confiscate any user's mTokens by specifying themselves as the liquidator.",
+      "attackPath": "1. Attacker calls `seize(attacker, victim, victimBalance)` on the target mToken contract.  \n2. The call passes the internal `_seize` check (`borrower != liquidator`).  \n3. `_seize` transfers `victimBalance` mTokens from `victim` to `attacker` (minus protocol share) and updates reserves.  \n4. Attacker now controls the victim’s entire mToken balance, effectively draining the user’s collateral.",
+      "impact": "Immediate loss of user funds (full or partial confiscation of deposited collateral) and potential insolvency of the market if many users are drained.",
+      "recommendation": "Restrict `seize` to be callable only by authorized market contracts (e.g., require `msg.sender == address(seizerToken)` or check against a whitelist) and/or make it `internal` so it can only be invoked through the vetted liquidation flow."
+    },
+    {
+      "title": "PROOF_BATCH_FORWARDER role can bypass zk‑proof verification and drain underlying tokens",
+      "severity": "Critical",
+      "category": "ACCESS",
+      "file": "mTokenGateway.sol",
+      "function": "outHere()",
+      "description": "The `outHere` function skips zk‑proof verification when the caller holds the `PROOF_BATCH_FORWARDER` role. After bypassing verification, the caller can craft arbitrary journal data with a chosen `_sender` equal to themselves and inflate the decoded `_accAmountOut` value, allowing withdrawal of any amount up to that fabricated limit. No additional checks prevent this abuse.",
+      "attackPath": "1. Attacker obtains (or is granted) the `PROOF_BATCH_FORWARDER` role in the `Roles` contract.  \n2. Calls `outHere` with a custom `journalData` containing a journal where `_sender` = attacker address and `_accAmountOut` is set to a very large number.  \n3. Supplies a matching `amount` ≤ (`_accAmountOut` – `accAmountOut[attacker]`).  \n4. The contract skips `_verifyProof`, passes `_checkSender` (msg.sender == _sender), updates `accAmountOut`, and transfers the requested `amount` of the underlying ERC‑20 to the attacker.  \n5. Repeating the call drains the contract’s entire underlying balance.",
+      "impact": "Unlimited extraction of the underlying ERC‑20 assets, leading to total loss of user funds and protocol insolvency.",
+      "recommendation": "Restrict the `PROOF_BATCH_FORWARDER` role to a highly trusted address (e.g., a multisig) and add an additional on‑chain verification step (e.g., require a signed proof or enforce a time‑locked delay) even for privileged callers. Consider removing the bypass entirely."
+    },
+    {
+      "title": "Unrestricted external call to beforeMTokenTransfer enables arbitrary reward accrual and potential DoS",
+      "severity": "Medium",
+      "category": "ACCESS",
+      "file": "Operator.sol",
+      "function": "beforeMTokenTransfer(address,address,uint256)",
+      "description": "The function `beforeMTokenTransfer` is external and lacks any access control restricting the caller to the associated mToken contract. It can be invoked by any external address (subject only to blacklist checks) with arbitrary `src`, `dst`, and `transferTokens` values. The call updates the MALDA supply index and distributes rewards to both `src` and `dst` via the RewardDistributor, without requiring an actual token transfer.",
+      "attackPath": "1. Attacker calls `beforeMTokenTransfer` with their own address as `src` and/or `dst` and any `transferTokens`.  \n2. The contract updates the supply index and calls `_distributeSupplierMalda` for the attacker, causing the RewardDistributor to accrue MALDA rewards for the attacker.  \n3. Repeating the call many times in a single block can cause unnecessary state updates and gas consumption, potentially leading to a denial‑of‑service for legitimate users or inflating reward accrual if the RewardDistributor does not correctly handle repeated notifications.",
+      "impact": "Attacker can artificially increase their reward balance or exhaust gas limits, degrading protocol efficiency and potentially draining reward tokens over time.",
+      "recommendation": "Restrict `beforeMTokenTransfer` to be callable only by the corresponding mToken contract (e.g., add an `onlyMToken` modifier or explicit `require(msg.sender == expectedMToken)`). Ensure reward distribution functions are idempotent per block."
+    },
+    {
+      "title": "Blacklist can be bypassed via `enterMarkets` (and related entry functions)",
+      "severity": "Medium",
+      "category": "ACCESS",
+      "file": "Operator.sol",
+      "function": "enterMarkets(), enterMarketsWithSender()",
+      "description": "The contract defines an `ifNotBlacklisted` modifier that checks the external `IBlacklister` contract, but this modifier is never applied to the user‑facing market‑entry functions. As a result, addresses that have been marked as blacklisted can still call `enterMarkets` (or `enterMarketsWithSender`) and become members of markets, potentially allowing them to later supply, borrow, or interact with the protocol despite being blacklisted.",
+      "attackPath": "1. Attacker’s address is added to the blacklist by the designated Blacklister contract.  \n2. Attacker calls `enterMarkets` (or `enterMarketsWithSender`) on the `Operator` contract.  \n3. The call passes the `onlyAllowedUser` check (whitelist may be disabled) and proceeds because no blacklist check is performed.  \n4. The attacker’s address is recorded in `accountAssets` and `markets[...].accountMembership`, granting full market participation rights.  \n5. The attacker can now invoke other protocol functions (e.g., supply, borrow) that rely on market membership, effectively evading the blacklist.",
+      "impact": "The blacklist mechanism, intended to block malicious or sanctioned actors, is ineffective, allowing prohibited addresses to interact with the lending platform and potentially exploit other protocol functions. This undermines compliance and can lead to regulatory or financial risk.",
+      "recommendation": "Apply the `ifNotBlacklisted` modifier (or an equivalent explicit blacklist check) to all external functions that grant market participation or financial rights, especially `enterMarkets`, `enterMarketsWithSender`, and any supply/borrow entry points. Consider consolidating the check in a common internal function to avoid future omissions."
+    },
+    {
+      "title": "Public claimMalda allows arbitrary reward distribution triggering",
+      "severity": "Low",
+      "category": "ACCESS",
+      "file": "Operator.sol",
+      "function": "claimMalda(address[],address[],bool,bool)",
+      "description": "`claimMalda` is a public external function that forwards to `_claim` without any access restriction. It can be called by any address to trigger reward index updates and reward distribution for any list of holders and markets.",
+      "attackPath": "1. Attacker calls `claimMalda` with a list of victim addresses and markets.  \n2. The contract updates supply/borrow indexes and calls the RewardDistributor to distribute and finally claim rewards for those victims.  \n3. While the rewards go to the victims, the attacker can cause excessive gas consumption or manipulate the timing of reward accrual.",
+      "impact": "Potential denial‑of‑service through gas exhaustion and manipulation of reward timing; no direct fund loss but can affect protocol efficiency.",
+      "recommendation": "Restrict `claimMalda` to authorized roles (e.g., admin or keeper) or make it internal, exposing only a view function for off‑chain callers."
+    },
+    {
+      "title": "Reentrancy risk in `supplyOnHost` due to ERC‑20 transfer before state update",
+      "severity": "Medium",
+      "category": "ORDERING",
+      "file": "mTokenGateway.sol",
+      "function": "supplyOnHost()",
+      "description": "`supplyOnHost` performs an external `safeTransferFrom` of the underlying token **before** updating the contract’s internal accounting (`accAmountIn`). A malicious ERC‑20 token could execute a callback during `transferFrom` and re‑enter `supplyOnHost` (or other functions), causing `accAmountIn` to be incremented multiple times while only a single token transfer occurs.",
+      "attackPath": "1. Deploy a malicious ERC‑20 token whose `transferFrom` calls back into `mTokenGateway.supplyOnHost`.  \n2. Approve the malicious token for the gateway and call `supplyOnHost` with a small `amount`.  \n3. During the `safeTransferFrom`, the token re‑enters `supplyOnHost`, passing the same checks and performing another transfer (or none) before the first call finishes.  \n4. `accAmountIn` is increased twice (or more) while the contract may have received the underlying token only once, inflating the recorded deposit.",
+      "impact": "Inflated deposit records can be leveraged to claim excessive rewards or to manipulate downstream accounting, potentially leading to fund misallocation.",
+      "recommendation": "Apply a reentrancy guard (`nonReentrant`) to `supplyOnHost` or move the state update (`accAmountIn`) before the external token transfer."
+    },
+    {
+      "title": "Guardian role can permanently pause critical operations, causing denial‑of‑service",
+      "severity": "Medium",
+      "category": "LIVENESS",
+      "file": "mTokenGateway.sol",
+      "function": "setPaused()",
+      "description": "The `setPaused` function allows any address with the `GUARDIAN_PAUSE` role to pause **any** `OperationType`. However, unpausing (`state == false`) is restricted to the contract `owner` only. If a guardian address is compromised or malicious, it can pause essential operations (e.g., `AmountIn`, `AmountOutHere`, `Rebalancing`) and the owner may be unable or unwilling to unpause, effectively freezing the protocol.",
+      "attackPath": "1. Attacker compromises a guardian address that holds `GUARDIAN_PAUSE`.  \n2. Calls `setPaused(_type, true)` for a critical operation such as `OperationType.AmountIn`.  \n3. Users can no longer supply or withdraw assets, and rebalancing stops.  \n4. Since only the owner can unpause, the protocol remains halted until the owner intervenes, which may be delayed or impossible if the owner is also compromised or offline.",
+      "impact": "Temporary or indefinite loss of service, preventing users from interacting with the market and potentially causing liquidity crises.",
+      "recommendation": "Require a multi‑signature or time‑locked governance process for both pausing and unpausing, or allow a designated “unpauser” role in addition to the owner."
+    }
+  ]
+}

@@ -1,0 +1,170 @@
+{
+  "contest": "2025-01-perennial-v2-4-update",
+  "hypotheses": [
+    {
+      "title": "Market `update()` with `protect` parameter lacks access control",
+      "severity": "High",
+      "category": "Missing Access Control",
+      "file": "Market.sol",
+      "function": "update",
+      "description": "The `update(address,UFixed6,UFixed6,UFixed6,Fixed6,bool)` overload (line ~280) is declared `external` with no `onlyOperator` or `onlyCoordinator` modifier. Any untrusted caller can set `protect=true` to force a liquidation lock on any account, bypassing the protection validation in `InvariantLib._validateProtection()` which checks that the position is undercollateralized.",
+      "attackPath": "1. Attacker calls `market.update(victim, 0, 0, 0, 0, true)` with no authorization. 2. The `_update` function sets `updateContext.liquidator = msg.sender` when `newOrder.protected()` is true. 3. The attacker becomes the liquidator for the victim's current order, gaining control over liquidation fees.",
+      "impact": "Attacker can force-protect any account's position, becoming the designated liquidator and potentially claiming liquidation fees from the victim's collateral.",
+      "recommendation": "Add the `onlyOperator(account)` modifier to the `update(address,UFixed6,UFixed6,UFixed6,Fixed6,bool)` overload, consistent with other update functions that modify position."
+    },
+    {
+      "title": "Vault share inflation via first-depositor donation attack",
+      "severity": "High",
+      "category": "First-depositor attack",
+      "file": "Vault.sol",
+      "function": "update()",
+      "description": "The Vault's `convertToShares` and `convertToAssets` use `totalAssets()` and `totalShares()`. When `totalShares` is zero, `convertToShares` returns assets 1:1. An attacker can be the first depositor, depositing a small amount (e.g., 1 wei) to receive 1 share, then directly transfer a large amount of the underlying asset to the Vault contract. This inflates `totalAssets()` without minting shares, making the attacker's single share worth a disproportionate amount. Subsequent depositors receive very few shares for their assets, and the attacker can redeem their share to steal the donated assets.",
+      "attackPath": "1. Attacker calls `update(attacker, 1 wei, 0, 0)` to become the first depositor, receiving 1 share. 2. Attacker transfers a large amount of `asset` directly to the Vault contract. 3. A victim calls `update(victim, largeAmount, 0, 0)`. The victim's deposit is converted to shares using the inflated `totalAssets()`, resulting in a negligible number of shares. 4. Attacker calls `update(attacker, 0, 1, 0)` to redeem their 1 share, receiving a large portion of the vault's assets, including the victim's deposit.",
+      "impact": "Direct theft of funds from subsequent depositors. The first depositor can drain the vault of assets deposited by others.",
+      "recommendation": "Implement a minimum initial liquidity lock, such as minting a large number of shares (e.g., 1000) to the zero address on the first deposit, or require a minimum deposit amount that makes the attack economically unviable."
+    },
+    {
+      "title": "Missing chain ID and contract address in EIP-712 typed data structures",
+      "severity": "High",
+      "category": "Cross-chain replay",
+      "file": "Verifier.sol",
+      "function": "verifyIntent()",
+      "description": "The EIP-712 domain separator includes the contract address and chain ID, but the signed message structs (Intent, Fill, Take, etc.) do not include a chain ID or contract address field. This allows a valid signature on one chain to be replayed on another chain where the same contract is deployed at the same address via CREATE2, or where the domain separator happens to match.",
+      "attackPath": "1. Attacker observes a valid signed Intent on Ethereum mainnet. 2. Attacker deploys the same Verifier contract at the same address on a sidechain or L2 via CREATE2. 3. Attacker submits the same signature+message to the sidechain Verifier, which validates it because the domain separator matches. 4. The sidechain Market processes the replayed order.",
+      "impact": "Unauthorized position changes and collateral movements on unintended chains, potentially draining funds or manipulating markets.",
+      "recommendation": "Include `block.chainid` and `address(this)` in the EIP-712 domain separator or in each struct's hash to bind signatures to a single chain and contract."
+    },
+    {
+      "title": "No chain ID or contract address in Fill and Intent structs",
+      "severity": "High",
+      "category": "Cross-chain replay",
+      "file": "Fill.sol",
+      "function": "hash()",
+      "description": "The `Fill` and `Intent` structs do not include a chain ID or contract address in their EIP-712 hashes. Although the domain separator includes the contract address, the struct itself is not bound to a specific chain. An attacker can replay a signed Fill on a different chain where the same Verifier contract exists at the same address.",
+      "attackPath": "1. Attacker observes a valid signed Fill on Ethereum. 2. Attacker deploys the same Verifier and Market contracts on an L2 via CREATE2. 3. Attacker submits the Fill+signature to the L2 Verifier, which validates it. 4. The L2 Market processes the replayed fill, moving funds.",
+      "impact": "Unauthorized cross-chain execution of fills, leading to loss of funds or incorrect market state.",
+      "recommendation": "Include `block.chainid` and `address(this)` in the struct hash or in the EIP-712 domain separator to bind signatures to a single chain."
+    },
+    {
+      "title": "Missing chain ID in RelayedTake and other relayed messages",
+      "severity": "High",
+      "category": "Cross-chain replay",
+      "file": "Controller_Incentivized.sol",
+      "function": "relayTake()",
+      "description": "The `RelayedTake` struct does not include a chain ID or contract address in its EIP-712 hash. Although the outer signature is verified by the AccountVerifier, the inner signature (for the Take) is also chain-agnostic. An attacker can replay a relayed message on a different chain where the same contracts exist.",
+      "attackPath": "1. Attacker observes a valid RelayedTake on Ethereum. 2. Attacker deploys the same Controller, Verifier, and Market contracts on an L2 via CREATE2. 3. Attacker submits the RelayedTake+signatures to the L2 Controller. 4. The L2 Controller validates the outer signature and relays the inner Take to the L2 Market, which processes it.",
+      "impact": "Unauthorized cross-chain execution of relayed orders, leading to loss of funds or incorrect market state.",
+      "recommendation": "Include `block.chainid` and `address(this)` in the EIP-712 domain separator or in each relayed struct's hash to bind signatures to a single chain."
+    },
+    {
+      "title": "`claimFee()` allows any operator to drain all fee types from any account",
+      "severity": "High",
+      "category": "Privilege Escalation",
+      "file": "Market.sol",
+      "function": "claimFee",
+      "description": "The `claimFee(address)` function uses `onlyOperator(account)` which only checks that `msg.sender` is an operator for the `account` parameter. However, the function then checks `if (account == factory().owner())` to credit protocol fees, `if (account == address(oracle))` for oracle fees, and `if (account == coordinator)` for risk fees. An operator of a victim account can call `claimFee(victim)` and if the victim happens to be the owner, oracle, or coordinator, the attacker receives those fees.",
+      "attackPath": "1. Attacker becomes an operator for any account (e.g., by being added as operator by that account). 2. Attacker calls `claimFee(factory().owner())` or `claimFee(coordinator)`. 3. The `onlyOperator` check passes because the attacker is an operator of that address. 4. The function transfers protocol/risk/oracle fees to `msg.sender`.",
+      "impact": "Attacker can drain protocol fees, oracle fees, and risk fees from the market by calling claimFee on privileged addresses for which they are an operator.",
+      "recommendation": "Restrict `claimFee()` to only allow the account itself to claim its own fees, or add separate access controls for each fee type (e.g., only owner can claim protocol fee)."
+    },
+    {
+      "title": "Stale oracle price accepted in settlement when `valid` flag is false",
+      "severity": "High",
+      "category": "Stale Price / Oracle Misuse",
+      "file": "Market.sol",
+      "function": "_settle()",
+      "description": "In `_settle()`, the `while` loops call `_processOrderGlobal` and `_processOrderLocal` for any pending order whose timestamp is <= `latestOracleVersion.timestamp`. The `ready()` check only compares timestamps, ignoring the `valid` flag. If the oracle commits an invalid version (e.g., after timeout), the settlement proceeds with a price of zero or a stale price, leading to incorrect PnL and fee calculations.",
+      "attackPath": "An attacker can wait until the oracle's `timeout` period expires, causing the next committed version to be marked invalid. The attacker then triggers settlement (e.g., via `settle()` or `update()`), which processes orders using the invalid price, skewing funding, interest, and PnL in the attacker's favor.",
+      "impact": "Incorrect settlement of positions, potential loss of funds for counterparties, and manipulation of market exposure.",
+      "recommendation": "In `_settle()`, add a check that `latestOracleVersion.valid` is true before processing orders, or handle invalid versions by reverting to a safe fallback (e.g., the last valid price)."
+    },
+    {
+      "title": "Spot-price manipulation via flash loans in Pyth oracle commitment",
+      "severity": "High",
+      "category": "Spot-Price Manipulation",
+      "file": "PythFactory.sol",
+      "function": "_parsePrices()",
+      "description": "The `_parsePrices()` function accepts prices from the Pyth network without any time-weighted averaging or manipulation resistance. An attacker can use a flash loan to manipulate the on-chain price of an asset, then commit that manipulated price to the Pyth oracle. The price is used directly in settlement calculations.",
+      "attackPath": "An attacker borrows a large amount of the underlying asset via a flash loan, executes a large swap to move the price, commits the manipulated price to the Pyth oracle via `commit()`, settles positions in the market to realize profit, and then repays the flash loan.",
+      "impact": "Direct financial loss for counterparties and liquidity providers due to artificially inflated or deflated settlement prices.",
+      "recommendation": "Use a TWAP or multi-source price aggregation to reduce the impact of single-point price manipulation. Consider adding a delay or requiring multiple confirmations before a price is considered final."
+    },
+    {
+      "title": "Reentrancy via token callback during collateral pull in Market._update()",
+      "severity": "High",
+      "category": "Reentrancy",
+      "file": "Market.sol",
+      "function": "_update()",
+      "description": "In `_update()`, the external call `token.pull(msg.sender, ...)` occurs after state updates but before the function returns. If `token` is an ERC-777 or similar token with a callback hook, the attacker can reenter the Market contract and call `update()` again, causing state inconsistencies because `_storeUpdateContext()` has already been called but `_storeContext()` has not yet been called.",
+      "attackPath": "1. Attacker calls `update()` with a collateral deposit. 2. `token.pull()` triggers a callback to the attacker's contract. 3. In the callback, attacker calls `update()` again, exploiting the intermediate state where `_storeUpdateContext()` has stored partial updates but `_storeContext()` has not yet stored the full context.",
+      "impact": "Attacker can manipulate pending orders, collateral, or position state, potentially draining funds or causing accounting errors.",
+      "recommendation": "Move the `token.pull()` and `token.push()` calls to occur before `_storeUpdateContext()`, or add a reentrancy guard that prevents reentry during the entire `_update()` flow."
+    },
+    {
+      "title": "Missing domain check in Verifier._authorized() for signer delegation",
+      "severity": "High",
+      "category": "Wrong signer check",
+      "file": "Verifier.sol",
+      "function": "_authorized()",
+      "description": "The `_authorized()` function checks `marketFactory.signers(account, signer)` but does not verify that the `domain` field in the signed `Common` struct matches the current market contract. A signer approved for one market can sign messages intended for a different market, and the Verifier will accept them.",
+      "attackPath": "1. Alice approves Bob as a signer on Market A. 2. Bob signs a `Take` message with `common.domain` set to Market B. 3. Bob submits the signature to Market B's Verifier. 4. The Verifier accepts it because `_authorized(account, signer)` returns true, ignoring the domain mismatch.",
+      "impact": "Unauthorized position changes on markets where the signer was not approved, enabling cross-market manipulation.",
+      "recommendation": "In `_authorized()`, also verify that `common.domain` equals the market contract that will process the message, or enforce domain checks in each `verify*` function."
+    },
+    {
+      "title": "Keeper fee can be raised from collateral account without user authorization",
+      "severity": "High",
+      "category": "Unauthorized Fee Extraction",
+      "file": "Controller_Incentivized.sol",
+      "function": "_raiseKeeperFee",
+      "description": "The `_raiseKeeperFee` function in `Controller_Incentivized` pulls DSU from the collateral account to pay the keeper fee, but the `keepCollateralAccount` modifier only checks that the caller is the owner or a delegated signer for the *outer* message.  The keeper fee amount is deducted from the account's DSU balance without explicit user consent for the fee amount itself, beyond a `maxFee` field that is user-specified but not cryptographically bound to the specific action being performed.  An attacker can craft a valid outer signature for a low-value action (e.g., a `relayTake` with a tiny position change) but with a high `maxFee`, then execute it to drain the account's DSU.",
+      "attackPath": "1. Attacker observes a valid signed `RelayedTake` message from a user (e.g., via front-running or social engineering). 2. Attacker calls `relayTake()` on `Controller_Incentivized` with the observed message and a forged outer signature (or reuses the outer signature if the nonce is not yet consumed). 3. The `keepCollateralAccount` modifier calculates the keeper fee based on gas used and the `keepConfig`, but the `maxFee` in the `Action` message is the user's original value. 4. The `_raiseKeeperFee` function pulls DSU from the user's collateral account up to `maxFee`, transferring it to the controller and then to the attacker. 5. The attacker receives DSU without providing any real service.",
+      "impact": "Loss of funds (DSU) from the victim's collateral account, up to the `maxFee` they set in any signed action.",
+      "recommendation": "The keeper fee should be capped by a separate, user-authorized fee limit that is cryptographically bound to the specific action, or the fee should be paid by the relayer (attacker) and not the account owner."
+    },
+    {
+      "title": "Keeper fee can be raised from market without proper authorization",
+      "severity": "High",
+      "category": "Unauthorized Fee Extraction",
+      "file": "MultiInvoker.sol",
+      "function": "_raiseKeeperFee",
+      "description": "The `_raiseKeeperFee` function in `MultiInvoker` pulls DSU from the market to pay the keeper fee, but the `_executeOrder` function only checks that the order can be executed via `canExecuteOrder()`.  It does not verify that the caller (keeper) is authorized to receive the fee.  An attacker can call `_executeOrder` directly (if they can bypass the `onlyOperator` check) or indirectly via a front-running attack, and the keeper fee will be paid from the market's DSU balance.",
+      "attackPath": "1. Attacker monitors the mempool for a valid `executeOrder` transaction. 2. Attacker front-runs the transaction with a higher gas price, calling `_executeOrder` with the same parameters. 3. The `_executeOrder` function executes the order and calls `_raiseKeeperFee`, which pulls DSU from the market to pay the attacker. 4. The original transaction fails because the order is already spent.",
+      "impact": "Loss of funds (DSU) from the market, as the keeper fee is paid to an unauthorized attacker.",
+      "recommendation": "The `_raiseKeeperFee` function should verify that the caller is a legitimate keeper, or the fee should be paid by the user who placed the order, not the market."
+    },
+    {
+      "title": "Cross-contract reentrancy in KeeperOracle.commit() via market.settle()",
+      "severity": "High",
+      "category": "Reentrancy",
+      "file": "KeeperOracle.sol",
+      "function": "commit()",
+      "description": "`commit()` calls `market.settle(address(0))` and then `oracle.claimFee(...)` and `market.token().push(...)`. If `market.settle()` triggers callbacks (e.g., via token transfers or oracle interactions), an attacker can reenter `commit()` or other functions, leading to inconsistent oracle state or double fee claims.",
+      "attackPath": "1. Attacker calls `commit()` with a valid price update. 2. `market.settle()` triggers a callback to the attacker's contract. 3. In the callback, attacker calls `commit()` again, potentially committing a different price or claiming fees multiple times.",
+      "impact": "Attacker can manipulate oracle prices, claim duplicate fees, or cause incorrect settlement calculations.",
+      "recommendation": "Add a reentrancy guard to `commit()` or ensure that all state changes are completed before any external calls."
+    },
+    {
+      "title": "No nonce or expiry in Market.update() for unsigned calls",
+      "severity": "Medium",
+      "category": "Replay",
+      "file": "Market.sol",
+      "function": "update(address, Fixed6, address)",
+      "description": "The `update()` overloads that do not require a signature (e.g., `update(address account, Fixed6 amount, address referrer)`) have no nonce, deadline, or replay protection. Any valid caller (operator or signer) can replay the same calldata multiple times, causing repeated position changes.",
+      "attackPath": "1. An operator calls `update(alice, +100, address(0))` to increase Alice's position. 2. A malicious relayer or miner captures the transaction and re-submits it. 3. The market processes the same order again, doubling the position change.",
+      "impact": "Unauthorized duplicate position updates, leading to incorrect accounting and potential insolvency.",
+      "recommendation": "Add a user-controlled nonce or require that unsigned updates include a timestamp check to prevent replay within the same block."
+    },
+    {
+      "title": "MultiInvoker `_update` withdraws entire DSU balance, not just excess",
+      "severity": "Medium",
+      "category": "Accounting error",
+      "file": "MultiInvoker.sol",
+      "function": "_update()",
+      "description": "In `_update`, after calling `market.update`, the code calculates `withdrawAmount` as the difference between the current DSU balance and the balance before the update. This is intended to withdraw any excess collateral that was not used by the market. However, if the market update results in a net withdrawal of collateral (e.g., the user is closing a position and withdrawing funds), the DSU balance will increase. The code then withdraws this entire increase, which is correct. The flaw is that if the market update results in a net deposit (e.g., the user is opening a position and depositing more than the `collateral` parameter), the DSU balance will decrease, and `withdrawAmount` will be negative, so no withdrawal occurs. This is correct. The issue is that the `withdrawAmount` calculation uses `Fixed6Lib.from(Fixed18Lib.from(DSU.balanceOf()).sub(balanceBefore))`, which can be negative. If the market update results in a net deposit, the balance decreases, and `withdrawAmount` is negative, so no withdrawal occurs. This is correct. However, if the market update results in a net withdrawal, the balance increases, and `withdrawAmount` is positive, so the entire increase is withdrawn. This is correct. The flaw is that the `_withdraw` function is called with `withdrawAmount.abs()`, which is the absolute value. If `withdrawAmount` is negative (net deposit), `withdrawAmount.abs()` is positive, and the code will attempt to withdraw the deposited amount, which is incorrect. This would pull funds from the user's account to the MultiInvoker and then withdraw them, effectively stealing the user's deposit.",
+      "attackPath": "1. User calls `invoke` with an `UPDATE_POSITION` action where `collateral` is positive (deposit). 2. The `_update` function deposits the collateral and calls `market.update`. 3. The market update may result in a net deposit of collateral (e.g., due to fees or price changes). 4. The DSU balance decreases, making `withdrawAmount` negative. 5. The code calls `_withdraw(account, withdrawAmount.abs(), wrap)`, which withdraws the deposited amount from the user's account, effectively stealing it.",
+      "impact": "Loss of user funds. The MultiInvoker can withdraw more than the user intended, potentially draining their account.",
+      "recommendation": "Only withdraw if `withdrawAmount` is positive. Change the condition to `if (withdrawAmount.gt(Fixed6Lib.ZERO)) _withdraw(account, withdrawAmount.abs(), wrap);`."
+    }
+  ]
+}

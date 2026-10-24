@@ -1,0 +1,170 @@
+{
+  "contest": "2025-05-yearn-ybold",
+  "hypotheses": [
+    {
+      "title": "permit() uses pre-increment nonce in signature verification",
+      "severity": "Medium",
+      "category": "Signature malleability",
+      "file": "TokenizedStrategy.sol",
+      "function": "permit()",
+      "description": "The permit() function increments the nonce before computing the hash for signature recovery: `_strategyStorage().nonces[owner]++`. This means the signature must be created with the nonce value before increment, but the contract uses the incremented value. This is a deviation from EIP-2612 which expects the current nonce to be used. The signature will fail for any correctly generated EIP-2612 signature.",
+      "attackPath": "An attacker cannot exploit this to forge signatures, but any legitimate user attempting to use a standard EIP-2612 permit will have their transaction revert because the nonce in the signed message does not match the nonce used by the contract.",
+      "impact": "The permit() function is broken and unusable for any user. All permit-based approvals will fail, breaking meta-transaction workflows that rely on EIP-2612.",
+      "recommendation": "Use the current nonce (before increment) in the hash computation, then increment after verification: `uint256 nonce = S.nonces[owner]++;` and use `nonce` in the abi.encode."
+    },
+    {
+      "title": "First depositor can inflate share price and steal subsequent deposits",
+      "severity": "High",
+      "category": "First-depositor attack",
+      "file": "yv3-liquityv2-sp-strategy/lib/tokenized-strategy/flattened/FlatTokenizedStrategy.sol",
+      "function": "deposit()",
+      "description": "The strategy's share price is 1:1 with assets when totalSupply is zero. An attacker can deposit a minimal amount, then directly transfer a large amount of the underlying asset to the strategy contract, inflating totalAssets without minting shares. Subsequent depositors receive far fewer shares than their asset contribution, and the attacker can redeem their shares for a disproportionate amount of the later deposits.",
+      "attackPath": "1) Attacker calls deposit(1 wei, attacker) to mint 1 share. 2) Attacker transfers a large amount (e.g., 1000 tokens) of the underlying asset directly to the strategy contract. 3) A victim calls deposit(1000 tokens, victim). The share price is now ~1000 tokens per share, so the victim receives only ~1 share. 4) Attacker redeems their 1 share, receiving a large portion of the victim's deposit.",
+      "impact": "The attacker steals a significant portion of the victim's deposited assets, causing direct financial loss to the victim and corrupting the strategy's accounting.",
+      "recommendation": "Implement a minimum initial liquidity lock, e.g., mint a large number of shares to address(0) on first deposit, or require a minimum deposit amount that makes the attack economically unviable."
+    },
+    {
+      "title": "Auction `take()` sends tokens before pulling payment, enabling reentrancy",
+      "severity": "High",
+      "category": "Reentrancy",
+      "file": "Auction.sol",
+      "function": "_take()",
+      "description": "In `_take()`, the `from` tokens are transferred to the receiver before the `want` payment is pulled from the caller. If the receiver is a malicious contract, it can reenter during the `safeTransfer` callback (e.g., via ERC-777 hooks) and call `take()` again, draining the auction before paying.",
+      "attackPath": "1. Attacker deploys a contract that receives `from` tokens. 2. Attacker calls `take()` with `_receiver` set to their contract. 3. During `safeTransfer(_receiver, ...)`, the attacker's contract reenters `take()` for the same `_from`. 4. The second `take()` succeeds because `available()` still shows the full amount (state not yet updated). 5. Attacker gets double the `from` tokens while only paying once.",
+      "impact": "Loss of all auctioned tokens; the auction contract is drained without receiving corresponding `want` payment.",
+      "recommendation": "Follow the checks-effects-interactions pattern: pull the `want` payment via `safeTransferFrom` before transferring the `from` tokens to the receiver."
+    },
+    {
+      "title": "Auction `disable()` loop over unbounded `enabledAuctions` array can cause DoS",
+      "severity": "High",
+      "category": "Denial of Service",
+      "file": "Auction.sol",
+      "function": "disable()",
+      "description": "The `disable()` function iterates over the entire `enabledAuctions` array to find the index of the `_from` token when the provided `_index` is incorrect. An attacker can enable many auction tokens, causing the loop to consume excessive gas and potentially exceed the block gas limit, making it impossible to disable any auction.",
+      "attackPath": "1. Attacker calls `enable()` with many different token addresses, each adding an entry to `enabledAuctions`. 2. When governance tries to `disable()` any token, the fallback loop iterates over the entire array, which may revert due to out-of-gas.",
+      "impact": "Permanent freezing of the auction contract's management functions; governance cannot disable any auction, potentially trapping funds or preventing contract updates.",
+      "recommendation": "Remove the fallback loop and require the caller to always provide the correct index, or use a mapping to track array positions for O(1) removal."
+    },
+    {
+      "title": "`setStartingPrice()` loops over all enabled auctions, enabling DoS griefing",
+      "severity": "High",
+      "category": "Denial of Service",
+      "file": "Auction.sol",
+      "function": "setStartingPrice()",
+      "description": "The `setStartingPrice()` function iterates over the entire `enabledAuctions` array to check that no auction is active. An attacker can enable many tokens, causing this loop to become prohibitively expensive, preventing governance from ever updating the starting price.",
+      "attackPath": "1. Attacker calls `enable()` with many token addresses. 2. Governance attempts `setStartingPrice()`, which loops over all enabled auctions. 3. The transaction reverts due to gas limit, permanently blocking price updates.",
+      "impact": "Governance cannot adjust the starting price, potentially making auctions economically unviable or exploitable.",
+      "recommendation": "Track active auctions in a separate mapping or use a counter to check if any auction is active without iterating the full array."
+    },
+    {
+      "title": "Unauthorized initialization of cloned Auction contracts",
+      "severity": "High",
+      "category": "Access Control",
+      "file": "Auction.sol",
+      "function": "initialize()",
+      "description": "The `initialize()` function in `Auction.sol` only checks `require(auctionLength == 0, \"initialized\")` to prevent re-initialization. This check is insufficient for a clone-based proxy pattern because a newly cloned contract will have `auctionLength` set to 0 by default, allowing any untrusted external actor to call `initialize()` and set themselves as `governance`, `receiver`, and other critical parameters.",
+      "attackPath": "1. An attacker identifies a newly deployed (cloned) Auction contract that has not yet been initialized. 2. The attacker calls `initialize()` with their own address as `_governance` and `_receiver`, and arbitrary values for `_want`, `_auctionLength`, and `_startingPrice`. 3. The attacker now controls the auction contract, can set `startingPrice`, enable/disable auctions, and receive all funds from token sales.",
+      "impact": "Complete loss of funds and control over the auction contract. An attacker can steal any tokens sent to the contract and manipulate the auction mechanism.",
+      "recommendation": "Add an additional check in `initialize()` to ensure the contract is not already initialized, such as checking if `wantInfo.tokenAddress == address(0)` or using a dedicated `initialized` boolean flag."
+    },
+    {
+      "title": "Unauthorized initialization of cloned DebtAllocator contracts",
+      "severity": "High",
+      "category": "Access Control",
+      "file": "DebtAllocator.sol",
+      "function": "initialize()",
+      "description": "The `initialize()` function in `DebtAllocator.sol` only checks `require(governance == address(0), \"initialized\")` to prevent re-initialization. A newly cloned contract will have `governance` set to `address(0)` by default, allowing any untrusted external actor to call `initialize()` and set themselves as the `governance` of the contract.",
+      "attackPath": "1. An attacker identifies a newly deployed (cloned) DebtAllocator contract that has not yet been initialized. 2. The attacker calls `initialize()` with their own address as `_governance`. 3. The attacker now has governance powers, can set keepers, managers, and modify debt allocation parameters for the vault.",
+      "impact": "Complete loss of control over the debt allocation mechanism. An attacker can manipulate debt ratios, potentially causing loss of funds or insolvency for the associated vault.",
+      "recommendation": "Add an additional check in `initialize()` to ensure the contract is not already initialized, such as checking if `governance != address(0)` or using a dedicated `initialized` boolean flag."
+    },
+    {
+      "title": "Unauthorized initialization of cloned RoleManager contracts",
+      "severity": "High",
+      "category": "Access Control",
+      "file": "RoleManager.sol",
+      "function": "initialize()",
+      "description": "The `initialize()` function in `RoleManager.sol` only checks `require(chad == address(0), \"initialized\")` to prevent re-initialization. A newly cloned contract will have `chad` set to `address(0)` by default, allowing any untrusted external actor to call `initialize()` and set themselves as the `_governance` and gain all roles.",
+      "attackPath": "1. An attacker identifies a newly deployed (cloned) RoleManager contract that has not yet been initialized. 2. The attacker calls `initialize()` with their own address as `_governance`. 3. The attacker now has governance powers, can create new vaults, set roles, and control all managed vaults.",
+      "impact": "Complete loss of control over the role management system. An attacker can create malicious vaults, assign themselves privileged roles, and potentially drain funds from all managed vaults.",
+      "recommendation": "Add an additional check in `initialize()` to ensure the contract is not already initialized, such as checking if `chad != address(0)` or using a dedicated `initialized` boolean flag."
+    },
+    {
+      "title": "Unauthorized initialization of cloned GenericDebtAllocator contracts",
+      "severity": "High",
+      "category": "Access Control",
+      "file": "GenericDebtAllocator.sol",
+      "function": "initialize()",
+      "description": "The `initialize()` function in `GenericDebtAllocator.sol` only checks `require(address(vault) == address(0), \"!initialized\")` to prevent re-initialization. A newly cloned contract will have `vault` set to `address(0)` by default, allowing any untrusted external actor to call `initialize()` and set themselves as the `_governance` and set the `_vault` to any address they control.",
+      "attackPath": "1. An attacker identifies a newly deployed (cloned) GenericDebtAllocator contract that has not yet been initialized. 2. The attacker calls `initialize()` with their own address as `_governance` and a malicious vault address. 3. The attacker now has governance powers and can manipulate debt allocation for the specified vault.",
+      "impact": "Complete loss of control over the debt allocation mechanism. An attacker can manipulate debt ratios, potentially causing loss of funds or insolvency for the associated vault.",
+      "recommendation": "Add an additional check in `initialize()` to ensure the contract is not already initialized, such as checking if `vault != address(0)` or using a dedicated `initialized` boolean flag."
+    },
+    {
+      "title": "Auction starting price can be set to zero, enabling free collateral",
+      "severity": "High",
+      "category": "Price Manipulation",
+      "file": "yv3-liquityv2-sp-strategy/src/Strategy.sol",
+      "function": "_tend()",
+      "description": "In `_tend()`, the auction starting price is calculated as `_available * _price / WAD * _bufferPercentage / WAD / WAD`. If the oracle returns a price of zero (which can happen if the oracle is down or returns a zero value), the starting price becomes zero. The `Auction.setStartingPrice()` function only requires `_startingPrice != 0`, but if the calculation yields zero, the auction will start at a zero price, allowing anyone to take the collateral for free.",
+      "attackPath": "1. Attacker causes the oracle to return zero (e.g., by manipulating the oracle or during a known downtime). 2. Keeper calls `tend()`, which sets the auction starting price to zero. 3. Attacker calls `take()` and receives the collateral for free.",
+      "impact": "Complete loss of the collateral held by the strategy.",
+      "recommendation": "Add a check in `_tend()` that the calculated starting price is greater than zero before calling `AUCTION.setStartingPrice()`."
+    },
+    {
+      "title": "Fee-on-transfer tokens cause accounting mismatch in deposits",
+      "severity": "Medium",
+      "category": "Tokens with fees",
+      "file": "yv3-liquityv2-sp-strategy/lib/tokenized-strategy/flattened/FlatTokenizedStrategy.sol",
+      "function": "_deposit()",
+      "description": "The `_deposit` function transfers `assets` from the user and then increases `S.totalAssets` by the same `assets` amount. If the underlying token charges a transfer fee, the strategy receives fewer tokens than `assets`, but `totalAssets` is inflated by the full amount. This causes the share price to be overvalued, and the first user to withdraw can drain value from the strategy.",
+      "attackPath": "1) A user deposits `X` amount of a fee-on-transfer token. 2) The strategy receives `X - fee` tokens but records `totalAssets += X`. 3) The user's shares are worth `X` in the accounting, but the strategy only holds `X - fee`. 4) The user can redeem their shares for more than their fair share of the actual assets, stealing from other depositors.",
+      "impact": "The strategy's accounting is incorrect, and early withdrawers can profit at the expense of later depositors, leading to a loss of funds.",
+      "recommendation": "Measure the actual amount of tokens received after the transfer (e.g., by checking the balance difference) and use that for accounting instead of the requested `assets` amount."
+    },
+    {
+      "title": "Auction price can be manipulated to zero via stale kick and balance changes",
+      "severity": "High",
+      "category": "Price Manipulation",
+      "file": "yv3-liquityv2-sp-strategy/lib/tokenized-strategy-periphery/src/Auctions/Auction.sol",
+      "function": "_take()",
+      "description": "The `_take()` function allows any caller to take tokens at the current decaying price. There is no minimum price or slippage protection. An attacker can wait until the auction is near its end (when price approaches zero) and then take the entire available balance for a negligible cost. The `_getAmountNeeded()` calculation uses the decayed price, which can be arbitrarily low.",
+      "attackPath": "1. Attacker monitors an active auction. 2. Waits until `block.timestamp` is close to `auction.kicked + auctionLength`. 3. Calls `take(_from, type(uint256).max)` to take the full available balance. 4. The price has decayed to near zero, so the attacker pays almost nothing for the collateral.",
+      "impact": "The strategy's collateral is sold for near-zero value, causing a massive loss of funds for the strategy and its depositors.",
+      "recommendation": "Add a minimum price floor or a minimum percentage of the starting price that must be paid, and/or require a minimum time remaining in the auction for a take to be valid."
+    },
+    {
+      "title": "No deadline or nonce validation in isValidSignature for CoW orders",
+      "severity": "High",
+      "category": "Missing deadline/nonce",
+      "file": "Auction.sol",
+      "function": "isValidSignature()",
+      "description": "The isValidSignature() function validates a CoW order signature but does not check a nonce or enforce a deadline relative to the current block timestamp. The order's validTo is only checked against the auction's kicked+auctionLength, not against block.timestamp. This allows replay of a signed order across different auctions or after the intended validity window.",
+      "attackPath": "An attacker captures a valid signed CoW order for one auction. The attacker replays the same signature in a different auction contract or after the auction has been re-kicked, as long as the order's validTo is still within the new auction's kicked+auctionLength window.",
+      "impact": "An attacker can execute a trade using a stale signature, potentially at a different price or in a different auction than intended by the signer, leading to financial loss for the signer.",
+      "recommendation": "Add a nonce to the order data and verify it in isValidSignature(), or enforce that validTo must be <= block.timestamp to prevent replay."
+    },
+    {
+      "title": "No validation that spender is not address(0) in permit()",
+      "severity": "Low",
+      "category": "Wrong signer checks",
+      "file": "TokenizedStrategy.sol",
+      "function": "permit()",
+      "description": "The permit() function does not check that the spender address is not address(0) before calling _approve(). The _approve() function will revert if spender is address(0), but this check is missing from permit() itself, leading to a wasted transaction and gas cost for the caller.",
+      "attackPath": "An attacker can call permit() with spender = address(0) and a valid signature. The transaction will revert after signature verification and nonce increment, wasting the caller's gas and permanently consuming the nonce.",
+      "impact": "The caller loses gas and the nonce is burned, preventing reuse of the same signature. This can be used to grief users who rely on permit-based approvals.",
+      "recommendation": "Add `require(spender != address(0), \"ZERO ADDRESS\");` at the beginning of the permit() function."
+    },
+    {
+      "title": "Auction price can be manipulated by transferring tokens before kick",
+      "severity": "High",
+      "category": "Economic/Incentive Flaw",
+      "file": "yv3-liquityv2-sp-strategy/lib/tokenized-strategy-periphery/src/Auctions/Auction.sol",
+      "function": "kick()",
+      "description": "The `kick()` function uses the current balance of the `_from` token in the auction contract as the `initialAvailable`. An attacker can transfer a large amount of the `_from` token to the auction contract just before calling `kick()`, inflating `initialAvailable`. This lowers the starting price per token, allowing the attacker to buy the entire auctioned amount at a heavily discounted price.",
+      "attackPath": "1. Attacker waits for an auction to be inactive. 2. Attacker transfers a large amount of the `_from` token to the Auction contract. 3. Attacker calls `kick(_from)`, setting `initialAvailable` to the inflated balance. 4. Attacker calls `take(_from)` to buy the tokens at the now-deflated price.",
+      "impact": "The attacker can acquire the collateral tokens at a fraction of their fair value, causing a direct loss of funds to the strategy that deposited them for auction.",
+      "recommendation": "Use a separate accounting variable to track the amount to be auctioned, set by the depositor, rather than relying on the contract's token balance at the time of `kick()`."
+    }
+  ]
+}

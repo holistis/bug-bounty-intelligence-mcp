@@ -1,0 +1,71 @@
+{
+  "contest": "2025-06-notional-exponent",
+  "hypotheses": [
+    {
+      "title": "Unrestricted reward claim function allows arbitrary reward extraction",
+      "severity": "High",
+      "category": "SOLVENCY",
+      "file": "AbstractRewardManager.sol",
+      "function": "updateAccountRewards()",
+      "description": "The `updateAccountRewards` function is external and lacks any access control or verification that the supplied `account`, `accountSharesBefore`, and `accountSharesAfter` correspond to a legitimate vault holder. It directly computes and transfers reward tokens based on the caller‑provided share values, updating the internal reward‑debt mapping afterwards. An attacker can therefore specify any account (including themselves) and arbitrary share amounts to claim unlimited rewards from the contract’s reward pool.",
+      "attackPath": "1. Attacker calls `updateAccountRewards(attacker, effectiveSupply, X, 0, false)` where `X` is a large arbitrary number of shares.\n2. The function calculates `rewardToClaim = ((X * rewardsPerVaultShare) / DEFAULT_PRECISION) - 0` and transfers that amount of the reward token to the attacker.\n3. Reward debt for the attacker is set to 0 (since `accountSharesAfter` is 0), allowing the attacker to repeat step 1 indefinitely until the contract’s reward token balance is drained.",
+      "impact": "Complete draining of all reward tokens held by the contract, resulting in loss of accrued rewards for legitimate vault participants and potential loss of value for the protocol.",
+      "recommendation": "Restrict `updateAccountRewards` to be callable only by authorized vault contracts (e.g., via `onlyApprovedVault` modifier) and validate that `accountSharesBefore`/`accountSharesAfter` match the actual share balances of the `account` in the vault. Additionally, consider making the function `internal` and exposing a safe wrapper that the vault can call."
+    },
+    {
+      "title": "Delegatecall to library with immutable storage leads to zero‑address calls",
+      "severity": "High",
+      "category": "SOLVENCY",
+      "file": "CurveConvex2Token.sol",
+      "function": "_transferYieldTokenToOwner()",
+      "description": "`CurveConvex2Token._transferYieldTokenToOwner` uses a low‑level `delegatecall` to `CurveConvexLib.transferYieldTokenToOwner`. The library relies on several `immutable` variables (e.g., `CURVE_POOL_TOKEN`, `CONVEX_BOOSTER`, `CONVEX_REWARD_POOL`). When executed via `delegatecall`, those immutables are read from the storage of the calling contract, which never initialized the corresponding slots. Consequently the library reads zero addresses and attempts to call `address(0)` when unstaking or transferring tokens.",
+      "attackPath": "1. A user initiates a withdrawal that triggers the manager to call `CurveConvex2Token._transferYieldTokenToOwner`.\n2. The internal `delegatecall` executes `CurveConvexLib.transferYieldTokenToOwner` in the context of `CurveConvex2Token`.\n3. The library reads uninitialized storage slots, obtaining `address(0)` for `CURVE_POOL_TOKEN` and other contracts.\n4. The call to `CURVE_POOL_TOKEN.safeTransfer(owner, ...)` reverts or, if the slot happens to contain an attacker‑controlled address, transfers the yield tokens to the attacker.",
+      "impact": "Users cannot redeem their yield tokens; funds may become permanently locked or, in the worst case, transferred to an attacker‑controlled address.",
+      "recommendation": "Replace the `delegatecall` with a direct external call (or make the library a true library without state) and ensure any state‑dependent logic lives in the main contract. If a delegatecall is required, replicate the exact storage layout or pass needed parameters as calldata."
+    },
+    {
+      "title": "Stale `currentAccount` state when `isAuthorized` modifier reverts",
+      "severity": "Medium",
+      "category": "ACCESS",
+      "file": "AbstractLendingRouter.sol",
+      "function": "isAuthorized (modifier)",
+      "description": "The `isAuthorized` modifier clears the strategy’s “current account” only after the wrapped function finishes (`_`). If the wrapped function reverts after the strategy has set the current account (e.g., in `mintShares`, `burnShares`, etc.), the cleanup call `IYieldStrategy(vault).clearCurrentAccount()` is never executed. The stale `currentAccount` remains set for the next caller.",
+      "attackPath": "1. Attacker calls a manager function (e.g., `enterPosition`) that internally sets the strategy’s current account.  \n2. The function triggers an external call (e.g., a token transfer) that reverts (or the attacker supplies malformed data causing a revert).  \n3. Because the revert aborts the modifier’s post‑execution code, `clearCurrentAccount()` is not run.  \n4. The attacker (or any subsequent caller) invokes another manager function that relies on the cleared state, causing the strategy to treat the attacker’s address as the “current account” and potentially bypass access checks or manipulate accounting.",
+      "impact": "An attacker can manipulate the strategy’s internal context, leading to unauthorized share minting/burning or reward claims, effectively stealing assets or corrupting accounting.",
+      "recommendation": "Move the `clearCurrentAccount()` call into a `try/catch`‑style cleanup or use a `finally`‑like pattern (e.g., a separate internal function called via `unchecked {}` after the external call) to guarantee execution even on revert."
+    },
+    {
+      "title": "Re‑entrancy via ERC20 transfer in `exitPosition`",
+      "severity": "High",
+      "category": "SOLVENCY",
+      "file": "AbstractLendingRouter.sol",
+      "function": "exitPosition()",
+      "description": "`exitPosition` transfers the underlying asset to the user with `ERC20(asset).safeTransfer(receiver, assetsWithdrawn)` after all internal state changes (collateral withdrawal, share burning) have been performed. If the asset is a malicious ERC20 that executes a callback (e.g., ERC777 `tokensReceived` or a crafted ERC20 with a malicious `transfer`), the attacker can re‑enter `exitPosition` (or other router functions) before the position is cleared, potentially withdrawing more assets than entitled.",
+      "attackPath": "1. Attacker supplies a malicious ERC20 token as the vault’s `asset`.  \n2. Calls `exitPosition` to redeem shares.  \n3. During the `safeTransfer` call, the malicious token’s `transfer` invokes a callback that calls back into `exitPosition` (or `redeemShares`) with the same or a different request.  \n4. Because the contract’s state (e.g., `balanceOfCollateral`) has not yet been fully updated for the original call, the re‑entered call can withdraw additional assets.  \n5. After the re‑entrancy finishes, the attacker ends up with more tokens than their share entitlement.",
+      "impact": "The attacker can drain assets from the vault, causing a loss of user funds and potential insolvency of the protocol.",
+      "recommendation": "Add a re‑entrancy guard (e.g., OpenZeppelin’s `ReentrancyGuard`) around the external transfer, or perform the token transfer before updating critical state, or whitelist only well‑behaved ERC20 tokens."
+    },
+    {
+      "title": "Unrestricted external `initialApproveTokens` allows anyone to reset allowances",
+      "severity": "Medium",
+      "category": "ACCESS",
+      "file": "CurveConvex2Token.sol",
+      "function": "initialApproveTokens()",
+      "description": "`CurveConvexLib.initialApproveTokens` is declared `external` and contains no access control. Any address can invoke it, causing the contract to call `approve` on the two pool tokens and on the Curve/Convex staking contracts with `type(uint256).max`. While the approved spender addresses are fixed, the function can be used to repeatedly reset allowances, potentially interfering with a pending transaction that relies on a specific allowance amount.",
+      "attackPath": "1. Attacker calls `initialApproveTokens()` before a legitimate user’s transaction.\n2. The contract re‑approves the spender with `uint256.max`, which may reset a previously set lower allowance that the user’s transaction expected.\n3. The user’s subsequent transaction may fail or behave unexpectedly (e.g., spend more than intended).",
+      "impact": "Transaction failures, possible loss of gas, and a denial‑of‑service condition for honest users.",
+      "recommendation": "Restrict `initialApproveTokens` to the contract owner or a designated admin (e.g., `onlyOwner` modifier) and emit an event when it is called."
+    },
+    {
+      "title": "Liquidation allows zero `debtToRepay`, enabling free collateral capture",
+      "severity": "Medium",
+      "category": "SOLVENCY",
+      "file": "AbstractLendingRouter.sol",
+      "function": "liquidate()",
+      "description": "The `liquidate` function does not validate that `debtToRepay` is greater than zero or that it is sufficient to cover the liquidated position’s debt. A liquidator can pass `debtToRepay = 0`, causing `_liquidate` to transfer the victim’s collateral shares to the liquidator without any debt repayment.",
+      "attackPath": "1. Attacker identifies an under‑collateralized account (`healthFactor` negative).  \n2. Calls `liquidate(victim, vault, sharesToLiquidate, 0)`.  \n3. The router skips any debt repayment logic (implementation‑specific) and returns the victim’s shares to the attacker.  \n4. The victim’s position is cleared (if all shares are taken) but the protocol’s outstanding debt remains unchanged, creating a deficit.",
+      "impact": "The protocol can lose collateral while the borrower’s debt stays on the books, leading to insolvency or reduced collateralization for other users.",
+      "recommendation": "Enforce `require(debtToRepay > 0, \"Debt repayment required\")` and ensure that the amount repaid is at least the proportional debt for the liquidated shares, or let the underlying `_liquidate` implementation enforce this invariant."
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "contest": "2025-01-perennial-v2-4-update",
+  "hypotheses": [
+    {
+      "title": "Reentrancy window in `executeOrder` allows double‑execution of trigger orders",
+      "severity": "High",
+      "category": "SOLVENCY",
+      "file": "perennial-v2/packages/periphery/contracts/TriggerOrders/Manager.sol",
+      "function": "executeOrder()",
+      "description": "`executeOrder` marks a trigger order as spent **after** it calls `order.execute`, which is an external call to the market contract. If the market (or a contract called by it) re‑enters `executeOrder` for the same order before `isSpent` is set, the order can be executed a second time, causing the protocol to apply the same position update and fee logic twice.",
+      "attackPath": "1. Attacker creates (or compromises) a market that is a valid instance for the factory.\n2. Attacker places a trigger order with a modest `maxFee`.\n3. An honest keeper (or the attacker) calls `executeOrder` on the manager.\n4. Inside `order.execute`, the malicious market calls back into `Manager.executeOrder` with the same `(market, account, orderId)`.\n5. Because `order.isSpent` is still `false`, the second call passes the `checkOrder` validation and executes the order again.\n6. After the second execution, the order is finally marked spent, but the protocol has already applied the order’s effects twice, withdrawing collateral/fees twice.",
+      "impact": "The attacker can double‑withdraw collateral or double‑pay fees, effectively draining funds from the victim’s account and potentially creating a solvency shortfall for the market.",
+      "recommendation": "Apply the checks‑effects‑interactions pattern: set `order.isSpent = true` (and store it) **before** invoking any external contract (`order.execute`). Alternatively, use a re‑entrancy guard (`nonReentrant`) on `executeOrder`."
+    },
+    {
+      "title": "Unrestricted `rebalanceGroup` allows anyone to drain a user’s DSU via keeper fees",
+      "severity": "High",
+      "category": "ACCESS/ACCOUNTING",
+      "file": "perennial-v2/packages/periphery/contracts/CollateralAccounts/Controller_Incentivized.sol",
+      "function": "rebalanceGroup()",
+      "description": "The `rebalanceGroup` function is external and protected only by the `keepCollateralAccount` modifier, which does **not** enforce any access control on the `owner` argument. Any external caller can invoke `rebalanceGroup` for an arbitrary `owner` and `group`. The keeper fee is charged to the target `owner`’s collateral account (capped by `groupToMaxRebalanceFee[owner][group]`) and is transferred before any further checks.",
+      "attackPath": "1. Attacker calls `rebalanceGroup(victim, victimGroup)` with a victim’s address and a group that the victim has configured.\n2. The `keepCollateralAccount` modifier records `maxFee = groupToMaxRebalanceFee[victim][victimGroup]`.\n3. After the function body executes, `_handleKeeperFee` is invoked, which ultimately calls `_raiseKeeperFee`.\n4. `_raiseKeeperFee` pulls `raisedKeeperFee` (up to `maxFee`) from the victim’s collateral account via `DSU.pull`.\n5. The attacker repeats the call until the victim’s DSU balance is exhausted (or until the max fee per call is exhausted).",
+      "impact": "An attacker can repeatedly drain DSU from any user’s collateral account, effectively stealing the funds earmarked for keeper compensation and potentially emptying the user’s balance.",
+      "recommendation": "Add an explicit access control check (e.g., `onlyOperator(owner)` or a signature‑based authorization) to ensure only the account owner or an authorized operator can trigger `rebalanceGroup`. Alternatively, move the fee‑charging logic into a function that requires a valid signed message from the owner."
+    },
+    {
+      "title": "Claim function sends fees to the caller instead of the fee‑owner",
+      "severity": "Medium",
+      "category": "ACCESS",
+      "file": "MultiInvoker.sol",
+      "function": "claim(address,bool)",
+      "description": "`claim()` resets `claimable[account]` to zero and then calls `_withdraw(msg.sender, claimableAmount, unwrap)`. The withdrawn amount is sent to `msg.sender` (the operator) rather than to `account`, the rightful fee owner. Because `onlyOperator(account, msg.sender)` only checks that the caller is an authorized operator, any authorized operator can claim another user’s accrued fees and receive them.",
+      "attackPath": "1. Victim authorises an operator (or leaves the default operator as themselves).  \n2. Malicious operator calls `claim(victim, false)`.  \n3. The contract zeroes `claimable[victim]` and transfers the DSU amount to the operator’s address.  \n4. Victim loses their accrued fees.",
+      "impact": "Loss of accrued protocol fees for users; can be used to siphon fees from many accounts if they mistakenly grant operator rights.",
+      "recommendation": "Transfer the withdrawn amount to `account` (the fee owner) instead of `msg.sender`, or add an explicit check that `msg.sender == account` when `unwrap` is false."
+    },
+    {
+      "title": "Missing zero‑address validation in `_credit` enables silent loss of fees",
+      "severity": "Medium",
+      "category": "ACCOUNTING",
+      "file": "perennial-v2/packages/core/contracts/Market.sol",
+      "function": "_credit()",
+      "description": "`_credit` credits an amount to a `receiver` without checking whether `receiver` is the zero address. If `receiver` is `address(0)`, the amount is credited to a non‑existent account, effectively burning the fee that should be claimable by a legitimate participant.",
+      "attackPath": "1. An attacker (or a buggy off‑chain bot) crafts a transaction that results in `receiver == address(0)` when `_credit` is called (e.g., by submitting an order with a zero‑address referrer).\n2. The function executes `receiverLocal.credit(amount)` on the zero address storage slot, increasing the internal claimable balance for `address(0)`.\n3. The credited amount can never be withdrawn, permanently removing it from the protocol’s fee pool.",
+      "impact": "Legitimate fee revenue is irretrievably lost, reducing overall protocol earnings and potentially affecting reward distribution.",
+      "recommendation": "Add a `require(receiver != address(0), \"Invalid receiver\")` check before crediting, and revert if the address is zero."
+    },
+    {
+      "title": "APPROVE action can grant unlimited DSU allowance to any contract registered in the factories",
+      "severity": "High",
+      "category": "ACCESS",
+      "file": "MultiInvoker.sol",
+      "function": "_approve(address)",
+      "description": "The public `APPROVE` invocation decodes a target address and calls `_approve`. `_approve` only checks that the target is an instance of `marketFactory`, `makerVaultFactory` or `solverVaultFactory`. If an attacker can register a malicious contract as a market or vault (e.g., by deploying a market through an open factory), the contract will call `DSU.approve(target)`, giving that contract unlimited transfer rights over the DSU held by `MultiInvoker`.",
+      "attackPath": "1. Attacker deploys a malicious market (or vault) that is accepted by the corresponding factory.  \n2. Attacker (or any operator) invokes `APPROVE` with the malicious contract’s address.  \n3. `MultiInvoker` executes `DSU.approve(maliciousContract)`.  \n4. Malicious contract later calls `DSU.transferFrom(address(this), attacker, amount)` and drains DSU.",
+      "impact": "Complete loss of all DSU collateral held by `MultiInvoker`, enabling theft of user funds routed through the contract.",
+      "recommendation": "Restrict approvals to known, trusted contracts (e.g., maintain a whitelist) or require that the target implements a specific interface and does not contain a `transferFrom` back‑door. Consider removing the generic `APPROVE` action altogether."
+    },
+    {
+      "title": "Reentrancy via external token transfer before state persistence in `update()`",
+      "severity": "High",
+      "category": "SOLVENCY",
+      "file": "Vault.sol",
+      "function": "_update()",
+      "description": "The `_update` function mutates the vault’s accounting data in memory, then performs external token transfers (`asset.pull` and `asset.push`) before the updated state is written back to storage with `_saveContext`. If the underlying `asset` token is a contract that executes a callback (e.g., ERC‑777 or a malicious ERC‑20 with a fallback), an attacker can re‑enter the vault during the `asset.push` call and invoke `update` again, causing the same claim to be processed multiple times while the storage still reflects the pre‑claim state.",
+      "attackPath": "1. Attacker calls `update` with a non‑zero `claimAssets` (or uses the `MAX` sentinel) on a vault whose `asset` token is a malicious contract.  \n2. `_update` computes `claimAmount` and updates the in‑memory `context` structs but does **not** persist them yet.  \n3. `asset.push` transfers the claimed tokens to the attacker; the malicious token’s transfer hook calls back into the vault’s `update` (or another state‑changing function) before `_saveContext` runs.  \n4. The re‑entered call sees the original storage values, allowing the attacker to claim again.  \n5. After the outer call finishes, `_saveContext` writes the same state once, effectively granting the attacker multiple payouts for a single claim.",
+      "impact": "An attacker can drain arbitrary amounts of the vault’s collateral token, leading to loss of user funds and potential insolvency of the vault.",
+      "recommendation": "Persist all state changes before making any external token transfers, or protect the entire `update` flow with a re‑entrancy guard (e.g., OpenZeppelin’s `nonReentrant`). Additionally, consider restricting the vault’s asset to ERC‑20 tokens without callback hooks."
+    },
+    {
+      "title": "Unrestricted position updates allow arbitrary third‑party manipulation",
+      "severity": "High",
+      "category": "ACCESS",
+      "file": "Market.sol",
+      "function": "update(address,Fixed6,address)",
+      "description": "The external `update(address account, Fixed6 amount, address referrer)` function is callable by any address and permits the caller to modify the position of an arbitrary `account` without any signature verification or permission check. The caller is recorded as the operator (`msg.sender`) but the contract does not enforce that the operator is authorized to act on behalf of `account`. This enables an attacker to arbitrarily increase or decrease another user’s position, potentially pushing the account into an under‑collateralised state and triggering liquidation.",
+      "attackPath": "1. Attacker calls `update(victim, amount, referrer)` with a large positive or negative `amount`.\n2. The contract executes `_updateMarket(victim, msg.sender, ...)` which updates the victim’s local and global positions.\n3. No signature or allowance check is performed, so the victim’s position changes without consent.\n4. The victim may become under‑collateralised, allowing the attacker (or anyone) to liquidate the victim and claim liquidation rewards.",
+      "impact": "Victims can lose collateral or be forced into liquidation, leading to direct fund loss and denial‑of‑service for targeted accounts.",
+      "recommendation": "Restrict the `update` overloads to only allow the caller to modify its own position or require a valid signed intent/fill from the target account. Add an `onlyOperator(account)` check or signature verification similar to the `update(Intent…)` path."
+    },
+    {
+      "title": "External token transfer after state update enables re‑entrancy attack",
+      "severity": "Medium",
+      "category": "ORDERING",
+      "file": "Market.sol",
+      "function": "_update()",
+      "description": "`_update` first mutates all market state, stores the updated context, and only afterwards calls `token.pull` or `token.push`. These functions are external calls to an ERC‑20‑like token contract. A malicious token (e.g., ERC‑777 with hooks) can execute code during the transfer that re‑enters the Market contract before `_update` finishes.",
+      "attackPath": "1. Attacker deploys a malicious token that invokes a callback (e.g., `tokensReceived`) during `transferFrom`/`transfer`.  \n2. Attacker (or a relayer) triggers an order that results in a positive collateral change, causing `_update` to execute `token.pull(msg.sender, amount)`.  \n3. The malicious token’s callback re‑enters the Market contract via a public entry point (e.g., another order or liquidation function).  \n4. Because the Market state for the first order has already been committed, the re‑entered call can create additional orders or withdraw collateral without the intended checks, leading to double‑withdrawal or unauthorized position manipulation.",
+      "impact": "Attacker can extract extra tokens or manipulate positions, potentially draining user funds and compromising protocol solvency.",
+      "recommendation": "Move all external token transfers to the very end of the transaction after every state change is finalized and protect the entire update flow with a re‑entrancy guard (e.g., OpenZeppelin’s `nonReentrant` modifier)."
+    }
+  ]
+}
