@@ -1,0 +1,17 @@
+-import { readFileSync, appendFileSync, mkdirSync, existsSync, readdirSync, statSync } from 'node:fs'
++import { readFileSync, appendFileSync, mkdirSync, existsSync, readdirSync, statSync, writeFileSync } from 'node:fs'
++  return
+-  console.log('[runner] Rapport aflevereren...')
+-  const deliverResp = await fetch(ADMIN_URL, {
+-    method: 'POST',
+-    headers: { 'Content-Type': 'application/json', 'X-Admin-Key': ADMIN_KEY },
+-    body: JSON.stringify({ jobId, reportHtml }),
+-    signal: AbortSignal.timeout(30_000)
+-  })
+-  if (!deliverResp.ok) {
+-    const body = await deliverResp.text().catch(() => '')
+-    throw new Error(`Admin endpoint fout ${deliverResp.status}: ${body}`)
+-  }
++  console.log('[runner] Rapport wegschrijven (test)...')
++  writeFileSync(join(BASE, 'out', jobId + '.html'), reportHtml)
++  writeFileSync(join(BASE, 'out', jobId + '.json'), JSON.stringify({ repo, bron: bronFase2, model: actiefModel(), filesSeen: fileNames, sourceChars: sourceContext.length, visibleToPhase2: Math.min(sourceContext.length, 22000), rawFindings, validated }, null, 1))

@@ -1,0 +1,22 @@
+[runner] Start job oos-merkl | model: qwen2.5:7b
+[runner] Repo: code-423n4/2025-11-merkl
+[runner] Ollama warm-up...
+[runner] Warm-up overgeslagen (cloud-bron actief)
+[runner] Clone https://github.com/code-423n4/2025-11-merkl ...
+[runner] Clone OK
+[runner] 60 .sol bestanden gevonden
+[runner] 29KB broncode geladen (60 bestanden)
+[runner] Protocol-type: DEX
+[runner] Fase 1: contract begrip...
+[runner] Cerebras faalde: Cerebras 402: {"message":"Payment required to access this resource. Visit your billing tab.","type":"payment_required_er
+[runner] Groq antwoordde in 4.0s
+[runner] Fase 2: kwetsbaarheid jacht...
+[runner] Cerebras faalde (ronde 1): Cerebras 402: {"message":"Payment required to access this resource. Visit your billing tab.","type":"payment_r
+[runner] Groq rate-limit — wacht 22.0s en probeer opnieuw
+[runner] Groq antwoordde in 31.7s (ronde 1)
+[runner] 2 ruwe findings geparsed
+[runner] 2 ruwe hypotheses (geen kill-loop)
+[runner] Kwaliteitspoort OK — fase 2 gedaan door openai/gpt-oss-120b (Groq)
+[runner] Rapport wegschrijven (test)...
+[runner] Rapport afgeleverd!
+[runner] Klaar in 37s — 2 findings (1 H/C)
