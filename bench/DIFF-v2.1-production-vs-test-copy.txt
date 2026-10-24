@@ -1,0 +1,35 @@
+--- production-v2.1
++++ test-copy-v2.1
+@@ -4,7 +4,7 @@
+  * Gebruik: node bug-intel-runner.mjs <jobId>
+  */
+ 
+-import { readFileSync, appendFileSync, mkdirSync, existsSync, readdirSync, statSync, lstatSync } from 'node:fs'
++import { readFileSync, appendFileSync, mkdirSync, existsSync, readdirSync, statSync, lstatSync, writeFileSync } from 'node:fs'
+ import { join, dirname, extname } from 'node:path'
+ import { fileURLToPath } from 'node:url'
+ import { spawnSync, spawn } from 'node:child_process'
+@@ -912,18 +912,11 @@
+   // 12. Kwaliteitspoort: elk gelezen stuk kwam van een sterke bron (afgedwongen in draaiStuk).
+   console.log(`[runner] Kwaliteitspoort OK — gelezen door ${modelNamen}`)
+ 
+-  console.log('[runner] Rapport aflevereren...')
+-  const deliverResp = await fetch(ADMIN_URL, {
+-    method: 'POST',
+-    headers: { 'Content-Type': 'application/json', 'X-Admin-Key': ADMIN_KEY },
+-    body: JSON.stringify({ jobId, reportHtml, outcome, coverage: { pct: cov.analysedPct, analysedKb: Math.round(analysedBytes / 1024), scopeKb: Math.round(scopeBytes / 1024), filesRead: filesFull + filesPartial.length, scopeFiles: files.length } }),
+-    signal: AbortSignal.timeout(30_000),
+-  })
+-  if (!deliverResp.ok) {
+-    const body = await deliverResp.text().catch(() => '')
+-    throw new JobFout('tijdelijk', `Admin endpoint fout ${deliverResp.status}: ${body}`.slice(0, 200))
+-  }
+-  console.log('[runner] Rapport afgeleverd!')
++  console.log('[runner] Rapport wegschrijven (test)...')
++  mkdirSync(join(BASE, 'out'), { recursive: true })
++  writeFileSync(join(BASE, 'out', jobId + '.html'), reportHtml)
++  writeFileSync(join(BASE, 'out', jobId + '.json'), JSON.stringify({ repo, outcome, model: modelNamen, sources: [...gebruiktBron], coverage: cov, hypotheses: validated, rawCount: ruw.length, dropped: verworpen, durationMs: Date.now() - startTs, filesInScope: files.map(f => ({ rel: f.rel, bytes: f.text.length, score: f.score })) }, null, 1))
++  console.log('[runner] Rapport geschreven (test)')
+ 
+   // 13. Leer-log
+   const highCrit = validated.filter(f => ['Critical', 'High'].includes(f.severity)).length

@@ -1,0 +1,28 @@
+{
+ "gpt-oss-120b": {
+  "positief": {
+   "n": 23,
+   "raak": 23,
+   "mis": 0,
+   "fout": 0
+  },
+  "negatief": {
+   "n": 23,
+   "onzin": 0
+  },
+  "kosten": 0.006253968000000001
+ },
+ "deepseek-v4-flash": {
+  "positief": {
+   "n": 23,
+   "raak": 23,
+   "mis": 0,
+   "fout": 0
+  },
+  "negatief": {
+   "n": 23,
+   "onzin": 0
+  },
+  "kosten": 0.008058213892
+ }
+}

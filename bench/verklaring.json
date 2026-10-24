@@ -1,0 +1,43 @@
+{
+ "zaad_basisblok_hash": "0x91b7371d9902f60b3515633ffda7f89f7537bcce9a132a62fef21694f54ddd1d",
+ "geschikt": 14,
+ "ontwikkel": 6,
+ "verzegeld": 8,
+ "reserve": 0,
+ "ontwikkelset": [
+  {
+   "contest": "2025-03-crestal-network",
+   "bevindingen": 7,
+   "inScopeKb": 135
+  },
+  {
+   "contest": "2025-02-yieldoor",
+   "bevindingen": 17,
+   "inScopeKb": 118
+  },
+  {
+   "contest": "2025-01-peapods-finance",
+   "bevindingen": 41,
+   "inScopeKb": 459
+  },
+  {
+   "contest": "2025-05-layeredge",
+   "bevindingen": 3,
+   "inScopeKb": 36
+  },
+  {
+   "contest": "2025-07-cap",
+   "bevindingen": 10,
+   "inScopeKb": 205
+  },
+  {
+   "contest": "2025-06-symbiotic-relay",
+   "bevindingen": 7,
+   "inScopeKb": 227
+  }
+ ],
+ "verzegelde_set_aantal_bevindingen": 105,
+ "verzegelde_set_sha256": "de1a23a4aabc17def5145229c8ee4b4b216e25e8a5ec990e0c5bb37620b61ca1",
+ "ontwikkelset_sha256": "87082da019dc60c7f8c11724cd5f04fdbf4f2d6af7322c53c98e9649f79204ad",
+ "reserve_namen_niet_gebruikt": []
+}

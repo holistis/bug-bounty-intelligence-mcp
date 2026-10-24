@@ -1,0 +1,222 @@
+{
+ "gemaakt": "2026-10-24T09:51:06.649Z",
+ "regels": "geschikt = bronrepo bestaat, precheck ok, hoogstens 500 KB eigen Solidity, minstens 3 unieke geldige H/M-bevindingen",
+ "contests": [
+  {
+   "contest": "2025-01-aave-v3-3",
+   "high": 0,
+   "medium": 0,
+   "inScopeFiles": 107,
+   "inScopeKb": 667,
+   "precheck": "ok",
+   "geschikt": false
+  },
+  {
+   "contest": "2025-01-peapods-finance",
+   "high": 7,
+   "medium": 34,
+   "inScopeFiles": 72,
+   "inScopeKb": 459,
+   "precheck": "ok",
+   "geschikt": true
+  },
+  {
+   "contest": "2025-01-perennial-v2-4-update",
+   "high": 4,
+   "medium": 3,
+   "inScopeFiles": 85,
+   "inScopeKb": 475,
+   "precheck": "ok",
+   "geschikt": true
+  },
+  {
+   "contest": "2025-02-rova",
+   "high": 0,
+   "medium": 2,
+   "inScopeFiles": 2,
+   "inScopeKb": 46,
+   "precheck": "ok",
+   "geschikt": false
+  },
+  {
+   "contest": "2025-02-yieldoor",
+   "high": 7,
+   "medium": 10,
+   "inScopeFiles": 14,
+   "inScopeKb": 118,
+   "precheck": "ok",
+   "geschikt": true
+  },
+  {
+   "contest": "2025-03-crestal-network",
+   "high": 1,
+   "medium": 6,
+   "inScopeFiles": 14,
+   "inScopeKb": 135,
+   "precheck": "ok",
+   "geschikt": true
+  },
+  {
+   "contest": "2025-03-pinlink-rwa-tokenized-depin-marketplace",
+   "high": 0,
+   "medium": 0,
+   "inScopeFiles": 4,
+   "inScopeKb": 38,
+   "precheck": "ok",
+   "geschikt": false
+  },
+  {
+   "contest": "2025-03-symm-io-stacking",
+   "high": 1,
+   "medium": 5,
+   "inScopeFiles": 7,
+   "inScopeKb": 53,
+   "precheck": "ok",
+   "geschikt": true
+  },
+  {
+   "contest": "2025-04-aegis-op-grant",
+   "high": 1,
+   "medium": 2,
+   "inScopeFiles": 7,
+   "inScopeKb": 47,
+   "precheck": "ok",
+   "geschikt": true
+  },
+  {
+   "contest": "2025-04-burve",
+   "high": 9,
+   "medium": 6,
+   "inScopeFiles": 0,
+   "inScopeKb": 0,
+   "precheck": "no_in_scope_solidity",
+   "geschikt": false
+  },
+  {
+   "contest": "2025-04-pareto-contest",
+   "high": 0,
+   "medium": 2,
+   "inScopeFiles": 5,
+   "inScopeKb": 54,
+   "precheck": "ok",
+   "geschikt": false
+  },
+  {
+   "contest": "2025-05-dodo-cross-chain-dex",
+   "high": 5,
+   "medium": 12,
+   "inScopeFiles": 9,
+   "inScopeKb": 73,
+   "precheck": "ok",
+   "geschikt": true
+  },
+  {
+   "contest": "2025-05-layeredge",
+   "high": 2,
+   "medium": 1,
+   "inScopeFiles": 3,
+   "inScopeKb": 36,
+   "precheck": "ok",
+   "geschikt": true
+  },
+  {
+   "contest": "2025-05-lend-audit-contest",
+   "high": 28,
+   "medium": 11,
+   "inScopeFiles": 49,
+   "inScopeKb": 555,
+   "precheck": "ok",
+   "geschikt": false
+  },
+  {
+   "contest": "2025-05-yearn-ybold",
+   "high": 2,
+   "medium": 1,
+   "inScopeFiles": 7,
+   "inScopeKb": 38,
+   "precheck": "ok",
+   "geschikt": true
+  },
+  {
+   "contest": "2025-06-notional-exponent",
+   "high": 11,
+   "medium": 26,
+   "inScopeFiles": 31,
+   "inScopeKb": 178,
+   "precheck": "ok",
+   "geschikt": true
+  },
+  {
+   "contest": "2025-06-superfluid-locker-system",
+   "high": 2,
+   "medium": 6,
+   "inScopeFiles": 82,
+   "inScopeKb": 837,
+   "precheck": "ok",
+   "geschikt": false
+  },
+  {
+   "contest": "2025-06-symbiotic-relay",
+   "high": 0,
+   "medium": 7,
+   "inScopeFiles": 45,
+   "inScopeKb": 227,
+   "precheck": "ok",
+   "geschikt": true
+  },
+  {
+   "contest": "2025-07-allbridge-core-yield",
+   "high": 0,
+   "medium": 2,
+   "inScopeFiles": 5,
+   "inScopeKb": 42,
+   "precheck": "ok",
+   "geschikt": false
+  },
+  {
+   "contest": "2025-07-cap",
+   "high": 0,
+   "medium": 10,
+   "inScopeFiles": 61,
+   "inScopeKb": 205,
+   "precheck": "ok",
+   "geschikt": true
+  },
+  {
+   "contest": "2025-07-debank",
+   "high": 0,
+   "medium": 0,
+   "inScopeFiles": 33,
+   "inScopeKb": 66,
+   "precheck": "ok",
+   "geschikt": false
+  },
+  {
+   "contest": "2025-07-malda",
+   "high": 1,
+   "medium": 16,
+   "inScopeFiles": 38,
+   "inScopeKb": 265,
+   "precheck": "ok",
+   "geschikt": true
+  },
+  {
+   "contest": "2025-07-mellow-flexible-vaults",
+   "high": 6,
+   "medium": 9,
+   "inScopeFiles": 39,
+   "inScopeKb": 142,
+   "precheck": "ok",
+   "geschikt": true
+  },
+  {
+   "contest": "2025-07-oku-trade-order-types",
+   "high": 0,
+   "medium": 1,
+   "inScopeFiles": 11,
+   "inScopeKb": 81,
+   "precheck": "ok",
+   "geschikt": false
+  }
+ ]
+}
