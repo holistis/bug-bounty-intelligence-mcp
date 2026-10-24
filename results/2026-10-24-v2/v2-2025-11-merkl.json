@@ -1,0 +1,186 @@
+{
+ "repo": "code-423n4/2025-11-merkl",
+ "outcome": "hypotheses",
+ "model": "nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter), openai/gpt-oss-120b (Groq)",
+ "sources": [
+  "nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter)",
+  "openai/gpt-oss-120b (Groq)"
+ ],
+ "coverage": {
+  "scopeFiles": 18,
+  "scopeBytes": 150324,
+  "analysedBytes": 95705,
+  "analysedPct": 64,
+  "chunksPlanned": 6,
+  "chunksAnalysed": 6,
+  "filesFull": 6,
+  "filesPartial": [],
+  "notAnalysedFiles": [
+   "contracts/AccessControlManager.sol",
+   "contracts/DistributionCreatorWithDistributions.sol",
+   "contracts/partners/middleman/MerklGaugeMiddlemanTemplate.sol",
+   "contracts/partners/tokenWrappers/PointToken.sol",
+   "contracts/partners/tokenWrappers/PufferPointTokenWrapper.sol",
+   "contracts/partners/tokenWrappers/PullTokenWrapperAllow.sol",
+   "contracts/partners/tokenWrappers/PullTokenWrapperTransfer.sol",
+   "contracts/partners/tokenWrappers/PullTokenWrapperTransferV0.sol",
+   "contracts/partners/tokenWrappers/PullTokenWrapperWithdraw.sol",
+   "contracts/partners/tokenWrappers/TokenTGEWrapper.sol",
+   "contracts/utils/Errors.sol",
+   "contracts/utils/UUPSHelper.sol"
+  ],
+  "skipped": {
+   "tests": 9,
+   "mocks": 7,
+   "scripts": 23,
+   "vendor": 0,
+   "interfaces": 2,
+   "tooSmall": 0,
+   "tooLarge": 0,
+   "noLogic": 3,
+   "symlink": 0,
+   "unreadable": 0
+  },
+  "submodules": {
+   "declared": 0,
+   "fetched": [],
+   "failed": [],
+   "skipped": []
+  },
+  "droppedHypotheses": 0,
+  "deadlineHit": false
+ },
+ "hypotheses": [
+  {
+   "title": "Reentrancy via external ETH transfer in NativeTokenWrapper before token balance update",
+   "severity": "High",
+   "category": "ORDERING",
+   "file": "contracts/partners/tokenWrappers/NativeTokenWrapper.sol",
+   "function": "_beforeTokenTransfer()",
+   "description": "The `_beforeTokenTransfer` hook sends ETH to the `to` address (or `feeRecipient`) using a low‑level call before the ERC20 balances are updated. This external call allows a malicious recipient contract to re‑enter the token contract (e.g., call `transfer` again) while the sender’s balance is still unchanged, enabling double‑spending of tokens and draining ETH from the wrapper.",
+   "attackPath": "1. Attacker deploys a contract with a payable fallback that calls `NativeTokenWrapper.transfer(address,uint256)` back into the token.",
+   "impact": "Unlimited extraction of ETH held by the wrapper and arbitrary duplication of token balances, leading to loss of funds and potential protocol insolvency.",
+   "recommendation": "Move the ETH transfer to `_afterTokenTransfer` after balances are updated, or protect the external call with a re‑entrancy guard (e.g., OpenZeppelin’s `nonReentrant`). Follow the checks‑effects‑interactions pattern to avoid external calls before state changes.",
+   "confidence": 0.95
+  },
+  {
+   "title": "Missing re‑entrancy protection on `increaseTokenBalance`",
+   "severity": "Medium",
+   "category": "ORDERING",
+   "file": "contracts/DistributionCreator.sol",
+   "function": "increaseTokenBalance(address,address,uint256)",
+   "description": "The function pulls tokens from `msg.sender` via `IERC20.safeTransferFrom` and **updates internal accounting only after the external call**. No `nonReentrant` guard is applied, so a malicious ERC‑777 (or any token that executes a callback on `transferFrom`) can re‑enter the contract before the balance is updated.",
+   "attackPath": "1. Attacker deploys a malicious ERC‑20 token that calls back into `increaseTokenBalance` during `transferFrom`.",
+   "impact": "Inconsistent accounting could be leveraged to inflate a user’s recorded balance, enabling later unauthorized withdrawals or causing the contract to think it holds more tokens than it actually does, leading to solvency issues.",
+   "recommendation": "Add the `nonReentrant` modifier (from `ReentrancyGuardUpgradeable`) to `increaseTokenBalance` and any other external‑call‑heavy functions, or move the balance update before the external token transfer.",
+   "confidence": 0.85
+  },
+  {
+   "title": "Missing re‑entrancy protection on `decreaseTokenBalance`",
+   "severity": "Medium",
+   "category": "ORDERING",
+   "file": "contracts/DistributionCreator.sol",
+   "function": "decreaseTokenBalance(address,address,address,uint256)",
+   "description": "The function updates the internal `creatorBalance` mapping **before** transferring tokens out with `IERC20.safeTransfer`. Although the transfer occurs after the state change, `safeTransfer` supports ERC‑777 tokens that can execute arbitrary code on receipt, allowing a re‑entrancy attack back into the contract.",
+   "attackPath": "1. Attacker creates a malicious ERC‑20 token that calls back into `decreaseTokenBalance` (or another state‑changing function) during `safeTransfer`.",
+   "impact": "The attacker can manipulate allowances or balances to later withdraw more tokens than intended, compromising the protocol’s solvency.",
+   "recommendation": "Protect `decreaseTokenBalance` with the `nonReentrant` modifier, or transfer tokens **before** updating internal balances and use a checks‑effects‑interactions pattern.",
+   "confidence": 0.78
+  }
+ ],
+ "rawCount": 3,
+ "dropped": 0,
+ "durationMs": 374459,
+ "filesInScope": [
+  {
+   "rel": "contracts/AccessControlManager.sol",
+   "bytes": 5052,
+   "score": 2
+  },
+  {
+   "rel": "contracts/Disputer.sol",
+   "bytes": 4912,
+   "score": 7
+  },
+  {
+   "rel": "contracts/DistributionCreator.sol",
+   "bytes": 37563,
+   "score": 7
+  },
+  {
+   "rel": "contracts/DistributionCreatorWithDistributions.sol",
+   "bytes": 6179,
+   "score": 2
+  },
+  {
+   "rel": "contracts/Distributor.sol",
+   "bytes": 28383,
+   "score": 7
+  },
+  {
+   "rel": "contracts/ReferralRegistry.sol",
+   "bytes": 16199,
+   "score": 7
+  },
+  {
+   "rel": "contracts/partners/middleman/MerklGaugeMiddlemanTemplate.sol",
+   "bytes": 4808,
+   "score": 2
+  },
+  {
+   "rel": "contracts/partners/tokenWrappers/NativeTokenWrapper.sol",
+   "bytes": 5353,
+   "score": 7
+  },
+  {
+   "rel": "contracts/partners/tokenWrappers/PointToken.sol",
+   "bytes": 2536,
+   "score": 2
+  },
+  {
+   "rel": "contracts/partners/tokenWrappers/PufferPointTokenWrapper.sol",
+   "bytes": 9285,
+   "score": 5
+  },
+  {
+   "rel": "contracts/partners/tokenWrappers/PullTokenWrapperAllow.sol",
+   "bytes": 3990,
+   "score": 4
+  },
+  {
+   "rel": "contracts/partners/tokenWrappers/PullTokenWrapperTransfer.sol",
+   "bytes": 5138,
+   "score": 4
+  },
+  {
+   "rel": "contracts/partners/tokenWrappers/PullTokenWrapperTransferV0.sol",
+   "bytes": 3957,
+   "score": 4
+  },
+  {
+   "rel": "contracts/partners/tokenWrappers/PullTokenWrapperWithdraw.sol",
+   "bytes": 4666,
+   "score": 4
+  },
+  {
+   "rel": "contracts/partners/tokenWrappers/SonicFragment.sol",
+   "bytes": 3297,
+   "score": 4
+  },
+  {
+   "rel": "contracts/partners/tokenWrappers/TokenTGEWrapper.sol",
+   "bytes": 6474,
+   "score": 2
+  },
+  {
+   "rel": "contracts/utils/Errors.sol",
+   "bytes": 1269,
+   "score": 2
+  },
+  {
+   "rel": "contracts/utils/UUPSHelper.sol",
+   "bytes": 1263,
+   "score": 0
+  }
+ ]
+}

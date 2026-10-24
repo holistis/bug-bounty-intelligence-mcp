@@ -1,0 +1,297 @@
+{
+ "repo": "code-423n4/2025-11-ekubo",
+ "outcome": "hypotheses",
+ "model": "nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter), openai/gpt-oss-120b (Groq)",
+ "sources": [
+  "nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter)",
+  "openai/gpt-oss-120b (Groq)"
+ ],
+ "coverage": {
+  "scopeFiles": 39,
+  "scopeBytes": 317730,
+  "analysedBytes": 96730,
+  "analysedPct": 30,
+  "chunksPlanned": 6,
+  "chunksAnalysed": 6,
+  "filesFull": 6,
+  "filesPartial": [],
+  "notAnalysedFiles": [
+   "src/MEVCaptureRouter.sol",
+   "src/Orders.sol",
+   "src/Positions.sol",
+   "src/PositionsOwner.sol",
+   "src/RevenueBuybacks.sol",
+   "src/TokenWrapper.sol",
+   "src/TokenWrapperFactory.sol",
+   "src/base/BaseExtension.sol",
+   "src/base/BaseForwardee.sol",
+   "src/base/BaseLocker.sol",
+   "src/base/BaseNonfungibleToken.sol",
+   "src/base/BasePositions.sol",
+   "src/base/ExposedStorage.sol",
+   "src/base/PayableMulticallable.sol",
+   "src/base/UsesCore.sol",
+   "src/extensions/MEVCapture.sol",
+   "src/extensions/Oracle.sol",
+   "src/extensions/TWAMM.sol",
+   "src/lens/CoreDataFetcher.sol",
+   "src/lens/ERC7726.sol",
+   "src/lens/IncentivesDataFetcher.sol",
+   "src/lens/PriceFetcher.sol",
+   "src/lens/QuoteDataFetcher.sol",
+   "src/lens/TWAMMDataFetcher.sol",
+   "src/lens/TokenDataFetcher.sol",
+   "src/libraries/CoreLib.sol",
+   "src/libraries/CoreStorageLayout.sol",
+   "src/libraries/ExposedStorageLib.sol",
+   "src/libraries/ExtensionCallPointsLib.sol",
+   "src/libraries/IncentivesLib.sol",
+   "src/libraries/RevenueBuybacksLib.sol",
+   "src/libraries/TWAMMLib.sol",
+   "src/libraries/TWAMMStorageLayout.sol"
+  ],
+  "skipped": {
+   "tests": 68,
+   "mocks": 0,
+   "scripts": 0,
+   "vendor": 0,
+   "interfaces": 11,
+   "tooSmall": 0,
+   "tooLarge": 0,
+   "noLogic": 42,
+   "symlink": 0,
+   "unreadable": 0
+  },
+  "submodules": {
+   "declared": 2,
+   "fetched": [],
+   "failed": [],
+   "skipped": [
+    {
+     "path": "lib/forge-std",
+     "reason": "afhankelijkheid"
+    },
+    {
+     "path": "lib/solady",
+     "reason": "afhankelijkheid"
+    }
+   ]
+  },
+  "droppedHypotheses": 0,
+  "deadlineHit": false
+ },
+ "hypotheses": [
+  {
+   "title": "Untrusted revert data can spoof quote return values",
+   "severity": "High",
+   "category": "ACCOUNTING",
+   "file": "src/Router.sol",
+   "function": "DESCRIPTION: The router extracts `balanceUpdate` and `stateAfter` from a revert payload when the called contract reverts with the `QuoteReturnValue` selector. An attacker can craft a malicious contract that deliberately reverts with this selector and arbitrary 64‑byte payload, causing the router to accept attacker‑controlled values as the result of a quote. These values are later used for token settlement, allowing the attacker to manipulate the perceived amount of tokens transferred and potentially extract funds.",
+   "description": "The router extracts `balanceUpdate` and `stateAfter` from a revert payload when the called contract reverts with the `QuoteReturnValue` selector. An attacker can craft a malicious contract that deliberately reverts with this selector and arbitrary 64‑byte payload, causing the router to accept attacker‑controlled values as the result of a quote. These values are later used for token settlement, allowing the attacker to manipulate the perceived amount of tokens transferred and potentially extract funds.",
+   "attackPath": "1. Deploy a malicious contract that implements the same interface as the Core swap function.",
+   "impact": "Attacker can drain tokens from the pool or receive more assets than entitled, leading to loss of funds and potential protocol insolvency.",
+   "recommendation": "Do not rely on revert data for critical accounting; instead, have the Core return a structured success result or use a dedicated view function for quoting. If revert‑based quoting is retained, verify that the caller is the trusted Core contract and enforce bounds on the returned values.",
+   "confidence": 0.78
+  }
+ ],
+ "rawCount": 1,
+ "dropped": 0,
+ "durationMs": 340668,
+ "filesInScope": [
+  {
+   "rel": "src/Core.sol",
+   "bytes": 40058,
+   "score": 9
+  },
+  {
+   "rel": "src/Incentives.sol",
+   "bytes": 4069,
+   "score": 4
+  },
+  {
+   "rel": "src/MEVCaptureRouter.sol",
+   "bytes": 1692,
+   "score": 4
+  },
+  {
+   "rel": "src/Orders.sol",
+   "bytes": 7104,
+   "score": 4
+  },
+  {
+   "rel": "src/Positions.sol",
+   "bytes": 3299,
+   "score": 0
+  },
+  {
+   "rel": "src/PositionsOwner.sol",
+   "bytes": 3844,
+   "score": 2
+  },
+  {
+   "rel": "src/RevenueBuybacks.sol",
+   "bytes": 9219,
+   "score": 3
+  },
+  {
+   "rel": "src/Router.sol",
+   "bytes": 20648,
+   "score": 10
+  },
+  {
+   "rel": "src/TokenWrapper.sol",
+   "bytes": 7480,
+   "score": 2
+  },
+  {
+   "rel": "src/TokenWrapperFactory.sol",
+   "bytes": 1973,
+   "score": 2
+  },
+  {
+   "rel": "src/base/BaseExtension.sol",
+   "bytes": 3420,
+   "score": 0
+  },
+  {
+   "rel": "src/base/BaseForwardee.sol",
+   "bytes": 2362,
+   "score": 0
+  },
+  {
+   "rel": "src/base/BaseLocker.sol",
+   "bytes": 4912,
+   "score": 0
+  },
+  {
+   "rel": "src/base/BaseNonfungibleToken.sol",
+   "bytes": 5957,
+   "score": 2
+  },
+  {
+   "rel": "src/base/BasePositions.sol",
+   "bytes": 14723,
+   "score": 5
+  },
+  {
+   "rel": "src/base/ExposedStorage.sol",
+   "bytes": 1495,
+   "score": 0
+  },
+  {
+   "rel": "src/base/FlashAccountant.sol",
+   "bytes": 17099,
+   "score": 7
+  },
+  {
+   "rel": "src/base/PayableMulticallable.sol",
+   "bytes": 1691,
+   "score": 2
+  },
+  {
+   "rel": "src/base/UsesCore.sol",
+   "bytes": 1042,
+   "score": 2
+  },
+  {
+   "rel": "src/extensions/MEVCapture.sol",
+   "bytes": 11087,
+   "score": 1
+  },
+  {
+   "rel": "src/extensions/Oracle.sol",
+   "bytes": 17656,
+   "score": 6
+  },
+  {
+   "rel": "src/extensions/TWAMM.sol",
+   "bytes": 32505,
+   "score": 5
+  },
+  {
+   "rel": "src/lens/CoreDataFetcher.sol",
+   "bytes": 1950,
+   "score": 2
+  },
+  {
+   "rel": "src/lens/ERC7726.sol",
+   "bytes": 7945,
+   "score": 2
+  },
+  {
+   "rel": "src/lens/IncentivesDataFetcher.sol",
+   "bytes": 7711,
+   "score": 0
+  },
+  {
+   "rel": "src/lens/PriceFetcher.sol",
+   "bytes": 13425,
+   "score": 3
+  },
+  {
+   "rel": "src/lens/QuoteDataFetcher.sol",
+   "bytes": 6029,
+   "score": 0
+  },
+  {
+   "rel": "src/lens/TWAMMDataFetcher.sol",
+   "bytes": 4402,
+   "score": 2
+  },
+  {
+   "rel": "src/lens/TokenDataFetcher.sol",
+   "bytes": 3131,
+   "score": 0
+  },
+  {
+   "rel": "src/libraries/CoreLib.sol",
+   "bytes": 6566,
+   "score": 4
+  },
+  {
+   "rel": "src/libraries/CoreStorageLayout.sol",
+   "bytes": 6622,
+   "score": 2
+  },
+  {
+   "rel": "src/libraries/ExposedStorageLib.sol",
+   "bytes": 3111,
+   "score": 0
+  },
+  {
+   "rel": "src/libraries/ExtensionCallPointsLib.sol",
+   "bytes": 10952,
+   "score": 1
+  },
+  {
+   "rel": "src/libraries/FlashAccountantLib.sol",
+   "bytes": 12479,
+   "score": 7
+  },
+  {
+   "rel": "src/libraries/IncentivesLib.sol",
+   "bytes": 4768,
+   "score": 2
+  },
+  {
+   "rel": "src/libraries/OracleLib.sol",
+   "bytes": 2380,
+   "score": 4
+  },
+  {
+   "rel": "src/libraries/RevenueBuybacksLib.sol",
+   "bytes": 1588,
+   "score": 0
+  },
+  {
+   "rel": "src/libraries/TWAMMLib.sol",
+   "bytes": 6218,
+   "score": 2
+  },
+  {
+   "rel": "src/libraries/TWAMMStorageLayout.sol",
+   "bytes": 5118,
+   "score": 0
+  }
+ ]
+}

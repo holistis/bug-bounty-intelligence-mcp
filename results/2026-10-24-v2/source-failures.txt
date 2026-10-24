@@ -1,0 +1,7 @@
+Answers and failures of the model sources over the seven runs of 24 October 2026
+(counted from the run logs; the raw logs are not published because the provider error texts contain fragments of key material)
+
+Answers: OpenRouter (nvidia nemotron free) 33, Groq (gpt-oss-120b) 15, Mistral (codestral) 3
+Failures: Cerebras 402 payment required x51, Together 402 credit limit x36, SambaNova 401 invalid key x36,
+          Groq 413 request too large x16, Groq 429 rate limit x15, Groq empty answer x5, OpenRouter empty answer x1
+Parts not analysed because no strong source answered: 0

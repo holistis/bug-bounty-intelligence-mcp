@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bug Bounty Intelligence — code-423n4/2025-11-ekubo</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#0f172a;color:#e2e8f0;padding:2rem;max-width:900px;margin:0 auto}
+.header{border-bottom:1px solid #1e3a5f;padding-bottom:1.5rem;margin-bottom:2rem}
+h1{font-size:1.8rem;color:#38bdf8}
+.meta{color:#94a3b8;font-size:0.9rem;margin-top:0.4rem}
+.stats{display:flex;gap:1rem;margin:1rem 0 2rem;flex-wrap:wrap}
+.stat{background:#1e293b;border-radius:8px;padding:.75rem 1.25rem;display:flex;align-items:center;gap:.75rem}
+.count{font-size:1.5rem;font-weight:bold}
+.badge{padding:.25rem .6rem;border-radius:4px;font-size:.8rem;font-weight:bold;color:#fff}
+.finding{background:#1e293b;border-radius:8px;margin-bottom:1rem;border-left:4px solid #1e3a5f;overflow:hidden}
+.finding-header{padding:1rem 1.5rem;display:flex;align-items:center;gap:1rem}
+.finding-header h3{flex:1;font-size:1rem}
+.conf{font-size:.8rem;color:#94a3b8}
+.finding-body{padding:0 1.5rem 1.25rem;border-top:1px solid #0f172a}
+.finding-body p{margin-top:.75rem;line-height:1.6;color:#cbd5e1}
+code{background:#0f172a;padding:.1rem .4rem;border-radius:3px;font-size:.85rem}
+.no-findings{padding:2rem;text-align:center;color:#cbd5e1;background:#1e293b;border-radius:8px;line-height:1.7}
+.coverage{margin-bottom:2rem;padding:1rem 1.25rem;background:#1e293b;border-radius:8px;border-left:4px solid #38bdf8;font-size:.9rem;line-height:1.7;color:#cbd5e1}
+.coverage p{margin-top:.5rem}
+.limits{margin-bottom:1rem;padding:.75rem 1.25rem;background:#1e3a5f;border-radius:8px;border-left:4px solid #ca8a04;font-size:.85rem;color:#fbbf24}
+h2{font-size:1.1rem;margin-bottom:1rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em}
+.disclaimer{margin-top:3rem;padding:1.5rem;background:#1e293b;border-radius:8px;border-left:4px solid #ca8a04;font-size:.85rem;color:#94a3b8;line-height:1.7}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Bug Bounty Intelligence</h1>
+  <div class="meta">AI-generated hypotheses for Solidity code. Not an audit.</div>
+  <div class="meta">Repository: <code>code-423n4/2025-11-ekubo</code></div>
+  <div class="meta">Analyzed: 2026-10-24 06:21 UTC &nbsp;|&nbsp; Model: nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter), openai/gpt-oss-120b (Groq) &nbsp;|&nbsp; Duration: 341s</div>
+</div>
+
+
+<h2>Coverage</h2>
+<div class="coverage">
+  <p><strong>30% of the in-scope Solidity was read by the analysis</strong>: 94 KB of 310 KB, in 6 of 6 planned parts.</p>
+  <p>Files read in full: 6 of 39.</p>
+  <p>Not read: <code>src/MEVCaptureRouter.sol</code>, <code>src/Orders.sol</code>, <code>src/Positions.sol</code>, <code>src/PositionsOwner.sol</code>, <code>src/RevenueBuybacks.sol</code>, <code>src/TokenWrapper.sol</code>, <code>src/TokenWrapperFactory.sol</code>, <code>src/base/BaseExtension.sol</code>, <code>src/base/BaseForwardee.sol</code>, <code>src/base/BaseLocker.sol</code>, <code>src/base/BaseNonfungibleToken.sol</code>, <code>src/base/BasePositions.sol</code>, <code>src/base/ExposedStorage.sol</code>, <code>src/base/PayableMulticallable.sol</code>, <code>src/base/UsesCore.sol</code>, <code>src/extensions/MEVCapture.sol</code>, <code>src/extensions/Oracle.sol</code>, <code>src/extensions/TWAMM.sol</code>, <code>src/lens/CoreDataFetcher.sol</code>, <code>src/lens/ERC7726.sol</code>, <code>src/lens/IncentivesDataFetcher.sol</code>, <code>src/lens/PriceFetcher.sol</code>, <code>src/lens/QuoteDataFetcher.sol</code>, <code>src/lens/TWAMMDataFetcher.sol</code>, <code>src/lens/TokenDataFetcher.sol</code>, <code>src/libraries/CoreLib.sol</code>, <code>src/libraries/CoreStorageLayout.sol</code>, <code>src/libraries/ExposedStorageLib.sol</code>, <code>src/libraries/ExtensionCallPointsLib.sol</code>, <code>src/libraries/IncentivesLib.sol</code>, <code>src/libraries/RevenueBuybacksLib.sol</code>, <code>src/libraries/TWAMMLib.sol</code>, <code>src/libraries/TWAMMStorageLayout.sol</code>.</p>
+  <p>Left out as not the project's own logic: 68 tests, 11 interfaces, 42 noLogic. Submodules: 2 declared, 0 fetched, 2 not fetched on purpose (dependencies or unsafe address).</p>
+  
+</div>
+
+<h2>Summary</h2>
+<div class="stats"><div class="stat"><span class="badge" style="background:#dc2626">Critical</span><span class="count">0</span></div><div class="stat"><span class="badge" style="background:#ea580c">High</span><span class="count">1</span></div><div class="stat"><span class="badge" style="background:#ca8a04">Medium</span><span class="count">0</span></div><div class="stat"><span class="badge" style="background:#16a34a">Low</span><span class="count">0</span></div><div class="stat"><span class="badge" style="background:#6b7280">Info</span><span class="count">0</span></div></div>
+
+<h2>Hypotheses</h2>
+<div class="limits">These are unverified AI hypotheses, not confirmed vulnerabilities. Check each one by hand before you act on it. How often this scan finds known issues in closed audit contests, including the misses, is published in the repository linked below.</div>
+
+    <div class="finding" style="border-left-color:#ea580c">
+      <div class="finding-header">
+        <span class="badge" style="background:#ea580c">High</span>
+        <h3>Untrusted revert data can spoof quote return values</h3>
+        <span class="conf">Model confidence: 78%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>src/Router.sol</code></p>
+        <p><strong>Function:</strong> <code>DESCRIPTION: The router extracts `balanceUpdate` and `stateAfter` from a revert payload when the called contract reverts with the `QuoteReturnValue` selector. An attacker can craft a malicious contract that deliberately reverts with this selector and arbitrary 64‑byte payload, causing the router to accept attacker‑controlled values as the result of a quote. These values are later used for token settlement, allowing the attacker to manipulate the perceived amount of tokens transferred and potentially extract funds.</code></p>
+        <p><strong>Category:</strong> ACCOUNTING</p>
+        <p>The router extracts `balanceUpdate` and `stateAfter` from a revert payload when the called contract reverts with the `QuoteReturnValue` selector. An attacker can craft a malicious contract that deliberately reverts with this selector and arbitrary 64‑byte payload, causing the router to accept attacker‑controlled values as the result of a quote. These values are later used for token settlement, allowing the attacker to manipulate the perceived amount of tokens transferred and potentially extract funds.</p>
+        <p><strong>Attack path:</strong> 1. Deploy a malicious contract that implements the same interface as the Core swap function.</p>
+        <p><strong>Impact:</strong> Attacker can drain tokens from the pool or receive more assets than entitled, leading to loss of funds and potential protocol insolvency.</p>
+        <p><strong>Recommendation:</strong> Do not rely on revert data for critical accounting; instead, have the Core return a structured success result or use a dedicated view function for quoting. If revert‑based quoting is retained, verify that the caller is the trusted Core contract and enforce bounds on the returned values.</p>
+      </div>
+    </div>
+
+<div class="disclaimer">
+<strong>Disclaimer:</strong> This report was produced by an automated pipeline that prompts a language model with parts of your code (model: nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter), openai/gpt-oss-120b (Groq)).
+It is not a security audit, a certification or an approval. It can miss real issues and can include false ones. No warranty is provided.
+<br><br>
+If this report did not help you, or you think it is wrong, write to <a href="mailto:info@holistischadviseur.nl?subject=Bug%20Bounty%20Intelligence%20v2-2025-11-ekubo" style="color:#38bdf8">info@holistischadviseur.nl</a> with the job id <code>v2-2025-11-ekubo</code>. You can ask for a new attempt or a refund.
+<br><br>
+Method, limits and test results: <a href="https://github.com/holistis/bug-bounty-intelligence-mcp" style="color:#38bdf8">github.com/holistis/bug-bounty-intelligence-mcp</a>
+&nbsp;|&nbsp; Official sources: <a href="https://tokenizen.nl/notes/official-sources" style="color:#38bdf8">tokenizen.nl/notes/official-sources</a>
+</div>
+</body>
+</html>

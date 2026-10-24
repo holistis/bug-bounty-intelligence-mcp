@@ -1,0 +1,158 @@
+{
+ "repo": "code-423n4/2026-04-monetrix",
+ "outcome": "hypotheses",
+ "model": "nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter), openai/gpt-oss-120b (Groq)",
+ "sources": [
+  "nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter)",
+  "openai/gpt-oss-120b (Groq)"
+ ],
+ "coverage": {
+  "scopeFiles": 14,
+  "scopeBytes": 100843,
+  "analysedBytes": 100842,
+  "analysedPct": 100,
+  "chunksPlanned": 6,
+  "chunksAnalysed": 6,
+  "filesFull": 14,
+  "filesPartial": [],
+  "notAnalysedFiles": [],
+  "skipped": {
+   "tests": 23,
+   "mocks": 0,
+   "scripts": 0,
+   "vendor": 0,
+   "interfaces": 6,
+   "tooSmall": 0,
+   "tooLarge": 0,
+   "noLogic": 0,
+   "symlink": 0,
+   "unreadable": 0
+  },
+  "submodules": {
+   "declared": 4,
+   "fetched": [],
+   "failed": [],
+   "skipped": [
+    {
+     "path": "lib/forge-std",
+     "reason": "afhankelijkheid"
+    },
+    {
+     "path": "lib/openzeppelin-contracts",
+     "reason": "afhankelijkheid"
+    },
+    {
+     "path": "lib/openzeppelin-contracts-upgradeable",
+     "reason": "afhankelijkheid"
+    },
+    {
+     "path": "lib/hyper-evm-lib",
+     "reason": "afhankelijkheid"
+    }
+   ]
+  },
+  "droppedHypotheses": 0,
+  "deadlineHit": false
+ },
+ "hypotheses": [
+  {
+   "title": "Operator can induce denial‑of‑service by registering inactive supply slots",
+   "severity": "Medium",
+   "category": "LIVENESS",
+   "file": "src/core/MonetrixAccountant.sol",
+   "function": "addMultisigSupplyToken(uint64)",
+   "description": "The `addMultisigSupplyToken` function allows an operator to register any whitelisted spot token without verifying that the corresponding 0x811 slot is actually activated on Hypercore. The registered token is later read in `_readL1Backing`, where `PrecompileReader.suppliedNotionalUsdcFromPerp` is called. If the slot is not activated, the pre‑compile reverts, causing `totalBackingSigned()` (and any function that depends on it, e.g., `settleDailyPnL`) to revert, effectively halting yield settlement and other accounting‑dependent operations.",
+   "attackPath": "1. Attacker obtains the Operator role (or compromises an operator key).",
+   "impact": "Yield settlement and any accounting‑dependent functions become permanently blocked, leading to loss of expected rewards and possible loss of confidence; the protocol can be effectively frozen until the bogus entry is removed (requires operator action) or a governance upgrade.",
+   "recommendation": "Validate that a supplied slot is active before registering it (e.g., query the pre‑compile for activation status) or catch and ignore revert errors when reading inactive slots. Alternatively, restrict registration to tokens that have a non‑zero supplied balance.",
+   "confidence": 0.92
+  },
+  {
+   "title": "State update before external escrow call in claimUnstake leads to potential asset loss",
+   "severity": "Medium",
+   "category": "ORDERING",
+   "file": "src/tokens/sUSDM.sol",
+   "function": "claimUnstake(uint256)",
+   "description": "The function deletes the unstake request and updates `totalPendingClaims` before invoking `escrow.release`, which is an external call to another contract. If `escrow.release` fails (e.g., reverts after state changes or returns false without reverting), the user's claim is erased while the USDM remains locked in the escrow, breaking accounting and potentially causing loss of funds.",
+   "attackPath": "1. Attacker (any user) creates an unstake request via `cooldownShares` or `cooldownAssets`.",
+   "impact": "Users can permanently lose access to their USDM and the protocol’s accounting (`totalPendingClaims`) becomes inconsistent, potentially affecting solvency checks and overall protocol health.",
+   "recommendation": "Follow the checks‑effects‑interactions pattern: perform the external `escrow.release` call before mutating contract state, or ensure `escrow.release` reverts on any failure and wrap the call in a try/catch that restores state on error.",
+   "confidence": 0.85
+  }
+ ],
+ "rawCount": 2,
+ "dropped": 0,
+ "durationMs": 360696,
+ "filesInScope": [
+  {
+   "rel": "src/core/ActionEncoder.sol",
+   "bytes": 8642,
+   "score": 5
+  },
+  {
+   "rel": "src/core/InsuranceFund.sol",
+   "bytes": 1900,
+   "score": 6
+  },
+  {
+   "rel": "src/core/MonetrixAccountant.sol",
+   "bytes": 15405,
+   "score": 5
+  },
+  {
+   "rel": "src/core/MonetrixConfig.sol",
+   "bytes": 9818,
+   "score": 5
+  },
+  {
+   "rel": "src/core/MonetrixVault.sol",
+   "bytes": 26621,
+   "score": 9
+  },
+  {
+   "rel": "src/core/PrecompileReader.sol",
+   "bytes": 7451,
+   "score": 4
+  },
+  {
+   "rel": "src/core/RedeemEscrow.sol",
+   "bytes": 3214,
+   "score": 4
+  },
+  {
+   "rel": "src/core/TokenMath.sol",
+   "bytes": 4374,
+   "score": 4
+  },
+  {
+   "rel": "src/core/YieldEscrow.sol",
+   "bytes": 1837,
+   "score": 4
+  },
+  {
+   "rel": "src/governance/MonetrixAccessController.sol",
+   "bytes": 2836,
+   "score": 4
+  },
+  {
+   "rel": "src/governance/MonetrixGovernedUpgradeable.sol",
+   "bytes": 2723,
+   "score": 0
+  },
+  {
+   "rel": "src/tokens/USDM.sol",
+   "bytes": 2313,
+   "score": 2
+  },
+  {
+   "rel": "src/tokens/sUSDM.sol",
+   "bytes": 12348,
+   "score": 5
+  },
+  {
+   "rel": "src/tokens/sUSDMEscrow.sol",
+   "bytes": 1361,
+   "score": 6
+  }
+ ]
+}

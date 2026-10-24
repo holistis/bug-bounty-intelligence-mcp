@@ -1,0 +1,807 @@
+{
+ "repo": "code-423n4/2026-01-olas",
+ "outcome": "hypotheses",
+ "model": "nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter), codestral-latest (Mistral)",
+ "sources": [
+  "nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter)",
+  "codestral-latest (Mistral)"
+ ],
+ "coverage": {
+  "scopeFiles": 102,
+  "scopeBytes": 1167625,
+  "analysedBytes": 87932,
+  "analysedPct": 8,
+  "chunksPlanned": 6,
+  "chunksAnalysed": 6,
+  "filesFull": 2,
+  "filesPartial": [
+   "autonolas-registries/contracts/staking/StakingBase.sol"
+  ],
+  "notAnalysedFiles": [
+   "autonolas-governance/contracts/Burner.sol",
+   "autonolas-governance/contracts/DeploymentFactory.sol",
+   "autonolas-governance/contracts/GovernorOLAS.sol",
+   "autonolas-governance/contracts/OLAS.sol",
+   "autonolas-governance/contracts/Timelock.sol",
+   "autonolas-governance/contracts/VoteWeighting.sol",
+   "autonolas-governance/contracts/bridges/BridgeMessenger.sol",
+   "autonolas-governance/contracts/bridges/BridgedERC20.sol",
+   "autonolas-governance/contracts/bridges/FxERC20ChildTunnel.sol",
+   "autonolas-governance/contracts/bridges/FxERC20RootTunnel.sol",
+   "autonolas-governance/contracts/bridges/FxGovernorTunnel.sol",
+   "autonolas-governance/contracts/bridges/HomeMediator.sol",
+   "autonolas-governance/contracts/bridges/OptimismMessenger.sol",
+   "autonolas-governance/contracts/bridges/WormholeMessenger.sol",
+   "autonolas-governance/contracts/bridges/WormholeRelayerTimelock.sol",
+   "autonolas-governance/contracts/buOLAS.sol",
+   "autonolas-governance/contracts/multisigs/GuardCM.sol",
+   "autonolas-governance/contracts/multisigs/VerifyData.sol",
+   "autonolas-governance/contracts/multisigs/bridge_verifier/ProcessBridgedDataArbitrum.sol",
+   "autonolas-governance/contracts/multisigs/bridge_verifier/ProcessBridgedDataGnosis.sol",
+   "autonolas-governance/contracts/multisigs/bridge_verifier/ProcessBridgedDataOptimism.sol",
+   "autonolas-governance/contracts/multisigs/bridge_verifier/ProcessBridgedDataPolygon.sol",
+   "autonolas-governance/contracts/multisigs/bridge_verifier/ProcessBridgedDataWormhole.sol",
+   "autonolas-governance/contracts/multisigs/bridge_verifier/VerifyBridgedData.sol",
+   "autonolas-governance/contracts/utils/GovernorTimelockControl.sol",
+   "autonolas-governance/contracts/veOLAS.sol",
+   "autonolas-governance/contracts/wveOLAS.sol",
+   "autonolas-registries/contracts/8004/IdentityRegistryBridger.sol",
+   "autonolas-registries/contracts/8004/IdentityRegistryBridgerProxy.sol",
+   "autonolas-registries/contracts/AgentRegistry.sol",
+   "autonolas-registries/contracts/ComponentRegistry.sol",
+   "autonolas-registries/contracts/GenericManager.sol",
+   "autonolas-registries/contracts/GenericRegistry.sol",
+   "autonolas-registries/contracts/RegistriesManager.sol",
+   "autonolas-registries/contracts/ServiceManager.sol",
+   "autonolas-registries/contracts/ServiceManagerProxy.sol",
+   "autonolas-registries/contracts/ServiceRegistry.sol",
+   "autonolas-registries/contracts/ServiceRegistryL2.sol",
+   "autonolas-registries/contracts/ServiceRegistryTokenUtility.sol",
+   "autonolas-registries/contracts/UnitRegistry.sol",
+   "autonolas-registries/contracts/multisigs/GnosisSafeMultisig.sol",
+   "autonolas-registries/contracts/multisigs/GnosisSafeSameAddressMultisig.sol",
+   "autonolas-registries/contracts/multisigs/PolySafeCreatorWithRecoveryModule.sol",
+   "autonolas-registries/contracts/multisigs/RecoveryModule.sol",
+   "autonolas-registries/contracts/multisigs/SafeMultisigWithRecoveryModule.sol",
+   "autonolas-registries/contracts/scribble/ServiceRegistryAnnotated.sol",
+   "autonolas-registries/contracts/staking/StakingActivityChecker.sol",
+   "autonolas-registries/contracts/staking/StakingFactory.sol",
+   "autonolas-registries/contracts/staking/StakingNativeToken.sol",
+   "autonolas-registries/contracts/staking/StakingProxy.sol",
+   "autonolas-registries/contracts/staking/StakingToken.sol",
+   "autonolas-registries/contracts/staking/StakingVerifier.sol",
+   "autonolas-registries/contracts/utils/ApplicationClassifier.sol",
+   "autonolas-registries/contracts/utils/ApplicationClassifierProxy.sol",
+   "autonolas-registries/contracts/utils/ComplementaryServiceMetadata.sol",
+   "autonolas-registries/contracts/utils/HashCheckpoint.sol",
+   "autonolas-registries/contracts/utils/OperatorSignedHashes.sol",
+   "autonolas-registries/contracts/utils/OperatorWhitelist.sol",
+   "autonolas-registries/contracts/utils/SafeTransferLib.sol",
+   "autonolas-registries/integrations/solana/contracts/ServiceRegistrySolana.sol",
+   "autonolas-registries/integrations/solana/contracts/SystemInstruction.sol",
+   "autonolas-tokenomics/contracts/Depository.sol",
+   "autonolas-tokenomics/contracts/Dispenser.sol",
+   "autonolas-tokenomics/contracts/DonatorBlacklist.sol",
+   "autonolas-tokenomics/contracts/GenericBondCalculator.sol",
+   "autonolas-tokenomics/contracts/Tokenomics.sol",
+   "autonolas-tokenomics/contracts/TokenomicsConstants.sol",
+   "autonolas-tokenomics/contracts/libraries/FixedPoint96.sol",
+   "autonolas-tokenomics/contracts/libraries/FullMath.sol",
+   "autonolas-tokenomics/contracts/libraries/LiquidityAmounts.sol",
+   "autonolas-tokenomics/contracts/libraries/TickMath.sol",
+   "autonolas-tokenomics/contracts/oracles/BalancerPriceOracle.sol",
+   "autonolas-tokenomics/contracts/oracles/UniswapPriceOracle.sol",
+   "autonolas-tokenomics/contracts/pol/LiquidityManagerCore.sol",
+   "autonolas-tokenomics/contracts/pol/LiquidityManagerETH.sol",
+   "autonolas-tokenomics/contracts/pol/LiquidityManagerOptimism.sol",
+   "autonolas-tokenomics/contracts/pol/NeighborhoodScanner.sol",
+   "autonolas-tokenomics/contracts/proxies/LiquidityManagerProxy.sol",
+   "autonolas-tokenomics/contracts/proxies/TokenomicsProxy.sol",
+   "autonolas-tokenomics/contracts/staking/ArbitrumDepositProcessorL1.sol",
+   "autonolas-tokenomics/contracts/staking/ArbitrumTargetDispenserL2.sol",
+   "autonolas-tokenomics/contracts/staking/DefaultDepositProcessorL1.sol",
+   "autonolas-tokenomics/contracts/staking/EthereumDepositProcessor.sol",
+   "autonolas-tokenomics/contracts/staking/GnosisDepositProcessorL1.sol",
+   "autonolas-tokenomics/contracts/staking/GnosisTargetDispenserL2.sol",
+   "autonolas-tokenomics/contracts/staking/OptimismDepositProcessorL1.sol",
+   "autonolas-tokenomics/contracts/staking/OptimismTargetDispenserL2.sol",
+   "autonolas-tokenomics/contracts/staking/PolygonDepositProcessorL1.sol",
+   "autonolas-tokenomics/contracts/staking/PolygonTargetDispenserL2.sol",
+   "autonolas-tokenomics/contracts/staking/WormholeDepositProcessorL1.sol",
+   "autonolas-tokenomics/contracts/staking/WormholeTargetDispenserL2.sol",
+   "autonolas-tokenomics/contracts/utils/Bridge2Burner.sol",
+   "autonolas-tokenomics/contracts/utils/Bridge2BurnerGnosis.sol",
+   "autonolas-tokenomics/contracts/utils/Bridge2BurnerOptimism.sol",
+   "autonolas-tokenomics/contracts/utils/BuyBackBurner.sol",
+   "autonolas-tokenomics/contracts/utils/BuyBackBurnerBalancer.sol",
+   "autonolas-tokenomics/contracts/utils/BuyBackBurnerProxy.sol",
+   "autonolas-tokenomics/contracts/utils/BuyBackBurnerUniswap.sol",
+   "autonolas-tokenomics/contracts/utils/SafeTransferLib.sol"
+  ],
+  "skipped": {
+   "tests": 62,
+   "mocks": 0,
+   "scripts": 0,
+   "vendor": 128,
+   "interfaces": 22,
+   "tooSmall": 0,
+   "tooLarge": 0,
+   "noLogic": 0,
+   "symlink": 0,
+   "unreadable": 0
+  },
+  "submodules": {
+   "declared": 3,
+   "fetched": [
+    "autonolas-governance",
+    "autonolas-tokenomics",
+    "autonolas-registries"
+   ],
+   "failed": [],
+   "skipped": []
+  },
+  "droppedHypotheses": 0,
+  "deadlineHit": false
+ },
+ "hypotheses": [
+  {
+   "title": "Reentrancy in withdrawToAccount function",
+   "severity": "Critical",
+   "category": "ORDERING",
+   "file": "Treasury.sol",
+   "function": "withdrawToAccount()",
+   "description": "The withdrawToAccount function does not implement a reentrancy guard, which could allow an attacker to re-enter the function and drain the contract's ETH balance.",
+   "attackPath": "1. An attacker calls the withdrawToAccount function with a small accountRewards value. 2. The function sends ETH to the attacker's address. 3. The attacker's fallback function re-enters the withdrawToAccount function, this time with a larger accountRewards value, draining the contract's ETH balance.",
+   "impact": "An attacker could drain the contract's ETH balance, causing significant financial loss to the protocol.",
+   "recommendation": "Implement a reentrancy guard in the withdrawToAccount function to prevent re-entrancy attacks.",
+   "confidence": 0.9
+  },
+  {
+   "title": "Missing Access Control in `rebalanceTreasury` Function",
+   "severity": "Critical",
+   "category": "ACCESS",
+   "file": "Treasury.sol",
+   "function": "rebalanceTreasury(uint256 treasuryRewards)",
+   "description": "The `rebalanceTreasury` function is intended to be called only by the `tokenomics` contract, but there is no explicit check to ensure that the caller is indeed the `tokenomics` contract. This could allow an attacker to call this function and manipulate the treasury balances.",
+   "attackPath": "1. An attacker deploys a malicious contract that calls the `rebalanceTreasury` function. 2. The attacker can then manipulate the `ETHFromServices` and `ETHOwned` balances, potentially draining the treasury or causing other issues.",
+   "impact": "An attacker could manipulate the treasury balances, leading to potential fund loss or protocol insolvency.",
+   "recommendation": "Add an explicit check to ensure that the caller is the `tokenomics` contract.",
+   "confidence": 0.9
+  },
+  {
+   "title": "Missing Access Control in `drainServiceSlashedFunds` Function",
+   "severity": "Critical",
+   "category": "ACCESS",
+   "file": "Treasury.sol",
+   "function": "drainServiceSlashedFunds()",
+   "description": "The `drainServiceSlashedFunds` function is intended to be called only by the `owner`, but there is no explicit check to ensure that the caller is indeed the `owner`. This could allow an attacker to call this function and drain the slashed funds.",
+   "attackPath": "1. An attacker deploys a malicious contract that calls the `drainServiceSlashedFunds` function. 2. The attacker can then drain the slashed funds, potentially causing fund loss.",
+   "impact": "An attacker could drain the slashed funds, leading to potential fund loss.",
+   "recommendation": "Add an explicit check to ensure that the caller is the `owner`.",
+   "confidence": 0.9
+  },
+  {
+   "title": "Missing validation of serviceIds in depositServiceDonationsETH",
+   "severity": "High",
+   "category": "ACCESS",
+   "file": "Treasury.sol",
+   "function": "depositServiceDonationsETH()",
+   "description": "The depositServiceDonationsETH function does not validate the serviceIds array, which could allow an attacker to donate ETH to non-existent or unauthorized services.",
+   "attackPath": "1. An attacker calls the depositServiceDonationsETH function with an array of non-existent or unauthorized serviceIds. 2. The function does not validate the serviceIds, allowing the attacker to donate ETH to these services. 3. The donated ETH is added to the ETHFromServices balance, which could be used to manipulate the protocol's tokenomics.",
+   "impact": "An attacker could donate ETH to non-existent or unauthorized services, potentially manipulating the protocol's tokenomics and causing financial loss.",
+   "recommendation": "Validate the serviceIds array in the depositServiceDonationsETH function to ensure that only valid and authorized services can receive donations.",
+   "confidence": 0.8
+  },
+  {
+   "title": "Integer overflow in receive function",
+   "severity": "High",
+   "category": "ACCOUNTING",
+   "file": "Treasury.sol",
+   "function": "receive()",
+   "description": "The receive function does not properly handle integer overflow, which could allow an attacker to manipulate the ETHOwned balance.",
+   "attackPath": "1. An attacker sends a large amount of ETH to the contract. 2. The receive function does not properly handle the integer overflow, allowing the attacker to manipulate the ETHOwned balance. 3. The manipulated ETHOwned balance could be used to drain the contract's ETH balance or manipulate the protocol's tokenomics.",
+   "impact": "An attacker could manipulate the ETHOwned balance, potentially draining the contract's ETH balance or manipulating the protocol's tokenomics.",
+   "recommendation": "Properly handle integer overflow in the receive function to prevent manipulation of the ETHOwned balance.",
+   "confidence": 0.8
+  },
+  {
+   "title": "Missing Access Control in `enableToken` Function",
+   "severity": "High",
+   "category": "ACCESS",
+   "file": "Treasury.sol",
+   "function": "enableToken(address token)",
+   "description": "The `enableToken` function is intended to be called only by the `owner`, but there is no explicit check to ensure that the caller is indeed the `owner`. This could allow an attacker to enable tokens that should not be enabled.",
+   "attackPath": "1. An attacker deploys a malicious contract that calls the `enableToken` function. 2. The attacker can then enable tokens that should not be enabled, potentially causing issues with the bonding mechanism.",
+   "impact": "An attacker could enable tokens that should not be enabled, leading to potential issues with the bonding mechanism.",
+   "recommendation": "Add an explicit check to ensure that the caller is the `owner`.",
+   "confidence": 0.8
+  },
+  {
+   "title": "Missing Access Control in `disableToken` Function",
+   "severity": "High",
+   "category": "ACCESS",
+   "file": "Treasury.sol",
+   "function": "disableToken(address token)",
+   "description": "The `disableToken` function is intended to be called only by the `owner`, but there is no explicit check to ensure that the caller is indeed the `owner`. This could allow an attacker to disable tokens that should not be disabled.",
+   "attackPath": "1. An attacker deploys a malicious contract that calls the `disableToken` function. 2. The attacker can then disable tokens that should not be disabled, potentially causing issues with the bonding mechanism.",
+   "impact": "An attacker could disable tokens that should not be disabled, leading to potential issues with the bonding mechanism.",
+   "recommendation": "Add an explicit check to ensure that the caller is the `owner`.",
+   "confidence": 0.8
+  },
+  {
+   "title": "Missing Access Control in `pause` Function",
+   "severity": "High",
+   "category": "ACCESS",
+   "file": "Treasury.sol",
+   "function": "pause()",
+   "description": "The `pause` function is intended to be called only by the `owner`, but there is no explicit check to ensure that the caller is indeed the `owner`. This could allow an attacker to pause the contract, potentially causing a denial of service.",
+   "attackPath": "1. An attacker deploys a malicious contract that calls the `pause` function. 2. The attacker can then pause the contract, causing a denial of service.",
+   "impact": "An attacker could pause the contract, leading to a denial of service.",
+   "recommendation": "Add an explicit check to ensure that the caller is the `owner`.",
+   "confidence": 0.8
+  },
+  {
+   "title": "Missing Access Control in `unpause` Function",
+   "severity": "High",
+   "category": "ACCESS",
+   "file": "Treasury.sol",
+   "function": "unpause()",
+   "description": "The `unpause` function is intended to be called only by the `owner`, but there is no explicit check to ensure that the caller is indeed the `owner`. This could allow an attacker to unpause the contract, potentially causing issues.",
+   "attackPath": "1. An attacker deploys a malicious contract that calls the `unpause` function. 2. The attacker can then unpause the contract, potentially causing issues.",
+   "impact": "An attacker could unpause the contract, leading to potential issues.",
+   "recommendation": "Add an explicit check to ensure that the caller is the `owner`.",
+   "confidence": 0.8
+  },
+  {
+   "title": "Missing validation of token in depositTokenForOLAS",
+   "severity": "Medium",
+   "category": "ACCESS",
+   "file": "Treasury.sol",
+   "function": "depositTokenForOLAS()",
+   "description": "The depositTokenForOLAS function does not validate the token address, which could allow an attacker to deposit non-approved tokens.",
+   "attackPath": "1. An attacker calls the depositTokenForOLAS function with a non-approved token address. 2. The function does not validate the token address, allowing the attacker to deposit the non-approved token. 3. The deposited token is added to the mapTokenReserves mapping, which could be used to manipulate the protocol's liquidity.",
+   "impact": "An attacker could deposit non-approved tokens, potentially manipulating the protocol's liquidity and causing financial loss.",
+   "recommendation": "Validate the token address in the depositTokenForOLAS function to ensure that only approved tokens can be deposited.",
+   "confidence": 0.7
+  },
+  {
+   "title": "Missing validation of account in withdrawToAccount",
+   "severity": "Medium",
+   "category": "ACCESS",
+   "file": "Treasury.sol",
+   "function": "withdrawToAccount()",
+   "description": "The withdrawToAccount function does not validate the account address, which could allow an attacker to withdraw funds to an unauthorized address.",
+   "attackPath": "1. An attacker calls the withdrawToAccount function with an unauthorized account address. 2. The function does not validate the account address, allowing the attacker to withdraw funds to the unauthorized address. 3. The attacker can then use the withdrawn funds to manipulate the protocol or cause financial loss.",
+   "impact": "An attacker could withdraw funds to an unauthorized address, potentially manipulating the protocol or causing financial loss.",
+   "recommendation": "Validate the account address in the withdrawToAccount function to ensure that funds can only be withdrawn to authorized addresses.",
+   "confidence": 0.7
+  },
+  {
+   "title": "Missing Check for Zero Address in `enableToken` Function",
+   "severity": "Medium",
+   "category": "ACCESS",
+   "file": "Treasury.sol",
+   "function": "enableToken(address token)",
+   "description": "The `enableToken` function does not check if the `token` address is the zero address. This could allow an attacker to enable the zero address, potentially causing issues.",
+   "attackPath": "1. An attacker deploys a malicious contract that calls the `enableToken` function with the zero address. 2. The attacker can then enable the zero address, potentially causing issues.",
+   "impact": "An attacker could enable the zero address, leading to potential issues.",
+   "recommendation": "Add a check to ensure that the `token` address is not the zero address.",
+   "confidence": 0.7
+  }
+ ],
+ "rawCount": 13,
+ "dropped": 0,
+ "durationMs": 596921,
+ "filesInScope": [
+  {
+   "rel": "autonolas-governance/contracts/Burner.sol",
+   "bytes": 1569,
+   "score": 2
+  },
+  {
+   "rel": "autonolas-governance/contracts/DeploymentFactory.sol",
+   "bytes": 2780,
+   "score": 2
+  },
+  {
+   "rel": "autonolas-governance/contracts/GovernorOLAS.sol",
+   "bytes": 5260,
+   "score": 0
+  },
+  {
+   "rel": "autonolas-governance/contracts/OLAS.sol",
+   "bytes": 5691,
+   "score": 2
+  },
+  {
+   "rel": "autonolas-governance/contracts/Timelock.sol",
+   "bytes": 524,
+   "score": 0
+  },
+  {
+   "rel": "autonolas-governance/contracts/VoteWeighting.sol",
+   "bytes": 33401,
+   "score": 3
+  },
+  {
+   "rel": "autonolas-governance/contracts/bridges/BridgeMessenger.sol",
+   "bytes": 3415,
+   "score": 5
+  },
+  {
+   "rel": "autonolas-governance/contracts/bridges/BridgedERC20.sol",
+   "bytes": 2118,
+   "score": 4
+  },
+  {
+   "rel": "autonolas-governance/contracts/bridges/FxERC20ChildTunnel.sol",
+   "bytes": 4499,
+   "score": 6
+  },
+  {
+   "rel": "autonolas-governance/contracts/bridges/FxERC20RootTunnel.sol",
+   "bytes": 4465,
+   "score": 6
+  },
+  {
+   "rel": "autonolas-governance/contracts/bridges/FxGovernorTunnel.sol",
+   "bytes": 7235,
+   "score": 5
+  },
+  {
+   "rel": "autonolas-governance/contracts/bridges/HomeMediator.sol",
+   "bytes": 7416,
+   "score": 5
+  },
+  {
+   "rel": "autonolas-governance/contracts/bridges/OptimismMessenger.sol",
+   "bytes": 4083,
+   "score": 2
+  },
+  {
+   "rel": "autonolas-governance/contracts/bridges/WormholeMessenger.sol",
+   "bytes": 4979,
+   "score": 2
+  },
+  {
+   "rel": "autonolas-governance/contracts/bridges/WormholeRelayerTimelock.sol",
+   "bytes": 13119,
+   "score": 8
+  },
+  {
+   "rel": "autonolas-governance/contracts/buOLAS.sol",
+   "bytes": 14237,
+   "score": 5
+  },
+  {
+   "rel": "autonolas-governance/contracts/multisigs/GuardCM.sol",
+   "bytes": 18773,
+   "score": 7
+  },
+  {
+   "rel": "autonolas-governance/contracts/multisigs/VerifyData.sol",
+   "bytes": 1781,
+   "score": 0
+  },
+  {
+   "rel": "autonolas-governance/contracts/multisigs/bridge_verifier/ProcessBridgedDataArbitrum.sol",
+   "bytes": 2842,
+   "score": 2
+  },
+  {
+   "rel": "autonolas-governance/contracts/multisigs/bridge_verifier/ProcessBridgedDataGnosis.sol",
+   "bytes": 3853,
+   "score": 2
+  },
+  {
+   "rel": "autonolas-governance/contracts/multisigs/bridge_verifier/ProcessBridgedDataOptimism.sol",
+   "bytes": 3852,
+   "score": 2
+  },
+  {
+   "rel": "autonolas-governance/contracts/multisigs/bridge_verifier/ProcessBridgedDataPolygon.sol",
+   "bytes": 2997,
+   "score": 2
+  },
+  {
+   "rel": "autonolas-governance/contracts/multisigs/bridge_verifier/ProcessBridgedDataWormhole.sol",
+   "bytes": 3800,
+   "score": 2
+  },
+  {
+   "rel": "autonolas-governance/contracts/multisigs/bridge_verifier/VerifyBridgedData.sol",
+   "bytes": 3080,
+   "score": 2
+  },
+  {
+   "rel": "autonolas-governance/contracts/utils/GovernorTimelockControl.sol",
+   "bytes": 8450,
+   "score": 1
+  },
+  {
+   "rel": "autonolas-governance/contracts/veOLAS.sol",
+   "bytes": 36168,
+   "score": 7
+  },
+  {
+   "rel": "autonolas-governance/contracts/wveOLAS.sol",
+   "bytes": 13819,
+   "score": 3
+  },
+  {
+   "rel": "autonolas-registries/contracts/8004/IdentityRegistryBridger.sol",
+   "bytes": 21356,
+   "score": 4
+  },
+  {
+   "rel": "autonolas-registries/contracts/8004/IdentityRegistryBridgerProxy.sol",
+   "bytes": 3421,
+   "score": 5
+  },
+  {
+   "rel": "autonolas-registries/contracts/AgentRegistry.sol",
+   "bytes": 3436,
+   "score": 0
+  },
+  {
+   "rel": "autonolas-registries/contracts/ComponentRegistry.sol",
+   "bytes": 1895,
+   "score": 0
+  },
+  {
+   "rel": "autonolas-registries/contracts/GenericManager.sol",
+   "bytes": 1540,
+   "score": 2
+  },
+  {
+   "rel": "autonolas-registries/contracts/GenericRegistry.sol",
+   "bytes": 6160,
+   "score": 0
+  },
+  {
+   "rel": "autonolas-registries/contracts/RegistriesManager.sol",
+   "bytes": 2277,
+   "score": 4
+  },
+  {
+   "rel": "autonolas-registries/contracts/ServiceManager.sol",
+   "bytes": 22957,
+   "score": 8
+  },
+  {
+   "rel": "autonolas-registries/contracts/ServiceManagerProxy.sol",
+   "bytes": 3174,
+   "score": 5
+  },
+  {
+   "rel": "autonolas-registries/contracts/ServiceRegistry.sol",
+   "bytes": 39577,
+   "score": 8
+  },
+  {
+   "rel": "autonolas-registries/contracts/ServiceRegistryL2.sol",
+   "bytes": 38395,
+   "score": 8
+  },
+  {
+   "rel": "autonolas-registries/contracts/ServiceRegistryTokenUtility.sol",
+   "bytes": 31689,
+   "score": 7
+  },
+  {
+   "rel": "autonolas-registries/contracts/UnitRegistry.sol",
+   "bytes": 11819,
+   "score": 3
+  },
+  {
+   "rel": "autonolas-registries/contracts/multisigs/GnosisSafeMultisig.sol",
+   "bytes": 5065,
+   "score": 0
+  },
+  {
+   "rel": "autonolas-registries/contracts/multisigs/GnosisSafeSameAddressMultisig.sol",
+   "bytes": 6744,
+   "score": 5
+  },
+  {
+   "rel": "autonolas-registries/contracts/multisigs/PolySafeCreatorWithRecoveryModule.sol",
+   "bytes": 10179,
+   "score": 5
+  },
+  {
+   "rel": "autonolas-registries/contracts/multisigs/RecoveryModule.sol",
+   "bytes": 19003,
+   "score": 7
+  },
+  {
+   "rel": "autonolas-registries/contracts/multisigs/SafeMultisigWithRecoveryModule.sol",
+   "bytes": 4339,
+   "score": 0
+  },
+  {
+   "rel": "autonolas-registries/contracts/scribble/ServiceRegistryAnnotated.sol",
+   "bytes": 46606,
+   "score": 8
+  },
+  {
+   "rel": "autonolas-registries/contracts/staking/StakingActivityChecker.sol",
+   "bytes": 2654,
+   "score": 2
+  },
+  {
+   "rel": "autonolas-registries/contracts/staking/StakingBase.sol",
+   "bytes": 54399,
+   "score": 9
+  },
+  {
+   "rel": "autonolas-registries/contracts/staking/StakingFactory.sol",
+   "bytes": 13178,
+   "score": 6
+  },
+  {
+   "rel": "autonolas-registries/contracts/staking/StakingNativeToken.sol",
+   "bytes": 1750,
+   "score": 5
+  },
+  {
+   "rel": "autonolas-registries/contracts/staking/StakingProxy.sol",
+   "bytes": 2468,
+   "score": 5
+  },
+  {
+   "rel": "autonolas-registries/contracts/staking/StakingToken.sol",
+   "bytes": 4917,
+   "score": 6
+  },
+  {
+   "rel": "autonolas-registries/contracts/staking/StakingVerifier.sol",
+   "bytes": 13992,
+   "score": 3
+  },
+  {
+   "rel": "autonolas-registries/contracts/utils/ApplicationClassifier.sol",
+   "bytes": 3991,
+   "score": 0
+  },
+  {
+   "rel": "autonolas-registries/contracts/utils/ApplicationClassifierProxy.sol",
+   "bytes": 3297,
+   "score": 3
+  },
+  {
+   "rel": "autonolas-registries/contracts/utils/ComplementaryServiceMetadata.sol",
+   "bytes": 7659,
+   "score": 0
+  },
+  {
+   "rel": "autonolas-registries/contracts/utils/HashCheckpoint.sol",
+   "bytes": 5990,
+   "score": 0
+  },
+  {
+   "rel": "autonolas-registries/contracts/utils/OperatorSignedHashes.sol",
+   "bytes": 11226,
+   "score": 3
+  },
+  {
+   "rel": "autonolas-registries/contracts/utils/OperatorWhitelist.sol",
+   "bytes": 4954,
+   "score": 0
+  },
+  {
+   "rel": "autonolas-registries/contracts/utils/SafeTransferLib.sol",
+   "bytes": 4810,
+   "score": 2
+  },
+  {
+   "rel": "autonolas-registries/integrations/solana/contracts/ServiceRegistrySolana.sol",
+   "bytes": 37489,
+   "score": 7
+  },
+  {
+   "rel": "autonolas-registries/integrations/solana/contracts/SystemInstruction.sol",
+   "bytes": 16546,
+   "score": 7
+  },
+  {
+   "rel": "autonolas-tokenomics/contracts/Depository.sol",
+   "bytes": 22143,
+   "score": 8
+  },
+  {
+   "rel": "autonolas-tokenomics/contracts/Dispenser.sol",
+   "bytes": 60821,
+   "score": 7
+  },
+  {
+   "rel": "autonolas-tokenomics/contracts/DonatorBlacklist.sol",
+   "bytes": 3000,
+   "score": 2
+  },
+  {
+   "rel": "autonolas-tokenomics/contracts/GenericBondCalculator.sol",
+   "bytes": 4717,
+   "score": 2
+  },
+  {
+   "rel": "autonolas-tokenomics/contracts/Tokenomics.sol",
+   "bytes": 82377,
+   "score": 6
+  },
+  {
+   "rel": "autonolas-tokenomics/contracts/TokenomicsConstants.sol",
+   "bytes": 6920,
+   "score": 0
+  },
+  {
+   "rel": "autonolas-tokenomics/contracts/Treasury.sol",
+   "bytes": 25007,
+   "score": 12
+  },
+  {
+   "rel": "autonolas-tokenomics/contracts/libraries/FixedPoint96.sol",
+   "bytes": 380,
+   "score": 0
+  },
+  {
+   "rel": "autonolas-tokenomics/contracts/libraries/FullMath.sol",
+   "bytes": 5514,
+   "score": 0
+  },
+  {
+   "rel": "autonolas-tokenomics/contracts/libraries/LiquidityAmounts.sol",
+   "bytes": 6905,
+   "score": 2
+  },
+  {
+   "rel": "autonolas-tokenomics/contracts/libraries/TickMath.sol",
+   "bytes": 9418,
+   "score": 3
+  },
+  {
+   "rel": "autonolas-tokenomics/contracts/oracles/BalancerPriceOracle.sol",
+   "bytes": 5822,
+   "score": 4
+  },
+  {
+   "rel": "autonolas-tokenomics/contracts/oracles/UniswapPriceOracle.sol",
+   "bytes": 3656,
+   "score": 4
+  },
+  {
+   "rel": "autonolas-tokenomics/contracts/pol/LiquidityManagerCore.sol",
+   "bytes": 43230,
+   "score": 9
+  },
+  {
+   "rel": "autonolas-tokenomics/contracts/pol/LiquidityManagerETH.sol",
+   "bytes": 9334,
+   "score": 7
+  },
+  {
+   "rel": "autonolas-tokenomics/contracts/pol/LiquidityManagerOptimism.sol",
+   "bytes": 12868,
+   "score": 9
+  },
+  {
+   "rel": "autonolas-tokenomics/contracts/pol/NeighborhoodScanner.sol",
+   "bytes": 29442,
+   "score": 5
+  },
+  {
+   "rel": "autonolas-tokenomics/contracts/proxies/LiquidityManagerProxy.sol",
+   "bytes": 2857,
+   "score": 5
+  },
+  {
+   "rel": "autonolas-tokenomics/contracts/proxies/TokenomicsProxy.sol",
+   "bytes": 2651,
+   "score": 3
+  },
+  {
+   "rel": "autonolas-tokenomics/contracts/staking/ArbitrumDepositProcessorL1.sol",
+   "bytes": 11151,
+   "score": 5
+  },
+  {
+   "rel": "autonolas-tokenomics/contracts/staking/ArbitrumTargetDispenserL2.sol",
+   "bytes": 3967,
+   "score": 2
+  },
+  {
+   "rel": "autonolas-tokenomics/contracts/staking/DefaultDepositProcessorL1.sol",
+   "bytes": 12148,
+   "score": 6
+  },
+  {
+   "rel": "autonolas-tokenomics/contracts/staking/DefaultTargetDispenserL2.sol",
+   "bytes": 23170,
+   "score": 11
+  },
+  {
+   "rel": "autonolas-tokenomics/contracts/staking/EthereumDepositProcessor.sol",
+   "bytes": 6665,
+   "score": 6
+  },
+  {
+   "rel": "autonolas-tokenomics/contracts/staking/GnosisDepositProcessorL1.sol",
+   "bytes": 4314,
+   "score": 2
+  },
+  {
+   "rel": "autonolas-tokenomics/contracts/staking/GnosisTargetDispenserL2.sol",
+   "bytes": 3938,
+   "score": 2
+  },
+  {
+   "rel": "autonolas-tokenomics/contracts/staking/OptimismDepositProcessorL1.sol",
+   "bytes": 7062,
+   "score": 4
+  },
+  {
+   "rel": "autonolas-tokenomics/contracts/staking/OptimismTargetDispenserL2.sol",
+   "bytes": 4786,
+   "score": 2
+  },
+  {
+   "rel": "autonolas-tokenomics/contracts/staking/PolygonDepositProcessorL1.sol",
+   "bytes": 6011,
+   "score": 4
+  },
+  {
+   "rel": "autonolas-tokenomics/contracts/staking/PolygonTargetDispenserL2.sol",
+   "bytes": 3583,
+   "score": 2
+  },
+  {
+   "rel": "autonolas-tokenomics/contracts/staking/WormholeDepositProcessorL1.sol",
+   "bytes": 6767,
+   "score": 2
+  },
+  {
+   "rel": "autonolas-tokenomics/contracts/staking/WormholeTargetDispenserL2.sol",
+   "bytes": 8246,
+   "score": 3
+  },
+  {
+   "rel": "autonolas-tokenomics/contracts/utils/Bridge2Burner.sol",
+   "bytes": 2096,
+   "score": 2
+  },
+  {
+   "rel": "autonolas-tokenomics/contracts/utils/Bridge2BurnerGnosis.sol",
+   "bytes": 2012,
+   "score": 2
+  },
+  {
+   "rel": "autonolas-tokenomics/contracts/utils/Bridge2BurnerOptimism.sol",
+   "bytes": 3108,
+   "score": 4
+  },
+  {
+   "rel": "autonolas-tokenomics/contracts/utils/BuyBackBurner.sol",
+   "bytes": 17952,
+   "score": 6
+  },
+  {
+   "rel": "autonolas-tokenomics/contracts/utils/BuyBackBurnerBalancer.sol",
+   "bytes": 6815,
+   "score": 4
+  },
+  {
+   "rel": "autonolas-tokenomics/contracts/utils/BuyBackBurnerProxy.sol",
+   "bytes": 2915,
+   "score": 3
+  },
+  {
+   "rel": "autonolas-tokenomics/contracts/utils/BuyBackBurnerUniswap.sol",
+   "bytes": 5889,
+   "score": 4
+  },
+  {
+   "rel": "autonolas-tokenomics/contracts/utils/SafeTransferLib.sol",
+   "bytes": 4810,
+   "score": 2
+  }
+ ]
+}

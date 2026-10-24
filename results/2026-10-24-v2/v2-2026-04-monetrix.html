@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bug Bounty Intelligence — code-423n4/2026-04-monetrix</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#0f172a;color:#e2e8f0;padding:2rem;max-width:900px;margin:0 auto}
+.header{border-bottom:1px solid #1e3a5f;padding-bottom:1.5rem;margin-bottom:2rem}
+h1{font-size:1.8rem;color:#38bdf8}
+.meta{color:#94a3b8;font-size:0.9rem;margin-top:0.4rem}
+.stats{display:flex;gap:1rem;margin:1rem 0 2rem;flex-wrap:wrap}
+.stat{background:#1e293b;border-radius:8px;padding:.75rem 1.25rem;display:flex;align-items:center;gap:.75rem}
+.count{font-size:1.5rem;font-weight:bold}
+.badge{padding:.25rem .6rem;border-radius:4px;font-size:.8rem;font-weight:bold;color:#fff}
+.finding{background:#1e293b;border-radius:8px;margin-bottom:1rem;border-left:4px solid #1e3a5f;overflow:hidden}
+.finding-header{padding:1rem 1.5rem;display:flex;align-items:center;gap:1rem}
+.finding-header h3{flex:1;font-size:1rem}
+.conf{font-size:.8rem;color:#94a3b8}
+.finding-body{padding:0 1.5rem 1.25rem;border-top:1px solid #0f172a}
+.finding-body p{margin-top:.75rem;line-height:1.6;color:#cbd5e1}
+code{background:#0f172a;padding:.1rem .4rem;border-radius:3px;font-size:.85rem}
+.no-findings{padding:2rem;text-align:center;color:#cbd5e1;background:#1e293b;border-radius:8px;line-height:1.7}
+.coverage{margin-bottom:2rem;padding:1rem 1.25rem;background:#1e293b;border-radius:8px;border-left:4px solid #38bdf8;font-size:.9rem;line-height:1.7;color:#cbd5e1}
+.coverage p{margin-top:.5rem}
+.limits{margin-bottom:1rem;padding:.75rem 1.25rem;background:#1e3a5f;border-radius:8px;border-left:4px solid #ca8a04;font-size:.85rem;color:#fbbf24}
+h2{font-size:1.1rem;margin-bottom:1rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em}
+.disclaimer{margin-top:3rem;padding:1.5rem;background:#1e293b;border-radius:8px;border-left:4px solid #ca8a04;font-size:.85rem;color:#94a3b8;line-height:1.7}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Bug Bounty Intelligence</h1>
+  <div class="meta">AI-generated hypotheses for Solidity code. Not an audit.</div>
+  <div class="meta">Repository: <code>code-423n4/2026-04-monetrix</code></div>
+  <div class="meta">Analyzed: 2026-10-24 06:47 UTC &nbsp;|&nbsp; Model: nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter), openai/gpt-oss-120b (Groq) &nbsp;|&nbsp; Duration: 361s</div>
+</div>
+
+
+<h2>Coverage</h2>
+<div class="coverage">
+  <p><strong>100% of the in-scope Solidity was read by the analysis</strong>: 98 KB of 98 KB, in 6 of 6 planned parts.</p>
+  <p>Files read in full: 14 of 14.</p>
+  
+  <p>Left out as not the project's own logic: 23 tests, 6 interfaces. Submodules: 4 declared, 0 fetched, 4 not fetched on purpose (dependencies or unsafe address).</p>
+  
+</div>
+
+<h2>Summary</h2>
+<div class="stats"><div class="stat"><span class="badge" style="background:#dc2626">Critical</span><span class="count">0</span></div><div class="stat"><span class="badge" style="background:#ea580c">High</span><span class="count">0</span></div><div class="stat"><span class="badge" style="background:#ca8a04">Medium</span><span class="count">2</span></div><div class="stat"><span class="badge" style="background:#16a34a">Low</span><span class="count">0</span></div><div class="stat"><span class="badge" style="background:#6b7280">Info</span><span class="count">0</span></div></div>
+
+<h2>Hypotheses</h2>
+<div class="limits">These are unverified AI hypotheses, not confirmed vulnerabilities. Check each one by hand before you act on it. How often this scan finds known issues in closed audit contests, including the misses, is published in the repository linked below.</div>
+
+    <div class="finding" style="border-left-color:#ca8a04">
+      <div class="finding-header">
+        <span class="badge" style="background:#ca8a04">Medium</span>
+        <h3>Operator can induce denial‑of‑service by registering inactive supply slots</h3>
+        <span class="conf">Model confidence: 92%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>src/core/MonetrixAccountant.sol</code></p>
+        <p><strong>Function:</strong> <code>addMultisigSupplyToken(uint64)</code></p>
+        <p><strong>Category:</strong> LIVENESS</p>
+        <p>The `addMultisigSupplyToken` function allows an operator to register any whitelisted spot token without verifying that the corresponding 0x811 slot is actually activated on Hypercore. The registered token is later read in `_readL1Backing`, where `PrecompileReader.suppliedNotionalUsdcFromPerp` is called. If the slot is not activated, the pre‑compile reverts, causing `totalBackingSigned()` (and any function that depends on it, e.g., `settleDailyPnL`) to revert, effectively halting yield settlement and other accounting‑dependent operations.</p>
+        <p><strong>Attack path:</strong> 1. Attacker obtains the Operator role (or compromises an operator key).</p>
+        <p><strong>Impact:</strong> Yield settlement and any accounting‑dependent functions become permanently blocked, leading to loss of expected rewards and possible loss of confidence; the protocol can be effectively frozen until the bogus entry is removed (requires operator action) or a governance upgrade.</p>
+        <p><strong>Recommendation:</strong> Validate that a supplied slot is active before registering it (e.g., query the pre‑compile for activation status) or catch and ignore revert errors when reading inactive slots. Alternatively, restrict registration to tokens that have a non‑zero supplied balance.</p>
+      </div>
+    </div>
+    <div class="finding" style="border-left-color:#ca8a04">
+      <div class="finding-header">
+        <span class="badge" style="background:#ca8a04">Medium</span>
+        <h3>State update before external escrow call in claimUnstake leads to potential asset loss</h3>
+        <span class="conf">Model confidence: 85%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>src/tokens/sUSDM.sol</code></p>
+        <p><strong>Function:</strong> <code>claimUnstake(uint256)</code></p>
+        <p><strong>Category:</strong> ORDERING</p>
+        <p>The function deletes the unstake request and updates `totalPendingClaims` before invoking `escrow.release`, which is an external call to another contract. If `escrow.release` fails (e.g., reverts after state changes or returns false without reverting), the user's claim is erased while the USDM remains locked in the escrow, breaking accounting and potentially causing loss of funds.</p>
+        <p><strong>Attack path:</strong> 1. Attacker (any user) creates an unstake request via `cooldownShares` or `cooldownAssets`.</p>
+        <p><strong>Impact:</strong> Users can permanently lose access to their USDM and the protocol’s accounting (`totalPendingClaims`) becomes inconsistent, potentially affecting solvency checks and overall protocol health.</p>
+        <p><strong>Recommendation:</strong> Follow the checks‑effects‑interactions pattern: perform the external `escrow.release` call before mutating contract state, or ensure `escrow.release` reverts on any failure and wrap the call in a try/catch that restores state on error.</p>
+      </div>
+    </div>
+
+<div class="disclaimer">
+<strong>Disclaimer:</strong> This report was produced by an automated pipeline that prompts a language model with parts of your code (model: nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter), openai/gpt-oss-120b (Groq)).
+It is not a security audit, a certification or an approval. It can miss real issues and can include false ones. No warranty is provided.
+<br><br>
+If this report did not help you, or you think it is wrong, write to <a href="mailto:info@holistischadviseur.nl?subject=Bug%20Bounty%20Intelligence%20v2-2026-04-monetrix" style="color:#38bdf8">info@holistischadviseur.nl</a> with the job id <code>v2-2026-04-monetrix</code>. You can ask for a new attempt or a refund.
+<br><br>
+Method, limits and test results: <a href="https://github.com/holistis/bug-bounty-intelligence-mcp" style="color:#38bdf8">github.com/holistis/bug-bounty-intelligence-mcp</a>
+&nbsp;|&nbsp; Official sources: <a href="https://tokenizen.nl/notes/official-sources" style="color:#38bdf8">tokenizen.nl/notes/official-sources</a>
+</div>
+</body>
+</html>

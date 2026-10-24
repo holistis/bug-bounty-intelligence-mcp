@@ -1,0 +1,192 @@
+{
+ "repo": "code-423n4/2025-11-sukukfi",
+ "outcome": "hypotheses",
+ "model": "codestral-latest (Mistral), openai/gpt-oss-120b (Groq), nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter)",
+ "sources": [
+  "codestral-latest (Mistral)",
+  "openai/gpt-oss-120b (Groq)",
+  "nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter)"
+ ],
+ "coverage": {
+  "scopeFiles": 8,
+  "scopeBytes": 237967,
+  "analysedBytes": 118347,
+  "analysedPct": 50,
+  "chunksPlanned": 6,
+  "chunksAnalysed": 6,
+  "filesFull": 3,
+  "filesPartial": [
+   "src/WERC7575ShareToken.sol"
+  ],
+  "notAnalysedFiles": [
+   "src/ERC20Faucet.sol",
+   "src/ERC20Faucet6.sol",
+   "src/ShareTokenUpgradeable.sol",
+   "src/WERC7575Vault.sol"
+  ],
+  "skipped": {
+   "tests": 53,
+   "mocks": 0,
+   "scripts": 0,
+   "vendor": 0,
+   "interfaces": 6,
+   "tooSmall": 0,
+   "tooLarge": 0,
+   "noLogic": 0,
+   "symlink": 0,
+   "unreadable": 0
+  },
+  "submodules": {
+   "declared": 3,
+   "fetched": [],
+   "failed": [],
+   "skipped": [
+    {
+     "path": "lib/openzeppelin-contracts",
+     "reason": "afhankelijkheid"
+    },
+    {
+     "path": "lib/openzeppelin-contracts-upgradeable",
+     "reason": "afhankelijkheid"
+    },
+    {
+     "path": "lib/forge-std",
+     "reason": "afhankelijkheid"
+    }
+   ]
+  },
+  "droppedHypotheses": 2,
+  "deadlineHit": false
+ },
+ "hypotheses": [
+  {
+   "title": "Incomplete validation in SafeTokenTransfers.safeTransferFrom allows asset inflation",
+   "severity": "High",
+   "category": "SOLVENCY",
+   "file": "SafeTokenTransfers.sol",
+   "function": "safeTransferFrom()",
+   "description": "The `safeTransferFrom` helper only verifies that the recipient’s balance increased by the expected amount. It does **not** check that the sender’s balance decreased accordingly. A malicious ERC‑20 token could implement `transferFrom` that credits the recipient without debiting the sender (or credits a different amount), causing the vault to record a deposit that was never actually funded.",
+   "attackPath": "1. Attacker deploys a malicious ERC‑20 token where `transferFrom` simply mints `amount` to the `recipient` and returns `true` without reducing the `sender` balance.",
+   "impact": "The vault can be forced to mint shares backed by non‑existent assets, leading to loss of all pooled funds and complete insolvency.",
+   "recommendation": "After performing the transfer, also verify that the sender’s balance decreased by the expected amount (or use `IERC20Metadata(token).allowance` checks and rely on OpenZeppelin’s `safeTransferFrom` without additional balance checks). Alternatively, reject tokens that do not conform to the ERC‑20 standard via a whitelist or by using a pull‑payment pattern that checks both sides.",
+   "confidence": 0.97
+  },
+  {
+   "title": "Missing Reentrancy Protection in Investment Vault Interactions",
+   "severity": "Critical",
+   "category": "ORDERING",
+   "file": "ERC7575VaultUpgradeable.sol",
+   "function": "requestDeposit()",
+   "description": "The `requestDeposit` function does not protect against reentrancy when interacting with the investment vault, which could allow an attacker to manipulate the vault's state.",
+   "attackPath": "1. An attacker creates a malicious investment vault contract. 2. The attacker calls `requestDeposit` with a large amount of assets. 3. The investment vault's `invest` function reenters the vault contract, allowing the attacker to manipulate the state or drain funds.",
+   "impact": "An attacker could manipulate the vault's state or drain funds, leading to loss of user funds or protocol insolvency.",
+   "recommendation": "Add reentrancy protection to the investment vault interactions in the `requestDeposit` function.",
+   "confidence": 0.9
+  },
+  {
+   "title": "Lack of Pause Mechanism for Emergency Situations",
+   "severity": "High",
+   "category": "LIVENESS",
+   "file": "ERC7575VaultUpgradeable.sol",
+   "function": "pause(), unpause()",
+   "description": "The contract does not include a pause mechanism for emergency situations, which could leave the protocol vulnerable to exploits.",
+   "attackPath": "1. An attacker exploits a vulnerability in the contract. 2. The protocol is paused, but the attacker can still manipulate the state or drain funds.",
+   "impact": "Lack of a pause mechanism could leave the protocol vulnerable to exploits, leading to loss of funds or protocol insolvency.",
+   "recommendation": "Implement a pause mechanism to allow the protocol to be paused in emergency situations, ensuring the safety of user funds.",
+   "confidence": 0.8
+  },
+  {
+   "title": "Insufficient Validation of Asset Token",
+   "severity": "High",
+   "category": "ACCESS",
+   "file": "ERC7575VaultUpgradeable.sol",
+   "function": "initialize()",
+   "description": "The `initialize` function does not validate the asset token's compliance with ERC-20 standards, which could lead to issues with deposits and withdrawals.",
+   "attackPath": "1. An attacker initializes the vault with a non-compliant asset token. 2. The vault's deposit and withdrawal functions fail or behave unexpectedly, leading to loss of funds or protocol insolvency.",
+   "impact": "An attacker could initialize the vault with a non-compliant asset token, leading to issues with deposits and withdrawals and potential loss of funds.",
+   "recommendation": "Validate the asset token's compliance with ERC-20 standards in the `initialize` function to ensure the vault's proper functioning.",
+   "confidence": 0.8
+  },
+  {
+   "title": "Lack of Slippage Protection in Deposit and Redeem Functions",
+   "severity": "Medium",
+   "category": "ACCOUNTING",
+   "file": "ERC7575VaultUpgradeable.sol",
+   "function": "requestDeposit(), requestRedeem()",
+   "description": "The deposit and redeem functions do not include slippage protection, which could lead to unexpected losses for users.",
+   "attackPath": "1. A user requests a deposit or redeem. 2. The market conditions change, resulting in a worse exchange rate than expected. 3. The user receives fewer shares or assets than expected.",
+   "impact": "Users could experience unexpected losses due to slippage, leading to financial harm.",
+   "recommendation": "Implement slippage protection in the deposit and redeem functions to ensure users receive the expected amount of shares or assets.",
+   "confidence": 0.7
+  },
+  {
+   "title": "Insufficient Validation of Operator Approvals",
+   "severity": "Medium",
+   "category": "ACCESS",
+   "file": "ERC7575VaultUpgradeable.sol",
+   "function": "setOperator()",
+   "description": "The `setOperator` function does not validate the operator address, which could allow an attacker to approve a malicious operator.",
+   "attackPath": "1. An attacker calls `setOperator` with a malicious operator address. 2. The attacker's operator can now act on behalf of the user, leading to unauthorized actions.",
+   "impact": "An attacker could gain unauthorized access to user funds or manipulate the vault's state.",
+   "recommendation": "Validate the operator address in the `setOperator` function to ensure it is a trusted address.",
+   "confidence": 0.7
+  },
+  {
+   "title": "Missing Validation of Minimum Deposit Amount",
+   "severity": "Medium",
+   "category": "ACCOUNTING",
+   "file": "ERC7575VaultUpgradeable.sol",
+   "function": "requestDeposit()",
+   "description": "The `requestDeposit` function does not validate the minimum deposit amount, which could allow small deposits that could lead to rounding errors or other issues.",
+   "attackPath": "1. An attacker requests a deposit with a very small amount of assets. 2. The deposit is processed, leading to rounding errors or other issues that could affect the vault's state.",
+   "impact": "Small deposits could lead to rounding errors or other issues, affecting the vault's state and potentially leading to loss of funds.",
+   "recommendation": "Validate the minimum deposit amount in the `requestDeposit` function to ensure deposits are of a reasonable size and avoid rounding errors.",
+   "confidence": 0.7
+  }
+ ],
+ "rawCount": 7,
+ "dropped": 2,
+ "durationMs": 395231,
+ "filesInScope": [
+  {
+   "rel": "src/DecimalConstants.sol",
+   "bytes": 385,
+   "score": 0
+  },
+  {
+   "rel": "src/ERC20Faucet.sol",
+   "bytes": 2914,
+   "score": 0
+  },
+  {
+   "rel": "src/ERC20Faucet6.sol",
+   "bytes": 1884,
+   "score": 0
+  },
+  {
+   "rel": "src/ERC7575VaultUpgradeable.sol",
+   "bytes": 103232,
+   "score": 11
+  },
+  {
+   "rel": "src/SafeTokenTransfers.sol",
+   "bytes": 2980,
+   "score": 2
+  },
+  {
+   "rel": "src/ShareTokenUpgradeable.sol",
+   "bytes": 36147,
+   "score": 5
+  },
+  {
+   "rel": "src/WERC7575ShareToken.sol",
+   "bytes": 71410,
+   "score": 9
+  },
+  {
+   "rel": "src/WERC7575Vault.sol",
+   "bytes": 19015,
+   "score": 8
+  }
+ ]
+}
