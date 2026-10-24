@@ -1,0 +1,170 @@
+{
+  "contest": "2025-07-cap",
+  "hypotheses": [
+    {
+      "title": "Unrestricted `updateHash` allows any address to submit oracle data",
+      "severity": "High",
+      "category": "Access Control",
+      "file": "UltraLightNode.sol",
+      "function": "updateHash()",
+      "description": "The `updateHash()` function in both UltraLightNode and UltraLightNodeV2 is external and has no access control. Any untrusted caller can call it to set or overwrite block header data for any `_lookupHash` and `_srcChainId`, as long as the new `_confirmations` is greater than the stored value. This allows an attacker to inject fraudulent block data that will be used in `validateTransactionProof()`.",
+      "attackPath": "1. Attacker monitors the mempool for a legitimate oracle's `updateHash()` call. 2. Attacker calls `updateHash()` with the same `_lookupHash` and `_srcChainId` but with `_confirmations` one higher than the pending transaction. 3. The attacker's transaction is mined first, setting fraudulent `_data`. 4. The legitimate oracle's transaction reverts because its confirmations are not higher. 5. The fraudulent block data is now stored and will be used in subsequent `validateTransactionProof()` calls, allowing the attacker to forge cross-chain messages.",
+      "impact": "An attacker can inject fraudulent block headers, enabling forged cross-chain messages that can drain funds, mint tokens, or execute arbitrary actions on destination chains.",
+      "recommendation": "Restrict `updateHash()` to only be callable by addresses that are registered as oracles (e.g., check that `msg.sender` is in a whitelist of oracles for the given `_srcChainId`)."
+    },
+    {
+      "title": "Unchecked low-level call in RateOracle._getRate can silently return zero",
+      "severity": "High",
+      "category": "Unchecked return values",
+      "file": "RateOracle.sol",
+      "function": "_getRate()",
+      "description": "The `_getRate` function uses a low-level `call` to an external adapter and only decodes the return data if `success` is true. If the call fails (e.g., the adapter reverts or runs out of gas), `rate` remains 0, and no error is thrown. This allows a malicious or broken adapter to cause the oracle to return a zero rate without the caller knowing.",
+      "attackPath": "An attacker deploys a malicious adapter contract that always reverts. The admin sets this adapter as the market or utilization oracle for an asset. All subsequent calls to `marketRate()` or `utilizationRate()` return 0, causing the debt token's interest rate to be computed incorrectly (only benchmark rate + 0).",
+      "impact": "Interest rates on debt tokens can be artificially suppressed to zero, leading to incorrect accounting, undercharging of borrowers, and potential insolvency of the lending pool.",
+      "recommendation": "Revert if the external call fails or if the returned rate is zero, or use a try-catch pattern to handle failures gracefully."
+    },
+    {
+      "title": "RelayerV2.validateTransactionProofV2 ignores native transfer failure",
+      "severity": "High",
+      "category": "Unchecked return values",
+      "file": "RelayerV2.sol",
+      "function": "validateTransactionProofV2()",
+      "description": "In `validateTransactionProofV2`, the native token transfer to `_to` is performed with a low-level call, but the return value is only checked to emit an event on failure, not to revert. The comment-outed `require` shows this was intentionally disabled. This means if the native transfer fails (e.g., the recipient is a contract that reverts), the transaction continues and the relayer's validation proof is still processed.",
+      "attackPath": "An attacker calls `validateTransactionProofV2` with a `_to` address that reverts on receiving ether. The native transfer fails silently, but the ULN validation proceeds. The attacker can then claim that the proof was processed without paying the required native fee.",
+      "impact": "Loss of funds for the relayer or protocol, as fees can be bypassed by using a recipient that rejects ether.",
+      "recommendation": "Revert the entire transaction if the native transfer fails, or use a pull-based withdrawal pattern instead of push."
+    },
+    {
+      "title": "Unbounded loop over user-controlled assets array in redeem()",
+      "severity": "High",
+      "category": "Denial of Service",
+      "file": "Vault.sol",
+      "function": "redeem()",
+      "description": "The redeem() function iterates over the entire assets array via assets() and then calls divestMany() which loops again. An attacker can add many low-value assets to the vault, causing redeem() to exceed block gas limit for legitimate users, permanently blocking redemptions.",
+      "attackPath": "Attacker calls addAsset() repeatedly to inflate the assets array length. When a legitimate user calls redeem(), the loops over all assets consume excessive gas, causing the transaction to revert. The attacker can repeat this to keep the array large.",
+      "impact": "Users cannot redeem their cap tokens for underlying assets, effectively freezing their funds in the vault.",
+      "recommendation": "Limit the number of assets or implement pagination/chunking in redeem() to bound gas consumption."
+    },
+    {
+      "title": "Unbounded loop over assets in redeem() in VaultLogic",
+      "severity": "High",
+      "category": "Denial of Service",
+      "file": "VaultLogic.sol",
+      "function": "redeem()",
+      "description": "The redeem() function in VaultLogic loops over all assets in the vault's assets set. An attacker can add many assets via addAsset(), causing redeem() to exceed block gas limit, permanently blocking redemptions for all users.",
+      "attackPath": "Attacker calls addAsset() repeatedly to inflate the assets set. When a user calls redeem(), the loop over all assets consumes excessive gas, causing the transaction to revert.",
+      "impact": "Users cannot redeem their cap tokens for underlying assets, effectively freezing their funds.",
+      "recommendation": "Limit the number of assets or implement pagination/chunking in redeem()."
+    },
+    {
+      "title": "Restaker interest can be realized twice via repay() and realizeRestakerInterest()",
+      "severity": "High",
+      "category": "Double-Claim / Accounting Error",
+      "file": "cap-contracts/contracts/lendingPool/libraries/BorrowLogic.sol",
+      "function": "repay()",
+      "description": "In `repay()`, the function calls `realizeRestakerInterest()` at the start, which mints new debt tokens and adds to `reserve.debt`. Then later, when distributing the repayment, it subtracts `restakerRepaid` from `reserve.unrealizedInterest[params.agent]`. However, the newly minted debt from the realization is not excluded from the `agentDebt` calculation, so the same interest can be repaid twice: once via the minted debt token and once via the `unrealizedInterest` mapping.",
+      "attackPath": "1. An agent has accrued restaker interest. 2. The agent calls `repay()` with an amount covering the full debt. 3. `realizeRestakerInterest()` mints new debt tokens for the accrued interest and adds to `reserve.debt`. 4. The repayment logic sees the full `agentDebt` (including the newly minted tokens) and also sees `reserve.unrealizedInterest[params.agent]` (which was just increased). 5. The repayment subtracts the same interest amount from both the debt token balance and the unrealized interest mapping, effectively repaying it twice.",
+      "impact": "The protocol can lose funds equal to the double-claimed interest amount, as the vault repays more than it should, potentially leading to insolvency.",
+      "recommendation": "In `repay()`, after calling `realizeRestakerInterest()`, recalculate `agentDebt` to exclude the newly minted interest, or restructure the logic to realize interest only on the principal debt before the repayment calculation."
+    },
+    {
+      "title": "`withdrawNative` in UltraLightNodeV2 allows any caller to drain their own fee balance",
+      "severity": "Medium",
+      "category": "Access Control",
+      "file": "UltraLightNodeV2.sol",
+      "function": "withdrawNative()",
+      "description": "The `withdrawNative()` function in UltraLightNodeV2 deducts `nativeFees[msg.sender]` and sends `_amount` to `_to`. There is no check that `msg.sender` is a legitimate fee earner (oracle, relayer, treasury). Any address can call this function, and if they have a non-zero `nativeFees` balance (which can be credited by anyone via `_creditNativeFee` in the `send()` path), they can withdraw it.",
+      "attackPath": "1. Attacker calls `send()` on the endpoint with a very small payload, causing `_creditNativeFee()` to credit `nativeFees[attacker]` with the relayer/oracle fee. 2. Attacker then calls `withdrawNative()` to withdraw those fees to their own address.",
+      "impact": "An attacker can extract fees that were intended for relayers and oracles, though the amount is limited to fees generated by the attacker's own send operations. This is a loss of funds for the protocol's fee recipients.",
+      "recommendation": "Add a whitelist or role check (e.g., `onlyRole(RELAYER_ROLE)`) to `withdrawNative()` so only approved fee recipients can withdraw."
+    },
+    {
+      "title": "`withdrawNative` in UltraLightNode allows any caller to drain oracle/relayer fees",
+      "severity": "Medium",
+      "category": "Access Control",
+      "file": "UltraLightNode.sol",
+      "function": "withdrawNative()",
+      "description": "In `withdrawNative()`, for `WITHDRAW_TYPE_ORACLE_QUOTED_FEES` and `WITHDRAW_TYPE_RELAYER_QUOTED_FEES`, the function deducts from `oracleQuotedFees[msg.sender]` or `relayerQuotedFees[msg.sender]` without verifying that `msg.sender` is actually an oracle or relayer. Any address can call this function and withdraw the fees that have been credited to them via the `send()` function.",
+      "attackPath": "1. Attacker calls `send()` on the endpoint, which credits `oracleQuotedFees[attacker]` or `relayerQuotedFees[attacker]` with the fee amount. 2. Attacker calls `withdrawNative()` with the appropriate type and their address as `_owner`, withdrawing the credited fees.",
+      "impact": "An attacker can extract fees that were intended for oracles and relayers, though the amount is limited to fees generated by the attacker's own send operations. This is a loss of funds for the protocol's fee recipients.",
+      "recommendation": "Add a whitelist or role check to `withdrawNative()` for oracle and relayer fee types, ensuring only registered oracles/relayers can withdraw their fees."
+    },
+    {
+      "title": "Repayment rounding can leave dust debt below minBorrow",
+      "severity": "High",
+      "category": "Accounting/Rounding",
+      "file": "BorrowLogic.sol",
+      "function": "repay()",
+      "description": "When `remainingDebt` is positive but less than `minBorrow`, the code sets `repaid = agentDebt - reserve.minBorrow`. This forces the agent to repay down to exactly `minBorrow`, but if `agentDebt` is only slightly above `minBorrow`, the subtraction can underflow or leave a tiny dust balance that is economically unrecoverable. The rounding direction does not favor the protocol.",
+      "attackPath": "An agent borrows an amount just above `minBorrow`. When repaying, the code forces them to repay down to `minBorrow`, but if the debt is only 1 wei above `minBorrow`, the repaid amount becomes 1 wei, leaving `minBorrow` debt. The agent cannot fully repay without triggering the same rounding again, trapping dust.",
+      "impact": "Small amounts of debt become permanently unrepayable, causing accounting drift and potential insolvency of the reserve.",
+      "recommendation": "Change the condition to allow full repayment when `remainingDebt < reserve.minBorrow` by setting `repaid = agentDebt` instead of forcing a minimum."
+    },
+    {
+      "title": "First-depositor donation attack on cap token price",
+      "severity": "High",
+      "category": "First-depositor/Donation",
+      "file": "MinterLogic.sol",
+      "function": "_amountOutBeforeFee()",
+      "description": "When `capSupply == 0` (first mint), the function sets `newRatio = 0` and `amount = assetValue * capDecimalsPow / assetPrice`. This means the first depositor can set the initial price ratio arbitrarily by depositing a tiny amount, and subsequent depositors will be priced based on that ratio. An attacker can front-run with a minimal deposit to manipulate the basket composition.",
+      "attackPath": "An attacker deposits 1 wei of a cheap asset when `capSupply == 0`, setting the initial ratio. Later, when others deposit valuable assets, the attacker's share is disproportionately large, allowing them to withdraw more value than they deposited.",
+      "impact": "Loss of funds for subsequent depositors; the attacker can extract excess value.",
+      "recommendation": "Require a minimum initial deposit or use a fixed initial price ratio that cannot be manipulated."
+    },
+    {
+      "title": "Unrealized interest can exceed available vault balance causing revert",
+      "severity": "High",
+      "category": "Accounting/Balances",
+      "file": "BorrowLogic.sol",
+      "function": "realizeRestakerInterest()",
+      "description": "The function computes `realizedInterest` as `min(accruedInterest, reserves)` and `unrealizedInterest` as `accruedInterest - realizedInterest`. It then mints debt tokens for `realizedInterest + unrealizedInterest` and borrows `realizedInterest` from the vault. If the vault's `availableBalance` is less than `realizedInterest`, the borrow will revert, but the debt tokens have already been minted, causing an inconsistent state.",
+      "attackPath": "An attacker can trigger `realizeRestakerInterest` when the vault is nearly empty, causing the borrow to fail after debt tokens are minted, inflating the total supply without backing.",
+      "impact": "Insolvency of the debt token; the total supply exceeds actual assets.",
+      "recommendation": "Move the vault borrow before the debt token mint, or check the vault balance before minting."
+    },
+    {
+      "title": "Chainlink price staleness check can underflow and bypass staleness detection",
+      "severity": "High",
+      "category": "Stale Price",
+      "file": "cap-contracts/contracts/oracle/PriceOracle.sol",
+      "function": "_isStale()",
+      "description": "The staleness check `block.timestamp - _lastUpdated > getPriceOracleStorage().staleness[_asset]` can underflow if `_lastUpdated` is in the future (e.g., due to a malicious or misconfigured Chainlink aggregator returning a future timestamp). Underflow in Solidity 0.8 reverts, which would cause `getPrice()` to revert entirely, but if the backup oracle also has a future timestamp, the entire price feed becomes unusable, freezing all borrowing/liquidation functionality. More critically, if `_lastUpdated` is exactly `block.timestamp`, the check passes, but this doesn't validate the freshness of the data.",
+      "attackPath": "1. An attacker cannot directly manipulate Chainlink's `latestRoundData()`, but a compromised or misconfigured aggregator could return a future `updatedAt`. 2. This causes `_isStale()` to revert due to underflow. 3. The primary oracle call fails, and the backup oracle is also checked. 4. If the backup also has a future timestamp, `getPrice()` reverts, freezing all protocol operations that depend on prices.",
+      "impact": "Complete denial of service for all price-dependent functions (borrow, repay, liquidate, mint, burn), freezing user funds and preventing liquidations of unhealthy positions, potentially leading to bad debt.",
+      "recommendation": "Use a safe subtraction or check `_lastUpdated > block.timestamp` first and treat such prices as stale. Also, validate that `_lastUpdated` is not zero."
+    },
+    {
+      "title": "Reentrancy in repay() allows debt token balance manipulation",
+      "severity": "High",
+      "category": "Reentrancy",
+      "file": "cap-contracts/contracts/lendingPool/libraries/BorrowLogic.sol",
+      "function": "repay()",
+      "description": "The `repay()` function performs external calls to `IERC20(params.asset).safeTransferFrom`, `IDelegation($.delegation).distributeRewards`, and `IVault(reserve.vault).repay` before updating the debt token balance via `IDebtToken(reserve.debtToken).burn`. If the asset is an ERC-777 token or the delegation contract is malicious, a reentrant call to `repay()` can be made before the debt token is burned, allowing the attacker to repay the same debt multiple times and drain the vault.",
+      "attackPath": "1. Attacker calls `repay()` with a large amount. 2. During the `safeTransferFrom` or `distributeRewards` external call, the attacker re-enters `repay()`. 3. The reentrant call sees the original debt token balance still intact, allowing the attacker to repay again. 4. The attacker repeats this to repay the same debt multiple times, receiving assets from the vault each time.",
+      "impact": "An attacker can drain the vault of assets by repaying the same debt multiple times, leading to insolvency and loss of funds for all depositors.",
+      "recommendation": "Add a reentrancy guard to the `repay()` function or ensure all state updates (especially debt token burn) occur before any external calls."
+    },
+    {
+      "title": "Reentrancy in liquidate() allows repeated slashing and bonus extraction",
+      "severity": "High",
+      "category": "Reentrancy",
+      "file": "cap-contracts/contracts/lendingPool/libraries/LiquidationLogic.sol",
+      "function": "liquidate()",
+      "description": "The `liquidate()` function calls `BorrowLogic.repay()` which makes external calls before state updates. After the repay, it calls `IDelegation($.delegation).slash()`. If the delegation contract is malicious or the asset is an ERC-777, a reentrant call to `liquidate()` can be made during the repay or slash, allowing the attacker to liquidate the same position multiple times and extract excessive bonuses.",
+      "attackPath": "1. Attacker opens a liquidation window on an unhealthy agent. 2. Attacker calls `liquidate()`. 3. During the `repay()` external call, the attacker re-enters `liquidate()`. 4. The reentrant call sees the same unhealthy state and allows another liquidation. 5. The attacker repeats this to slash the agent's collateral multiple times and collect bonuses.",
+      "impact": "An attacker can drain an agent's collateral and the protocol's funds by repeatedly liquidating the same position, leading to insolvency.",
+      "recommendation": "Add a reentrancy guard to the `liquidate()` function or ensure all state updates (including liquidation start time) occur before any external calls."
+    },
+    {
+      "title": "Reentrancy in borrow() allows debt token balance manipulation",
+      "severity": "High",
+      "category": "Reentrancy",
+      "file": "cap-contracts/contracts/lendingPool/libraries/BorrowLogic.sol",
+      "function": "borrow()",
+      "description": "The `borrow()` function calls `IVault(reserve.vault).borrow()` which transfers assets to the receiver before minting the debt token. If the receiver is a malicious contract (e.g., ERC-777 token hook), it can re-enter `borrow()` before the debt token is minted, allowing the attacker to borrow multiple times without increasing their debt.",
+      "attackPath": "1. Attacker calls `borrow()` with a receiver that is a malicious contract. 2. During the `vault.borrow()` external call, the attacker re-enters `borrow()`. 3. The reentrant call sees the agent's debt token balance still zero, allowing another borrow. 4. The attacker repeats this to borrow unlimited assets without accumulating debt.",
+      "impact": "An attacker can borrow unlimited assets from the vault without increasing their debt, leading to insolvency and loss of funds.",
+      "recommendation": "Add a reentrancy guard to the `borrow()` function or ensure the debt token is minted before any external calls."
+    }
+  ]
+}

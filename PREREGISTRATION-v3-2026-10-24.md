@@ -73,3 +73,48 @@ At most 3 dollars of scan credit on the development set and at most 2 dollars on
 ## Limits
 
 Fourteen eligible contests, 190 known findings. The judges are language models and are an interested instrument, which is why the disagreements are read by a person and the tables are published. Free and low-cost model sources are not deterministic, so each system is run once per contest. This is our own measurement.
+
+
+## Addendum 1, 24 October 2026, before any run on the sealed set
+
+This section is committed before the sealed set is run. Nothing below changes a rule above.
+
+### What is frozen
+
+Version 3 for the sealed run (V3) is the engine with the setting named G. The files, by SHA-256:
+
+| File | SHA-256 |
+|---|---|
+| scan-v3.mjs | `99bb1c4234bd2e1fbde32d2826827f9983c6304ce0bba71584aeae8c5fce966c` |
+| draai-v3.mjs | `b69f9393387c822429ecf6bf54c800bedf2cc98f743db4584612d089589ed338` |
+| configs/G.json | `b9fe33bd2f3eb731dc869df5a682db353ceecbee73798438c23ae9f18d9502d0` |
+| bug-intel-scope.mjs | `773266ce0b8d5e6e9802e490342624a35fbcfe388bd0098138aab72966f444bb` |
+| sleutel.mjs | `d605ce78d47117772f93d37e1ead802507c8236f066fb582c5ee0d72cf659ed9` |
+
+The judges are unchanged: bench/judge.mjs `cb35bd65390d9258412880fb99dedbf0939195615c0e0e842bb3eed8122bbc61`, bench/beoordeel.mjs `ea4210f683357c4ccd93b31219f98f580f3c4752d4554678f51afa837b889921`. The baseline S0 is unchanged: runner `24e886376cea901985a3533866bd8b0a8f08b019daf67018872b501f14614708`, scope module `773266ce0b8d5e6e9802e490342624a35fbcfe388bd0098138aab72966f444bb`.
+
+The files of V3 are not published, because how the scan finds things is the product. The hashes prove that the files did not change after this commit. They do not let anyone check what the files do. What anyone can check is everything else: the contests, the split, the judges, the rules above and every output of the sealed run, which will be published as it came out.
+
+### Why G
+
+Results on the development set, which is the set we tuned on and therefore not evidence ([part 1](results/2026-10-24-dev-set/README.md), [part 2](results/2026-10-24-dev-set-2/README.md)):
+
+| System | Found (strict) of 85 | Precision (strict) | Time per contest |
+|---|---|---|---|
+| S0 with the pattern block (h1) | 1 | 2.6 percent | not in this table |
+| S0 without it (h0) | 0 | 0.0 percent | not in this table |
+| A | 7 | 12.5 percent | 654 to 2726 seconds |
+| G | 5 | 6.7 percent | 39 to 112 seconds |
+| H (4 of 6 contests ran) | 4 | 10.0 percent | 103 to 511 seconds |
+
+A found two more than G on the development set, a difference we cannot tell apart from chance on 85 findings, and 4 of its 6 contests took longer than the 20 minutes the decision rule allows. H found no more than G on the four contests it ran and was between 2.5 and 7 times slower. G is the only setting that stays inside the limits of the decision rule on cost and time, so it is the one we put to the sealed set. S0 for the sealed run is h1, the better of the two baselines on the development set, as the rule says.
+
+The controls named above (Slither alone, and one pass over the whole in-scope code) were not scored on the development set.
+
+### Budget and what happened
+
+The development budget of 3 dollars is spent, so development stops here. The key of the scan showed 2.94 dollars used, and our logs add up to about 1.2 dollars; we do not know exactly where the difference went (the likely cause is requests that returned nothing and were not counted). On the last day of development the account ran out of credit in the middle of a run, which cost us two contests of H, as described in part 2. The owner of the account added credit afterwards. The sealed run keeps its own limit of 2 dollars, and the engine now stops at the first refused request instead of writing empty results.
+
+### The sealed run
+
+One run of S0 (h1) and one run of V3 on each of the 8 sealed contests, on the same day with the same sources, judged by the judges above, with the disagreements read by a person. The result is published whatever it is, with the decision rule applied as written. If the account runs out of credit again during the run, we publish what ran and say which contests are missing, and we do not fill the gap.

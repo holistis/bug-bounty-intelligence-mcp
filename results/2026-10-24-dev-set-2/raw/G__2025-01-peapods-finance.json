@@ -1,0 +1,170 @@
+{
+  "contest": "2025-01-peapods-finance",
+  "hypotheses": [
+    {
+      "title": "Unbounded loop over user-controlled array in bulkProcessPendingYield",
+      "severity": "High",
+      "category": "Denial of Service",
+      "file": "contracts/contracts/BulkPodYieldProcess.sol",
+      "function": "bulkProcessPendingYield()",
+      "description": "The function iterates over an unbounded array of IDecentralizedIndex passed by the caller. Each iteration makes an external call to depositFromPairedLpToken. An attacker can supply a very long array, causing the transaction to exceed the block gas limit and permanently DoS any call to this function.",
+      "attackPath": "1. Attacker calls bulkProcessPendingYield() with an array of thousands of pod addresses. 2. The loop runs out of gas and reverts. 3. Any future call to this function (including by the owner) will also revert if the array is large enough, effectively freezing the function.",
+      "impact": "The bulkProcessPendingYield function becomes permanently unusable, preventing batch yield processing.",
+      "recommendation": "Remove the function or add an owner-only access control and enforce a maximum array length."
+    },
+    {
+      "title": "Unbounded loop over user-controlled array in bulkTransferEmpty",
+      "severity": "High",
+      "category": "Denial of Service",
+      "file": "contracts/contracts/BulkPodYieldProcess.sol",
+      "function": "bulkTransferEmpty()",
+      "description": "The function iterates over an unbounded array of IERC20 tokens passed by the caller. Each iteration performs a zero-value transfer. An attacker can supply a very long array, causing the transaction to exceed the block gas limit and permanently DoS any call to this function.",
+      "attackPath": "1. Attacker calls bulkTransferEmpty() with an array of thousands of token addresses. 2. The loop runs out of gas and reverts. 3. Any future call to this function (including by the owner) will also revert if the array is large enough, effectively freezing the function.",
+      "impact": "The bulkTransferEmpty function becomes permanently unusable, preventing batch empty transfers.",
+      "recommendation": "Remove the function or add an owner-only access control and enforce a maximum array length."
+    },
+    {
+      "title": "Unbounded loop over user-controlled array in claimRewardsMulti",
+      "severity": "High",
+      "category": "Denial of Service",
+      "file": "contracts/contracts/IndexUtils.sol",
+      "function": "claimRewardsMulti()",
+      "description": "The function iterates over an unbounded array of reward contract addresses passed by the caller. Each iteration makes an external call to claimReward. An attacker can supply a very long array, causing the transaction to exceed the block gas limit and permanently DoS any call to this function.",
+      "attackPath": "1. Attacker calls claimRewardsMulti() with an array of thousands of reward contract addresses. 2. The loop runs out of gas and reverts. 3. Any future call to this function (including by the owner) will also revert if the array is large enough, effectively freezing the function.",
+      "impact": "The claimRewardsMulti function becomes permanently unusable, preventing batch reward claims.",
+      "recommendation": "Remove the function or add an owner-only access control and enforce a maximum array length."
+    },
+    {
+      "title": "Unbounded loop over user-controlled array in globalPause",
+      "severity": "High",
+      "category": "Denial of Service",
+      "file": "fraxlend/src/contracts/FraxlendPairDeployer.sol",
+      "function": "globalPause()",
+      "description": "The function iterates over an unbounded array of pair addresses passed by the caller. Each iteration makes an external call to pause(). An attacker can supply a very long array, causing the transaction to exceed the block gas limit and permanently DoS any call to this function.",
+      "attackPath": "1. Attacker calls globalPause() with an array of thousands of pair addresses. 2. The loop runs out of gas and reverts. 3. Any future call to this function (including by the circuit breaker) will also revert if the array is large enough, effectively freezing the function.",
+      "impact": "The globalPause function becomes permanently unusable, preventing emergency pausing of multiple pairs.",
+      "recommendation": "Enforce a maximum array length or use a paginated approach."
+    },
+    {
+      "title": "Unbounded loop over user-controlled array in setVaultMaxAllocation",
+      "severity": "High",
+      "category": "Denial of Service",
+      "file": "contracts/contracts/LendingAssetVault.sol",
+      "function": "setVaultMaxAllocation()",
+      "description": "The function iterates over an unbounded array of vault addresses passed by the caller. Each iteration performs storage writes. An attacker can supply a very long array, causing the transaction to exceed the block gas limit and permanently DoS any call to this function.",
+      "attackPath": "1. Attacker calls setVaultMaxAllocation() with an array of thousands of vault addresses. 2. The loop runs out of gas and reverts. 3. Any future call to this function (including by the owner) will also revert if the array is large enough, effectively freezing the function.",
+      "impact": "The setVaultMaxAllocation function becomes permanently unusable, preventing allocation updates.",
+      "recommendation": "Enforce a maximum array length or use a paginated approach."
+    },
+    {
+      "title": "No slippage protection on addLeverage LP operation",
+      "severity": "High",
+      "category": "Slippage / Min-Out",
+      "file": "contracts/contracts/lvf/LeverageManager.sol",
+      "function": "_lpAndStakeInPod()",
+      "description": "In `_lpAndStakeInPod()`, the call to `indexUtils.addLPAndStake()` passes `0` as the `_amountPairedLpTokenMin` parameter. This means the LP addition has no minimum paired token output, making it vulnerable to sandwich attacks that extract value from the user's paired LP tokens.",
+      "attackPath": "An attacker observes a pending `addLeverage` transaction and front-runs it by manipulating the UniswapV2 pool reserves. The LP operation then executes with unfavorable pricing, causing the user to receive far fewer LP tokens than expected, while the attacker profits from the price movement.",
+      "impact": "Users can lose a significant portion of their deposited assets due to MEV/sandwich attacks, as there is no minimum output enforced for the paired LP token side of the liquidity addition.",
+      "recommendation": "Use the `_slippage` parameter from `_config` to compute a meaningful `_amountPairedLpTokenMin` instead of hardcoding `0`."
+    },
+    {
+      "title": "Cross-function reentrancy via workflow modifier in addLeverage/removeLeverage",
+      "severity": "High",
+      "category": "Reentrancy",
+      "file": "contracts/contracts/lvf/LeverageManager.sol",
+      "function": "callback()",
+      "description": "The `workflow` modifier uses a single `_initialised` boolean to guard both `addLeverage` and `removeLeverage` flows. An attacker can call `addLeverage` (sets `_initialised=true`), which triggers a flash loan that calls back into `callback()` (sets `_initialised=false`). Before the outer `addLeverage` completes, the attacker re-enters `addLeverage` again because `_initialised` is now `false`, allowing nested flash loans and state manipulation.",
+      "attackPath": "1. Attacker calls `addLeverage()` with a small amount. 2. Flash loan callback invokes `callback()`, which sets `_initialised=false`. 3. Before `addLeverage` finishes, attacker re-enters `addLeverage()` (or `removeLeverage()`) because `_initialised` is false. 4. Nested flash loan allows attacker to manipulate balances, borrow more than intended, or drain funds.",
+      "impact": "Loss of funds via double-spending or manipulation of leverage positions; protocol insolvency.",
+      "recommendation": "Use OpenZeppelin's `ReentrancyGuard` instead of a custom boolean, or use separate guards for add/remove flows."
+    },
+    {
+      "title": "Missing deadline and chain-id in CCIP bridge message",
+      "severity": "High",
+      "category": "Cross-chain replay",
+      "file": "contracts/contracts/ccip/TokenBridge.sol",
+      "function": "bridgeTokens()",
+      "description": "The `bridgeTokens()` function does not include a nonce, deadline, or chain-id in the CCIP message payload. The `_buildMsg()` only encodes `tokenReceiver`, `targetToken`, and `amount`. Without a unique nonce or deadline, a malicious relayer or off-chain replay can re-submit the same CCIP message on the destination chain, causing double minting or double transfer of tokens.",
+      "attackPath": "1. Attacker calls `bridgeTokens()` with valid parameters. 2. The CCIP message is observed and captured. 3. Attacker re-submits the same message to the destination chain (or a different chain if the same bridge config is reused). 4. The `_ccipReceive()` processes the replayed message, minting/transferring tokens again to the same receiver.",
+      "impact": "Unlimited minting or transfer of bridged tokens, draining the bridge or inflating supply on the destination chain.",
+      "recommendation": "Include a unique nonce (e.g., from a monotonically increasing counter) and optionally a deadline and chain-id in the `TokenTransfer` struct. Validate on the receiving side that each nonce is used only once."
+    },
+    {
+      "title": "Uninitialized `_initialised` flag allows reentrant workflow bypass",
+      "severity": "High",
+      "category": "Access Control",
+      "file": "LeverageManager.sol",
+      "function": "addLeverage()",
+      "description": "The `workflow` modifier uses a boolean `_initialised` to guard reentrancy. However, `_initialised` is never set to `true` in the constructor or any initializer; it defaults to `false`. The modifier checks `!_initialised` on entry and sets it to `true`, but on exit it requires `_initialised` and sets it to `false`. Because the flag starts `false`, the first call to any `workflow(true)` function will pass the check, but the flag is never reset to `false` after the first call completes (the exit branch is never executed because the entry branch sets it to `true` and the exit branch is only for `workflow(false)`). This means after the first successful `addLeverage` call, `_initialised` remains `true`, and subsequent calls to `addLeverage` will revert on the `!_initialised` check. However, an attacker can call `addLeverage` and then, during the flash loan callback, re-enter `addLeverage` because the flag is already `true` and the modifier will pass the entry check again (since it only checks `!_initialised`). This allows reentrant execution of the leverage workflow.",
+      "attackPath": "1. Attacker calls `addLeverage()` with a flash loan. 2. During the flash loan callback, the attacker calls `addLeverage()` again. 3. The `workflow(true)` modifier sees `_initialised` is `true` (set by the first call) and passes the entry check, allowing reentrant execution. 4. The attacker can manipulate state or drain funds by exploiting the reentrant calls.",
+      "impact": "Reentrant execution of leverage functions can lead to loss of funds, incorrect accounting, or manipulation of position state.",
+      "recommendation": "Initialize `_initialised` to `true` in the constructor, or use a proper reentrancy guard like OpenZeppelin's `ReentrancyGuard`."
+    },
+    {
+      "title": "`withdrawAssets()` allows owner to drain custodian without solvency check",
+      "severity": "High",
+      "category": "Access Control",
+      "file": "LeverageManager.sol",
+      "function": "withdrawAssets()",
+      "description": "The `withdrawAssets()` function allows the position owner to withdraw any assets from the position's custodian contract. There is no check that the position is solvent or that the withdrawal does not leave the position undercollateralized. An owner can withdraw all collateral from the custodian, leaving the borrowed position insolvent and potentially causing bad debt for the lending pair.",
+      "attackPath": "1. Attacker creates a leveraged position and borrows assets. 2. Attacker calls `withdrawAssets()` to remove all collateral from the custodian. 3. The lending pair now has an undercollateralized loan, potentially causing bad debt.",
+      "impact": "Loss of funds for lenders in the lending pair, as borrowers can remove collateral without repaying debt.",
+      "recommendation": "Add a solvency check in `withdrawAssets()` to ensure the position remains solvent after the withdrawal, or restrict withdrawals to only when the position is fully repaid."
+    },
+    {
+      "title": "Close fee rounding can steal dust from user",
+      "severity": "High",
+      "category": "Rounding",
+      "file": "LeverageManager.sol",
+      "function": "callback()",
+      "description": "The close fee is computed as `(_ptknToUserAmt * closeFeePerc) / 1000` and subtracted from `_ptknToUserAmt`. Solidity truncates division, so for small `_ptknToUserAmt` the fee can round down to zero, meaning the protocol gets nothing while the user keeps the full amount. This rounding direction favors the user, not the protocol. An attacker could repeatedly create and close positions with dust amounts to avoid paying close fees.",
+      "attackPath": "Attacker creates many small positions, closes them, and pays zero close fee each time due to rounding down to zero.",
+      "impact": "Protocol loses expected fee revenue; attacker avoids fees.",
+      "recommendation": "Round up the fee calculation: `(_ptknToUserAmt * closeFeePerc + 999) / 1000`."
+    },
+    {
+      "title": "First-depositor donation attack on AutoCompoundingPodLp",
+      "severity": "High",
+      "category": "First-depositor",
+      "file": "AutoCompoundingPodLp.sol",
+      "function": "_cbr()",
+      "description": "When `totalSupply() == 0`, `_cbr()` returns `FACTOR` (1e18). The first depositor gets shares at a 1:1 ratio. An attacker can front-run the first deposit by depositing a tiny amount (e.g., 1 wei) to set the initial share price, then later deposit a large amount to extract value from subsequent depositors. The `_convertToShares` and `_convertToAssets` functions use `Math.Rounding.Floor` for deposit and `Math.Rounding.Ceil` for withdraw, which can exacerbate the donation attack.",
+      "attackPath": "Attacker deposits 1 wei of spTKN to mint 1 share. Then a victim deposits 1000 spTKN. The attacker now owns 1 share out of a small total supply, and can withdraw a disproportionate amount of the underlying assets.",
+      "impact": "Loss of funds for subsequent depositors; attacker extracts value.",
+      "recommendation": "Require a minimum initial deposit or use a virtual share mechanism to prevent manipulation of the share price."
+    },
+    {
+      "title": "Stale oracle price used when exchange rate not updated this block",
+      "severity": "High",
+      "category": "Stale Price",
+      "file": "fraxlend/src/contracts/FraxlendPairCore.sol",
+      "function": "_isSolvent()",
+      "description": "The `_isSolvent()` function reads `exchangeRateInfo.highExchangeRate` directly from storage without calling `_updateExchangeRate()`. If the exchange rate has not been updated in the current block, the stored rate may be stale, causing incorrect solvency checks during borrow, removeCollateral, and liquidation operations.",
+      "attackPath": "An attacker can call `borrowAsset()` or `removeCollateral()` in a block where the oracle price has moved unfavorably but the exchange rate has not yet been updated. The stale `highExchangeRate` may show the borrower as solvent when they are actually insolvent, allowing the attacker to extract value or avoid liquidation.",
+      "impact": "Borrowers may remain solvent with stale favorable prices, preventing legitimate liquidations and causing bad debt for the protocol. Alternatively, borrowers may be incorrectly deemed insolvent and liquidated unfairly.",
+      "recommendation": "Call `_updateExchangeRate()` inside `_isSolvent()` or ensure the modifier `isSolvent` always uses a freshly updated exchange rate."
+    },
+    {
+      "title": "Chainlink sequencer uptime feed not checked on L2 deployments",
+      "severity": "High",
+      "category": "Stale Oracle",
+      "file": "contracts/contracts/oracle/ChainlinkSinglePriceOracle.sol",
+      "function": "getPriceUSD18()",
+      "description": "The `_sequencerCheck()` function checks the sequencer uptime feed, but this check is only performed in `ChainlinkSinglePriceOracle`. The `spTKNMinimalOracle` and `DualOracleChainlinkUniV3` do not call any sequencer check before using Chainlink prices. On L2s like Arbitrum or Optimism, if the sequencer goes down, stale prices can be used without detection.",
+      "attackPath": "On an L2, an attacker waits for the sequencer to go down (or causes a delay). During this period, Chainlink prices are not updated. The attacker then executes liquidations or borrows using stale prices that no longer reflect market conditions, extracting value from the protocol.",
+      "impact": "Users can be unfairly liquidated at outdated prices, or the protocol can suffer bad debt from undercollateralized loans opened during sequencer downtime.",
+      "recommendation": "Add sequencer uptime checks in all oracle contracts that use Chainlink feeds on L2 networks, including `spTKNMinimalOracle` and `DualOracleChainlinkUniV3`."
+    },
+    {
+      "title": "External call before state update in _addLeveragePostCallback",
+      "severity": "High",
+      "category": "Checks-Effects-Interactions",
+      "file": "contracts/contracts/lvf/LeverageManager.sol",
+      "function": "_addLeveragePostCallback()",
+      "description": "In `_addLeveragePostCallback`, the function transfers tokens to `feeReceiver` and then to the position owner via `IERC20(_pod).safeTransfer()` before updating internal accounting (e.g., `positionProps`). This violates the checks-effects-interactions pattern, allowing a malicious `feeReceiver` or owner contract to re-enter and manipulate state.",
+      "attackPath": "1. Attacker sets up a malicious contract as `feeReceiver` (if they can influence it) or as position owner. 2. During `addLeverage`, after flash loan callback, `_addLeveragePostCallback` transfers tokens to the malicious contract. 3. The malicious contract's `receive()` or `fallback()` re-enters `addLeverage()` or `removeLeverage()`, exploiting inconsistent state.",
+      "impact": "Reentrancy can lead to double-spending of tokens, incorrect debt accounting, or draining of funds.",
+      "recommendation": "Move all external transfers to the end of the function, after all state updates are complete."
+    }
+  ]
+}

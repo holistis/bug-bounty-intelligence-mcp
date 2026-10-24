@@ -1,0 +1,170 @@
+{
+  "contest": "2025-03-crestal-network",
+  "hypotheses": [
+    {
+      "title": "`updateWorkerDeploymentConfigWithSig` uses wrong serverURL in digest",
+      "severity": "Medium",
+      "category": "Signature mismatch",
+      "file": "BlueprintCore.sol",
+      "function": "updateWorkerDeploymentConfigWithSig()",
+      "description": "The function `updateWorkerDeploymentConfigWithSig` computes the digest using a hardcoded serverURL `\"app.crestal.network\"` instead of the actual serverURL used in the deployment request. This means the signature will only be valid if the user signed with that exact serverURL, which may not be the case. This can cause valid signatures to be rejected, or if the user signs with a different serverURL, the signature will not match.",
+      "attackPath": "1. User signs a deployment config update with serverURL \"example.com\". 2. The function computes the digest with \"app.crestal.network\". 3. The signature is invalid, and the transaction reverts.",
+      "impact": "Users cannot update deployment configs via signature, breaking functionality.",
+      "recommendation": "Use the actual serverURL from the deployment request or include it as a parameter in the signature."
+    },
+    {
+      "title": "Signature replay across different functions with same digest",
+      "severity": "High",
+      "category": "Signature replay",
+      "file": "crestal-omni-contracts/src/BlueprintCore.sol",
+      "function": "createProjectIDAndDeploymentRequestWithSig()",
+      "description": "The same deployment digest is used in multiple functions: createProjectIDAndDeploymentRequestWithSig, createAgentWithTokenWithSig, createAgentWithWhitelistUsersWithSig, createAgentWithSigWithNFT, and updateWorkerDeploymentConfigWithSig. A signature for a deployment request can be replayed in a different function, causing unintended actions. For example, a signature intended for createProjectIDAndDeploymentRequestWithSig can be used in createAgentWithSigWithNFT to create an agent with an NFT, or in updateWorkerDeploymentConfigWithSig to update a config.",
+      "attackPath": "1. User signs a deployment request for projectId X. 2. Attacker captures this signature. 3. Attacker calls createAgentWithSigWithNFT() with the same projectId, base64Proposal, and serverURL, using the signature. This creates an agent and consumes the user's NFT if they own it, or reverts if not, but the attacker can try different tokenIds.",
+      "impact": "Unauthorized creation of agents, potential loss of user's NFT, or unauthorized config updates.",
+      "recommendation": "Include a function-specific identifier or operation type in the signed digest to prevent cross-function replay."
+    },
+    {
+      "title": "No oracle price validation for token payments",
+      "severity": "High",
+      "category": "Stale or zero prices",
+      "file": "crestal-omni-contracts/src/BlueprintCore.sol",
+      "function": "createAgent()",
+      "description": "The `createAgent()` function uses `paymentOpCostMp[tokenAddress][CREATE_AGENT_OP]` as a fixed cost without any oracle price feed. If the token's market value changes, the cost in token terms remains static, allowing users to pay significantly less value when the token price drops or forcing overpayment when it rises.",
+      "attackPath": "An attacker monitors the token price and calls `createAgentWithToken()` when the token's market value is low, paying a fixed token amount that is worth far less than intended by the protocol.",
+      "impact": "Protocol receives insufficient value for agent creation, leading to economic loss and potential insolvency if the token price fluctuates dramatically.",
+      "recommendation": "Integrate a price oracle (e.g., Chainlink) to dynamically adjust token costs based on current market price, or implement a TWAP-based pricing mechanism."
+    },
+    {
+      "title": "payWithERC20 can be called by anyone to drain token approvals",
+      "severity": "High",
+      "category": "Access Control",
+      "file": "crestal-omni-contracts/src/Payment.sol",
+      "function": "payWithERC20()",
+      "description": "The `payWithERC20` function is public and has no access control. It allows any caller to specify arbitrary `fromAddress`, `toAddress`, and `amount`, and will execute a `safeTransferFrom` if the `fromAddress` has approved this contract. An attacker can drain any user's token balance that has approved the Blueprint contract.",
+      "attackPath": "1) User approves the Blueprint contract to spend their tokens (e.g., for `userTopUp` or `createAgentWithToken`). 2) Attacker calls `payWithERC20` with the user's address as `fromAddress`, attacker's address as `toAddress`, and the full approved amount. 3) The function transfers the tokens from the user to the attacker.",
+      "impact": "Direct theft of user funds from any address that has approved the contract.",
+      "recommendation": "Make `payWithERC20` internal or add a modifier that restricts it to be called only by the contract itself or trusted contracts."
+    },
+    {
+      "title": "Missing slippage/min-out check in payWithERC20 allows token theft",
+      "severity": "High",
+      "category": "Slippage and minimum-out parameters missing",
+      "file": "Payment.sol",
+      "function": "payWithERC20()",
+      "description": "The payWithERC20() function is public and can be called by anyone. It calls safeTransferFrom(fromAddress, toAddress, amount) without any check that the caller is authorized to spend the fromAddress's tokens. A malicious actor can call this with any fromAddress that has approved this contract to spend their tokens and drain them.",
+      "attackPath": "1. User Alice approves the Blueprint contract to spend 1000 USDC. 2. Attacker calls payWithERC20(USDC, 1000, Alice, attacker_address). 3. The function transfers 1000 USDC from Alice to the attacker.",
+      "impact": "Liquidity loss for any user who has approved the contract to spend their tokens. An attacker can drain all approved funds.",
+      "recommendation": "Restrict payWithERC20() to internal or onlyOwner, or add a check that msg.sender is the fromAddress or is authorized."
+    },
+    {
+      "title": "Missing owner check in updateWorkerDeploymentConfig allows unauthorized config changes",
+      "severity": "High",
+      "category": "Missing Access Control",
+      "file": "crestal-omni-contracts/src/history/BlueprintV3.sol",
+      "function": "updateWorkerDeploymentConfig()",
+      "description": "The `updateWorkerDeploymentConfig` function in BlueprintV3.sol lacks the `deploymentOwners[requestID] == msg.sender` check that exists in later versions (BlueprintCore.sol). Any caller can update the deployment config for any requestID, as long as the deployment status is not Init or Issued. This allows an attacker to modify the configuration of a deployment they do not own.",
+      "attackPath": "1. Attacker observes a deployment requestID that has been picked up by a worker (status != Issued). 2. Attacker calls `updateWorkerDeploymentConfig(projectId, requestID, \"malicious config\")`. 3. The function passes all checks and emits an `UpdateDeploymentConfig` event with the attacker's config.",
+      "impact": "An attacker can overwrite the legitimate deployment configuration, potentially causing the worker to deploy incorrect or malicious code, leading to loss of funds or incorrect system behavior.",
+      "recommendation": "Add a check `require(deploymentOwners[requestID] == msg.sender, \"Only deployment owner can update config\")` to the function."
+    },
+    {
+      "title": "Missing owner check in UpdateWorkerDeploymentConfig allows unauthorized config changes",
+      "severity": "High",
+      "category": "Missing Access Control",
+      "file": "crestal-omni-contracts/src/history/BlueprintV2.sol",
+      "function": "UpdateWorkerDeploymentConfig()",
+      "description": "The `UpdateWorkerDeploymentConfig` function in BlueprintV2.sol has no access control whatsoever. It does not check that the caller is the deployment owner or the assigned worker. Any external actor can call this function with any projectId and requestID to overwrite the deployment configuration, as long as the deployment status is not Init or Issued.",
+      "attackPath": "1. Attacker identifies a deployment requestID with status Pickup or GeneratedProof. 2. Attacker calls `UpdateWorkerDeploymentConfig(projectId, requestID, \"attacker config\")`. 3. The function updates the config and emits the event, overwriting the legitimate configuration.",
+      "impact": "An attacker can arbitrarily change deployment configurations, potentially causing incorrect deployments, financial loss, or disruption of the protocol's services.",
+      "recommendation": "Add an ownership check, e.g., `require(deploymentOwners[requestID] == msg.sender, \"Only deployment owner can update config\")`."
+    },
+    {
+      "title": "Anyone can call upgradeProject to reset project state, bricking user projects",
+      "severity": "High",
+      "category": "Missing access control on state reset",
+      "file": "BlueprintCore.sol",
+      "function": "upgradeProject()",
+      "description": "`upgradeProject(bytes32 projectId)` is `public` and only checks that the project exists via the `hasProject` modifier. It does not check that the caller is the project owner or the original creator. An untrusted external actor can call this function on any existing project ID (which is publicly known, e.g., from emitted events) and reset `requestProposalID`, `requestDeploymentID`, and `proposedSolverAddr` to zero/dummy.",
+      "attackPath": "1) A user creates a project with `createProjectID()`, receiving a projectId. 2) The user then creates a proposal and deployment request, paying fees or locking NFTs. 3) An attacker, knowing the projectId (from events or by guessing the keccak256 hash with the user's address and timestamp), calls `upgradeProject(projectId)`. 4) The project's deployment and proposal state are reset, causing the user's active deployment to be lost or requiring them to pay again.",
+      "impact": "Users' active project proposals and deployments are silently destroyed, leading to loss of funds paid for deployment and denial of service.",
+      "recommendation": "Restrict `upgradeProject` to the project owner (e.g., require `latestProjectID[msg.sender] == projectId`), or remove the function or make it `internal`."
+    },
+    {
+      "title": "Missing deadline and nonce in EIP712 signatures allows replay and indefinite validity",
+      "severity": "High",
+      "category": "Signature replay",
+      "file": "crestal-omni-contracts/src/EIP712.sol",
+      "function": "getRequestDeploymentDigest()",
+      "description": "The EIP712 digest for deployment requests includes only projectId, base64RecParam, and serverURL. It lacks a nonce, deadline, chain ID, or contract address binding beyond what EIP712Upgradeable provides. A signature can be replayed indefinitely on the same contract, and if the same contract is deployed on multiple chains, the signature is valid across all of them since the domain separator includes chain ID but the user may not intend cross-chain use.",
+      "attackPath": "1. User signs a deployment request for projectId X. 2. Attacker captures the signature and calls createProjectIDAndDeploymentRequestWithSig() with the same parameters on the same chain, repeatedly creating new projects and deployments. 3. Attacker also replays the signature on another chain where the contract is deployed, creating unauthorized deployments.",
+      "impact": "Unauthorized creation of projects and deployments, potential loss of user-controlled resources, and cross-chain replay of user intent.",
+      "recommendation": "Add a nonce and deadline to the signed struct, and include them in the digest. Track used nonces per signer to prevent replay."
+    },
+    {
+      "title": "Cross-Contract Reentrancy via NFT Ownership Check in createAgent()",
+      "severity": "High",
+      "category": "Reentrancy",
+      "file": "crestal-omni-contracts/src/BlueprintCore.sol",
+      "function": "createAgent()",
+      "description": "The function checks NFT ownership via checkNFTOwnership() (which calls nftToken.ownerOf()) before updating state. If the NFT contract is malicious (e.g., ERC-721 with hooks), it can reenter and manipulate state (e.g., call createAgent() again with the same tokenId). The require(nftTokenIdMap[tokenId] != Status.Pickup) check is bypassed because the state hasn't been updated yet.",
+      "attackPath": "1. Attacker mints an NFT with a callback on ownerOf(). 2. Attacker calls createAgentWithNFT(). 3. During checkNFTOwnership(), the NFT contract reenters and calls createAgentWithNFT() again with the same tokenId. 4. The second call also passes the check (state not yet updated). 5. Attacker creates multiple agents using the same NFT token.",
+      "impact": "Unauthorized agent creation; bypass of one-NFT-per-agent rule.",
+      "recommendation": "Apply the check-effects-interactions pattern: update state (e.g., set nftTokenIdMap[tokenId] = Status.Pickup) before any external call."
+    },
+    {
+      "title": "Private worker can grief by never submitting proof, blocking config updates",
+      "severity": "High",
+      "category": "Stuck funds / griefing",
+      "file": "BlueprintCore.sol",
+      "function": "updateWorkerDeploymentConfigCommon()",
+      "description": "In a private deployment request, the designated worker is set at creation time (status Pickup). The deployment owner can only update the config if the status is not Issued. If the private worker never acts (does not submit proof), the status remains Pickup forever. The owner cannot change the worker or cancel the deployment, and updateWorkerDeploymentConfigCommon requires the owner to be the caller but does not allow changing the worker. This permanently locks the owner's funds and the deployment.",
+      "attackPath": "1) User calls createProjectIDAndPrivateDeploymentRequest() with a malicious/abandoned privateWorkerAddress. 2) The private worker never calls submitDeploymentRequest() or submitProofOfDeployment(). 3) Status stays Pickup indefinitely. 4) Owner cannot reset or recover the deployment.",
+      "impact": "User's paid fee is frozen; the deployment is permanently stuck and cannot be completed or cancelled.",
+      "recommendation": "Add a timeout or owner-controlled mechanism to reset the deployment status or reassign the worker if the private worker does not act within a defined period."
+    },
+    {
+      "title": "Missing nonce and deadline in EIP712 signatures allows replay",
+      "severity": "High",
+      "category": "Signature Replay",
+      "file": "BlueprintCore.sol",
+      "function": "createProjectIDAndProposalRequestWithSig()",
+      "description": "The EIP712 digest for proposal and deployment requests does not include a nonce or deadline. The same signed message (projectId, base64RecParam, serverURL) can be replayed indefinitely. The `newProject` modifier only prevents reuse of the same projectId, but an attacker can replay the signature with a different projectId, or the same projectId after `upgradeProject()` resets it.",
+      "attackPath": "1. User signs a proposal request for projectId A. 2. Attacker captures the signature. 3. Attacker calls `createProjectIDAndProposalRequestWithSig()` with a new projectId B and the same signed parameters. 4. The signature validates and creates a project for the victim, consuming their intent.",
+      "impact": "Unauthorized creation of projects and requests on behalf of users, potentially leading to griefing or incorrect accounting of user activity.",
+      "recommendation": "Include a nonce (per-signer) and deadline in the EIP712 struct and verify them in the contract."
+    },
+    {
+      "title": "ERC20 Transfer Before State Update in updateWorkerDeploymentConfigCommon",
+      "severity": "High",
+      "category": "Reentrancy",
+      "file": "BlueprintCore.sol",
+      "function": "updateWorkerDeploymentConfigCommon()",
+      "description": "payWithERC20() is called before the state update that resets status from GeneratedProof to Pickup. A malicious ERC20 token callback can reenter and call updateWorkerDeploymentConfig again on the same requestID, paying the fee multiple times while only getting one config update.",
+      "attackPath": "1. Attacker deploys a malicious ERC20 token with a callback on transfer. 2. Attacker calls updateWorkerDeploymentConfig() with this token. 3. During payWithERC20(), the callback triggers a reentrant call to updateWorkerDeploymentConfig() with the same requestID. 4. The cost is deducted again before the status is reset. 5. Attacker pays the fee multiple times but only gets one config update.",
+      "impact": "Loss of funds due to paying the update fee multiple times for a single config update.",
+      "recommendation": "Move payWithERC20() after all state updates, or add a reentrancy guard."
+    },
+    {
+      "title": "No deadline or expiry on signed deployment requests",
+      "severity": "Medium",
+      "category": "Signature replay",
+      "file": "BlueprintCore.sol",
+      "function": "createProjectIDAndDeploymentRequestWithSig()",
+      "description": "The signed digest includes no deadline or expiration timestamp. A signature from a user can be stored and replayed at any future time by any actor. There is no mechanism to invalidate old signatures, allowing old proposals to be resurrected and deployed long after the user's intent has changed.",
+      "attackPath": "1) User signs a deployment request for a project. 2) Months later, an attacker retrieves this signature from the blockchain (e.g., from a past transaction). 3) Attacker calls createProjectIDAndDeploymentRequestWithSig with the old signature, creating a new deployment request that the user no longer wants.",
+      "impact": "Users' deployment requests can be forced at any time, leading to unintended deployments and potential loss of paid fees or reputation damage.",
+      "recommendation": "Add a deadline (expiry) to the signed struct and revert if block.timestamp exceeds it."
+    },
+    {
+      "title": "No signature replay protection for createProjectIDAndProposalRequestWithSig",
+      "severity": "Medium",
+      "category": "Signature replay",
+      "file": "crestal-omni-contracts/src/BlueprintCore.sol",
+      "function": "createProjectIDAndProposalRequestWithSig()",
+      "description": "The proposal request digest lacks a nonce or deadline. A signature can be replayed indefinitely to create multiple projects and proposal requests for the same signer. The projectId is part of the signed data, but the same projectId can be reused after upgradeProject() resets the project state, allowing the same signature to be used again.",
+      "attackPath": "1. User signs a proposal request for projectId X. 2. Attacker calls createProjectIDAndProposalRequestWithSig() to create the project and proposal. 3. Attacker calls upgradeProject(X) to reset the project. 4. Attacker calls createProjectIDAndProposalRequestWithSig() again with the same signature, creating a new proposal request.",
+      "impact": "Unauthorized creation of proposals, potential spam, and manipulation of project state.",
+      "recommendation": "Add a nonce to the signed data and track used nonces."
+    }
+  ]
+}

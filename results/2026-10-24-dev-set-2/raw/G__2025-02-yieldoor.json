@@ -1,0 +1,170 @@
+{
+  "contest": "2025-02-yieldoor",
+  "hypotheses": [
+    {
+      "title": "Unauthorized caller can trigger rebalance via changePositionWidth",
+      "severity": "High",
+      "category": "Missing access control",
+      "file": "yieldoor/src/Strategy.sol",
+      "function": "changePositionWidth()",
+      "description": "The `changePositionWidth` function lacks an access control modifier, allowing any external caller to invoke it. This function modifies the `positionWidth` state variable and then calls `rebalance()`, which is intended to be restricted to the trusted `rebalancer` role. An attacker can exploit this to force a rebalance at an inopportune time or with a maliciously chosen width, disrupting the strategy's intended position management.",
+      "attackPath": "1. An attacker calls `changePositionWidth` with a `_newWidth` that satisfies the divisibility check. 2. The function updates `positionWidth` and immediately calls `rebalance()`. 3. The `rebalance()` function executes, potentially removing and re-adding liquidity at a suboptimal price or with an unfavorable width, causing a loss of funds for the vault's depositors.",
+      "impact": "An attacker can force unwanted rebalances, potentially causing impermanent loss, fee loss, or manipulation of the strategy's positions, leading to a direct financial loss for the vault's users.",
+      "recommendation": "Add the `onlyRebalancer` modifier to the `changePositionWidth` function."
+    },
+    {
+      "title": "First-depositor inflation attack in Vault share calculation",
+      "severity": "High",
+      "category": "Accounting",
+      "file": "Vault.sol",
+      "function": "_calcDeposit()",
+      "description": "On the first deposit, `_calcDeposit` sets `shares = (amount0 > amount1 ? amount0 : amount1) - (1000)`. An attacker can front-run the first deposit with a minimal amount (e.g. 1000 wei of one token) to mint 0 shares, then donate a large amount of the other token to inflate the share price. The next legitimate depositor receives far fewer shares than expected, losing most of their deposit.",
+      "attackPath": "1. Attacker calls `deposit(1000, 0, 0, 0)` to mint 0 shares (since 1000 wei are burned). 2. Attacker transfers a large amount of token1 directly to the strategy. 3. Victim deposits a fair amount of both tokens; the inflated `totalBalance0`/`totalBalance1` ratio causes `_calcDeposit` to compute a tiny share amount for the victim. 4. Attacker can later redeem their 0 shares (or a tiny amount) to extract most of the victim's deposit.",
+      "impact": "Loss of funds for subsequent depositors; the attacker can steal nearly all deposited value.",
+      "recommendation": "Require the first deposit to be made by a trusted party (e.g. deployer) or use a minimum share amount that prevents zero-share minting. Alternatively, mint a fixed number of shares to the zero address (like the 1000 wei burn) but ensure the attacker cannot profit from it."
+    },
+    {
+      "title": "`withdraw` in `Leverager` uses wrong variable for repay calculation when `borrowed == up.token1`",
+      "severity": "High",
+      "category": "Accounting",
+      "file": "Leverager.sol",
+      "function": "withdraw()",
+      "description": "In the `withdraw` function, when `borrowed == up.token1`, the code sets `repayFromWithdraw = amountOut1 < owedAmount ? amountOut0 : owedAmount`. It uses `amountOut0` instead of `amountOut1` in the ternary condition. This means if `amountOut1 < owedAmount`, it incorrectly subtracts `amountOut0` from `owedAmount` and `amountOut1`, leading to incorrect debt repayment and token balances.",
+      "attackPath": "1. User has a position where `denomination == token1`. 2. User calls `withdraw` with a percentage that results in `amountOut1 < owedAmount`. 3. The code uses `amountOut0` (which may be large) to reduce `owedAmount`, potentially repaying less debt than required. 4. The user receives more tokens than entitled, and the position's debt is understated.",
+      "impact": "Loss of funds for the protocol; undercollateralized positions; incorrect accounting.",
+      "recommendation": "Change `amountOut0` to `amountOut1` in the ternary condition: `uint256 repayFromWithdraw = amountOut1 < owedAmount ? amountOut1 : owedAmount;`."
+    },
+    {
+      "title": "Unbounded loop in checkPoolActivity can cause out-of-gas revert",
+      "severity": "High",
+      "category": "Denial of Service",
+      "file": "Strategy.sol",
+      "function": "checkPoolActivity()",
+      "description": "The function iterates over all observations up to `observationCardinality` (max 65535) without a break condition that guarantees early exit. If the pool has many observations and the TWAP window is large, the loop may exhaust gas, causing the function to revert. This blocks `rebalance()`, `compound()`, `addVestingPosition()`, and any vault operation that calls `checkPoolActivity()`.",
+      "attackPath": "An attacker can call `increaseObservationCardinalityNext()` on the Uniswap pool to increase `observationCardinality` to a high value (e.g., 65535). Then any call to `checkPoolActivity()` (via `rebalance()`, `compound()`, `openLeveragedPosition()`, etc.) will iterate over all observations and revert due to out-of-gas, permanently freezing all strategy operations.",
+      "impact": "Complete denial of service for the strategy: rebalancing, compounding, depositing, withdrawing, and liquidations become impossible. Funds are stuck in the strategy.",
+      "recommendation": "Add a maximum iteration limit (e.g., 256) or restructure the loop to stop early once the timestamp passes the TWAP lookback window, as the current code already has a `timestamp < lookAgo` check but it is placed after the deviation check and may not be reached before gas runs out."
+    },
+    {
+      "title": "Missing access control on changePositionWidth allows anyone to trigger rebalance",
+      "severity": "High",
+      "category": "Denial of Service",
+      "file": "Strategy.sol",
+      "function": "changePositionWidth()",
+      "description": "The function `changePositionWidth()` is not protected by any access control modifier (e.g., `onlyOwner` or `onlyRebalancer`). Any external actor can call it, which immediately calls `rebalance()`. Since `rebalance()` requires `block.timestamp - lastRebalance >= rebalanceInterval`, an attacker can call `changePositionWidth()` repeatedly to reset `lastRebalance` and prevent legitimate rebalances.",
+      "attackPath": "An attacker calls `changePositionWidth()` with the current width (or any valid width) every `rebalanceInterval` seconds. This triggers `rebalance()`, which updates `lastRebalance = block.timestamp`. The legitimate rebalancer can never rebalance because the interval requirement is never met.",
+      "impact": "The strategy cannot be rebalanced, causing the main and secondary positions to become misaligned with the current price. This leads to impermanent loss, reduced fee generation, and potential insolvency for vault depositors.",
+      "recommendation": "Add `onlyRebalancer` or `onlyOwner` modifier to `changePositionWidth()`."
+    },
+    {
+      "title": "Flash loan pullFunds/pushFunds can be used to drain lending pool reserves",
+      "severity": "High",
+      "category": "Stuck Funds / Griefing",
+      "file": "LendingPool.sol",
+      "function": "pullFunds() / pushFunds()",
+      "description": "The `pullFunds()` and `pushFunds()` functions allow the leverager to move tokens in and out of the yToken contract without updating the reserve's `underlyingBalance` or interest rates. If the leverager contract is compromised or has a bug, an attacker can call `pullFunds()` to drain tokens from the yToken contract, and the reserve accounting becomes inconsistent. The `pushFunds()` function also does not update `underlyingBalance`, so pushed funds are not tracked.",
+      "attackPath": "1. Attacker exploits a bug in the leverager (e.g., reentrancy or incorrect access control) to call `pullFunds(asset, largeAmount)`. 2. The yToken contract transfers `largeAmount` of underlying tokens to the leverager. 3. The reserve's `underlyingBalance` is not decreased, so the accounting shows more available liquidity than actually exists. 4. Subsequent depositors cannot withdraw their funds because the yToken contract no longer holds enough underlying tokens.",
+      "impact": "Loss of funds for depositors. The lending pool becomes insolvent because the reserve accounting is out of sync with actual token balances.",
+      "recommendation": "Update `underlyingBalance` in `pullFunds()` (decrease) and `pushFunds()` (increase), and call `updateInterestRates()` after each operation to keep the reserve state consistent."
+    },
+    {
+      "title": "Liquidation fee calculation uses wrong denominator for decimals",
+      "severity": "High",
+      "category": "Bad debt / insolvency",
+      "file": "yieldoor/src/Leverager.sol",
+      "function": "liquidatePosition()",
+      "description": "In `liquidatePosition()`, the borrowed value is computed as `owedAmount * bPrice / ERC20(up.denomination).decimals()`. The divisor should be `10 ** decimals()`, not `decimals()` itself. This massively overstates the borrowed value for any token with >0 decimals, causing the liquidation to incorrectly treat solvent positions as underwater and seize excess collateral.",
+      "attackPath": "An attacker calls `liquidatePosition()` on a healthy position. The miscalculation makes `borrowedValue` astronomically large, so `totalValueUSD > borrowedValue` is false, and the entire collateral is taken as repayment, leaving the liquidator with a huge profit and the victim with nothing.",
+      "impact": "Complete loss of user collateral from solvent positions; protocol insolvency as legitimate positions are liquidated.",
+      "recommendation": "Change `ERC20(up.denomination).decimals()` to `10 ** ERC20(up.denomination).decimals()`."
+    },
+    {
+      "title": "Withdraw uses wrong variable in repay-from-withdraw logic for token1",
+      "severity": "High",
+      "category": "Accounting ignores fees or losses",
+      "file": "yieldoor/src/Leverager.sol",
+      "function": "withdraw()",
+      "description": "In the `withdraw()` function, when `borrowed == up.token1`, the code sets `repayFromWithdraw = amountOut1 < owedAmount ? amountOut0 : owedAmount`. It uses `amountOut0` instead of `amountOut1` in the ternary, so if `amountOut1 < owedAmount`, it incorrectly uses `amountOut0` as the repayment amount, which may be zero or unrelated. This under-repays the debt and leaves the position with incorrect accounting.",
+      "attackPath": "A user calls `withdraw()` on a position where the denomination token is token1 and `amountOut1 < owedAmount`. The repayment uses `amountOut0` (possibly 0), so the debt is not fully repaid. The position state becomes inconsistent, and the protocol may accrue bad debt.",
+      "impact": "Under-repayment of debt, incorrect position state, potential bad debt accumulation.",
+      "recommendation": "Change `amountOut0` to `amountOut1` in the ternary for the token1 case."
+    },
+    {
+      "title": "Incorrect repayFromWithdraw logic when borrowed token equals token1",
+      "severity": "High",
+      "category": "Wrong constant/unit",
+      "file": "yieldoor/src/Leverager.sol",
+      "function": "withdraw()",
+      "description": "In the `withdraw()` function, when `borrowed == up.token1`, the code sets `repayFromWithdraw = amountOut1 < owedAmount ? amountOut0 : owedAmount`. It uses `amountOut0` instead of `amountOut1` in the ternary condition, which is a copy-paste error. This causes incorrect repayment amounts when the borrowed token is token1.",
+      "attackPath": "A user with a position where `denomination == token1` calls `withdraw()`. The code incorrectly calculates `repayFromWithdraw` using `amountOut0` instead of `amountOut1`, potentially repaying less than intended or subtracting from the wrong variable.",
+      "impact": "Incorrect accounting of owed amounts and token balances, potentially allowing users to withdraw more than entitled or leaving positions in an inconsistent state.",
+      "recommendation": "Change `amountOut0` to `amountOut1` in the ternary condition for the `borrowed == up.token1` branch."
+    },
+    {
+      "title": "LiquidatePosition uses wrong decimals for borrowedValue calculation",
+      "severity": "High",
+      "category": "Wrong constant/unit",
+      "file": "yieldoor/src/Leverager.sol",
+      "function": "liquidatePosition()",
+      "description": "In `liquidatePosition()`, `borrowedValue` is computed as `owedAmount * bPrice / ERC20(up.denomination).decimals()`. This divides by the raw decimals value (e.g., 18) instead of `10 ** decimals`. The same error exists in `_calculateTokenValues()` but is correctly handled there by using `10 ** decimals`. This makes the liquidation check and fee calculation use a severely incorrect borrowed value.",
+      "attackPath": "An attacker can call `liquidatePosition()` on a position that is not actually liquidatable. Due to the division by a small number (e.g., 18 instead of 1e18), `borrowedValue` becomes astronomically large, causing the condition `totalValueUSD > borrowedValue` to be false, and the protocol fee calculation to be wrong. The position may be incorrectly liquidated or fees miscalculated.",
+      "impact": "Incorrect liquidation decisions (positions liquidated when they shouldn't be, or vice versa) and incorrect protocol fee amounts, leading to potential loss of funds for users or the protocol.",
+      "recommendation": "Change `ERC20(up.denomination).decimals()` to `10 ** ERC20(up.denomination).decimals()`."
+    },
+    {
+      "title": "Spot price used for liquidation without TWAP verification",
+      "severity": "High",
+      "category": "Price Manipulation",
+      "file": "Leverager.sol",
+      "function": "liquidatePosition()",
+      "description": "In `liquidatePosition()`, the function calls `IVault(up.vault).twapPrice()` to compute `totalValueUSD`, but it does **not** call `checkPoolActivity()` to verify that the spot price is not manipulated. The comment in the code explicitly states this check is omitted to allow liquidations during volatile markets. However, this opens the door for an attacker to manipulate the spot price (via a flash loan) to make a healthy position appear liquidatable, or to make an underwater position appear healthy.",
+      "attackPath": "An attacker flash-loans a large amount of tokens, swaps them in the underlying Uniswap pool to move the spot price, then calls `liquidatePosition()` on a victim's position. The TWAP price lags, so the manipulated spot price is used for the liquidation check, causing premature liquidation or preventing legitimate liquidation.",
+      "impact": "Unfair liquidation of user positions, loss of collateral, or accumulation of bad debt.",
+      "recommendation": "Always call `checkPoolActivity()` before using the TWAP price for liquidation decisions, or use a longer TWAP window that is resistant to short-term manipulation."
+    },
+    {
+      "title": "`isLiquidateable` uses stale `initCollateralValue` leading to incorrect liquidation checks",
+      "severity": "High",
+      "category": "Accounting",
+      "file": "Leverager.sol",
+      "function": "isLiquidateable()",
+      "description": "The function compares `owedAmount` against `totalDenom` and uses `pos.initCollateralValue` (set at position opening) to compute the minimum collateral threshold. However, `initCollateralValue` is never updated after partial withdrawals or price changes. A position that has been partially withdrawn may have a much lower actual collateral value, but `isLiquidateable` still uses the old high value, making the position appear safer than it is and preventing legitimate liquidations.",
+      "attackPath": "1. User opens a leveraged position with high collateral. 2. User calls `withdraw` with a large `pctWithdraw` (e.g. 99%). 3. The position's actual collateral drops drastically, but `initCollateralValue` remains unchanged. 4. `isLiquidateable` still sees a high `initCollateralValue` and returns false, even though the position is now undercollateralized. 5. The position cannot be liquidated, potentially accruing bad debt for the protocol.",
+      "impact": "Inability to liquidate undercollateralized positions; accumulation of bad debt; insolvency risk.",
+      "recommendation": "Update `initCollateralValue` in the `withdraw` function to reflect the remaining collateral after withdrawal, or compute the current collateral value from the vault balances instead of using the stored initial value."
+    },
+    {
+      "title": "TWAP price used without checking sequencer uptime on L2",
+      "severity": "High",
+      "category": "Stale Oracle",
+      "file": "Strategy.sol",
+      "function": "_priceWithinRange()",
+      "description": "The `_priceWithinRange()` function checks the TWAP tick against the spot tick but never verifies that the Chainlink sequencer is live. On L2 chains like Arbitrum or Optimism, if the sequencer goes down, the TWAP observation array stops updating, returning a stale price that can be arbitrarily far from the true market price. The `checkPoolActivity()` loop also only validates consecutive observations, not the absolute staleness of the TWAP window.",
+      "attackPath": "An attacker waits for a sequencer outage on L2, then calls `rebalance()` or `compound()` while the TWAP price is frozen. The stale price allows the attacker to deposit or withdraw at a manipulated rate, extracting value from the vault.",
+      "impact": "Loss of funds for vault depositors due to mispriced deposits/withdrawals during sequencer downtime.",
+      "recommendation": "Add a Chainlink sequencer uptime feed check in `_priceWithinRange()` and revert if the sequencer is down or has not been restarted for a sufficient grace period."
+    },
+    {
+      "title": "Zero-price feed not validated in liquidation",
+      "severity": "Medium",
+      "category": "Stale Oracle",
+      "file": "Leverager.sol",
+      "function": "liquidatePosition()",
+      "description": "In `liquidatePosition()`, the code calls `IPriceFeed(pricefeed).getPrice(up.denomination)` to get the price of the borrowed asset. If the price feed returns 0 (e.g., due to a stale or misconfigured feed), the `borrowedValue` becomes 0, making every position appear liquidatable. The `_calculateTokenValues()` function also does not check for zero prices from the feed.",
+      "attackPath": "An attacker waits for a Chainlink feed to return 0 (e.g., during a market crash or feed issue), then calls `liquidatePosition()` on any position. The liquidation proceeds with `borrowedValue = 0`, allowing the attacker to seize all collateral for free.",
+      "impact": "Complete loss of user collateral, protocol insolvency.\nRECOMENDATION: Revert if `getPrice()` returns 0, and add a staleness check (e.g., compare `updatedAt` timestamp) in the PriceFeed contract.",
+      "recommendation": ""
+    },
+    {
+      "title": "Flash loan callback reentrancy in Leverager.openLeveragedPosition()",
+      "severity": "High",
+      "category": "Reentrancy",
+      "file": "yieldoor/src/Leverager.sol",
+      "function": "openLeveragedPosition()",
+      "description": "The function pulls funds from the lending pool via `pullFunds`, then calls `IVault.deposit()`, which triggers `IStrategy.collectFees()` and may call external swap routers. After swaps, it pushes funds back and repays. The entire sequence lacks reentrancy protection beyond `nonReentrant`, but the lending pool's `pullFunds` and `pushFunds` are external calls that can be reentered if the lending pool or a token callback (e.g., ERC-777) reenters the Leverager.",
+      "attackPath": "1. Attacker deploys a malicious ERC-777 token as one of the vault tokens. 2. Attacker calls `openLeveragedPosition()` with a vault using that token. 3. During `IVault.deposit()`, the token's `tokensToSend` callback fires, reentering the Leverager. 4. The reentrant call manipulates state (e.g., borrows more, swaps, or drains funds) before the original call completes.",
+      "impact": "Loss of funds due to state manipulation during reentrancy; attacker can drain borrowed or deposited tokens.",
+      "recommendation": "Add a reentrancy guard (e.g., OpenZeppelin's `ReentrancyGuard`) to `openLeveragedPosition()` and ensure all external calls (especially to tokens and routers) are made after all state updates."
+    }
+  ]
+}
