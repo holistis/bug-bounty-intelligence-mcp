@@ -8,7 +8,7 @@ Does the paid scan, as it runs today, find High and Medium findings on audit con
 
 ## Selection rule (fixed before looking at any result)
 
-All Code4rena contests whose source repository was created between November 2025 and April 2026, that have a published final report, that are Solidity, and that list at most 45 Solidity files in scope in their README. This is out of sample twice: the corpus behind the framework is Sherlock judging repositories from 2024-02 through 2025-07, and the models the runner calls for its main step (Llama 3.3 70B and gpt-oss-120b, depending on which source answers) were trained before these contests were published.
+All Code4rena contests whose source repository was created between November 2025 and April 2026, that have a published final report, that are Solidity, and that list at most 45 Solidity files in scope in their README. This is out of sample twice: the corpus behind the framework is Sherlock judging repositories from 2024-02 through 2025-07, and the model sources the runner calls (Cerebras and Groq with gpt-oss-120b, SambaNova and Together with Llama 3.3 70B, OpenRouter with Nemotron 3 Ultra, Mistral with Codestral) are mostly older than these contests. We cannot state the training cutoff of every one of them, so a model may have seen material about a contest. The source that answered each job is recorded and published with the results.
 
 Contests that match: 2025-11-merkl, 2025-11-sukukfi, 2026-04-monetrix, 2026-01-olas. Excluded by the rule: 2026-03-intuition (123 files in scope), 2026-04-k2 (no file table in the README), 2026-02-jupiter-lend (not Solidity), and the contests without a published report.
 
@@ -57,7 +57,7 @@ The High and Medium findings in the official reports, as published on 24 October
 
 ## What is run
 
-The production job runner as deployed on 24 October 2026 (scripts/bug-intel-runner.mjs, SHA-256 `4ef446481e222f8eaf4c8b9e21f6ece9999152b31fecf724b5e112d9fdc6d9e2`), with its default settings, on each repository exactly as it is cloned. No files are picked by hand and no prompt is changed for these contests. Each contest is run once.
+The production job runner as deployed on 24 October 2026 (the copy that the live watcher starts, scripts/bug-intel-runner.mjs, SHA-256 `3959b37ab528a6d7ede540111e5aa2a7967c75993d79e01849c28f8a25d21c65`), with its default settings, on each repository exactly as it is cloned. No files are picked by hand and no prompt is changed for these contests. Each contest is run once.
 
 ## How a result is scored
 
@@ -81,3 +81,7 @@ At most 2 of the 31 findings are found. The runner sends the model at most about
 ## Limits
 
 Four small contests. Contest judging is a human process and has its own misses. We do the matching, and we are an interested party, which is why the table is public. This is our own measurement, not an independent one.
+
+## Amendment, 24 October 2026, before any run
+
+The first version of this file cited the SHA-256 of a copy of the runner that is not the one the live watcher starts, and it named models that the deployed copy does not use. Both are corrected above. The two copies differ only in the model names and in the list of sources that count as strong. The 22,000-character limit, the 60-file limit, the missing test and mock filter and the missing 7-gate filter are the same in both. No scan of these contests had been run when this was corrected.
