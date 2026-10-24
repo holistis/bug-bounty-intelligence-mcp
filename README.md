@@ -2,7 +2,13 @@
 
 AI-powered smart contract security analysis for AI agents and developers.
 
-## Correction and limits (24 October 2026)
+## Update, 24 October 2026, later the same day: version 2 of the scan
+
+The defects described below were fixed and the new version is live. What changed: git submodules are fetched when they point to github.com, tests, mocks, scripts, interfaces and vendored libraries are left out, files are ranked by how likely they move funds and sent in at most six parts, every report states how much of the in-scope code was read, a scan without hypotheses is delivered as such and not as a normal report, hypotheses that name files or functions that are not in the code are dropped, and file links inside a repository are never followed. A free precheck at https://x402.tokenizen.nl/api/bug-intel/precheck?repo=owner/name says before you pay whether the scan counts any Solidity in your repository and roughly how much of it will be read.
+
+The measurement of this version was pre-registered before it ran: [PREREGISTRATION-v2-2026-10-24.md](PREREGISTRATION-v2-2026-10-24.md). The frozen files are in [pipeline/v2](pipeline/v2). The results, including the misses, will be published in this repository.
+
+## Correction and limits (24 October 2026, before version 2)
 
 Reading the production scan code on 24 October 2026 showed that earlier text on this page overstated what the paid scan does. What it does today:
 
@@ -52,13 +58,13 @@ Two more tools in the same Al-Mizaan toolkit, for the rest of the workflow: [al-
 
 On 3FLabs/grunt (ERC-4626 + Morpho vaults, 218 contracts): Slither reports 27 "High" findings. After analysis: 24 are in `lib/solady` (out-of-scope dependency with known Slither false positive patterns), and 3 are EIP-712 design patterns. False positive rate: **100%**.
 
-Bug Bounty Intelligence scopes to `src/` only and filters through the Al-Mizaan 7-gate framework before reporting anything.
+In that comparison Bug Bounty Intelligence was pointed at `src/` only. The paid scan now leaves out tests, mocks, scripts, interfaces and vendored libraries by rule. It does not run the 7-gate filter.
 
 We also reported a related `divide-before-multiply` pattern on the same `lib/solady` code directly to the Slither project: [crytic/slither#3039](https://github.com/crytic/slither/issues/3039). A maintainer merged a fix for part of it ([crytic/slither#3040](https://github.com/crytic/slither/pull/3040)); see [BENCHMARK.md](BENCHMARK.md) for the honest scope of what that fix does and doesn't cover, we overclaimed in the original report.
 
 ## What it does
 
-Submit a public GitHub repo containing Solidity smart contracts. Receive a vulnerability report within 24 hours, built from raw model hypotheses (see the correction and limits at the top of this page).
+Submit a public GitHub repo containing Solidity smart contracts. Receive a report of AI-generated hypotheses, usually within the hour, that states how much of the code was read (see the update and the limits at the top of this page).
 
 ## Tools
 
@@ -93,7 +99,7 @@ npx -y bug-bounty-intelligence-mcp@latest
 
 ## Payment
 
-If `scan_contract` returns `PAYMENT REQUIRED`, send exactly $5 USDC on Base to the address shown, then retry. Payment = acceptance of [service terms](https://wazir-x402.duckdns.org/terms).
+If `scan_contract` returns `PAYMENT REQUIRED`, send exactly $5 USDC on Base to the address shown, then retry. Payment = acceptance of [service terms](https://x402.tokenizen.nl/terms).
 
 **x402 info:**
 - Network: Base mainnet (eip155:8453)
@@ -165,7 +171,7 @@ Confidence: 0.90 (CONFIRMED by Al-Mizaan validation)
 
 ## About the analysis
 
-The Al-Mizaan v3 framework checks 7 gates:
+The Al-Mizaan v3 framework defines 7 gates:
 
 1. Code reading (literal, not docs)
 2. Reachability chain (entry to exploit)
@@ -179,9 +185,11 @@ This is the framework used for manual review (the `al-mizaan-judge` CLI). The pa
 
 ## Service info
 
-- **API endpoint**: https://wazir-x402.duckdns.org/api/bug-intel
-- **Terms**: https://wazir-x402.duckdns.org/terms
-- **Delivery**: within 24h
+- **API endpoint**: https://x402.tokenizen.nl/api/bug-intel
+- **Free precheck**: https://x402.tokenizen.nl/api/bug-intel/precheck?repo=owner/name
+- **Terms**: https://x402.tokenizen.nl/terms
+- **Delivery**: usually within the hour, at most 48 hours according to the terms
+- **If it fails or does not help**: write to info@holistischadviseur.nl with the job id for a new attempt or a refund, see the terms
 - **Source code**: deleted after analysis
 
 ## Support this project

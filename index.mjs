@@ -19,7 +19,7 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js'
-const API_URL = 'https://wazir-x402.duckdns.org'
+const API_URL = 'https://x402.tokenizen.nl'
 
 // Embedded pattern library — Sherlock audit-competition findings, updated 2026-07-21.
 // Methodology: only contests where Sherlock's own judging-repo result structure could be
@@ -93,10 +93,11 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     {
       name: 'scan_contract',
       description: [
-        'Submit a public GitHub repository for an automated smart contract security analysis.',
-        'Runs the Al-Mizaan v3 7-gate framework (code, reachability, threat-model, invariant, protocol-intent, impact, formal proof) to filter out false positives before reporting anything — on a real benchmark run (3FLabs/grunt, 218 contracts) plain Slither reported 27 "High" findings with a 100% false-positive rate; see BENCHMARK.md for the full comparison.',
-        'Pattern awareness is drawn from a corpus of 27,681 submitted Sherlock/Code4rena findings; the acceptance-rate numbers used elsewhere in this server (list_vulnerability_patterns) are limited to the 1,032 findings that could be exact-reconciled against contest outcomes — see METHODOLOGY.md.',
-        'Cost: $5 USDC on Base (eip155:8453) via x402. Delivery is guaranteed within 24h — the sample run documented in README.md took about 25 minutes.',
+        'Submit a public GitHub repository for an automated Solidity analysis. The result is a list of AI-generated hypotheses to review by hand. It is not an audit and not a list of confirmed bugs.',
+        'The scan reads the files most likely to move funds first, in at most six parts. Tests, mocks, scripts, interfaces and vendored dependencies are left out. The report states what share of the in-scope code was actually read, and a report can say that no hypotheses came out of the part that was read.',
+        'Check the repository first, for free: GET https://x402.tokenizen.nl/api/bug-intel/precheck?repo=owner/name says whether the scan counts any Solidity in it and roughly how much of it will be read.',
+        'How often the scan finds known issues on closed audit contests, including the misses, is published in the README of the repository (github.com/holistis/bug-bounty-intelligence-mcp). The prompt uses acceptance-rate hints from the 1,032 findings that could be exact-reconciled against contest outcomes, see METHODOLOGY.md.',
+        'Cost: $5 USDC on Base (eip155:8453) via x402. Reports usually arrive within the hour. If the scan fails or the report does not help, write to info@holistischadviseur.nl for a new attempt or a refund, see the terms.',
         'Returns a job_id. Use get_scan_report to poll for results.',
         'If payment_required is true, pay $5 USDC to the payTo address on Base, then retry scan_contract with the same repo_url.',
       ].join(' '),
@@ -120,8 +121,8 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
       name: 'get_scan_report',
       description: [
         'Poll the status of a job_id returned by scan_contract.',
-        'Call this every minute or two after submitting — real runs have taken around 25 minutes, delivery is guaranteed within 24h, so polling faster than that just re-checks a job that is still processing.',
-        'Returns status (queued/processing/complete), the repo under scan, and — once complete — reportUrl (the full Al-Mizaan-validated findings report) and findingsCount.',
+        'Call this every few minutes after submitting. Reports usually arrive within the hour; polling faster just re-checks a job that is still processing.',
+        'Returns status (queued/processing/complete/failed), the repo under scan, and once complete the reportUrl (the report of hypotheses, with the share of code that was read), the outcome and the coverage. A failed job says why and where to write for a new attempt or a refund.',
         'A 404 means the job_id does not exist — double-check what scan_contract actually returned rather than retrying blindly.',
       ].join(' '),
       inputSchema: {
@@ -192,7 +193,7 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
             `Asset:   USDC — ${accept.asset}`,
             '',
             'After paying, retry scan_contract with the same repo_url.',
-            'Terms: https://wazir-x402.duckdns.org/terms',
+            'Terms: https://x402.tokenizen.nl/terms',
           ].join('\n'),
         }],
         isError: false,
@@ -208,7 +209,7 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
             `Status: ${json.status ?? 'queued'}`,
             '',
             `Poll for results: get_scan_report({ job_id: "${json.jobId}" })`,
-            `Results are typically ready within 24 hours.`,
+            `Reports usually arrive within the hour. The report states how much of the code was read.`,
           ].join('\n'),
         }],
       }
