@@ -1,0 +1,148 @@
+{
+ "contest": "2025-07-cap",
+ "hypotheses": [
+  {
+   "title": "Missing L2 sequencer uptime check for Chainlink oracle",
+   "severity": "High",
+   "category": "Price Oracle Staleness",
+   "file": "cap-contracts/contracts/oracle/libraries/ChainlinkAdapter.sol",
+   "function": "price()",
+   "description": "The ChainlinkAdapter fetches prices via `latestRoundData()` but does not check the sequencer uptime status. On L2 chains, when the sequencer is down, prices may be stale for an extended period. The protocol's staleness check in PriceOracle relies on wall‑clock timestamps, which can be artificially old during downtime, allowing stale or manipulated prices to be used.",
+   "attackPath": "An attacker waits for the L2 sequencer to go down (or triggers a delay), then calls any function that relies on oracle prices (e.g., borrow, liquidate, mint) while the price is stale, leading to incorrect collateral valuations.",
+   "impact": "Wrong pricing can cause under‑collateralized loans, unfair liquidations, or protocol insolvency.",
+   "recommendation": "Add a sequencer uptime check (e.g., using Chainlink's `SequencerUptimeFeed`) and revert if the sequencer is down or if the grace period has not elapsed."
+  },
+  {
+   "title": "Oracle Data Permanently Frozen via updateHash with Max Confirmations (V2)",
+   "severity": "High",
+   "category": "Denial of Service",
+   "file": "UltraLightNodeV2.sol",
+   "function": "updateHash()",
+   "description": "The updateHash function in UltraLightNodeV2 allows any external caller to store block confirmations for a given oracle, srcChainId, lookupHash, and blockData. The only requirement is that the new confirmations exceed the stored value. An attacker can set confirmations to type(uint256).max (or any arbitrarily large number) for a specific combination, permanently preventing the legitimate oracle from ever updating that entry because no future confirmation count can be larger. This blocks validation of any cross-chain message that depends on that block data.",
+   "attackPath": "1. Monitor for pending block updates from a legitimate oracle. 2. Call updateHash with the same (_srcChainId, _lookupHash, _blockData) but set _confirmations to type(uint256).max. 3. The legitimate oracle’s subsequent update reverts because its confirmations are not greater than the attacker’s value. 4. All cross-chain messages relying on that block data become permanently unverifiable.",
+   "impact": "Permanent denial of service for specific cross-chain messages. Funds or messages that depend on the frozen block data are trapped and cannot be delivered.",
+   "recommendation": "Restrict updateHash to only registered oracles (e.g., via a whitelist mapping) or enforce a maximum reasonable confirmation limit (e.g., 255) to prevent unbounded values."
+  },
+  {
+   "title": "Oracle Data Permanently Frozen via updateHash with Max Confirmations (V1)",
+   "severity": "High",
+   "category": "Denial of Service",
+   "file": "UltraLightNode.sol",
+   "function": "updateHash()",
+   "description": "The updateHash function in UltraLightNode (V1) allows any external caller to store block confirmations for a given oracle, srcChainId, and lookupHash. The only requirement is that the new confirmations exceed the stored value. An attacker can set confirmations to type(uint256).max (or any arbitrarily large number) for a specific lookupHash, permanently preventing the legitimate oracle from ever updating that entry. This blocks validation of any cross-chain message that relies on that block hash.",
+   "attackPath": "1. Monitor for pending block updates from a legitimate oracle. 2. Call updateHash with the same (_srcChainId, _lookupHash) but set _confirmations to type(uint256).max. 3. The legitimate oracle’s subsequent update reverts because its confirmations are not greater than the attacker’s value. 4. All cross-chain messages relying on that block hash become permanently unverifiable.",
+   "impact": "Permanent denial of service for specific cross-chain messages. Funds or messages that depend on the frozen block hash are trapped and cannot be delivered.",
+   "recommendation": "Restrict updateHash to only registered oracles (e.g., via a whitelist mapping) or enforce a maximum reasonable confirmation limit to prevent unbounded values."
+  },
+  {
+   "title": "DVNFeeLib premium multiplier truncation reduces worker fees",
+   "severity": "Medium",
+   "category": "Rounding",
+   "file": "DVNFeeLib.sol",
+   "function": "_applyPremium()",
+   "description": "The premium calculation `(_fee * _multiplierBps) / 10000` truncates the result downward. Since the multiplier is meant to increase the base fee, rounding down causes the DVN to receive less than intended, consistently underpaying workers.",
+   "attackPath": "An attacker could repeatedly trigger small fee assignments (e.g., via low-value messages) to exploit the rounding loss, although the per-transaction gain is small.",
+   "impact": "Systematic underpayment of fees to DVN workers, weakening the economic security of the network.",
+   "recommendation": "Use rounding up: `(_fee * _multiplierBps + 9999) / 10000`."
+  },
+  {
+   "title": "Missing `answeredInRound` check in ChainlinkAdapter",
+   "severity": "Medium",
+   "category": "Price Oracle Staleness",
+   "file": "cap-contracts/contracts/oracle/libraries/ChainlinkAdapter.sol",
+   "function": "price()",
+   "description": "`latestRoundData()` returns four values; the code uses only `answer` and `updatedAt`. It never validates that `answeredInRound >= roundId`, meaning a stale answer from an earlier round could be accepted if the timestamp is manipulated or if the aggregator reports an old answer with a recent timestamp. This bypasses the staleness check when the aggregator is compromised.",
+   "attackPath": "An attacker exploits a compromised or misconfigured aggregator to return a stale price with a recent timestamp, causing the price to be treated as fresh.",
+   "impact": "Incorrect asset pricing leading to unfair liquidations, over‑borrowing, or mis‑priced mint/burn operations.",
+   "recommendation": "Add a require statement: `require(answeredInRound >= roundId, \"Stale price\")`."
+  },
+  {
+   "title": "Mint/burn fee rounding down reduces protocol revenue",
+   "severity": "Medium",
+   "category": "Rounding",
+   "file": "MinterLogic.sol",
+   "function": "_applyFeeSlopes()",
+   "description": "The fee is computed as `params.amount * rate / RAY_PRECISION`. Because integer division truncates downward, the fee collected is always slightly less than the exact fraction. This systematic rounding reduces the protocol’s fee revenue in every mint and burn that charges a fee.",
+   "attackPath": "An attacker can repeatedly perform small mint or burn operations to maximize the per-transaction rounding loss, though each loss is tiny.",
+   "impact": "Cumulative loss of fee revenue to the protocol over many transactions.",
+   "recommendation": "Use rounding up: `(params.amount * rate + RAY_PRECISION - 1) / RAY_PRECISION`."
+  },
+  {
+   "title": "RateOracle silently returns zero on adapter failure",
+   "severity": "Medium",
+   "category": "Rate Oracle Failure",
+   "file": "cap-contracts/contracts/oracle/RateOracle.sol",
+   "function": "_getRate()",
+   "description": "The `_getRate()` function uses a low‑level `call` to the adapter and returns zero if the call fails (e.g., due to a revert or empty return). Functions like `marketRate` and `utilizationRate` then return zero, causing the interest rate calculation in `DebtToken._nextInterestRate()` to understate the rate. This can lead to zero or very low interest accrual.",
+   "attackPath": "An attacker could cause the adapter to revert (e.g., by manipulating underlying oracles or triggering a revert condition) and, because `_getRate` swallows the error, the protocol will use a zero rate. The attacker may then borrow at artificially low interest.",
+   "impact": "Lenders receive less interest than intended; the protocol’s interest model breaks down; potential loss of yield.",
+   "recommendation": "Let the call revert on failure, or fall back to a safe default rate instead of zero. At a minimum, emit an event or use a backup adapter."
+  },
+  {
+   "title": "FeeAuction currentPrice rounding down reduces protocol revenue",
+   "severity": "Low",
+   "category": "Rounding",
+   "file": "FeeAuction.sol",
+   "function": "currentPrice()",
+   "description": "The price calculation `startPrice * (1e27 - (elapsed * 0.9e27 / duration)) / 1e27` truncates the discounted fraction downward. This results in a slightly lower price than the exact value, systematically undercharging buyers and reducing the protocol’s fee auction revenue.",
+   "attackPath": "An attacker repeatedly calls `buy()` near the end of the auction duration to exploit the rounding error. Each transaction yields a small discount, but the loss can accumulate over many transactions.",
+   "impact": "Small but persistent loss of revenue from fee auctions.",
+   "recommendation": "Round up the price using `(startPrice * (1e27 - (elapsed * 0.9e27 / duration)) + 1e27 - 1) / 1e27` to ensure the protocol never charges less than the intended price."
+  },
+  {
+   "title": "updateHash lacks oracle authentication",
+   "severity": "Medium",
+   "category": "Missing access control",
+   "file": "UltraLightNodeV2.sol",
+   "function": "updateHash()",
+   "description": "The updateHash function is external and has no access modifier. Anyone can call it to set block data for any lookup hash, stored under the caller's own address. Since the mapping key is msg.sender, an untrusted caller can submit arbitrary confirmations and block data as if they were an oracle. This data is later used in validateTransactionProof when the configured oracle address matches the submitter. If a user application ever configures that address as its oracle (e.g. due to a mistake or front‑running), the attacker's false data becomes authoritative.",
+   "attackPath": "1. Attacker calls updateHash with a chosen _srcChainId, _lookupHash, _confirmations and _data. 2. The record is stored under the attacker's address. 3. Later, a User Application (or a default config) sets its oracle to that attacker address via setConfig (which is only callable by the endpoint, but the UA may be compromised or misconfigured). 4. The attacker's forged block data is now accepted as valid in validateTransactionProof, allowing them to supply invalid proofs and cause incorrect message delivery.",
+   "impact": "Potential for forged cross‑chain messages leading to loss of funds or incorrect state transitions if an untrusted address becomes a configured oracle.",
+   "recommendation": "Restrict updateHash so that only addresses that have been registered as oracles can call it, or tie the call to the oracle’s identity via a signature or whitelist."
+  },
+  {
+   "title": "Reentrancy in FeeAuction.buy due to asset transfer before payment",
+   "severity": "Medium",
+   "category": "Reentrancy",
+   "file": "FeeAuction.sol",
+   "function": "buy()",
+   "description": "The function transfers assets to the receiver via `_transferOutAssets` before collecting the payment with `safeTransferFrom`. If the receiver is a malicious contract, it can reenter `buy` during the asset transfer, potentially draining multiple assets without paying the correct price.",
+   "attackPath": "1. Attacker calls `buy` with a malicious contract as `_receiver`. 2. During `_transferOutAssets`, the attacker’s contract receives an asset and reenters `buy` before the payment is taken. 3. The reentrant call transfers more assets to the attacker. 4. Both calls then attempt to take payment, possibly leading to inconsistent state or partial payment.",
+   "impact": "An attacker could receive assets without paying the full auction price, or cause the contract to lose balance by exploiting the state updates.",
+   "recommendation": "Add a `nonReentrant` modifier to `buy` or move the payment transfer before the asset transfers (pay then give tokens)."
+  },
+  {
+   "title": "BorrowLogic.borrow calls vault before updating debt state",
+   "severity": "Medium",
+   "category": "CEI Violation",
+   "file": "BorrowLogic.sol",
+   "function": "borrow()",
+   "description": "The function calls `IVault.borrow` (external) before minting the debt token and incrementing the reserve debt. If the vault contract is malicious or reenters, an attacker could execute multiple borrows against the same collateral because the debt has not been recorded yet.",
+   "attackPath": "1. Attacker (covered agent) calls `borrow`. 2. The vault receives the call and, during execution, reenters `borrow` again. 3. Since `reserve.debt` has not been increased and the debt token not minted, the second borrow passes checks and succeeds. 4. After both calls complete, the agent’s debt is understated relative to actual tokens taken.",
+   "impact": "An agent can borrow more than allowed by their health factor, leading to protocol insolvency.",
+   "recommendation": "Update the debt token and reserve debt before calling `IVault.borrow`."
+  },
+  {
+   "title": "BorrowLogic.repay transfers asset before updating internal debt",
+   "severity": "Medium",
+   "category": "CEI Violation",
+   "file": "BorrowLogic.sol",
+   "function": "repay()",
+   "description": "The function calls `IERC20(params.asset).safeTransferFrom` (external) before reducing `unrealizedInterest`, `debt`, and burning the debt token. If the asset token has callbacks (e.g., ERC-777), an attacker can reenter `repay` and manipulate the interest and debt accounting.",
+   "attackPath": "1. Attacker (the agent or a caller) calls `repay`. 2. The asset token’s `safeTransferFrom` triggers a callback to the attacker’s contract. 3. The attacker reenters `repay` with a smaller amount, causing the state to be updated incorrectly. 4. After both calls, the agent’s debt is reduced more than the actual payment, or interest is double-counted.",
+   "impact": "Incorrect debt and interest tracking, potentially allowing an agent to clear debt without full repayment or causing wrong reward distribution.",
+   "recommendation": "Apply the checks-effects-interactions pattern: update all internal state before the external token transfer."
+  },
+  {
+   "title": "PreMainnetVault.deposit mints shares after external calls",
+   "severity": "Medium",
+   "category": "CEI Violation",
+   "file": "PreMainnetVault.sol",
+   "function": "deposit()",
+   "description": "The function calls `cap.mint` and `stakedCap.deposit` (external contracts) before minting vault shares to the depositor. If either external contract is malicious or reenters, the depositor could receive shares without the underlying asset being fully secured.",
+   "attackPath": "1. Attacker calls `deposit` with a malicious `cap` or `stakedCap` (if such contracts are replaced by an admin action or upgrade). 2. During `_depositIntoStakedCap`, the malicious contract reenters `deposit`. 3. The reentrant call mints additional shares without a corresponding asset transfer. 4. The attacker can later withdraw more than deposited.",
+   "impact": "Unauthorized minting of shares leading to dilution or theft of funds from other depositors.",
+   "recommendation": "Perform the share minting before or atomically with the external calls, or add a reentrancy guard."
+  }
+ ]
+}

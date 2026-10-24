@@ -1,0 +1,556 @@
+{
+ "repo": "sherlock-audit/2025-02-yieldoor",
+ "outcome": "hypotheses",
+ "model": "nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter), openai/gpt-oss-120b (Together)",
+ "sources": [
+  "nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter)",
+  "openai/gpt-oss-120b (Together)"
+ ],
+ "coverage": {
+  "scopeFiles": 68,
+  "scopeBytes": 386579,
+  "analysedBytes": 103593,
+  "analysedPct": 27,
+  "chunksPlanned": 6,
+  "chunksAnalysed": 6,
+  "filesFull": 8,
+  "filesPartial": [],
+  "notAnalysedFiles": [
+   "yieldoor/lib/v3-core/contracts/UniswapV3Factory.sol",
+   "yieldoor/lib/v3-core/contracts/UniswapV3PoolDeployer.sol",
+   "yieldoor/lib/v3-core/contracts/libraries/BitMath.sol",
+   "yieldoor/lib/v3-core/contracts/libraries/FixedPoint96.sol",
+   "yieldoor/lib/v3-core/contracts/libraries/FullMath.sol",
+   "yieldoor/lib/v3-core/contracts/libraries/LiquidityMath.sol",
+   "yieldoor/lib/v3-core/contracts/libraries/LowGasSafeMath.sol",
+   "yieldoor/lib/v3-core/contracts/libraries/Oracle.sol",
+   "yieldoor/lib/v3-core/contracts/libraries/Position.sol",
+   "yieldoor/lib/v3-core/contracts/libraries/SafeCast.sol",
+   "yieldoor/lib/v3-core/contracts/libraries/SqrtPriceMath.sol",
+   "yieldoor/lib/v3-core/contracts/libraries/SwapMath.sol",
+   "yieldoor/lib/v3-core/contracts/libraries/Tick.sol",
+   "yieldoor/lib/v3-core/contracts/libraries/TickBitmap.sol",
+   "yieldoor/lib/v3-core/contracts/libraries/TickMath.sol",
+   "yieldoor/lib/v3-core/contracts/libraries/UnsafeMath.sol",
+   "yieldoor/lib/v3-periphery/contracts/NonfungiblePositionManager.sol",
+   "yieldoor/lib/v3-periphery/contracts/NonfungibleTokenPositionDescriptor.sol",
+   "yieldoor/lib/v3-periphery/contracts/SwapRouter.sol",
+   "yieldoor/lib/v3-periphery/contracts/V3Migrator.sol",
+   "yieldoor/lib/v3-periphery/contracts/base/BlockTimestamp.sol",
+   "yieldoor/lib/v3-periphery/contracts/base/ERC721Permit.sol",
+   "yieldoor/lib/v3-periphery/contracts/base/LiquidityManagement.sol",
+   "yieldoor/lib/v3-periphery/contracts/base/Multicall.sol",
+   "yieldoor/lib/v3-periphery/contracts/base/PeripheryImmutableState.sol",
+   "yieldoor/lib/v3-periphery/contracts/base/PeripheryPayments.sol",
+   "yieldoor/lib/v3-periphery/contracts/base/PeripheryPaymentsWithFee.sol",
+   "yieldoor/lib/v3-periphery/contracts/base/PeripheryValidation.sol",
+   "yieldoor/lib/v3-periphery/contracts/base/PoolInitializer.sol",
+   "yieldoor/lib/v3-periphery/contracts/base/SelfPermit.sol",
+   "yieldoor/lib/v3-periphery/contracts/examples/PairFlash.sol",
+   "yieldoor/lib/v3-periphery/contracts/lens/Quoter.sol",
+   "yieldoor/lib/v3-periphery/contracts/lens/QuoterV2.sol",
+   "yieldoor/lib/v3-periphery/contracts/lens/TickLens.sol",
+   "yieldoor/lib/v3-periphery/contracts/lens/UniswapInterfaceMulticall.sol",
+   "yieldoor/lib/v3-periphery/contracts/libraries/BytesLib.sol",
+   "yieldoor/lib/v3-periphery/contracts/libraries/CallbackValidation.sol",
+   "yieldoor/lib/v3-periphery/contracts/libraries/ChainId.sol",
+   "yieldoor/lib/v3-periphery/contracts/libraries/HexStrings.sol",
+   "yieldoor/lib/v3-periphery/contracts/libraries/LiquidityAmounts.sol",
+   "yieldoor/lib/v3-periphery/contracts/libraries/NFTDescriptor.sol",
+   "yieldoor/lib/v3-periphery/contracts/libraries/NFTSVG.sol",
+   "yieldoor/lib/v3-periphery/contracts/libraries/OracleLibrary.sol",
+   "yieldoor/lib/v3-periphery/contracts/libraries/Path.sol",
+   "yieldoor/lib/v3-periphery/contracts/libraries/PoolAddress.sol",
+   "yieldoor/lib/v3-periphery/contracts/libraries/PoolTicksCounter.sol",
+   "yieldoor/lib/v3-periphery/contracts/libraries/PositionKey.sol",
+   "yieldoor/lib/v3-periphery/contracts/libraries/PositionValue.sol",
+   "yieldoor/lib/v3-periphery/contracts/libraries/TokenRatioSortOrder.sol",
+   "yieldoor/src/LendingPool.sol",
+   "yieldoor/src/PriceFeed.sol",
+   "yieldoor/src/libraries/BytesLib.sol",
+   "yieldoor/src/libraries/FullMath.sol",
+   "yieldoor/src/libraries/InterestRateUtils.sol",
+   "yieldoor/src/libraries/LiquidityAmounts.sol",
+   "yieldoor/src/libraries/Path.sol",
+   "yieldoor/src/libraries/ReserveLogic.sol",
+   "yieldoor/src/libraries/TickMath.sol",
+   "yieldoor/src/types/DataTypes.sol",
+   "yieldoor/src/yToken.sol"
+  ],
+  "skipped": {
+   "tests": 55,
+   "mocks": 0,
+   "scripts": 0,
+   "vendor": 7,
+   "interfaces": 43,
+   "tooSmall": 0,
+   "tooLarge": 0,
+   "noLogic": 0,
+   "symlink": 0,
+   "unreadable": 0
+  },
+  "submodules": {
+   "declared": 4,
+   "fetched": [
+    "yieldoor/lib/v3-core",
+    "yieldoor/lib/v3-periphery"
+   ],
+   "failed": [],
+   "skipped": [
+    {
+     "path": "yieldoor/lib/forge-std",
+     "reason": "afhankelijkheid"
+    },
+    {
+     "path": "yieldoor/lib/openzeppelin-contracts",
+     "reason": "afhankelijkheid"
+    }
+   ]
+  },
+  "droppedHypotheses": 0,
+  "deadlineHit": false
+ },
+ "hypotheses": [
+  {
+   "title": "Division‑by‑zero on full‑withdraw causing funds to be locked",
+   "severity": "High",
+   "category": "ACCOUNTING / LIVENESS",
+   "file": "Vault.sol",
+   "function": "withdraw(uint256,uint256,uint256)",
+   "description": "The function burns the caller’s shares **before** calculating the proportional withdrawal amounts using `totalSupply`. If the caller withdraws all remaining shares, `totalSupply` becomes zero, and the subsequent division `totalBalance0 * shares / totalSupply` (and the same for token1) triggers a division‑by‑zero revert. This makes it impossible for a user (or anyone) to redeem the last share, effectively locking the vault’s assets.",
+   "attackPath": "1. User (or attacker) calls `withdraw` with `shares` equal to the current `totalSupply` of the vault.\n2. `_burn` reduces `totalSupply` to 0.\n3. The contract attempts `totalBalance0 * shares / totalSupply`, causing a revert.\n4. The transaction fails and the vault’s funds remain trapped; the same condition blocks any future full‑withdraw attempts.",
+   "impact": "Funds become permanently non‑withdrawable (until a contract upgrade or admin intervention), resulting in a denial‑of‑service and potential loss of user capital.",
+   "recommendation": "Compute withdrawal amounts using the pre‑burn total supply (store it in a local variable before `_burn`) or perform the division before burning the shares. Add a guard that disallows division when `totalSupply` is zero.",
+   "confidence": 1
+  },
+  {
+   "title": "Under‑estimation of borrowed value enables premature liquidation",
+   "severity": "High",
+   "category": "SOLVENCY",
+   "file": "Leverager.sol",
+   "function": "liquidatePosition()",
+   "description": "The contract calculates the USD value of the borrowed amount as  \n`borrowedValue = owedAmount * bPrice / ERC20(up.denomination).decimals();`  \nwhich divides by the token’s *decimals* (e.g., 6 or 18) instead of the proper scaling factor `10**decimals`. This dramatically under‑states the debt, making `totalValueUSD > borrowedValue` true far earlier than it should be. Consequently, positions that are still safely collateralised can be marked liquidatable and liquidated by any attacker, allowing the attacker to seize the position’s assets after repaying the understated debt.",
+   "attackPath": "1. Attacker monitors a healthy leveraged position.\n2. Calls `liquidatePosition(id)` with appropriate `minAmount0/minAmount1` (they can be set to 0).\n3. Because `borrowedValue` is undervalued, `isLiquidateable(id)` returns true.\n4. The contract treats the position as under‑collateralised, repays the understated `owedAmount`, and transfers the remaining tokens to the attacker.",
+   "impact": "Loss of user collateral and potential draining of vault assets; protocol becomes insolvent for affected positions.",
+   "recommendation": "Compute the borrowed USD value as `borrowedValue = owedAmount * bPrice / (10 ** ERC20(up.denomination).decimals());` (or use a fixed‑point library) and ensure the same formula is used in any liquidation checks.",
+   "confidence": 0.97
+  },
+  {
+   "title": "Unrestricted internal token sweep allows arbitrary token theft",
+   "severity": "High",
+   "category": "SOLVENCY",
+   "file": "Leverager.sol",
+   "function": "",
+   "description": "The internal function `_sweepTokens(address token0, address token1)` transfers any balance of the supplied token addresses from the contract to `msg.sender` without any access control or validation. If any external function later calls this internal helper with attacker‑controlled token addresses, an attacker can drain any ERC‑20 held by the Leverager contract, including vault share tokens.",
+   "attackPath": "1. Attacker calls a public function (e.g., `closePosition` or any other that eventually invokes `_sweepTokens`) and supplies the address of a token held by the contract.  \n2. `_sweepTokens` reads the contract’s balance of that token and forwards the full amount to `msg.sender` (the attacker).  \n3. The attacker repeats for each token, emptying the contract’s holdings.",
+   "impact": "Complete loss of user‑deposited assets held by the Leverager contract, leading to protocol insolvency.",
+   "recommendation": "Restrict `_sweepTokens` to internal calls only from trusted code paths and add explicit checks that the supplied token addresses are not vault share tokens or any token that should remain locked. Consider making the function `private` and performing the sweep only after proper authorization.",
+   "confidence": 0.95
+  },
+  {
+   "title": "Potential overflow in share calculation for large deposits",
+   "severity": "Medium",
+   "category": "ACCOUNTING",
+   "file": "Vault.sol",
+   "function": "_calcDeposit(uint256,uint256,uint256,uint256)",
+   "description": "The share‑calculation logic multiplies user‑provided deposit amounts with existing vault balances (`depositAmount0 * bal1` and `depositAmount1 * bal0`). With Solidity ^0.8.13 these multiplications revert on overflow, causing the whole `deposit` transaction to fail for sufficiently large values. An attacker can trigger this overflow by submitting a deliberately oversized deposit, preventing legitimate users from depositing.",
+   "attackPath": "1. Attacker calls `deposit` with `amount0` or `amount1` set to a value that, when multiplied by the vault’s current balance, exceeds `2^256‑1`.\n2. The multiplication in `_calcDeposit` overflows, causing an automatic revert.\n3. The deposit transaction fails, blocking further deposits until the vault state changes (e.g., balances shrink).",
+   "impact": "Denial‑of‑service for deposits, potentially freezing new capital inflow and affecting protocol liquidity.",
+   "recommendation": "Use safe math checks (e.g., `require(depositAmount0 == 0 || bal1 <= type(uint256).max / depositAmount0)`) before multiplication, or restructure the formula to avoid large intermediate products (e.g., using `fullMath.mulDiv`).",
+   "confidence": 0.95
+  },
+  {
+   "title": "Withdraw logic for token1 repayment contains under‑flow bug",
+   "severity": "Medium",
+   "category": "LIVENESS",
+   "file": "Leverager.sol",
+   "function": "withdraw()",
+   "description": "When the borrowed token equals `up.token1`, the code selects the repayment amount with  \n`uint256 repayFromWithdraw = amountOut1 < owedAmount ? amountOut0 : owedAmount;`  \nIt mistakenly uses `amountOut0` (the other token balance) instead of `amountOut1`. If `amountOut1 < owedAmount` and `amountOut0 > amountOut1`, `repayFromWithdraw` exceeds `amountOut1`, causing `amountOut1 -= repayFromWithdraw;` to under‑flow and revert the transaction.",
+   "attackPath": "1. Attacker (or any position owner) creates a withdrawal where the borrowed token is `token1` and the vault returns `amountOut1` smaller than the debt.\n2. The function hits the faulty branch, attempts to subtract a larger `repayFromWithdraw` from `amountOut1`, triggering a revert.\n3. The withdrawal (and any subsequent calls that depend on it) is blocked, effectively freezing the user’s funds.",
+   "impact": "Users can be denied withdrawals, leading to a denial‑of‑service condition for affected positions.",
+   "recommendation": "Replace the line with `uint256 repayFromWithdraw = amountOut1 < owedAmount ? amountOut1 : owedAmount;` so the repayment amount is correctly bounded by `amountOut1`.",
+   "confidence": 0.88
+  },
+  {
+   "title": "Re‑entrancy risk in token sweep via ERC‑777/ malicious token callbacks",
+   "severity": "Medium",
+   "category": "ORDERING",
+   "file": "Leverager.sol",
+   "function": "_sweepTokens",
+   "description": "`_sweepTokens` uses `IERC20(token).safeTransfer`, which forwards control to the token contract. If the transferred token implements ERC‑777 hooks or a malicious `transfer` that calls back into Leverager, the contract’s state (e.g., position data) may be re‑entered before the sweep completes, potentially allowing double‑sweeping or manipulation of accounting.",
+   "attackPath": "1. Attacker creates a malicious ERC‑20 token that overrides `transfer` to call back into Leverager (e.g., invoking `closePosition` again).  \n2. Attacker triggers a function that ends up calling `_sweepTokens` with the malicious token address.  \n3. During `safeTransfer`, the malicious token’s callback re‑enters Leverager and calls `_sweepTokens` again before the first call finishes, draining additional tokens.",
+   "impact": "Attacker can extract more tokens than intended, leading to fund loss and possible state corruption.",
+   "recommendation": "Use the non‑re‑entrant `safeTransfer` pattern that checks for ERC‑777 callbacks (e.g., `IERC20(token).transfer` with a re‑entrancy guard) or add a `nonReentrant` modifier around any external call that may lead to a sweep.",
+   "confidence": 0.78
+  },
+  {
+   "title": "Division‑by‑zero in liquidation price conversion can cause denial‑of‑service",
+   "severity": "Medium",
+   "category": "LIVENESS",
+   "file": "Leverager.sol",
+   "function": "",
+   "description": "In the liquidation‑check code the line `totalDenom = totalValueUSD * (10 ** ERC20(pos.denomination).decimals()) / bPrice;` divides by `bPrice` obtained from `IPriceFeed(pricefeed).getPrice(pos.denomination)`. If the price feed returns `0` (e.g., due to manipulation or a stale feed), the division reverts, causing the liquidation check to fail and potentially halting withdrawals or liquidations.",
+   "attackPath": "1. Attacker (or any user) manipulates the price feed contract to return `0` for the denomination token.  \n2. Any call that triggers the liquidation check (e.g., a withdrawal or liquidation) reverts on division by zero.  \n3. The protocol becomes unable to process withdrawals or liquidations, effectively freezing user funds.",
+   "impact": "Funds become locked; users cannot withdraw or liquidate positions, leading to a loss of availability.",
+   "recommendation": "Add a check that `bPrice > 0` before performing the division and handle the zero‑price case gracefully (e.g., treat as non‑liquidatable or use a fallback price).",
+   "confidence": 0.71
+  },
+  {
+   "title": "Potential overflow in USD‑denominated collateral calculation",
+   "severity": "Low",
+   "category": "ACCOUNTING",
+   "file": "Leverager.sol",
+   "function": "",
+   "description": "The expression `totalDenom = totalValueUSD * (10 ** ERC20(pos.denomination).decimals()) / bPrice;` multiplies `totalValueUSD` by a power of ten before dividing by `bPrice`. With extremely large `totalValueUSD` (e.g., from huge positions) the multiplication can overflow the 256‑bit integer, causing a revert and blocking further processing of the position.",
+   "attackPath": "1. Attacker opens a leveraged position with an excessively large amount of underlying tokens (within protocol limits).  \n2. The resulting `totalValueUSD` becomes large enough that `totalValueUSD * 10**decimals` exceeds `2^256‑1`.  \n3. The multiplication overflows, the transaction reverts, and the position cannot be liquidated or withdrawn.",
+   "impact": "Legitimate large positions become unusable, leading to a partial denial‑of‑service for high‑value users.",
+   "recommendation": "Perform the division before the multiplication or use SafeMath with overflow checks and a fallback path for overflow scenarios.",
+   "confidence": 0.62
+  }
+ ],
+ "rawCount": 8,
+ "dropped": 0,
+ "durationMs": 460645,
+ "filesInScope": [
+  {
+   "rel": "yieldoor/lib/v3-core/contracts/NoDelegateCall.sol",
+   "bytes": 1079,
+   "score": 5
+  },
+  {
+   "rel": "yieldoor/lib/v3-core/contracts/UniswapV3Factory.sol",
+   "bytes": 2848,
+   "score": 4
+  },
+  {
+   "rel": "yieldoor/lib/v3-core/contracts/UniswapV3Pool.sol",
+   "bytes": 35501,
+   "score": 11
+  },
+  {
+   "rel": "yieldoor/lib/v3-core/contracts/UniswapV3PoolDeployer.sol",
+   "bytes": 1408,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-core/contracts/libraries/BitMath.sol",
+   "bytes": 2790,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-core/contracts/libraries/FixedPoint128.sol",
+   "bytes": 311,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-core/contracts/libraries/FixedPoint96.sol",
+   "bytes": 380,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-core/contracts/libraries/FullMath.sol",
+   "bytes": 5114,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-core/contracts/libraries/LiquidityMath.sol",
+   "bytes": 622,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-core/contracts/libraries/LowGasSafeMath.sol",
+   "bytes": 1696,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-core/contracts/libraries/Oracle.sol",
+   "bytes": 16408,
+   "score": 6
+  },
+  {
+   "rel": "yieldoor/lib/v3-core/contracts/libraries/Position.sol",
+   "bytes": 3575,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-core/contracts/libraries/SafeCast.sol",
+   "bytes": 1048,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-core/contracts/libraries/SqrtPriceMath.sol",
+   "bytes": 10774,
+   "score": 5
+  },
+  {
+   "rel": "yieldoor/lib/v3-core/contracts/libraries/SwapMath.sol",
+   "bytes": 4633,
+   "score": 4
+  },
+  {
+   "rel": "yieldoor/lib/v3-core/contracts/libraries/Tick.sol",
+   "bytes": 9513,
+   "score": 5
+  },
+  {
+   "rel": "yieldoor/lib/v3-core/contracts/libraries/TickBitmap.sol",
+   "bytes": 4112,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-core/contracts/libraries/TickMath.sol",
+   "bytes": 8638,
+   "score": 5
+  },
+  {
+   "rel": "yieldoor/lib/v3-core/contracts/libraries/TransferHelper.sol",
+   "bytes": 933,
+   "score": 7
+  },
+  {
+   "rel": "yieldoor/lib/v3-core/contracts/libraries/UnsafeMath.sol",
+   "bytes": 660,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/NonfungiblePositionManager.sol",
+   "bytes": 15128,
+   "score": 7
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/NonfungibleTokenPositionDescriptor.sol",
+   "bytes": 4933,
+   "score": 0
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/SwapRouter.sol",
+   "bytes": 9116,
+   "score": 5
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/V3Migrator.sol",
+   "bytes": 4015,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/base/BlockTimestamp.sol",
+   "bytes": 428,
+   "score": 0
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/base/ERC721Permit.sol",
+   "bytes": 3241,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/base/LiquidityManagement.sol",
+   "bytes": 3085,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/base/Multicall.sol",
+   "bytes": 964,
+   "score": 3
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/base/PeripheryImmutableState.sol",
+   "bytes": 574,
+   "score": 0
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/base/PeripheryPayments.sol",
+   "bytes": 2459,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/base/PeripheryPaymentsWithFee.sol",
+   "bytes": 1984,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/base/PeripheryValidation.sol",
+   "bytes": 297,
+   "score": 0
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/base/PoolInitializer.sol",
+   "bytes": 1182,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/base/SelfPermit.sol",
+   "bytes": 2003,
+   "score": 0
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/examples/PairFlash.sol",
+   "bytes": 5891,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/lens/Quoter.sol",
+   "bytes": 6597,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/lens/QuoterV2.sol",
+   "bytes": 10317,
+   "score": 3
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/lens/TickLens.sol",
+   "bytes": 1521,
+   "score": 0
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/lens/UniswapInterfaceMulticall.sol",
+   "bytes": 1300,
+   "score": 3
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/libraries/BytesLib.sol",
+   "bytes": 4200,
+   "score": 0
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/libraries/CallbackValidation.sol",
+   "bytes": 1471,
+   "score": 0
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/libraries/ChainId.sol",
+   "bytes": 357,
+   "score": 0
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/libraries/HexStrings.sol",
+   "bytes": 1212,
+   "score": 0
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/libraries/LiquidityAmounts.sol",
+   "bytes": 6815,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/libraries/NFTDescriptor.sol",
+   "bytes": 18328,
+   "score": 4
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/libraries/NFTSVG.sol",
+   "bytes": 19322,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/libraries/OracleLibrary.sol",
+   "bytes": 8266,
+   "score": 5
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/libraries/Path.sol",
+   "bytes": 2787,
+   "score": 0
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/libraries/PoolAddress.sol",
+   "bytes": 1820,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/libraries/PoolTicksCounter.sol",
+   "bytes": 4148,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/libraries/PositionKey.sol",
+   "bytes": 373,
+   "score": 0
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/libraries/PositionValue.sol",
+   "bytes": 7181,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/libraries/TokenRatioSortOrder.sol",
+   "bytes": 341,
+   "score": 0
+  },
+  {
+   "rel": "yieldoor/lib/v3-periphery/contracts/libraries/TransferHelper.sol",
+   "bytes": 2538,
+   "score": 5
+  },
+  {
+   "rel": "yieldoor/src/LendingPool.sol",
+   "bytes": 16104,
+   "score": 8
+  },
+  {
+   "rel": "yieldoor/src/Leverager.sol",
+   "bytes": 28874,
+   "score": 9
+  },
+  {
+   "rel": "yieldoor/src/PriceFeed.sol",
+   "bytes": 2017,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/src/Strategy.sol",
+   "bytes": 25323,
+   "score": 9
+  },
+  {
+   "rel": "yieldoor/src/Vault.sol",
+   "bytes": 9037,
+   "score": 9
+  },
+  {
+   "rel": "yieldoor/src/libraries/BytesLib.sol",
+   "bytes": 4296,
+   "score": 0
+  },
+  {
+   "rel": "yieldoor/src/libraries/FullMath.sol",
+   "bytes": 5569,
+   "score": 0
+  },
+  {
+   "rel": "yieldoor/src/libraries/InterestRateUtils.sol",
+   "bytes": 4475,
+   "score": 0
+  },
+  {
+   "rel": "yieldoor/src/libraries/LiquidityAmounts.sol",
+   "bytes": 5855,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/src/libraries/Path.sol",
+   "bytes": 2713,
+   "score": 0
+  },
+  {
+   "rel": "yieldoor/src/libraries/ReserveLogic.sol",
+   "bytes": 7501,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/src/libraries/TickMath.sol",
+   "bytes": 4294,
+   "score": 2
+  },
+  {
+   "rel": "yieldoor/src/types/DataTypes.sol",
+   "bytes": 1929,
+   "score": 0
+  },
+  {
+   "rel": "yieldoor/src/yToken.sol",
+   "bytes": 2355,
+   "score": 4
+  }
+ ]
+}

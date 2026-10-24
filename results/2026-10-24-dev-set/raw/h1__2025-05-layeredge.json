@@ -1,0 +1,91 @@
+{
+ "repo": "sherlock-audit/2025-05-layeredge",
+ "outcome": "hypotheses",
+ "model": "nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter), openai/gpt-oss-120b (Together)",
+ "sources": [
+  "nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter)",
+  "openai/gpt-oss-120b (Together)"
+ ],
+ "coverage": {
+  "scopeFiles": 3,
+  "scopeBytes": 37052,
+  "analysedBytes": 37051,
+  "analysedPct": 100,
+  "chunksPlanned": 2,
+  "chunksAnalysed": 2,
+  "filesFull": 3,
+  "filesPartial": [],
+  "notAnalysedFiles": [],
+  "skipped": {
+   "tests": 5,
+   "mocks": 0,
+   "scripts": 4,
+   "vendor": 0,
+   "interfaces": 1,
+   "tooSmall": 0,
+   "tooLarge": 0,
+   "noLogic": 0,
+   "symlink": 0,
+   "unreadable": 0
+  },
+  "submodules": {
+   "declared": 4,
+   "fetched": [],
+   "failed": [],
+   "skipped": [
+    {
+     "path": "edgen-staking/lib/forge-std",
+     "reason": "afhankelijkheid"
+    },
+    {
+     "path": "edgen-staking/lib/openzeppelin-contracts",
+     "reason": "afhankelijkheid"
+    },
+    {
+     "path": "edgen-staking/lib/openzeppelin-contracts-upgradeable",
+     "reason": "afhankelijkheid"
+    },
+    {
+     "path": "edgen-staking/lib/solady",
+     "reason": "afhankelijkheid"
+    }
+   ]
+  },
+  "droppedHypotheses": 0,
+  "deadlineHit": false
+ },
+ "hypotheses": [
+  {
+   "title": "Unbounded loops in tier‑boundary recomputation can cause gas exhaustion",
+   "severity": "High",
+   "category": "LIVENESS",
+   "file": "LayerEdgeStaking.sol",
+   "function": "_checkBoundariesAndRecord",
+   "description": "`_checkBoundariesAndRecord` recomputes tier boundaries and iterates over every rank between the old and new boundaries, invoking `_findAndRecordTierChange` for each rank. When the total number of stakers is large, the rank range can be arbitrarily large, making the loops potentially exceed the block gas limit.",
+   "attackPath": "1. Attacker creates many new staker addresses (each staking ≥ `minStakeAmount`) to inflate `stakerCountInTree`.\n2. Once the count crosses a tier‑boundary threshold, a subsequent stake or unstake triggers `_checkBoundariesAndRecord`.\n3. The function enters a `for` loop that may iterate over thousands of ranks, each performing a Fenwick‑tree lookup and a tier‑change record, causing the transaction to run out of gas and revert.\n4. Because the revert occurs before any state changes are persisted, the attacker can repeatedly cause new stakes/unstakes to fail, effectively freezing the contract for all users.",
+   "impact": "Legitimate users are unable to stake, unstake, or claim rewards, resulting in a denial‑of‑service and loss of protocol utility.",
+   "recommendation": "Replace the unbounded iterative tier‑boundary update with a bounded or off‑chain approach (e.g., emit events for batch processing) or limit the number of users whose tier is recomputed per transaction to keep gas usage predictable.",
+   "confidence": 0.85
+  }
+ ],
+ "rawCount": 1,
+ "dropped": 0,
+ "durationMs": 115087,
+ "filesInScope": [
+  {
+   "rel": "edgen-staking/src/WETH9.sol",
+   "bytes": 1863,
+   "score": 6
+  },
+  {
+   "rel": "edgen-staking/src/library/FenwickTree.sol",
+   "bytes": 1490,
+   "score": 2
+  },
+  {
+   "rel": "edgen-staking/src/stake/LayerEdgeStaking.sol",
+   "bytes": 33699,
+   "score": 12
+  }
+ ]
+}

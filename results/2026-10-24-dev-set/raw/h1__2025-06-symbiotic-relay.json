@@ -1,0 +1,686 @@
+{
+ "repo": "sherlock-audit/2025-06-symbiotic-relay",
+ "outcome": "hypotheses",
+ "model": "openai/gpt-oss-120b (Together), nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter)",
+ "sources": [
+  "openai/gpt-oss-120b (Together)",
+  "nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter)"
+ ],
+ "coverage": {
+  "scopeFiles": 94,
+  "scopeBytes": 454348,
+  "analysedBytes": 93957,
+  "analysedPct": 21,
+  "chunksPlanned": 6,
+  "chunksAnalysed": 6,
+  "filesFull": 15,
+  "filesPartial": [],
+  "notAnalysedFiles": [
+   "middleware-sdk/examples/MyKeyRegistry.sol",
+   "middleware-sdk/examples/MyNetwork.sol",
+   "middleware-sdk/examples/MySettlement.sol",
+   "middleware-sdk/examples/MyValSetDriver.sol",
+   "middleware-sdk/examples/MyVotingPowerProvider.sol",
+   "middleware-sdk/lib/core/src/contracts/DelegatorFactory.sol",
+   "middleware-sdk/lib/core/src/contracts/NetworkRegistry.sol",
+   "middleware-sdk/lib/core/src/contracts/OperatorRegistry.sol",
+   "middleware-sdk/lib/core/src/contracts/SlasherFactory.sol",
+   "middleware-sdk/lib/core/src/contracts/VaultConfigurator.sol",
+   "middleware-sdk/lib/core/src/contracts/VaultFactory.sol",
+   "middleware-sdk/lib/core/src/contracts/common/Factory.sol",
+   "middleware-sdk/lib/core/src/contracts/common/MigratableEntity.sol",
+   "middleware-sdk/lib/core/src/contracts/common/MigratablesFactory.sol",
+   "middleware-sdk/lib/core/src/contracts/common/Registry.sol",
+   "middleware-sdk/lib/core/src/contracts/delegator/FullRestakeDelegator.sol",
+   "middleware-sdk/lib/core/src/contracts/delegator/NetworkRestakeDelegator.sol",
+   "middleware-sdk/lib/core/src/contracts/delegator/OperatorNetworkSpecificDelegator.sol",
+   "middleware-sdk/lib/core/src/contracts/delegator/OperatorSpecificDelegator.sol",
+   "middleware-sdk/lib/core/src/contracts/hints/Hints.sol",
+   "middleware-sdk/lib/core/src/contracts/hints/OptInServiceHints.sol",
+   "middleware-sdk/lib/core/src/contracts/hints/VaultHints.sol",
+   "middleware-sdk/lib/core/src/contracts/libraries/Checkpoints.sol",
+   "middleware-sdk/lib/core/src/contracts/libraries/ERC4626Math.sol",
+   "middleware-sdk/lib/core/src/contracts/libraries/Subnetwork.sol",
+   "middleware-sdk/lib/core/src/contracts/service/MetadataService.sol",
+   "middleware-sdk/lib/core/src/contracts/service/NetworkMiddlewareService.sol",
+   "middleware-sdk/lib/core/src/contracts/slasher/BaseSlasher.sol",
+   "middleware-sdk/lib/core/src/contracts/slasher/Slasher.sol",
+   "middleware-sdk/lib/core/src/contracts/vault/VaultStorage.sol",
+   "middleware-sdk/lib/crypto-lib/external/sha512/LibBytes.sol",
+   "middleware-sdk/lib/crypto-lib/external/sha512/Sha2Ext.sol",
+   "middleware-sdk/lib/crypto-lib/src/hash/SCL_sha512.sol",
+   "middleware-sdk/lib/crypto-lib/src/lib/libSCL_EIP6565.sol",
+   "middleware-sdk/lib/crypto-lib/src/lib/libSCL_RIP7212.sol",
+   "middleware-sdk/lib/crypto-lib/src/lib/libSCL_RIP7696.sol",
+   "middleware-sdk/lib/crypto-lib/src/lib/libSCL_eccUtils.sol",
+   "middleware-sdk/lib/crypto-lib/src/lib/libSCL_ecdsab4.sol",
+   "middleware-sdk/lib/crypto-lib/src/lib/libSCL_eddsaUtils.sol",
+   "middleware-sdk/lib/rewards/src/contracts/defaultOperatorRewards/DefaultOperatorRewardsFactory.sol",
+   "middleware-sdk/lib/rewards/src/contracts/defaultStakerRewards/DefaultStakerRewardsFactory.sol",
+   "middleware-sdk/src/contracts/libraries/keys/KeyBlsBn254.sol",
+   "middleware-sdk/src/contracts/libraries/keys/KeyEcdsaSecp256k1.sol",
+   "middleware-sdk/src/contracts/libraries/sigs/SigBlsBn254.sol",
+   "middleware-sdk/src/contracts/libraries/sigs/SigEcdsaSecp256k1.sol",
+   "middleware-sdk/src/contracts/libraries/structs/Checkpoints.sol",
+   "middleware-sdk/src/contracts/libraries/structs/PersistentSet.sol",
+   "middleware-sdk/src/contracts/libraries/utils/BN254.sol",
+   "middleware-sdk/src/contracts/libraries/utils/InputNormalizer.sol",
+   "middleware-sdk/src/contracts/libraries/utils/KeyTags.sol",
+   "middleware-sdk/src/contracts/libraries/utils/ValSetVerifier.sol",
+   "middleware-sdk/src/contracts/modules/base/NetworkManager.sol",
+   "middleware-sdk/src/contracts/modules/base/OzEIP712.sol",
+   "middleware-sdk/src/contracts/modules/base/PermissionManager.sol",
+   "middleware-sdk/src/contracts/modules/common/permissions/OzAccessControl.sol",
+   "middleware-sdk/src/contracts/modules/common/permissions/OzAccessManaged.sol",
+   "middleware-sdk/src/contracts/modules/common/permissions/OzOwnable.sol",
+   "middleware-sdk/src/contracts/modules/key-registry/KeyRegistry.sol",
+   "middleware-sdk/src/contracts/modules/network/Network.sol",
+   "middleware-sdk/src/contracts/modules/settlement/Settlement.sol",
+   "middleware-sdk/src/contracts/modules/settlement/sig-verifiers/SigVerifierBlsBn254Simple.sol",
+   "middleware-sdk/src/contracts/modules/settlement/sig-verifiers/SigVerifierBlsBn254ZK.sol",
+   "middleware-sdk/src/contracts/modules/settlement/sig-verifiers/libraries/ExtraDataStorageHelper.sol",
+   "middleware-sdk/src/contracts/modules/valset-driver/EpochManager.sol",
+   "middleware-sdk/src/contracts/modules/valset-driver/ValSetDriver.sol",
+   "middleware-sdk/src/contracts/modules/voting-power/VotingPowerProvider.sol",
+   "middleware-sdk/src/contracts/modules/voting-power/common/voting-power-calc/EqualStakeVPCalc.sol",
+   "middleware-sdk/src/contracts/modules/voting-power/extensions/BaseRewards.sol",
+   "middleware-sdk/src/contracts/modules/voting-power/extensions/BaseSlashing.sol",
+   "middleware-sdk/src/contracts/modules/voting-power/extensions/MultiToken.sol",
+   "middleware-sdk/src/contracts/modules/voting-power/extensions/OpNetVaultAutoDeploy.sol",
+   "middleware-sdk/src/contracts/modules/voting-power/extensions/OperatorVaults.sol",
+   "middleware-sdk/src/contracts/modules/voting-power/extensions/OperatorsBlacklist.sol",
+   "middleware-sdk/src/contracts/modules/voting-power/extensions/OperatorsJail.sol",
+   "middleware-sdk/src/contracts/modules/voting-power/extensions/OperatorsWhitelist.sol",
+   "middleware-sdk/src/contracts/modules/voting-power/extensions/SharedVaults.sol",
+   "middleware-sdk/src/contracts/modules/voting-power/extensions/logic/BaseRewardsLogic.sol",
+   "middleware-sdk/src/contracts/modules/voting-power/extensions/logic/OpNetVaultAutoDeployLogic.sol",
+   "middleware-sdk/src/contracts/modules/voting-power/logic/VotingPowerProviderLogic.sol"
+  ],
+  "skipped": {
+   "tests": 129,
+   "mocks": 0,
+   "scripts": 33,
+   "vendor": 0,
+   "interfaces": 62,
+   "tooSmall": 0,
+   "tooLarge": 0,
+   "noLogic": 13,
+   "symlink": 0,
+   "unreadable": 0
+  },
+  "submodules": {
+   "declared": 6,
+   "fetched": [
+    "middleware-sdk/lib/core",
+    "middleware-sdk/lib/crypto-lib",
+    "middleware-sdk/lib/rewards"
+   ],
+   "failed": [],
+   "skipped": [
+    {
+     "path": "middleware-sdk/lib/forge-std",
+     "reason": "afhankelijkheid"
+    },
+    {
+     "path": "middleware-sdk/lib/openzeppelin-contracts",
+     "reason": "afhankelijkheid"
+    },
+    {
+     "path": "middleware-sdk/lib/openzeppelin-contracts-upgradeable",
+     "reason": "afhankelijkheid"
+    }
+   ]
+  },
+  "droppedHypotheses": 0,
+  "deadlineHit": false
+ },
+ "hypotheses": [
+  {
+   "title": "Unrestricted `setSlasher` allows any attacker to become the slashing authority",
+   "severity": "Critical",
+   "category": "ACCESS",
+   "file": "Vault.sol",
+   "function": "setSlasher()",
+   "description": "The `setSlasher` function lacks any access‑control modifier. It can be called by any external address before the slasher is initialized, after which `isSlasherInitialized` prevents further changes. This lets an attacker set themselves (or a malicious contract) as the sole slasher.",
+   "attackPath": "1. Attacker calls `setSlasher(maliciousContract)` before the legitimate admin does.  \n2. `isSlasherInitialized` becomes true, locking the slasher address.  \n3. Attacker (or their contract) calls `onSlash(uint256 amount, uint48 timestamp)` with a large `amount`.  \n4. The vault reduces `activeStake` and/or queued withdrawals and transfers the slashed tokens to the `burner`, effectively draining user funds.",
+   "impact": "Users lose staked collateral; the protocol can become insolvent for participants.",
+   "recommendation": "Restrict `setSlasher` with an `onlyRole(DEFAULT_ADMIN_ROLE)` (or similar) check and make it callable only by a trusted governance entity.",
+   "confidence": 0.98
+  },
+  {
+   "title": "Unrestricted `setDelegator` permits arbitrary delegator injection",
+   "severity": "Medium",
+   "category": "ACCESS",
+   "file": "Vault.sol",
+   "function": "setDelegator()",
+   "description": "Similar to `setSlasher`, `setDelegator` has no access control. Any external caller can set the delegator contract before it is initialized, potentially pointing to a malicious contract that could interfere with voting power delegation or other downstream logic.",
+   "attackPath": "1. Attacker calls `setDelegator(maliciousDelegator)` before the legitimate delegator is set.  \n2. The vault records the attacker‑controlled address as its delegator.  \n3 (optional). If other protocol components query the delegator for voting power or reward distribution, the malicious contract can return manipulated data or revert, causing loss of voting rights or reward denial.",
+   "impact": "Loss of correct delegation, possible denial‑of‑service for voting/reward mechanisms, and potential manipulation of protocol governance.",
+   "recommendation": "Add an `onlyRole(DEFAULT_ADMIN_ROLE)` (or equivalent) restriction to `setDelegator` and consider making the delegator immutable after initial configuration.",
+   "confidence": 0.92
+  },
+  {
+   "title": "Public `slashVaultUnsafe` bypasses registration checks, enabling unauthorized slashing",
+   "severity": "Critical",
+   "category": "ACCESS",
+   "file": "BaseSlashingLogic.sol",
+   "function": "slashVaultUnsafe()",
+   "description": "The `slashVaultUnsafe` function is `public` and contains no access‑control checks. It only verifies that the vault has a non‑zero slasher address before forwarding the call to the slasher contract. Unlike `slashVault`, it does **not** validate that the operator, vault, or token are registered at the given timestamp.",
+   "attackPath": "1. Attacker identifies any vault that has a slasher contract set (most vaults do).  \n2. Calls `BaseSlashingLogic.slashVaultUnsafe(timestamp, vault, operator, amount, hints)` directly, supplying arbitrary `operator`, `amount` and `hints`.  \n3. The function forwards the call to the slasher (`slasher.call(...)`) which executes the slash logic, reducing the vault’s stake and sending the seized tokens to the burner.  \n4. No registration or permission checks are performed, so the slash succeeds even if the operator is not registered or the slash is otherwise invalid.",
+   "impact": "Untrusted actors can arbitrarily slash any vault’s stake, causing loss of collateral for honest participants and potentially draining the vault’s assets.",
+   "recommendation": "Make `slashVaultUnsafe` `internal` or add strict access control (e.g., only the vault or a designated governance role) and repeat the registration checks performed in `slashVault`.",
+   "confidence": 0.92
+  },
+  {
+   "title": "Re‑entrancy in OptInService ._optIn allows nonce inflation and DoS",
+   "severity": "Medium",
+   "category": "LIVENESS",
+   "file": "OptInService.sol",
+   "function": "_optIn(address,address)",
+   "description": "The internal `_optIn` function calls external `IRegistry.isEntity` contracts **before** it updates any state (checkpoint push and nonce increment). A malicious registry contract could re‑enter `_optIn` via a fallback, causing multiple successful opt‑ins in a single transaction. Each re‑entry increments the caller’s nonce, allowing an attacker to arbitrarily inflate the nonce and render previously signed meta‑transactions unusable, effectively a denial‑of‑service for the affected address.",
+   "attackPath": "1. Deploy a malicious contract and register it as the WHO_REGISTRY or WHERE_REGISTRY address.\n2. The malicious contract’s `isEntity` function performs a call back to `OptInService.optIn(who, where, …)` (or directly to `_optIn` via the public wrapper).\n3. Because `_optIn` has not yet pushed the checkpoint or increased the nonce, the re‑entered call passes the same checks and repeats the state changes.\n4. Repeating step 2 multiple times inflates the nonce arbitrarily.\n5. Legitimate users’ signed opt‑in/out messages now fail with `InvalidSignature` because the nonce no longer matches, freezing their ability to opt‑in/out.",
+   "impact": "Attackers can lock out users from opting in/out of protocol features, causing loss of functionality and potentially preventing reward accrual or other services that depend on opt‑in status.",
+   "recommendation": "Move all external calls (`IRegistry.isEntity`) **after** the state updates (checkpoint push, nonce increment) or use a re‑entrancy guard (`nonReentrant` modifier) to block recursive calls.",
+   "confidence": 0.92
+  },
+  {
+   "title": "VaultTokenized emits duplicate ERC‑20 Transfer events",
+   "severity": "Low",
+   "category": "ACCOUNTING",
+   "file": "VaultTokenized.sol",
+   "function": "_update(address,address,uint256)",
+   "description": "`VaultTokenized` overrides ERC20Upgradeable’s internal `_update` and manually emits a `Transfer` event after calling the parent logic, which already emits the same event. This results in two identical `Transfer` events for every mint, burn, or transfer operation.",
+   "attackPath": "1. An attacker monitors `Transfer` events to track share balances (e.g., a DeFi aggregator or a token‑indexing service).\n2. The duplicated events cause the aggregator to double‑count share movements, leading to incorrect accounting or erroneous reward calculations that depend on event data.",
+   "impact": "Off‑chain systems that rely on `Transfer` events may over‑estimate balances, potentially causing mis‑allocation of rewards or incorrect governance voting power calculations.",
+   "recommendation": "Remove the explicit `emit Transfer(...)` line from `_update` (the parent ERC20 implementation already emits the event) or override without re‑emitting.",
+   "confidence": 0.88
+  },
+  {
+   "title": "Unrestricted `executeSlashVault` allows anyone to trigger pending veto slashes",
+   "severity": "High",
+   "category": "ACCESS",
+   "file": "BaseSlashingLogic.sol",
+   "function": "executeSlashVault()",
+   "description": "`executeSlashVault` is a `public` function that merely checks that the vault has a slasher address and then forwards the call to `executeSlash`. There is no restriction on who can invoke it, nor any verification that the caller is authorized to execute the pending slash.",
+   "attackPath": "1. Attacker finds a vault with a VETO slasher that has pending slash requests (identified via events or on‑chain data).  \n2. Calls `BaseSlashingLogic.executeSlashVault(vault, slashIndex, hints)` with the appropriate `slashIndex`.  \n3. The function calls the VETO slasher’s `executeSlash`, causing the slashed amount to be transferred to the burner, regardless of who initiated the original slash request.",
+   "impact": "Malicious actors can force execution of pending slashes, draining funds from the vault without the original slasher’s consent.",
+   "recommendation": "Restrict `executeSlashVault` to be callable only by the vault itself or by a designated governance role, and/or require proof that the caller is the original slasher requester.",
+   "confidence": 0.85
+  }
+ ],
+ "rawCount": 6,
+ "dropped": 0,
+ "durationMs": 403875,
+ "filesInScope": [
+  {
+   "rel": "middleware-sdk/examples/MyKeyRegistry.sol",
+   "bytes": 360,
+   "score": 0
+  },
+  {
+   "rel": "middleware-sdk/examples/MyNetwork.sol",
+   "bytes": 475,
+   "score": 0
+  },
+  {
+   "rel": "middleware-sdk/examples/MySettlement.sol",
+   "bytes": 583,
+   "score": 0
+  },
+  {
+   "rel": "middleware-sdk/examples/MyValSetDriver.sol",
+   "bytes": 602,
+   "score": 0
+  },
+  {
+   "rel": "middleware-sdk/examples/MyVotingPowerProvider.sol",
+   "bytes": 1030,
+   "score": 0
+  },
+  {
+   "rel": "middleware-sdk/lib/core/src/contracts/DelegatorFactory.sol",
+   "bytes": 306,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/lib/core/src/contracts/NetworkRegistry.sol",
+   "bytes": 466,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/lib/core/src/contracts/OperatorRegistry.sol",
+   "bytes": 473,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/lib/core/src/contracts/SlasherFactory.sol",
+   "bytes": 298,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/lib/core/src/contracts/VaultConfigurator.sol",
+   "bytes": 1679,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/lib/core/src/contracts/VaultFactory.sol",
+   "bytes": 334,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/lib/core/src/contracts/common/Entity.sol",
+   "bytes": 820,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/lib/core/src/contracts/common/Factory.sol",
+   "bytes": 2425,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/lib/core/src/contracts/common/MigratableEntity.sol",
+   "bytes": 2291,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/lib/core/src/contracts/common/MigratableEntityProxy.sol",
+   "bytes": 1604,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/lib/core/src/contracts/common/MigratablesFactory.sol",
+   "bytes": 3472,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/lib/core/src/contracts/common/Registry.sol",
+   "bytes": 1266,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/lib/core/src/contracts/common/StaticDelegateCallable.sol",
+   "bytes": 606,
+   "score": 5
+  },
+  {
+   "rel": "middleware-sdk/lib/core/src/contracts/delegator/BaseDelegator.sol",
+   "bytes": 7122,
+   "score": 4
+  },
+  {
+   "rel": "middleware-sdk/lib/core/src/contracts/delegator/FullRestakeDelegator.sol",
+   "bytes": 6344,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/lib/core/src/contracts/delegator/NetworkRestakeDelegator.sol",
+   "bytes": 7787,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/lib/core/src/contracts/delegator/OperatorNetworkSpecificDelegator.sol",
+   "bytes": 3946,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/lib/core/src/contracts/delegator/OperatorSpecificDelegator.sol",
+   "bytes": 4936,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/lib/core/src/contracts/hints/DelegatorHints.sol",
+   "bytes": 16097,
+   "score": 6
+  },
+  {
+   "rel": "middleware-sdk/lib/core/src/contracts/hints/Hints.sol",
+   "bytes": 2014,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/lib/core/src/contracts/hints/OptInServiceHints.sol",
+   "bytes": 1145,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/lib/core/src/contracts/hints/SlasherHints.sol",
+   "bytes": 7160,
+   "score": 4
+  },
+  {
+   "rel": "middleware-sdk/lib/core/src/contracts/hints/VaultHints.sol",
+   "bytes": 3019,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/lib/core/src/contracts/libraries/Checkpoints.sol",
+   "bytes": 13385,
+   "score": 3
+  },
+  {
+   "rel": "middleware-sdk/lib/core/src/contracts/libraries/ERC4626Math.sol",
+   "bytes": 2032,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/lib/core/src/contracts/libraries/Subnetwork.sol",
+   "bytes": 626,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/lib/core/src/contracts/service/MetadataService.sol",
+   "bytes": 1099,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/lib/core/src/contracts/service/NetworkMiddlewareService.sol",
+   "bytes": 1083,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/lib/core/src/contracts/service/OptInService.sol",
+   "bytes": 4955,
+   "score": 4
+  },
+  {
+   "rel": "middleware-sdk/lib/core/src/contracts/slasher/BaseSlasher.sol",
+   "bytes": 7168,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/lib/core/src/contracts/slasher/Slasher.sol",
+   "bytes": 2494,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/lib/core/src/contracts/slasher/VetoSlasher.sol",
+   "bytes": 9370,
+   "score": 5
+  },
+  {
+   "rel": "middleware-sdk/lib/core/src/contracts/vault/Vault.sol",
+   "bytes": 15942,
+   "score": 7
+  },
+  {
+   "rel": "middleware-sdk/lib/core/src/contracts/vault/VaultStorage.sol",
+   "bytes": 5681,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/lib/core/src/contracts/vault/VaultTokenized.sol",
+   "bytes": 3825,
+   "score": 4
+  },
+  {
+   "rel": "middleware-sdk/lib/crypto-lib/external/sha512/LibBytes.sol",
+   "bytes": 19617,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/lib/crypto-lib/external/sha512/Sha2Ext.sol",
+   "bytes": 7510,
+   "score": 0
+  },
+  {
+   "rel": "middleware-sdk/lib/crypto-lib/src/hash/SCL_sha512.sol",
+   "bytes": 1797,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/lib/crypto-lib/src/lib/Ed25519DelegationEIP7702.sol",
+   "bytes": 5322,
+   "score": 5
+  },
+  {
+   "rel": "middleware-sdk/lib/crypto-lib/src/lib/libSCL_EIP6565.sol",
+   "bytes": 7755,
+   "score": 4
+  },
+  {
+   "rel": "middleware-sdk/lib/crypto-lib/src/lib/libSCL_RIP7212.sol",
+   "bytes": 2041,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/lib/crypto-lib/src/lib/libSCL_RIP7696.sol",
+   "bytes": 4666,
+   "score": 0
+  },
+  {
+   "rel": "middleware-sdk/lib/crypto-lib/src/lib/libSCL_eccUtils.sol",
+   "bytes": 7040,
+   "score": 0
+  },
+  {
+   "rel": "middleware-sdk/lib/crypto-lib/src/lib/libSCL_ecdsab4.sol",
+   "bytes": 2774,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/lib/crypto-lib/src/lib/libSCL_eddsaUtils.sol",
+   "bytes": 3537,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/lib/rewards/src/contracts/defaultOperatorRewards/DefaultOperatorRewards.sol",
+   "bytes": 3640,
+   "score": 6
+  },
+  {
+   "rel": "middleware-sdk/lib/rewards/src/contracts/defaultOperatorRewards/DefaultOperatorRewardsFactory.sol",
+   "bytes": 1077,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/lib/rewards/src/contracts/defaultStakerRewards/DefaultStakerRewards.sol",
+   "bytes": 10979,
+   "score": 7
+  },
+  {
+   "rel": "middleware-sdk/lib/rewards/src/contracts/defaultStakerRewards/DefaultStakerRewardsFactory.sol",
+   "bytes": 1162,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/src/contracts/libraries/keys/KeyBlsBn254.sol",
+   "bytes": 3009,
+   "score": 0
+  },
+  {
+   "rel": "middleware-sdk/src/contracts/libraries/keys/KeyEcdsaSecp256k1.sol",
+   "bytes": 1886,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/src/contracts/libraries/sigs/SigBlsBn254.sol",
+   "bytes": 2385,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/src/contracts/libraries/sigs/SigEcdsaSecp256k1.sol",
+   "bytes": 1043,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/src/contracts/libraries/structs/Checkpoints.sol",
+   "bytes": 19866,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/src/contracts/libraries/structs/PersistentSet.sol",
+   "bytes": 6948,
+   "score": 0
+  },
+  {
+   "rel": "middleware-sdk/src/contracts/libraries/utils/BN254.sol",
+   "bytes": 11555,
+   "score": 3
+  },
+  {
+   "rel": "middleware-sdk/src/contracts/libraries/utils/InputNormalizer.sol",
+   "bytes": 741,
+   "score": 0
+  },
+  {
+   "rel": "middleware-sdk/src/contracts/libraries/utils/KeyTags.sol",
+   "bytes": 2944,
+   "score": 0
+  },
+  {
+   "rel": "middleware-sdk/src/contracts/libraries/utils/ValSetVerifier.sol",
+   "bytes": 16996,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/src/contracts/modules/base/NetworkManager.sol",
+   "bytes": 2065,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/src/contracts/modules/base/OzEIP712.sol",
+   "bytes": 1363,
+   "score": 0
+  },
+  {
+   "rel": "middleware-sdk/src/contracts/modules/base/PermissionManager.sol",
+   "bytes": 455,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/src/contracts/modules/common/permissions/OzAccessControl.sol",
+   "bytes": 1595,
+   "score": 0
+  },
+  {
+   "rel": "middleware-sdk/src/contracts/modules/common/permissions/OzAccessManaged.sol",
+   "bytes": 813,
+   "score": 0
+  },
+  {
+   "rel": "middleware-sdk/src/contracts/modules/common/permissions/OzOwnable.sol",
+   "bytes": 724,
+   "score": 0
+  },
+  {
+   "rel": "middleware-sdk/src/contracts/modules/key-registry/KeyRegistry.sol",
+   "bytes": 12036,
+   "score": 3
+  },
+  {
+   "rel": "middleware-sdk/src/contracts/modules/network/Network.sol",
+   "bytes": 11445,
+   "score": 1
+  },
+  {
+   "rel": "middleware-sdk/src/contracts/modules/settlement/Settlement.sol",
+   "bytes": 12684,
+   "score": 1
+  },
+  {
+   "rel": "middleware-sdk/src/contracts/modules/settlement/sig-verifiers/SigVerifierBlsBn254Simple.sol",
+   "bytes": 7832,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/src/contracts/modules/settlement/sig-verifiers/SigVerifierBlsBn254ZK.sol",
+   "bytes": 5437,
+   "score": 0
+  },
+  {
+   "rel": "middleware-sdk/src/contracts/modules/settlement/sig-verifiers/libraries/ExtraDataStorageHelper.sol",
+   "bytes": 1064,
+   "score": 0
+  },
+  {
+   "rel": "middleware-sdk/src/contracts/modules/valset-driver/EpochManager.sol",
+   "bytes": 7259,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/src/contracts/modules/valset-driver/ValSetDriver.sol",
+   "bytes": 22500,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/src/contracts/modules/voting-power/VotingPowerProvider.sol",
+   "bytes": 13019,
+   "score": 3
+  },
+  {
+   "rel": "middleware-sdk/src/contracts/modules/voting-power/base/VotingPowerCalcManager.sol",
+   "bytes": 831,
+   "score": 4
+  },
+  {
+   "rel": "middleware-sdk/src/contracts/modules/voting-power/common/voting-power-calc/EqualStakeVPCalc.sol",
+   "bytes": 1116,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/src/contracts/modules/voting-power/extensions/BaseRewards.sol",
+   "bytes": 2651,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/src/contracts/modules/voting-power/extensions/BaseSlashing.sol",
+   "bytes": 2866,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/src/contracts/modules/voting-power/extensions/MultiToken.sol",
+   "bytes": 715,
+   "score": 0
+  },
+  {
+   "rel": "middleware-sdk/src/contracts/modules/voting-power/extensions/OpNetVaultAutoDeploy.sol",
+   "bytes": 3413,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/src/contracts/modules/voting-power/extensions/OperatorVaults.sol",
+   "bytes": 802,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/src/contracts/modules/voting-power/extensions/OperatorsBlacklist.sol",
+   "bytes": 2292,
+   "score": 0
+  },
+  {
+   "rel": "middleware-sdk/src/contracts/modules/voting-power/extensions/OperatorsJail.sol",
+   "bytes": 2361,
+   "score": 0
+  },
+  {
+   "rel": "middleware-sdk/src/contracts/modules/voting-power/extensions/OperatorsWhitelist.sol",
+   "bytes": 3325,
+   "score": 0
+  },
+  {
+   "rel": "middleware-sdk/src/contracts/modules/voting-power/extensions/SharedVaults.sol",
+   "bytes": 776,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/src/contracts/modules/voting-power/extensions/logic/BaseRewardsLogic.sol",
+   "bytes": 1465,
+   "score": 2
+  },
+  {
+   "rel": "middleware-sdk/src/contracts/modules/voting-power/extensions/logic/BaseSlashingLogic.sol",
+   "bytes": 5684,
+   "score": 5
+  },
+  {
+   "rel": "middleware-sdk/src/contracts/modules/voting-power/extensions/logic/OpNetVaultAutoDeployLogic.sol",
+   "bytes": 9898,
+   "score": 3
+  },
+  {
+   "rel": "middleware-sdk/src/contracts/modules/voting-power/logic/VotingPowerProviderLogic.sol",
+   "bytes": 23252,
+   "score": 2
+  }
+ ]
+}

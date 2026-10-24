@@ -1,0 +1,326 @@
+{
+ "repo": "sherlock-audit/2025-03-crestal-network",
+ "outcome": "hypotheses",
+ "model": "openai/gpt-oss-120b (Together), nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter)",
+ "sources": [
+  "openai/gpt-oss-120b (Together)",
+  "nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter)"
+ ],
+ "coverage": {
+  "scopeFiles": 21,
+  "scopeBytes": 233968,
+  "analysedBytes": 102418,
+  "analysedPct": 44,
+  "chunksPlanned": 6,
+  "chunksAnalysed": 6,
+  "filesFull": 4,
+  "filesPartial": [
+   "crestal-omni-contracts/lib/openzeppelin-foundry-upgrades/src/Upgrades.sol",
+   "crestal-omni-contracts/src/history/BlueprintV2.sol",
+   "crestal-omni-contracts/src/history/BlueprintV3.sol"
+  ],
+  "notAnalysedFiles": [
+   "crestal-omni-contracts/lib/openzeppelin-foundry-upgrades/src/Defender.sol",
+   "crestal-omni-contracts/lib/openzeppelin-foundry-upgrades/src/LegacyUpgrades.sol",
+   "crestal-omni-contracts/lib/openzeppelin-foundry-upgrades/src/internal/DefenderDeploy.sol",
+   "crestal-omni-contracts/lib/openzeppelin-foundry-upgrades/src/internal/Utils.sol",
+   "crestal-omni-contracts/lib/openzeppelin-foundry-upgrades/src/internal/Versions.sol",
+   "crestal-omni-contracts/src/Blueprint.sol",
+   "crestal-omni-contracts/src/BlueprintV1.sol",
+   "crestal-omni-contracts/src/BlueprintV2.sol",
+   "crestal-omni-contracts/src/BlueprintV3.sol",
+   "crestal-omni-contracts/src/BlueprintV4.sol",
+   "crestal-omni-contracts/src/BlueprintV5.sol",
+   "crestal-omni-contracts/src/Payment.sol",
+   "crestal-omni-contracts/src/history/BlueprintV1.sol",
+   "crestal-omni-contracts/src/history/BlueprintV4.sol"
+  ],
+  "skipped": {
+   "tests": 46,
+   "mocks": 0,
+   "scripts": 6,
+   "vendor": 0,
+   "interfaces": 3,
+   "tooSmall": 0,
+   "tooLarge": 0,
+   "noLogic": 1,
+   "symlink": 0,
+   "unreadable": 0
+  },
+  "submodules": {
+   "declared": 3,
+   "fetched": [
+    "crestal-omni-contracts/lib/openzeppelin-foundry-upgrades"
+   ],
+   "failed": [],
+   "skipped": [
+    {
+     "path": "crestal-omni-contracts/lib/forge-std",
+     "reason": "afhankelijkheid"
+    },
+    {
+     "path": "crestal-omni-contracts/lib/openzeppelin-contracts-upgradeable",
+     "reason": "afhankelijkheid"
+    }
+   ]
+  },
+  "droppedHypotheses": 1,
+  "deadlineHit": false
+ },
+ "hypotheses": [
+  {
+   "title": "Unauthorized project state reset via public `upgradeProject`",
+   "severity": "High",
+   "category": "ACCESS",
+   "file": "BlueprintCore.sol",
+   "function": "upgradeProject()",
+   "description": "The `upgradeProject` function is declared `public` and only guarded by the `hasProject` modifier, which checks that the project exists. There is no access‑control check (e.g., onlyOwner or role‑based) restricting who can call it. Any external address can invoke the function and reset a project's `requestProposalID`, `requestDeploymentID` and `proposedSolverAddr` to their default values.",
+   "attackPath": "1. Attacker discovers an existing `projectId` (e.g., by reading events).  \n2. Calls `upgradeProject(projectId)` directly.  \n3. The contract clears the proposal and deployment identifiers, effectively wiping the project's state.",
+   "impact": "Legitimate project owners lose their pending proposal/deployment data, causing service disruption, possible loss of funds (if later logic assumes those IDs are still valid) and a denial‑of‑service for the affected project.",
+   "recommendation": "Restrict `upgradeProject` to a privileged role (e.g., `onlyOwner` or a multisig) or remove the function entirely if not needed.",
+   "confidence": 0.97
+  },
+  {
+   "title": "Private deployment requests can be hijacked by any worker",
+   "severity": "High",
+   "category": "ACCESS",
+   "file": "BlueprintCoreV4.sol",
+   "function": "submitDeploymentRequest()",
+   "description": "`submitDeploymentRequest` allows any caller to pick up a deployment request that was created as a *private* deployment (i.e., a specific `privateWorkerAddress` was supplied). The function does not verify that the request is intended for a particular worker before assigning `msg.sender` as the worker, effectively ignoring the private‑worker constraint set during request creation.",
+   "attackPath": "1. Attacker observes a private deployment request ID (e.g., from events).  \n2. Calls `submitDeploymentRequest(projectId, requestID)` before the intended private worker does.  \n3. The contract sets `requestDeploymentStatus[requestID].status = Status.Pickup` and `deployWorkerAddr = attacker`.  \n4. Attacker now controls the deployment lifecycle, can submit proofs and receive payment.",
+   "impact": "Unauthorized workers can claim and complete private deployments, leading to loss of funds paid to the legitimate solver/worker and undermining the confidentiality guarantees of private deployments.",
+   "recommendation": "In `submitDeploymentRequest`, add a check that either the request’s `deployWorkerAddr` is the dummy address (public request) or equals `msg.sender`. Reject the call otherwise.",
+   "confidence": 0.97
+  },
+  {
+   "title": "Reentrancy risk in `createAgent` when paying with ERC‑20 tokens",
+   "severity": "High",
+   "category": "ORDERING",
+   "file": "BlueprintCore.sol",
+   "function": "createAgent()",
+   "description": "When `tokenAddress` is provided, `createAgent` calls `payWithERC20(tokenAddress, cost, userAddress, feeCollectionWalletAddress)` **before** updating critical state (`deploymentOwners` and emitting the `CreateAgent` event). `payWithERC20` performs an external call to the ERC‑20 token contract (e.g., `transferFrom`). A malicious token contract could re‑enter the Blueprint contract via any public function (e.g., `createAgentWithToken`) during this call.",
+   "attackPath": "1. Attacker deploys a malicious ERC‑20 token whose `transferFrom` invokes a callback to the Blueprint contract.  \n2. Victim calls `createAgentWithToken` using this token.  \n3. During `payWithERC20`, the malicious token re‑enters `createAgentWithToken` (or another state‑changing function) before the original call finishes, allowing multiple payments or state manipulation.",
+   "impact": "The attacker can cause double payments, create multiple agents with a single fee, or corrupt internal mappings, leading to fund loss and protocol inconsistency.",
+   "recommendation": "Apply the Checks‑Effects‑Interactions pattern: move all state updates (e.g., `deploymentOwners`, `nftTokenIdMap`) before the external ERC‑20 call, or use a reentrancy guard (`nonReentrant` modifier).",
+   "confidence": 0.95
+  },
+  {
+   "title": "Reentrancy vulnerability in userTopUp allowing inflated internal balances",
+   "severity": "High",
+   "category": "SOLVENCY",
+   "file": "BlueprintCore.sol",
+   "function": "userTopUp()",
+   "description": "The function transfers ERC‑20 tokens to the fee wallet via `payWithERC20` before updating the internal balance `userTopUpMp`. A malicious ERC‑20 token contract could re‑enter `userTopUp` during the transfer and cause the balance to be credited multiple times while only a single token transfer occurs.",
+   "attackPath": "1. Deploy a malicious ERC‑20 token whose `transferFrom` calls back into `userTopUp`. 2. Call `userTopUp` with this token. 3. During the external call, the malicious token re‑enters `userTopUp`, causing another transfer and another balance increment. 4. Repeat to inflate `userTopUpMp` arbitrarily.",
+   "impact": "Inflated internal credit allows the attacker to withdraw more funds than actually deposited, leading to protocol insolvency.",
+   "recommendation": "Update internal balance before the external token transfer or add a reentrancy guard (e.g., OpenZeppelin's `nonReentrant` modifier).",
+   "confidence": 0.95
+  },
+  {
+   "title": "Signature replay and impersonation in signed deployment request functions",
+   "severity": "High",
+   "category": "ACCESS",
+   "file": "crestal-omni-contracts/src/history/BlueprintV3.sol",
+   "function": "createProjectIDAndDeploymentRequestWithSig()",
+   "description": "The function verifies an off‑chain signature but does not bind the signed payload to the caller address or a nonce. An attacker who obtains a valid signature from a user can reuse it arbitrarily to create deployment requests on behalf of that user, causing unauthorized actions and fee deductions.",
+   "attackPath": "1. Attacker obtains a legitimate signature from a user (e.g., via UI, phishing, or a previously signed transaction).  \n2. Calls `createProjectIDAndDeploymentRequestWithSig(projectId, base64Proposal, serverURL, signature)` with the captured signature.  \n3. The contract recovers the signer address and records the request as coming from that signer, while the attacker pays only their own gas.  \n4. The attacker repeats the call, spamming the system or draining the signer’s balance through repeated fee deductions.",
+   "impact": "Unauthorized creation of deployment requests, possible fee draining from the victim’s balance, and spam of the protocol’s request pipeline.",
+   "recommendation": "Include the caller address (`msg.sender`) and a per‑user nonce in the signed struct, and verify that the recovered signer matches `msg.sender` (or that the nonce is unused and then increment it).",
+   "confidence": 0.95
+  },
+  {
+   "title": "Missing whitelist enforcement on agent creation",
+   "severity": "Medium",
+   "category": "ACCESS",
+   "file": "BlueprintCore.sol",
+   "function": "createAgent()",
+   "description": "The contract maintains a `whitelistUsers` mapping intended to restrict who may create agents, yet the `createAgent` internal function (exposed publicly via `createAgentWithToken` and `createAgentWithTokenWithSig`) does **not** check this whitelist before allowing a user to mint an agent NFT or pay with a token.",
+   "attackPath": "1. An attacker (any address) calls `createAgentWithToken(...)` with a valid enabled ERC‑20 token.  \n2. The function proceeds without verifying `whitelistUsers[msg.sender]`.  \n3. The attacker creates agents and consumes protocol resources without authorization.",
+   "impact": "Unauthorized users can flood the system with agents, potentially exhausting NFT IDs, draining fee wallets, and bypassing any intended access restrictions.",
+   "recommendation": "Add a `require(whitelistUsers[msg.sender] == Status.Pickup, \"Not whitelisted\")` (or appropriate status check) at the beginning of `createAgent` and any public wrappers.",
+   "confidence": 0.92
+  },
+  {
+   "title": "upgradeProject allows unauthorized reset of any project's deployment state",
+   "severity": "High",
+   "category": "ACCESS",
+   "file": "crestal-omni-contracts/src/history/BlueprintCoreV4.sol",
+   "function": "upgradeProject(bytes32 projectId)",
+   "description": "The `upgradeProject` function only checks that a project exists via the `hasProject` modifier, which returns true for any project in either the new `projects` mapping or the legacy `projectIDs` mapping. It does not verify that the caller owns the project or has any authorization. Any external caller can reset `requestProposalID`, `requestDeploymentID`, and `proposedSolverAddr` to zero for any active project, breaking the proposal/deployment flow and potentially causing loss of funds or requiring full project re-creation.",
+   "attackPath": "1. Victim creates a project and initiates a deployment with a solver. 2. Attacker calls `upgradeProject(victimProjectId)` with no authorization. 3. Project's `requestProposalID`, `requestDeploymentID`, and `proposedSolverAddr` are reset to zero/dummy. 4. Victim's deployment request is orphaned; solver/worker assignments lost; protocol state inconsistent.",
+   "impact": "Griefing of any active project; disruption of deployment workflows; potential loss of payments tied to the reset deployment IDs.",
+   "recommendation": "Add ownership check: `require(projects[projectId].proposedSolverAddr == msg.sender || <owner logic>)` or restrict to project creator via a stored `projectOwner` mapping.",
+   "confidence": 0.92
+  },
+  {
+   "title": "Signature replay enables unlimited creation of deployment requests/agents",
+   "severity": "Medium",
+   "category": "ACCESS",
+   "file": "BlueprintCoreV4.sol",
+   "function": "createProjectIDAndDeploymentRequestWithSig(), createAgentWithWhitelistUsersWithSig(), createAgentWithSigWithNFT(), createProjectIDAndPrivateDeploymentRequestWithSig(), updateWorkerDeploymentConfigWithSig()",
+   "description": "All functions that accept an EIP‑712 signature compute the digest from deterministic fields (`projectId`, `base64Proposal`, `serverURL`, etc.) but do **not** incorporate a nonce, timestamp, or request‑specific identifier. Consequently, a valid signature can be submitted repeatedly to create multiple deployment requests or agents with the same parameters.",
+   "attackPath": "1. Attacker obtains a legitimate signature from a whitelisted user (e.g., via a compromised off‑chain signing service).  \n2. Calls the corresponding `*WithSig` function repeatedly, each time reusing the same signature.  \n3. Each call creates a new deployment request/agent, incurring protocol fees and potentially draining the user’s prepaid balance.",
+   "impact": "Repeated replay can exhaust a user’s balance, cause unnecessary on‑chain spam, and inflate fees collected by the protocol without the user’s consent.",
+   "recommendation": "Include a unique, per‑user nonce (or request‑specific identifier) in the signed payload and store used nonces to prevent reuse. Reject any call with a previously used nonce.",
+   "confidence": 0.92
+  },
+  {
+   "title": "Private deployment requests can be hijacked by any worker",
+   "severity": "High",
+   "category": "ACCESS",
+   "file": "crestal-omni-contracts/src/history/BlueprintV3.sol",
+   "function": "submitDeploymentRequest()",
+   "description": "When a private deployment request is created, the intended worker address is stored, but `submitDeploymentRequest()` does not verify that `msg.sender` matches the stored private worker address. Any address can call the function and become the assigned worker, bypassing the private‑worker restriction.",
+   "attackPath": "1. Attacker observes a private deployment request (its `requestID` is emitted in events).  \n2. Calls `submitDeploymentRequest(projectId, requestID)`.  \n3. The function sets `status = Pickup` and overwrites `deployWorkerAddr` with the attacker’s address, regardless of the originally intended private worker.  \n4. The attacker can later submit a proof and claim the payment intended for the legitimate worker.",
+   "impact": "Unauthorized workers can claim jobs and associated payments, leading to loss of funds for requestors and undermining trust in private deployments.",
+   "recommendation": "Add a check that, if a private worker address is recorded for the request, only that address may call `submitDeploymentRequest()`. Reject calls from other addresses.",
+   "confidence": 0.92
+  },
+  {
+   "title": "Front‑running / denial‑of‑service via arbitrary `projectId` selection",
+   "severity": "Medium",
+   "category": "LIVENESS",
+   "file": "BlueprintCore.sol",
+   "function": "createProjectIDAndProposalRequest(), createProjectIDAndDeploymentRequest()",
+   "description": "These public functions accept a caller‑supplied `projectId` and then call `setProjectId(projectId, msg.sender)`. Because the caller can choose any `bytes32` value, an attacker can pre‑compute a `projectId` that a legitimate user intends to use and register it first, causing the legitimate call to revert with “projectId already exists”.",
+   "attackPath": "1. Attacker monitors the mempool for a user’s transaction that will call `createProjectIDAndProposalRequest` (or Deployment).  \n2. Attacker front‑runs with their own transaction, supplying the same `projectId` (or a predictable one) to lock the ID.  \n3. The victim’s transaction later reverts, preventing project creation.",
+   "impact": "Legitimate users are blocked from creating projects, leading to a denial‑of‑service and potential loss of business opportunities.",
+   "recommendation": "Remove the ability for callers to provide their own `projectId`; generate the ID internally (as done in `createProjectID`) or require a unique nonce that the contract validates.",
+   "confidence": 0.88
+  },
+  {
+   "title": "Project ID collision prevents multi-project creation in same block (DoS)",
+   "severity": "Medium",
+   "category": "LIVENESS",
+   "file": "crestal-omni-contracts/src/history/BlueprintCoreV4.sol",
+   "function": "createProjectID()",
+   "description": "`createProjectID` generates `projectId = keccak256(abi.encodePacked(block.timestamp, msg.sender, block.chainid))`. If a user attempts to create multiple projects within the same block, the second call produces the same `projectId` and reverts due to the `newProject` modifier check (`projects[projectId].id == 0`). The FIXME comment acknowledges this limitation. This denies legitimate users the ability to batch-create projects or create multiple projects in a single transaction via a contract wallet.",
+   "attackPath": "1. User (or contract wallet) calls `createProjectID()` twice in the same transaction/block. 2. Second call reverts with \"projectId already exists\". 3. User cannot create multiple projects atomically.",
+   "impact": "Denial of service for legitimate multi-project creation; breaks composability with smart contract wallets or batch operations.",
+   "recommendation": "Include a nonce or counter in the project ID derivation: `keccak256(abi.encodePacked(block.timestamp, msg.sender, block.chainid, projectNonce[msg.sender]++))`.",
+   "confidence": 0.88
+  },
+  {
+   "title": "Predictable ID generation using `block.timestamp` may cause collisions",
+   "severity": "Low",
+   "category": "LIVENESS",
+   "file": "BlueprintCore.sol",
+   "function": "createProjectID(), proposalRequest(), deploymentRequest()",
+   "description": "The contract derives `projectId`, `requestID` and `projectDeploymentId` by hashing `block.timestamp` together with other data. If multiple calls are made in the same block by the same sender (or with identical parameters), the resulting IDs can collide, causing the second call to revert (e.g., “projectId already exists” or “proposal requestID already exists”). This predictability can be exploited to intentionally cause collisions and block legitimate operations.",
+   "attackPath": "1. Attacker sends several transactions in the same block with identical inputs (or coordinates with a victim).  \n2. The second transaction generates the same ID as the first, causing a revert and preventing the intended action.",
+   "impact": "Service denial for users attempting to create multiple proposals/deployments within a single block.",
+   "recommendation": "Incorporate a per‑address nonce or use `block.prevrandao`/`keccak256(abi.encodePacked(..., nonce))` to guarantee uniqueness across transactions.",
+   "confidence": 0.81
+  }
+ ],
+ "rawCount": 15,
+ "dropped": 1,
+ "durationMs": 198874,
+ "filesInScope": [
+  {
+   "rel": "crestal-omni-contracts/lib/openzeppelin-foundry-upgrades/src/Defender.sol",
+   "bytes": 8467,
+   "score": 1
+  },
+  {
+   "rel": "crestal-omni-contracts/lib/openzeppelin-foundry-upgrades/src/LegacyUpgrades.sol",
+   "bytes": 16197,
+   "score": 2
+  },
+  {
+   "rel": "crestal-omni-contracts/lib/openzeppelin-foundry-upgrades/src/Upgrades.sol",
+   "bytes": 26444,
+   "score": 3
+  },
+  {
+   "rel": "crestal-omni-contracts/lib/openzeppelin-foundry-upgrades/src/internal/Core.sol",
+   "bytes": 20851,
+   "score": 6
+  },
+  {
+   "rel": "crestal-omni-contracts/lib/openzeppelin-foundry-upgrades/src/internal/DefenderDeploy.sol",
+   "bytes": 13777,
+   "score": 1
+  },
+  {
+   "rel": "crestal-omni-contracts/lib/openzeppelin-foundry-upgrades/src/internal/Utils.sol",
+   "bytes": 10081,
+   "score": 1
+  },
+  {
+   "rel": "crestal-omni-contracts/lib/openzeppelin-foundry-upgrades/src/internal/Versions.sol",
+   "bytes": 270,
+   "score": 0
+  },
+  {
+   "rel": "crestal-omni-contracts/src/Blueprint.sol",
+   "bytes": 3654,
+   "score": 0
+  },
+  {
+   "rel": "crestal-omni-contracts/src/BlueprintCore.sol",
+   "bytes": 29740,
+   "score": 7
+  },
+  {
+   "rel": "crestal-omni-contracts/src/BlueprintV1.sol",
+   "bytes": 836,
+   "score": 0
+  },
+  {
+   "rel": "crestal-omni-contracts/src/BlueprintV2.sol",
+   "bytes": 742,
+   "score": 0
+  },
+  {
+   "rel": "crestal-omni-contracts/src/BlueprintV3.sol",
+   "bytes": 945,
+   "score": 0
+  },
+  {
+   "rel": "crestal-omni-contracts/src/BlueprintV4.sol",
+   "bytes": 1149,
+   "score": 0
+  },
+  {
+   "rel": "crestal-omni-contracts/src/BlueprintV5.sol",
+   "bytes": 1088,
+   "score": 0
+  },
+  {
+   "rel": "crestal-omni-contracts/src/EIP712.sol",
+   "bytes": 1842,
+   "score": 2
+  },
+  {
+   "rel": "crestal-omni-contracts/src/Payment.sol",
+   "bytes": 1354,
+   "score": 2
+  },
+  {
+   "rel": "crestal-omni-contracts/src/history/BlueprintCoreV4.sol",
+   "bytes": 33228,
+   "score": 7
+  },
+  {
+   "rel": "crestal-omni-contracts/src/history/BlueprintV1.sol",
+   "bytes": 11915,
+   "score": 1
+  },
+  {
+   "rel": "crestal-omni-contracts/src/history/BlueprintV2.sol",
+   "bytes": 22206,
+   "score": 2
+  },
+  {
+   "rel": "crestal-omni-contracts/src/history/BlueprintV3.sol",
+   "bytes": 27698,
+   "score": 5
+  },
+  {
+   "rel": "crestal-omni-contracts/src/history/BlueprintV4.sol",
+   "bytes": 1484,
+   "score": 0
+  }
+ ]
+}

@@ -1,0 +1,170 @@
+{
+ "contest": "2025-01-peapods-finance",
+ "hypotheses": [
+  {
+   "title": "Uninitialized `_initialised` flag allows reentrant workflow bypass",
+   "severity": "High",
+   "category": "Access Control",
+   "file": "LeverageManager.sol",
+   "function": "addLeverage()",
+   "description": "The `workflow` modifier uses a boolean `_initialised` that is set to `true` at the start and `false` at the end of a workflow. If a call to `addLeverage()` or `removeLeverage()` reverts after setting `_initialised = true` but before resetting it to `false`, the flag remains `true`. This permanently blocks all future workflow functions because they require `!_initialised` to enter. An attacker can trigger a revert in the callback path to lock the contract.",
+   "attackPath": "1. Attacker calls `addLeverage()` with parameters that cause a revert inside the flash loan callback (e.g., by providing a malicious `_config` that causes an arithmetic error in `_addLeveragePostCallback`). 2. The `workflow(true)` modifier sets `_initialised = true` before the revert. 3. The revert prevents `workflow(false)` from ever executing, leaving `_initialised = true`. 4. All subsequent calls to `addLeverage()`, `addLeverageFromTkn()`, `removeLeverage()`, and `callback()` revert because they require `!_initialised` or `_initialised`.",
+   "impact": "Permanent denial of service for all leverage operations, freezing user positions and preventing any new leverage actions.",
+   "recommendation": "Use a reentrancy guard pattern (e.g., OpenZeppelin's `ReentrancyGuard`) instead of a boolean flag, or wrap the workflow in a try-catch to reset the flag on revert."
+  },
+  {
+   "title": "`withdrawAssets()` allows owner to drain any token from custodian",
+   "severity": "High",
+   "category": "Access Control",
+   "file": "LeverageManager.sol",
+   "function": "withdrawAssets()",
+   "description": "The `withdrawAssets()` function is callable by the position NFT owner and allows withdrawing any `_token` and any `_amount` from the position's custodian contract. The custodian contract (`LeveragePositionCustodian`) has an `onlyOwner` modifier that checks `_msgSender() == owner()`. Since the `LeverageManager` is the owner of the custodian, and `withdrawAssets()` calls `custodian.withdraw(_token, _recipient, _amount)` without any validation that the token is part of the position's collateral or that the amount is legitimate, the position owner can drain any tokens held by the custodian, including tokens that belong to other positions or protocol fees.",
+   "attackPath": "1. Attacker creates a position and becomes the NFT owner. 2. Attacker calls `withdrawAssets()` with `_token` set to a valuable token held by the custodian (e.g., the paired LP token or reward token) and `_amount` set to the full balance. 3. The custodian transfers the tokens to the attacker.",
+   "impact": "Theft of any tokens held in any `LeveragePositionCustodian` contract, including assets belonging to other positions or the protocol.",
+   "recommendation": "Add validation in `withdrawAssets()` to only allow withdrawing the specific collateral asset associated with the position, and cap the amount to the position's actual collateral balance."
+  },
+  {
+   "title": "First-depositor inflation attack in AutoCompoundingPodLp",
+   "severity": "High",
+   "category": "Accounting/Rounding",
+   "file": "AutoCompoundingPodLp.sol",
+   "function": "_deposit()",
+   "description": "The contract uses `_cbr()` = `totalAssets() / totalSupply()` to convert assets to shares. An attacker can deposit 1 wei as the first depositor, then donate a large amount of the underlying LP token directly to the contract, inflating `totalAssets` without minting new shares. Subsequent depositors receive far fewer shares than expected, losing value. No minimum deposit or virtual shares mechanism exists.",
+   "attackPath": "1. Attacker calls `deposit(1, attacker)` to mint 1 share. 2. Attacker transfers a large amount of the staking pool token (spTKN) directly to the contract, increasing `totalAssets` while `totalSupply` remains 1. 3. A victim deposits assets; the inflated `_cbr()` causes them to receive a tiny number of shares, effectively stealing most of their deposit.",
+   "impact": "Loss of funds for subsequent depositors; attacker can extract value by redeeming their single share for a disproportionate amount of assets.",
+   "recommendation": "Implement a minimum deposit amount (e.g., 1e18) or use virtual shares (e.g., mint a fixed number of shares to address(0) on first deposit) to prevent share price manipulation."
+  },
+  {
+   "title": "First-depositor inflation attack in LendingAssetVault",
+   "severity": "High",
+   "category": "Accounting/Rounding",
+   "file": "LendingAssetVault.sol",
+   "function": "_deposit()",
+   "description": "The vault uses `_cbr()` = `totalAssets() / totalSupply()` for share conversion. An attacker can deposit 1 wei as the first depositor, then donate a large amount of the underlying asset directly to the contract, inflating `totalAssets` without minting new shares. Subsequent depositors receive far fewer shares than expected. No minimum deposit or virtual shares mechanism exists.",
+   "attackPath": "1. Attacker calls `deposit(1, attacker)` to mint 1 share. 2. Attacker transfers a large amount of the vault’s underlying asset directly to the contract, increasing `totalAssets` while `totalSupply` remains 1. 3. A victim deposits assets; the inflated `_cbr()` causes them to receive a tiny number of shares, effectively stealing most of their deposit.",
+   "impact": "Loss of funds for subsequent depositors; attacker can redeem their single share for a disproportionate amount of assets.",
+   "recommendation": "Implement a minimum deposit amount (e.g., 1e18) or use virtual shares (e.g., mint a fixed number of shares to address(0) on first deposit) to prevent share price manipulation."
+  },
+  {
+   "title": "Unbounded loop over user-controlled array in bulkTransferEmpty",
+   "severity": "High",
+   "category": "Denial of Service",
+   "file": "contracts/contracts/BulkPodYieldProcess.sol",
+   "function": "bulkTransferEmpty()",
+   "description": "The `bulkTransferEmpty()` function iterates over an unbounded user-supplied array `_token`. An attacker can pass an extremely large array, causing the transaction to exceed the block gas limit and permanently DoS any call to this function.",
+   "attackPath": "An attacker calls `bulkTransferEmpty()` with an array of thousands of token addresses. The loop consumes all available gas, reverting the transaction. Since the function is public and non-payable, anyone can repeatedly grief it.",
+   "impact": "Permanent denial of service for the `bulkTransferEmpty()` function, preventing legitimate use.",
+   "recommendation": "Remove the function or add a maximum array length check (e.g., `require(_token.length <= MAX_TOKENS)`)."
+  },
+  {
+   "title": "Unbounded loop over user-controlled array in bulkProcessPendingYield",
+   "severity": "High",
+   "category": "Denial of Service",
+   "file": "contracts/contracts/BulkPodYieldProcess.sol",
+   "function": "bulkProcessPendingYield()",
+   "description": "The `bulkProcessPendingYield()` function iterates over an unbounded user-supplied array `_idx`. An attacker can supply a huge array to exhaust gas, permanently DoSing the function.",
+   "attackPath": "An attacker calls `bulkProcessPendingYield()` with an array of thousands of pod addresses. The loop consumes all gas, reverting. The function is public and can be repeatedly griefed.",
+   "impact": "Permanent denial of service for the `bulkProcessPendingYield()` function, blocking yield processing.",
+   "recommendation": "Add a maximum array length check (e.g., `require(_idx.length <= MAX_PODS)`)."
+  },
+  {
+   "title": "Unbounded loop over user-controlled array in claimRewardsMulti",
+   "severity": "High",
+   "category": "Denial of Service",
+   "file": "contracts/contracts/IndexUtils.sol",
+   "function": "claimRewardsMulti()",
+   "description": "The `claimRewardsMulti()` function iterates over an unbounded user-supplied array `_rewards`. An attacker can pass a huge array to exhaust gas, permanently DoSing the function.",
+   "attackPath": "An attacker calls `claimRewardsMulti()` with an array of thousands of reward contract addresses. The loop consumes all gas, reverting. The function is public and can be repeatedly griefed.",
+   "impact": "Permanent denial of service for the `claimRewardsMulti()` function, preventing users from claiming rewards.",
+   "recommendation": "Add a maximum array length check (e.g., `require(_rewards.length <= MAX_REWARDS)`)."
+  },
+  {
+   "title": "Unbounded loop over user-controlled array in setVaultMaxAllocation",
+   "severity": "High",
+   "category": "Denial of Service",
+   "file": "contracts/contracts/LendingAssetVault.sol",
+   "function": "setVaultMaxAllocation()",
+   "description": "The `setVaultMaxAllocation()` function iterates over an unbounded user-supplied array `_vaults`. An attacker can pass a huge array to exhaust gas, permanently DoSing the function.",
+   "attackPath": "An attacker calls `setVaultMaxAllocation()` with an array of thousands of vault addresses. The loop consumes all gas, reverting. The function is onlyOwner, but the attacker can still grief by calling it with a large array, causing the owner's transaction to fail.",
+   "impact": "Permanent denial of service for the `setVaultMaxAllocation()` function, preventing the owner from setting vault allocations.",
+   "recommendation": "Add a maximum array length check (e.g., `require(_vaults.length <= MAX_VAULTS)`)."
+  },
+  {
+   "title": "Unbounded loop over user-controlled array in globalPause",
+   "severity": "High",
+   "category": "Denial of Service",
+   "file": "fraxlend/src/contracts/FraxlendPairDeployer.sol",
+   "function": "globalPause()",
+   "description": "The `globalPause()` function iterates over an unbounded user-supplied array `_addresses`. An attacker can pass a huge array to exhaust gas, permanently DoSing the function.",
+   "attackPath": "An attacker calls `globalPause()` with an array of thousands of pair addresses. The loop consumes all gas, reverting. The function is only callable by circuitBreakerAddress, but the attacker can still grief by causing the circuit breaker's transaction to fail.",
+   "impact": "Permanent denial of service for the `globalPause()` function, preventing the circuit breaker from pausing pairs.",
+   "recommendation": "Add a maximum array length check (e.g., `require(_addresses.length <= MAX_PAIRS)`)."
+  },
+  {
+   "title": "`callback()` can be called by any flash source, not just the intended one",
+   "severity": "High",
+   "category": "Access Control",
+   "file": "LeverageManager.sol",
+   "function": "callback()",
+   "description": "The `callback()` function is external and only checks that `_msgSender()` matches the flash source for the position's borrow token (`_getFlashSource(_posProps.positionId) == _msgSender()`). An attacker can deploy a malicious flash loan source contract that returns the correct address for `source()` and call `callback()` with crafted `_userData`. This bypasses the intended flash loan workflow and allows arbitrary execution of `_addLeveragePostCallback` or `_removeLeveragePostCallback` with attacker-controlled parameters.",
+   "attackPath": "1. Attacker deploys a contract that implements `IFlashLoanSource` and returns any address for `source()`. 2. Attacker calls `callback()` with `_userData` that decodes to a `LeverageFlashProps` with a valid `positionId` and `method = ADD`. 3. The `_getFlashSource` check passes because the attacker's contract is registered as the flash source for that borrow token (or the attacker uses a position where the flash source is address(0) and the check passes). 4. The attacker can manipulate `_addLeveragePostCallback` to steal funds or corrupt position state.",
+   "impact": "Theft of user funds, manipulation of position collateral/debt, or corruption of protocol accounting.",
+   "recommendation": "Restrict `callback()` to only be callable by the actual flash loan source contracts that are deployed and controlled by the protocol, e.g., by maintaining a whitelist of trusted flash sources."
+  },
+  {
+   "title": "Unbounded loop over user-controlled array in _distributeReward",
+   "severity": "Medium",
+   "category": "Denial of Service",
+   "file": "contracts/contracts/TokenRewards.sol",
+   "function": "_distributeReward()",
+   "description": "The `_distributeReward()` function iterates over the `_allRewardsTokens` array, which can grow unboundedly as new reward tokens are added via `_depositRewards()`. An attacker can add many reward tokens to bloat the array, causing the loop to exhaust gas and DoS reward distribution.",
+   "attackPath": "An attacker repeatedly calls `depositRewards()` with different whitelisted tokens, each adding a new entry to `_allRewardsTokens`. Once the array is large enough, any call to `claimReward()` or `setShares()` (which calls `_distributeReward()`) will run out of gas and revert.",
+   "impact": "Permanent denial of service for reward claiming and share updates, freezing user rewards.",
+   "recommendation": "Enforce a maximum number of reward tokens (e.g., `require(_allRewardsTokens.length <= MAX_REWARDS_TOKENS)`)."
+  },
+  {
+   "title": "Missing Replay Protection in CCIP TokenBridge",
+   "severity": "High",
+   "category": "Cross-Chain Replay",
+   "file": "contracts/contracts/ccip/TokenBridge.sol",
+   "function": "_ccipReceive",
+   "description": "The _ccipReceive function does not store or check unique message IDs, allowing an attacker to replay a valid CCIP message multiple times. Each replay will mint or transfer tokens to the recipient, potentially minting unlimited tokens or draining the bridge's balance.",
+   "attackPath": "An attacker observes a legitimate CCIP message (e.g., from a previous bridgeTokens call). They then cause the same message to be delivered again (e.g., by exploiting the CCIP off-chain relayer or by directly calling the CCIP router with the same message). The contract processes it again, repeating the token mint/transfer.",
+   "impact": "Unlimited minting of bridgeable tokens (if mint/burn) or draining of token balance from the bridge contract, leading to loss of funds.",
+   "recommendation": "Implement a mapping from bytes32 messageId to bool to prevent processing the same message twice. Also consider adding a deadline to reject old messages."
+  },
+  {
+   "title": "`initializePosition()` can be called directly to create positions without leverage",
+   "severity": "Medium",
+   "category": "Access Control",
+   "file": "LeverageManager.sol",
+   "function": "initializePosition()",
+   "description": "The `initializePosition()` function is external and has no access control. It calls `_initializePosition()` which mints a new position NFT and creates a new `LeveragePositionCustodian` contract. The function does not require any payment or fee, and the caller can specify any `_pod`, `_recipient`, and `_overrideLendingPair`. This allows an attacker to create unlimited positions without any cost, potentially spamming the system or manipulating position counts.",
+   "attackPath": "1. Attacker calls `initializePosition()` repeatedly with arbitrary parameters. 2. Each call mints a new NFT and deploys a new custodian contract, consuming gas and bloating storage. 3. The attacker can create positions for pods that are not supported by the protocol, potentially causing issues in downstream functions that iterate over positions.",
+   "impact": "Unbounded creation of positions and custodian contracts, leading to storage bloat and potential denial of service for legitimate users.",
+   "recommendation": "Add a fee or access control to `initializePosition()`, or require that the pod has a valid lending pair configured."
+  },
+  {
+   "title": "Incorrect Amount Accounting for Fee-on-Transfer Tokens in Bridge",
+   "severity": "Medium",
+   "category": "Bridge Message-Passing Assumption",
+   "file": "contracts/contracts/ccip/TokenBridge.sol",
+   "function": "_processInboundTokens",
+   "description": "The function burns the original `_amount` even if the actual tokens received (`_amountAfter`) are less due to transfer fees. This can cause the contract to burn more tokens than it received, draining its balance of that token or causing the transaction to revert if insufficient balance.",
+   "attackPath": "An attacker bridges a token that charges a transfer fee. The contract receives fewer tokens than specified, but burns the full specified amount. If the contract has an existing balance of that token, the attacker can repeatedly bridge small amounts to drain that balance. If the contract has no balance, the burn will revert, allowing the attacker to grief bridge operations.",
+   "impact": "Loss of tokens from the bridge contract's balance or denial of service for legitimate bridge operations.",
+   "recommendation": "Burn the actual amount received (`_amountAfter`) instead of the input `_amount`. Alternatively, require that the token has no transfer fee."
+  },
+  {
+   "title": "`setLendingPair()` can be called by owner to change lending pair for a pod",
+   "severity": "Medium",
+   "category": "Access Control",
+   "file": "LeverageManagerAccessControl.sol",
+   "function": "setLendingPair()",
+   "description": "The `setLendingPair()` function is `onlyOwner` and allows changing the lending pair for any pod at any time. If the owner sets a malicious lending pair for an existing pod, all existing positions using that pod will be forced to interact with the malicious pair. This could allow the owner to steal collateral or manipulate debt calculations for existing positions.",
+   "attackPath": "1. Owner calls `setLendingPair()` to change the lending pair for a popular pod to a malicious contract. 2. Existing positions that call `removeLeverage()` or `addLeverage()` will now interact with the malicious lending pair. 3. The malicious pair can return incorrect values for `asset()`, `collateralContract()`, or `borrowAsset()`, allowing the owner to steal user funds.",
+   "impact": "Theft of user funds or manipulation of position accounting if the owner is malicious or the owner key is compromised.",
+   "recommendation": "Prevent changing the lending pair for a pod that already has active positions, or require a timelock and user opt-in for such changes."
+  }
+ ]
+}
