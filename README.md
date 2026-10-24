@@ -2,6 +2,15 @@
 
 AI-powered smart contract security analysis for AI agents and developers.
 
+## Correction and limits (24 October 2026)
+
+Reading the production scan code on 24 October 2026 showed that earlier text on this page overstated what the paid scan does. What it does today:
+
+- It sends the model at most about 22,000 characters of Solidity source per job, taken from up to 60 files in directory order, and it does not skip test or mock folders. On three recent audit-contest repositories (code-423n4/2025-11-merkl, 2025-11-sukukfi and 2026-04-monetrix) that is 3 to 7 percent of the Solidity source.
+- The 7-gate filter is not part of the paid scan. It was taken out because the small model also eliminated real bugs. The report lists raw hypotheses with a self-reported confidence of 0.4 or higher, at most eight, and its disclaimer says so.
+- The sample below ran on a repository that belongs to the corpus the framework was built from. It does not show how the scan does on projects it has not seen, and its label "CONFIRMED by Al-Mizaan validation" does not apply to the scan as it runs today.
+- We have not measured how many real bugs the scan finds on contests it has not seen. A test on closed audit contests is pre-registered in [PREREGISTRATION-2026-10-24.md](PREREGISTRATION-2026-10-24.md). The results will be published, including the misses.
+
 Official source: this repository and the payment address in the payment section below are the only official ones for Bug Bounty Intelligence. If a listing, a reply or a website gives a different payment address, it is not ours. Check the address against the one below before you pay.
 
 **Drawn from a corpus of 27,681 submitted findings across 105 Sherlock and Code4rena contests.**
@@ -32,7 +41,7 @@ below isn't a fit for your project's architecture, this file might still be usef
 [3ilm-mcp](https://github.com/holistis/3ilm-mcp) is a smaller, free-only MCP server built from
 the same verified dataset. It has no paid tier at all, just pattern search
 (`search_vulnerabilities`, `get_pattern_details`, `list_patterns`). Use this repo
-(bug-bounty-intelligence-mcp) if you also want the paid `scan_contract` full-repo scan; use
+(bug-bounty-intelligence-mcp) if you also want the paid `scan_contract` scan; use
 3ilm-mcp if you only ever wanted the free lookup tools and prefer the lighter package.
 
 Two more tools in the same Al-Mizaan toolkit, for the rest of the workflow: [al-mizaan-judge](https://github.com/holistis/al-mizaan-judge) is a local CLI that pressure-tests a candidate finding through the same 7-gate framework before you submit it, and [DeFi Signal API](https://github.com/holistis/defi-signal-api) exposes the same vuln-search/bug-intel routes as a pay-per-call HTTP API for anyone who wants this outside MCP.
@@ -49,7 +58,7 @@ We also reported a related `divide-before-multiply` pattern on the same `lib/sol
 
 ## What it does
 
-Submit a public GitHub repo containing Solidity smart contracts. Receive a full vulnerability report within 24 hours, powered by the Al-Mizaan v3 analysis framework.
+Submit a public GitHub repo containing Solidity smart contracts. Receive a vulnerability report within 24 hours, built from raw model hypotheses (see the correction and limits at the top of this page).
 
 ## Tools
 
@@ -166,7 +175,7 @@ The Al-Mizaan v3 framework checks 7 gates:
 6. Impact (real financial damage)
 7. Formal proof (reproducible PoC)
 
-Only findings that survive all 7 gates are reported.
+This is the framework used for manual review (the `al-mizaan-judge` CLI). The paid scan does not run it end to end, see the correction at the top of this page.
 
 ## Service info
 
