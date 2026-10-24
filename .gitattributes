@@ -1,2 +1,3 @@
 # The files in pipeline/v2 are hash-verifiable: keep their bytes exactly as committed.
 pipeline/v2/** -text
+pipeline/v2.1/** -text
