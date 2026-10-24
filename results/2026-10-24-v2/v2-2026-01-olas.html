@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bug Bounty Intelligence — code-423n4/2026-01-olas</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#0f172a;color:#e2e8f0;padding:2rem;max-width:900px;margin:0 auto}
+.header{border-bottom:1px solid #1e3a5f;padding-bottom:1.5rem;margin-bottom:2rem}
+h1{font-size:1.8rem;color:#38bdf8}
+.meta{color:#94a3b8;font-size:0.9rem;margin-top:0.4rem}
+.stats{display:flex;gap:1rem;margin:1rem 0 2rem;flex-wrap:wrap}
+.stat{background:#1e293b;border-radius:8px;padding:.75rem 1.25rem;display:flex;align-items:center;gap:.75rem}
+.count{font-size:1.5rem;font-weight:bold}
+.badge{padding:.25rem .6rem;border-radius:4px;font-size:.8rem;font-weight:bold;color:#fff}
+.finding{background:#1e293b;border-radius:8px;margin-bottom:1rem;border-left:4px solid #1e3a5f;overflow:hidden}
+.finding-header{padding:1rem 1.5rem;display:flex;align-items:center;gap:1rem}
+.finding-header h3{flex:1;font-size:1rem}
+.conf{font-size:.8rem;color:#94a3b8}
+.finding-body{padding:0 1.5rem 1.25rem;border-top:1px solid #0f172a}
+.finding-body p{margin-top:.75rem;line-height:1.6;color:#cbd5e1}
+code{background:#0f172a;padding:.1rem .4rem;border-radius:3px;font-size:.85rem}
+.no-findings{padding:2rem;text-align:center;color:#cbd5e1;background:#1e293b;border-radius:8px;line-height:1.7}
+.coverage{margin-bottom:2rem;padding:1rem 1.25rem;background:#1e293b;border-radius:8px;border-left:4px solid #38bdf8;font-size:.9rem;line-height:1.7;color:#cbd5e1}
+.coverage p{margin-top:.5rem}
+.limits{margin-bottom:1rem;padding:.75rem 1.25rem;background:#1e3a5f;border-radius:8px;border-left:4px solid #ca8a04;font-size:.85rem;color:#fbbf24}
+h2{font-size:1.1rem;margin-bottom:1rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em}
+.disclaimer{margin-top:3rem;padding:1.5rem;background:#1e293b;border-radius:8px;border-left:4px solid #ca8a04;font-size:.85rem;color:#94a3b8;line-height:1.7}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Bug Bounty Intelligence</h1>
+  <div class="meta">AI-generated hypotheses for Solidity code. Not an audit.</div>
+  <div class="meta">Repository: <code>code-423n4/2026-01-olas</code></div>
+  <div class="meta">Analyzed: 2026-10-24 06:57 UTC &nbsp;|&nbsp; Model: nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter), codestral-latest (Mistral) &nbsp;|&nbsp; Duration: 597s</div>
+</div>
+
+
+<h2>Coverage</h2>
+<div class="coverage">
+  <p><strong>8% of the in-scope Solidity was read by the analysis</strong>: 86 KB of 1140 KB, in 6 of 6 planned parts.</p>
+  <p>Files read in full: 2 of 102; partly read: <code>autonolas-registries/contracts/staking/StakingBase.sol</code>.</p>
+  <p>Not read: <code>autonolas-governance/contracts/Burner.sol</code>, <code>autonolas-governance/contracts/DeploymentFactory.sol</code>, <code>autonolas-governance/contracts/GovernorOLAS.sol</code>, <code>autonolas-governance/contracts/OLAS.sol</code>, <code>autonolas-governance/contracts/Timelock.sol</code>, <code>autonolas-governance/contracts/VoteWeighting.sol</code>, <code>autonolas-governance/contracts/bridges/BridgeMessenger.sol</code>, <code>autonolas-governance/contracts/bridges/BridgedERC20.sol</code>, <code>autonolas-governance/contracts/bridges/FxERC20ChildTunnel.sol</code>, <code>autonolas-governance/contracts/bridges/FxERC20RootTunnel.sol</code>, <code>autonolas-governance/contracts/bridges/FxGovernorTunnel.sol</code>, <code>autonolas-governance/contracts/bridges/HomeMediator.sol</code>, <code>autonolas-governance/contracts/bridges/OptimismMessenger.sol</code>, <code>autonolas-governance/contracts/bridges/WormholeMessenger.sol</code>, <code>autonolas-governance/contracts/bridges/WormholeRelayerTimelock.sol</code>, <code>autonolas-governance/contracts/buOLAS.sol</code>, <code>autonolas-governance/contracts/multisigs/GuardCM.sol</code>, <code>autonolas-governance/contracts/multisigs/VerifyData.sol</code>, <code>autonolas-governance/contracts/multisigs/bridge_verifier/ProcessBridgedDataArbitrum.sol</code>, <code>autonolas-governance/contracts/multisigs/bridge_verifier/ProcessBridgedDataGnosis.sol</code>, <code>autonolas-governance/contracts/multisigs/bridge_verifier/ProcessBridgedDataOptimism.sol</code>, <code>autonolas-governance/contracts/multisigs/bridge_verifier/ProcessBridgedDataPolygon.sol</code>, <code>autonolas-governance/contracts/multisigs/bridge_verifier/ProcessBridgedDataWormhole.sol</code>, <code>autonolas-governance/contracts/multisigs/bridge_verifier/VerifyBridgedData.sol</code>, <code>autonolas-governance/contracts/utils/GovernorTimelockControl.sol</code>, <code>autonolas-governance/contracts/veOLAS.sol</code>, <code>autonolas-governance/contracts/wveOLAS.sol</code>, <code>autonolas-registries/contracts/8004/IdentityRegistryBridger.sol</code>, <code>autonolas-registries/contracts/8004/IdentityRegistryBridgerProxy.sol</code>, <code>autonolas-registries/contracts/AgentRegistry.sol</code>, <code>autonolas-registries/contracts/ComponentRegistry.sol</code>, <code>autonolas-registries/contracts/GenericManager.sol</code>, <code>autonolas-registries/contracts/GenericRegistry.sol</code>, <code>autonolas-registries/contracts/RegistriesManager.sol</code>, <code>autonolas-registries/contracts/ServiceManager.sol</code>, <code>autonolas-registries/contracts/ServiceManagerProxy.sol</code>, <code>autonolas-registries/contracts/ServiceRegistry.sol</code>, <code>autonolas-registries/contracts/ServiceRegistryL2.sol</code>, <code>autonolas-registries/contracts/ServiceRegistryTokenUtility.sol</code>, <code>autonolas-registries/contracts/UnitRegistry.sol</code> and 59 more.</p>
+  <p>Left out as not the project's own logic: 62 tests, 128 vendor, 22 interfaces. Submodules: 3 declared, 3 fetched.</p>
+  
+</div>
+
+<h2>Summary</h2>
+<div class="stats"><div class="stat"><span class="badge" style="background:#dc2626">Critical</span><span class="count">3</span></div><div class="stat"><span class="badge" style="background:#ea580c">High</span><span class="count">6</span></div><div class="stat"><span class="badge" style="background:#ca8a04">Medium</span><span class="count">3</span></div><div class="stat"><span class="badge" style="background:#16a34a">Low</span><span class="count">0</span></div><div class="stat"><span class="badge" style="background:#6b7280">Info</span><span class="count">0</span></div></div>
+
+<h2>Hypotheses</h2>
+<div class="limits">These are unverified AI hypotheses, not confirmed vulnerabilities. Check each one by hand before you act on it. How often this scan finds known issues in closed audit contests, including the misses, is published in the repository linked below.</div>
+
+    <div class="finding" style="border-left-color:#dc2626">
+      <div class="finding-header">
+        <span class="badge" style="background:#dc2626">Critical</span>
+        <h3>Reentrancy in withdrawToAccount function</h3>
+        <span class="conf">Model confidence: 90%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>Treasury.sol</code></p>
+        <p><strong>Function:</strong> <code>withdrawToAccount()</code></p>
+        <p><strong>Category:</strong> ORDERING</p>
+        <p>The withdrawToAccount function does not implement a reentrancy guard, which could allow an attacker to re-enter the function and drain the contract's ETH balance.</p>
+        <p><strong>Attack path:</strong> 1. An attacker calls the withdrawToAccount function with a small accountRewards value. 2. The function sends ETH to the attacker's address. 3. The attacker's fallback function re-enters the withdrawToAccount function, this time with a larger accountRewards value, draining the contract's ETH balance.</p>
+        <p><strong>Impact:</strong> An attacker could drain the contract's ETH balance, causing significant financial loss to the protocol.</p>
+        <p><strong>Recommendation:</strong> Implement a reentrancy guard in the withdrawToAccount function to prevent re-entrancy attacks.</p>
+      </div>
+    </div>
+    <div class="finding" style="border-left-color:#dc2626">
+      <div class="finding-header">
+        <span class="badge" style="background:#dc2626">Critical</span>
+        <h3>Missing Access Control in `rebalanceTreasury` Function</h3>
+        <span class="conf">Model confidence: 90%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>Treasury.sol</code></p>
+        <p><strong>Function:</strong> <code>rebalanceTreasury(uint256 treasuryRewards)</code></p>
+        <p><strong>Category:</strong> ACCESS</p>
+        <p>The `rebalanceTreasury` function is intended to be called only by the `tokenomics` contract, but there is no explicit check to ensure that the caller is indeed the `tokenomics` contract. This could allow an attacker to call this function and manipulate the treasury balances.</p>
+        <p><strong>Attack path:</strong> 1. An attacker deploys a malicious contract that calls the `rebalanceTreasury` function. 2. The attacker can then manipulate the `ETHFromServices` and `ETHOwned` balances, potentially draining the treasury or causing other issues.</p>
+        <p><strong>Impact:</strong> An attacker could manipulate the treasury balances, leading to potential fund loss or protocol insolvency.</p>
+        <p><strong>Recommendation:</strong> Add an explicit check to ensure that the caller is the `tokenomics` contract.</p>
+      </div>
+    </div>
+    <div class="finding" style="border-left-color:#dc2626">
+      <div class="finding-header">
+        <span class="badge" style="background:#dc2626">Critical</span>
+        <h3>Missing Access Control in `drainServiceSlashedFunds` Function</h3>
+        <span class="conf">Model confidence: 90%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>Treasury.sol</code></p>
+        <p><strong>Function:</strong> <code>drainServiceSlashedFunds()</code></p>
+        <p><strong>Category:</strong> ACCESS</p>
+        <p>The `drainServiceSlashedFunds` function is intended to be called only by the `owner`, but there is no explicit check to ensure that the caller is indeed the `owner`. This could allow an attacker to call this function and drain the slashed funds.</p>
+        <p><strong>Attack path:</strong> 1. An attacker deploys a malicious contract that calls the `drainServiceSlashedFunds` function. 2. The attacker can then drain the slashed funds, potentially causing fund loss.</p>
+        <p><strong>Impact:</strong> An attacker could drain the slashed funds, leading to potential fund loss.</p>
+        <p><strong>Recommendation:</strong> Add an explicit check to ensure that the caller is the `owner`.</p>
+      </div>
+    </div>
+    <div class="finding" style="border-left-color:#ea580c">
+      <div class="finding-header">
+        <span class="badge" style="background:#ea580c">High</span>
+        <h3>Missing validation of serviceIds in depositServiceDonationsETH</h3>
+        <span class="conf">Model confidence: 80%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>Treasury.sol</code></p>
+        <p><strong>Function:</strong> <code>depositServiceDonationsETH()</code></p>
+        <p><strong>Category:</strong> ACCESS</p>
+        <p>The depositServiceDonationsETH function does not validate the serviceIds array, which could allow an attacker to donate ETH to non-existent or unauthorized services.</p>
+        <p><strong>Attack path:</strong> 1. An attacker calls the depositServiceDonationsETH function with an array of non-existent or unauthorized serviceIds. 2. The function does not validate the serviceIds, allowing the attacker to donate ETH to these services. 3. The donated ETH is added to the ETHFromServices balance, which could be used to manipulate the protocol's tokenomics.</p>
+        <p><strong>Impact:</strong> An attacker could donate ETH to non-existent or unauthorized services, potentially manipulating the protocol's tokenomics and causing financial loss.</p>
+        <p><strong>Recommendation:</strong> Validate the serviceIds array in the depositServiceDonationsETH function to ensure that only valid and authorized services can receive donations.</p>
+      </div>
+    </div>
+    <div class="finding" style="border-left-color:#ea580c">
+      <div class="finding-header">
+        <span class="badge" style="background:#ea580c">High</span>
+        <h3>Integer overflow in receive function</h3>
+        <span class="conf">Model confidence: 80%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>Treasury.sol</code></p>
+        <p><strong>Function:</strong> <code>receive()</code></p>
+        <p><strong>Category:</strong> ACCOUNTING</p>
+        <p>The receive function does not properly handle integer overflow, which could allow an attacker to manipulate the ETHOwned balance.</p>
+        <p><strong>Attack path:</strong> 1. An attacker sends a large amount of ETH to the contract. 2. The receive function does not properly handle the integer overflow, allowing the attacker to manipulate the ETHOwned balance. 3. The manipulated ETHOwned balance could be used to drain the contract's ETH balance or manipulate the protocol's tokenomics.</p>
+        <p><strong>Impact:</strong> An attacker could manipulate the ETHOwned balance, potentially draining the contract's ETH balance or manipulating the protocol's tokenomics.</p>
+        <p><strong>Recommendation:</strong> Properly handle integer overflow in the receive function to prevent manipulation of the ETHOwned balance.</p>
+      </div>
+    </div>
+    <div class="finding" style="border-left-color:#ea580c">
+      <div class="finding-header">
+        <span class="badge" style="background:#ea580c">High</span>
+        <h3>Missing Access Control in `enableToken` Function</h3>
+        <span class="conf">Model confidence: 80%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>Treasury.sol</code></p>
+        <p><strong>Function:</strong> <code>enableToken(address token)</code></p>
+        <p><strong>Category:</strong> ACCESS</p>
+        <p>The `enableToken` function is intended to be called only by the `owner`, but there is no explicit check to ensure that the caller is indeed the `owner`. This could allow an attacker to enable tokens that should not be enabled.</p>
+        <p><strong>Attack path:</strong> 1. An attacker deploys a malicious contract that calls the `enableToken` function. 2. The attacker can then enable tokens that should not be enabled, potentially causing issues with the bonding mechanism.</p>
+        <p><strong>Impact:</strong> An attacker could enable tokens that should not be enabled, leading to potential issues with the bonding mechanism.</p>
+        <p><strong>Recommendation:</strong> Add an explicit check to ensure that the caller is the `owner`.</p>
+      </div>
+    </div>
+    <div class="finding" style="border-left-color:#ea580c">
+      <div class="finding-header">
+        <span class="badge" style="background:#ea580c">High</span>
+        <h3>Missing Access Control in `disableToken` Function</h3>
+        <span class="conf">Model confidence: 80%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>Treasury.sol</code></p>
+        <p><strong>Function:</strong> <code>disableToken(address token)</code></p>
+        <p><strong>Category:</strong> ACCESS</p>
+        <p>The `disableToken` function is intended to be called only by the `owner`, but there is no explicit check to ensure that the caller is indeed the `owner`. This could allow an attacker to disable tokens that should not be disabled.</p>
+        <p><strong>Attack path:</strong> 1. An attacker deploys a malicious contract that calls the `disableToken` function. 2. The attacker can then disable tokens that should not be disabled, potentially causing issues with the bonding mechanism.</p>
+        <p><strong>Impact:</strong> An attacker could disable tokens that should not be disabled, leading to potential issues with the bonding mechanism.</p>
+        <p><strong>Recommendation:</strong> Add an explicit check to ensure that the caller is the `owner`.</p>
+      </div>
+    </div>
+    <div class="finding" style="border-left-color:#ea580c">
+      <div class="finding-header">
+        <span class="badge" style="background:#ea580c">High</span>
+        <h3>Missing Access Control in `pause` Function</h3>
+        <span class="conf">Model confidence: 80%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>Treasury.sol</code></p>
+        <p><strong>Function:</strong> <code>pause()</code></p>
+        <p><strong>Category:</strong> ACCESS</p>
+        <p>The `pause` function is intended to be called only by the `owner`, but there is no explicit check to ensure that the caller is indeed the `owner`. This could allow an attacker to pause the contract, potentially causing a denial of service.</p>
+        <p><strong>Attack path:</strong> 1. An attacker deploys a malicious contract that calls the `pause` function. 2. The attacker can then pause the contract, causing a denial of service.</p>
+        <p><strong>Impact:</strong> An attacker could pause the contract, leading to a denial of service.</p>
+        <p><strong>Recommendation:</strong> Add an explicit check to ensure that the caller is the `owner`.</p>
+      </div>
+    </div>
+    <div class="finding" style="border-left-color:#ea580c">
+      <div class="finding-header">
+        <span class="badge" style="background:#ea580c">High</span>
+        <h3>Missing Access Control in `unpause` Function</h3>
+        <span class="conf">Model confidence: 80%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>Treasury.sol</code></p>
+        <p><strong>Function:</strong> <code>unpause()</code></p>
+        <p><strong>Category:</strong> ACCESS</p>
+        <p>The `unpause` function is intended to be called only by the `owner`, but there is no explicit check to ensure that the caller is indeed the `owner`. This could allow an attacker to unpause the contract, potentially causing issues.</p>
+        <p><strong>Attack path:</strong> 1. An attacker deploys a malicious contract that calls the `unpause` function. 2. The attacker can then unpause the contract, potentially causing issues.</p>
+        <p><strong>Impact:</strong> An attacker could unpause the contract, leading to potential issues.</p>
+        <p><strong>Recommendation:</strong> Add an explicit check to ensure that the caller is the `owner`.</p>
+      </div>
+    </div>
+    <div class="finding" style="border-left-color:#ca8a04">
+      <div class="finding-header">
+        <span class="badge" style="background:#ca8a04">Medium</span>
+        <h3>Missing validation of token in depositTokenForOLAS</h3>
+        <span class="conf">Model confidence: 70%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>Treasury.sol</code></p>
+        <p><strong>Function:</strong> <code>depositTokenForOLAS()</code></p>
+        <p><strong>Category:</strong> ACCESS</p>
+        <p>The depositTokenForOLAS function does not validate the token address, which could allow an attacker to deposit non-approved tokens.</p>
+        <p><strong>Attack path:</strong> 1. An attacker calls the depositTokenForOLAS function with a non-approved token address. 2. The function does not validate the token address, allowing the attacker to deposit the non-approved token. 3. The deposited token is added to the mapTokenReserves mapping, which could be used to manipulate the protocol's liquidity.</p>
+        <p><strong>Impact:</strong> An attacker could deposit non-approved tokens, potentially manipulating the protocol's liquidity and causing financial loss.</p>
+        <p><strong>Recommendation:</strong> Validate the token address in the depositTokenForOLAS function to ensure that only approved tokens can be deposited.</p>
+      </div>
+    </div>
+    <div class="finding" style="border-left-color:#ca8a04">
+      <div class="finding-header">
+        <span class="badge" style="background:#ca8a04">Medium</span>
+        <h3>Missing validation of account in withdrawToAccount</h3>
+        <span class="conf">Model confidence: 70%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>Treasury.sol</code></p>
+        <p><strong>Function:</strong> <code>withdrawToAccount()</code></p>
+        <p><strong>Category:</strong> ACCESS</p>
+        <p>The withdrawToAccount function does not validate the account address, which could allow an attacker to withdraw funds to an unauthorized address.</p>
+        <p><strong>Attack path:</strong> 1. An attacker calls the withdrawToAccount function with an unauthorized account address. 2. The function does not validate the account address, allowing the attacker to withdraw funds to the unauthorized address. 3. The attacker can then use the withdrawn funds to manipulate the protocol or cause financial loss.</p>
+        <p><strong>Impact:</strong> An attacker could withdraw funds to an unauthorized address, potentially manipulating the protocol or causing financial loss.</p>
+        <p><strong>Recommendation:</strong> Validate the account address in the withdrawToAccount function to ensure that funds can only be withdrawn to authorized addresses.</p>
+      </div>
+    </div>
+    <div class="finding" style="border-left-color:#ca8a04">
+      <div class="finding-header">
+        <span class="badge" style="background:#ca8a04">Medium</span>
+        <h3>Missing Check for Zero Address in `enableToken` Function</h3>
+        <span class="conf">Model confidence: 70%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>Treasury.sol</code></p>
+        <p><strong>Function:</strong> <code>enableToken(address token)</code></p>
+        <p><strong>Category:</strong> ACCESS</p>
+        <p>The `enableToken` function does not check if the `token` address is the zero address. This could allow an attacker to enable the zero address, potentially causing issues.</p>
+        <p><strong>Attack path:</strong> 1. An attacker deploys a malicious contract that calls the `enableToken` function with the zero address. 2. The attacker can then enable the zero address, potentially causing issues.</p>
+        <p><strong>Impact:</strong> An attacker could enable the zero address, leading to potential issues.</p>
+        <p><strong>Recommendation:</strong> Add a check to ensure that the `token` address is not the zero address.</p>
+      </div>
+    </div>
+
+<div class="disclaimer">
+<strong>Disclaimer:</strong> This report was produced by an automated pipeline that prompts a language model with parts of your code (model: nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter), codestral-latest (Mistral)).
+It is not a security audit, a certification or an approval. It can miss real issues and can include false ones. No warranty is provided.
+<br><br>
+If this report did not help you, or you think it is wrong, write to <a href="mailto:info@holistischadviseur.nl?subject=Bug%20Bounty%20Intelligence%20v2-2026-01-olas" style="color:#38bdf8">info@holistischadviseur.nl</a> with the job id <code>v2-2026-01-olas</code>. You can ask for a new attempt or a refund.
+<br><br>
+Method, limits and test results: <a href="https://github.com/holistis/bug-bounty-intelligence-mcp" style="color:#38bdf8">github.com/holistis/bug-bounty-intelligence-mcp</a>
+&nbsp;|&nbsp; Official sources: <a href="https://tokenizen.nl/notes/official-sources" style="color:#38bdf8">tokenizen.nl/notes/official-sources</a>
+</div>
+</body>
+</html>

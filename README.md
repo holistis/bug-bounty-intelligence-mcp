@@ -6,7 +6,9 @@ AI-powered smart contract security analysis for AI agents and developers.
 
 The defects described below were fixed and the new version is live. What changed: git submodules are fetched when they point to github.com, tests, mocks, scripts, interfaces and vendored libraries are left out, files are ranked by how likely they move funds and sent in at most six parts, every report states how much of the in-scope code was read, a scan without hypotheses is delivered as such and not as a normal report, hypotheses that name files or functions that are not in the code are dropped, and file links inside a repository are never followed. A free precheck at https://x402.tokenizen.nl/api/bug-intel/precheck?repo=owner/name says before you pay whether the scan counts any Solidity in your repository and roughly how much of it will be read.
 
-The measurement of this version was pre-registered before it ran: [PREREGISTRATION-v2-2026-10-24.md](PREREGISTRATION-v2-2026-10-24.md). The frozen files are in [pipeline/v2](pipeline/v2). The results, including the misses, will be published in this repository.
+The measurement of this version was pre-registered before it ran: [PREREGISTRATION-v2-2026-10-24.md](PREREGISTRATION-v2-2026-10-24.md). The frozen files are in [pipeline/v2](pipeline/v2).
+
+Result, in [RESULTS-v2-2026-10-24.md](RESULTS-v2-2026-10-24.md): none of the 40 known High and Medium findings was found, 0 of 31 on the four contests of the first run and 0 of 9 on three new contests, while 29 percent of the in-scope code was read (8 to 100 percent per contest). 15 of the 40 known findings sit in a file that was read, and none of those was found. The scan produces hypotheses to review by hand. It has not been shown to find the issues that audit contests reward.
 
 ## Correction and limits (24 October 2026, before version 2)
 

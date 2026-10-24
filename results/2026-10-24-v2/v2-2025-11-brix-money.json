@@ -1,0 +1,224 @@
+{
+ "repo": "code-423n4/2025-11-brix-money",
+ "outcome": "hypotheses",
+ "model": "nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter), openai/gpt-oss-120b (Groq)",
+ "sources": [
+  "nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter)",
+  "openai/gpt-oss-120b (Groq)"
+ ],
+ "coverage": {
+  "scopeFiles": 22,
+  "scopeBytes": 162701,
+  "analysedBytes": 100738,
+  "analysedPct": 62,
+  "chunksPlanned": 6,
+  "chunksAnalysed": 6,
+  "filesFull": 9,
+  "filesPartial": [],
+  "notAnalysedFiles": [
+   "src/protocol/YieldForwarder.sol",
+   "src/protocol/periphery/CommonErrors.sol",
+   "src/token/iTRY/crosschain/iTryTokenOFT.sol",
+   "src/token/iTRY/crosschain/iTryTokenOFTAdapter.sol",
+   "src/token/wiTRY/StakediTry.sol",
+   "src/token/wiTRY/StakediTryCooldown.sol",
+   "src/token/wiTRY/StakediTryCrosschain.sol",
+   "src/token/wiTRY/StakediTryFastRedeem.sol",
+   "src/token/wiTRY/crosschain/wiTryOFT.sol",
+   "src/token/wiTRY/crosschain/wiTryOFTAdapter.sol",
+   "src/utils/SigUtils.sol",
+   "src/utils/SingleAdminAccessControl.sol",
+   "src/utils/SingleAdminAccessControlUpgradeable.sol"
+  ],
+  "skipped": {
+   "tests": 39,
+   "mocks": 0,
+   "scripts": 32,
+   "vendor": 0,
+   "interfaces": 15,
+   "tooSmall": 0,
+   "tooLarge": 0,
+   "noLogic": 1,
+   "symlink": 0,
+   "unreadable": 0
+  },
+  "submodules": {
+   "declared": 7,
+   "fetched": [],
+   "failed": [],
+   "skipped": [
+    {
+     "path": "lib/forge-std",
+     "reason": "afhankelijkheid"
+    },
+    {
+     "path": "lib/openzeppelin-contracts",
+     "reason": "afhankelijkheid"
+    },
+    {
+     "path": "lib/openzeppelin-contracts-upgradeable",
+     "reason": "afhankelijkheid"
+    },
+    {
+     "path": "lib/LayerZero-v2",
+     "reason": "afhankelijkheid"
+    },
+    {
+     "path": "lib/solidity-bytes-utils",
+     "reason": "afhankelijkheid"
+    },
+    {
+     "path": "lib/openzeppelin-foundry-upgrades",
+     "reason": "afhankelijkheid"
+    },
+    {
+     "path": "lib/redstone-oracles-monorepo",
+     "reason": "afhankelijkheid"
+    }
+   ]
+  },
+  "droppedHypotheses": 0,
+  "deadlineHit": false
+ },
+ "hypotheses": [
+  {
+   "title": "Oracle price manipulation can cause under‑collateralized mint/redeem",
+   "severity": "High",
+   "category": "SETTLEMENT",
+   "file": "src/protocol/iTryIssuer.sol",
+   "function": "mintFor()",
+   "description": "The contract relies on an external `IOracle.price()` value without any sanity checks, time‑weighting or staleness protection. An attacker who can influence the Redstone NAV feed can set a low price, mint iTRY at an artificially cheap rate, and later redeem when the price recovers, extracting more DLF collateral than deposited.",
+   "attackPath": "1. Compromise or temporarily manipulate the Redstone NAV feed to report a low NAV price. 2. Call `mintFor()` with a modest DLF amount; the contract calculates a small iTRY amount based on the low price and mints it. 3. After the price returns to normal (or is set high), call `redeemFor()` to convert the iTRY back to DLF; the redemption calculation uses the higher price, yielding more DLF than originally supplied. 4. Drain the excess DLF from the FastAccessVault or custodian.",
+   "impact": "Protocol can become insolvent, losing collateral and allowing attackers to extract value exceeding their deposits.",
+   "recommendation": "Integrate price sanity checks (e.g., deviation limits, time‑weighted average, fallback to a secondary oracle) and add a circuit‑breaker that pauses mint/redeem when price deviation exceeds a safe threshold.",
+   "confidence": 0.9
+  },
+  {
+   "title": "Redemption buffer check uses gross amount, may cause insufficient vault liquidity",
+   "severity": "Medium",
+   "category": "ACCOUNTING",
+   "file": "src/protocol/iTryIssuer.sol",
+   "function": "redeemFor()",
+   "description": "The function checks `bufferBalance >= grossDlfAmount` (gross amount before fee) but then transfers only `netDlfAmount` from the vault while the fee is also taken from the vault’s balance. If the vault’s balance equals exactly the gross amount, the fee deduction can leave the vault short, causing the subsequent transfer to fail or to be under‑paid, and forcing a fallback to the custodian.",
+   "attackPath": "1. An attacker deposits just enough DLF into the FastAccessVault so that its available balance equals the gross redemption amount for a chosen iTRY amount. 2. Calls `redeemFor()` for that iTRY amount. 3. The contract sees `bufferBalance >= grossDlfAmount` and selects the buffer path. 4. When `_redeemFromVault` attempts to transfer `netDlfAmount` plus the fee, the vault lacks the extra fee amount, causing a revert or partial payout. 5. The attacker can repeat to lock the vault’s liquidity or cause denial‑of‑service for other users.",
+   "impact": "Users may be unable to redeem from the fast‑access buffer, leading to liquidity bottlenecks and potential loss of confidence; in worst case, funds could be stuck.",
+   "recommendation": "Perform the buffer balance check against `netDlfAmount` (or ensure the fee is sourced from the treasury, not the vault) and handle insufficient vault liquidity gracefully, possibly by falling back to the custodian before the check.",
+   "confidence": 0.65
+  }
+ ],
+ "rawCount": 2,
+ "dropped": 0,
+ "durationMs": 415778,
+ "filesInScope": [
+  {
+   "rel": "src/external/DLFToken.sol",
+   "bytes": 1798,
+   "score": 2
+  },
+  {
+   "rel": "src/protocol/FastAccessVault.sol",
+   "bytes": 11090,
+   "score": 8
+  },
+  {
+   "rel": "src/protocol/RedstoneNAVFeed.sol",
+   "bytes": 769,
+   "score": 2
+  },
+  {
+   "rel": "src/protocol/YieldForwarder.sol",
+   "bytes": 6887,
+   "score": 5
+  },
+  {
+   "rel": "src/protocol/iTryIssuer.sol",
+   "bytes": 27105,
+   "score": 9
+  },
+  {
+   "rel": "src/protocol/periphery/CommonErrors.sol",
+   "bytes": 839,
+   "score": 0
+  },
+  {
+   "rel": "src/token/iTRY/crosschain/iTryTokenOFT.sol",
+   "bytes": 7156,
+   "score": 2
+  },
+  {
+   "rel": "src/token/iTRY/crosschain/iTryTokenOFTAdapter.sol",
+   "bytes": 1199,
+   "score": 0
+  },
+  {
+   "rel": "src/token/iTRY/iTry.sol",
+   "bytes": 9720,
+   "score": 8
+  },
+  {
+   "rel": "src/token/wiTRY/StakediTry.sol",
+   "bytes": 12311,
+   "score": 3
+  },
+  {
+   "rel": "src/token/wiTRY/StakediTryCooldown.sol",
+   "bytes": 5588,
+   "score": 2
+  },
+  {
+   "rel": "src/token/wiTRY/StakediTryCrosschain.sol",
+   "bytes": 7856,
+   "score": 2
+  },
+  {
+   "rel": "src/token/wiTRY/StakediTryFastRedeem.sol",
+   "bytes": 5996,
+   "score": 0
+  },
+  {
+   "rel": "src/token/wiTRY/crosschain/UnstakeMessenger.sol",
+   "bytes": 15055,
+   "score": 10
+  },
+  {
+   "rel": "src/token/wiTRY/crosschain/libraries/VaultComposerSync.sol",
+   "bytes": 18800,
+   "score": 8
+  },
+  {
+   "rel": "src/token/wiTRY/crosschain/wiTryOFT.sol",
+   "bytes": 5216,
+   "score": 0
+  },
+  {
+   "rel": "src/token/wiTRY/crosschain/wiTryOFTAdapter.sol",
+   "bytes": 1507,
+   "score": 0
+  },
+  {
+   "rel": "src/token/wiTRY/crosschain/wiTryVaultComposer.sol",
+   "bytes": 15482,
+   "score": 8
+  },
+  {
+   "rel": "src/token/wiTRY/iTrySilo.sol",
+   "bytes": 920,
+   "score": 4
+  },
+  {
+   "rel": "src/utils/SigUtils.sol",
+   "bytes": 1258,
+   "score": 2
+  },
+  {
+   "rel": "src/utils/SingleAdminAccessControl.sol",
+   "bytes": 3076,
+   "score": 0
+  },
+  {
+   "rel": "src/utils/SingleAdminAccessControlUpgradeable.sol",
+   "bytes": 3073,
+   "score": 0
+  }
+ ]
+}

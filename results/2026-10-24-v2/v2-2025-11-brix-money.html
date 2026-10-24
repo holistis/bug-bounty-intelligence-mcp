@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bug Bounty Intelligence — code-423n4/2025-11-brix-money</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#0f172a;color:#e2e8f0;padding:2rem;max-width:900px;margin:0 auto}
+.header{border-bottom:1px solid #1e3a5f;padding-bottom:1.5rem;margin-bottom:2rem}
+h1{font-size:1.8rem;color:#38bdf8}
+.meta{color:#94a3b8;font-size:0.9rem;margin-top:0.4rem}
+.stats{display:flex;gap:1rem;margin:1rem 0 2rem;flex-wrap:wrap}
+.stat{background:#1e293b;border-radius:8px;padding:.75rem 1.25rem;display:flex;align-items:center;gap:.75rem}
+.count{font-size:1.5rem;font-weight:bold}
+.badge{padding:.25rem .6rem;border-radius:4px;font-size:.8rem;font-weight:bold;color:#fff}
+.finding{background:#1e293b;border-radius:8px;margin-bottom:1rem;border-left:4px solid #1e3a5f;overflow:hidden}
+.finding-header{padding:1rem 1.5rem;display:flex;align-items:center;gap:1rem}
+.finding-header h3{flex:1;font-size:1rem}
+.conf{font-size:.8rem;color:#94a3b8}
+.finding-body{padding:0 1.5rem 1.25rem;border-top:1px solid #0f172a}
+.finding-body p{margin-top:.75rem;line-height:1.6;color:#cbd5e1}
+code{background:#0f172a;padding:.1rem .4rem;border-radius:3px;font-size:.85rem}
+.no-findings{padding:2rem;text-align:center;color:#cbd5e1;background:#1e293b;border-radius:8px;line-height:1.7}
+.coverage{margin-bottom:2rem;padding:1rem 1.25rem;background:#1e293b;border-radius:8px;border-left:4px solid #38bdf8;font-size:.9rem;line-height:1.7;color:#cbd5e1}
+.coverage p{margin-top:.5rem}
+.limits{margin-bottom:1rem;padding:.75rem 1.25rem;background:#1e3a5f;border-radius:8px;border-left:4px solid #ca8a04;font-size:.85rem;color:#fbbf24}
+h2{font-size:1.1rem;margin-bottom:1rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em}
+.disclaimer{margin-top:3rem;padding:1.5rem;background:#1e293b;border-radius:8px;border-left:4px solid #ca8a04;font-size:.85rem;color:#94a3b8;line-height:1.7}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Bug Bounty Intelligence</h1>
+  <div class="meta">AI-generated hypotheses for Solidity code. Not an audit.</div>
+  <div class="meta">Repository: <code>code-423n4/2025-11-brix-money</code></div>
+  <div class="meta">Analyzed: 2026-10-24 06:15 UTC &nbsp;|&nbsp; Model: nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter), openai/gpt-oss-120b (Groq) &nbsp;|&nbsp; Duration: 416s</div>
+</div>
+
+
+<h2>Coverage</h2>
+<div class="coverage">
+  <p><strong>62% of the in-scope Solidity was read by the analysis</strong>: 98 KB of 159 KB, in 6 of 6 planned parts.</p>
+  <p>Files read in full: 9 of 22.</p>
+  <p>Not read: <code>src/protocol/YieldForwarder.sol</code>, <code>src/protocol/periphery/CommonErrors.sol</code>, <code>src/token/iTRY/crosschain/iTryTokenOFT.sol</code>, <code>src/token/iTRY/crosschain/iTryTokenOFTAdapter.sol</code>, <code>src/token/wiTRY/StakediTry.sol</code>, <code>src/token/wiTRY/StakediTryCooldown.sol</code>, <code>src/token/wiTRY/StakediTryCrosschain.sol</code>, <code>src/token/wiTRY/StakediTryFastRedeem.sol</code>, <code>src/token/wiTRY/crosschain/wiTryOFT.sol</code>, <code>src/token/wiTRY/crosschain/wiTryOFTAdapter.sol</code>, <code>src/utils/SigUtils.sol</code>, <code>src/utils/SingleAdminAccessControl.sol</code>, <code>src/utils/SingleAdminAccessControlUpgradeable.sol</code>.</p>
+  <p>Left out as not the project's own logic: 39 tests, 32 scripts, 15 interfaces, 1 noLogic. Submodules: 7 declared, 0 fetched, 7 not fetched on purpose (dependencies or unsafe address).</p>
+  
+</div>
+
+<h2>Summary</h2>
+<div class="stats"><div class="stat"><span class="badge" style="background:#dc2626">Critical</span><span class="count">0</span></div><div class="stat"><span class="badge" style="background:#ea580c">High</span><span class="count">1</span></div><div class="stat"><span class="badge" style="background:#ca8a04">Medium</span><span class="count">1</span></div><div class="stat"><span class="badge" style="background:#16a34a">Low</span><span class="count">0</span></div><div class="stat"><span class="badge" style="background:#6b7280">Info</span><span class="count">0</span></div></div>
+
+<h2>Hypotheses</h2>
+<div class="limits">These are unverified AI hypotheses, not confirmed vulnerabilities. Check each one by hand before you act on it. How often this scan finds known issues in closed audit contests, including the misses, is published in the repository linked below.</div>
+
+    <div class="finding" style="border-left-color:#ea580c">
+      <div class="finding-header">
+        <span class="badge" style="background:#ea580c">High</span>
+        <h3>Oracle price manipulation can cause under‑collateralized mint/redeem</h3>
+        <span class="conf">Model confidence: 90%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>src/protocol/iTryIssuer.sol</code></p>
+        <p><strong>Function:</strong> <code>mintFor()</code></p>
+        <p><strong>Category:</strong> SETTLEMENT</p>
+        <p>The contract relies on an external `IOracle.price()` value without any sanity checks, time‑weighting or staleness protection. An attacker who can influence the Redstone NAV feed can set a low price, mint iTRY at an artificially cheap rate, and later redeem when the price recovers, extracting more DLF collateral than deposited.</p>
+        <p><strong>Attack path:</strong> 1. Compromise or temporarily manipulate the Redstone NAV feed to report a low NAV price. 2. Call `mintFor()` with a modest DLF amount; the contract calculates a small iTRY amount based on the low price and mints it. 3. After the price returns to normal (or is set high), call `redeemFor()` to convert the iTRY back to DLF; the redemption calculation uses the higher price, yielding more DLF than originally supplied. 4. Drain the excess DLF from the FastAccessVault or custodian.</p>
+        <p><strong>Impact:</strong> Protocol can become insolvent, losing collateral and allowing attackers to extract value exceeding their deposits.</p>
+        <p><strong>Recommendation:</strong> Integrate price sanity checks (e.g., deviation limits, time‑weighted average, fallback to a secondary oracle) and add a circuit‑breaker that pauses mint/redeem when price deviation exceeds a safe threshold.</p>
+      </div>
+    </div>
+    <div class="finding" style="border-left-color:#ca8a04">
+      <div class="finding-header">
+        <span class="badge" style="background:#ca8a04">Medium</span>
+        <h3>Redemption buffer check uses gross amount, may cause insufficient vault liquidity</h3>
+        <span class="conf">Model confidence: 65%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>src/protocol/iTryIssuer.sol</code></p>
+        <p><strong>Function:</strong> <code>redeemFor()</code></p>
+        <p><strong>Category:</strong> ACCOUNTING</p>
+        <p>The function checks `bufferBalance &gt;= grossDlfAmount` (gross amount before fee) but then transfers only `netDlfAmount` from the vault while the fee is also taken from the vault’s balance. If the vault’s balance equals exactly the gross amount, the fee deduction can leave the vault short, causing the subsequent transfer to fail or to be under‑paid, and forcing a fallback to the custodian.</p>
+        <p><strong>Attack path:</strong> 1. An attacker deposits just enough DLF into the FastAccessVault so that its available balance equals the gross redemption amount for a chosen iTRY amount. 2. Calls `redeemFor()` for that iTRY amount. 3. The contract sees `bufferBalance &gt;= grossDlfAmount` and selects the buffer path. 4. When `_redeemFromVault` attempts to transfer `netDlfAmount` plus the fee, the vault lacks the extra fee amount, causing a revert or partial payout. 5. The attacker can repeat to lock the vault’s liquidity or cause denial‑of‑service for other users.</p>
+        <p><strong>Impact:</strong> Users may be unable to redeem from the fast‑access buffer, leading to liquidity bottlenecks and potential loss of confidence; in worst case, funds could be stuck.</p>
+        <p><strong>Recommendation:</strong> Perform the buffer balance check against `netDlfAmount` (or ensure the fee is sourced from the treasury, not the vault) and handle insufficient vault liquidity gracefully, possibly by falling back to the custodian before the check.</p>
+      </div>
+    </div>
+
+<div class="disclaimer">
+<strong>Disclaimer:</strong> This report was produced by an automated pipeline that prompts a language model with parts of your code (model: nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter), openai/gpt-oss-120b (Groq)).
+It is not a security audit, a certification or an approval. It can miss real issues and can include false ones. No warranty is provided.
+<br><br>
+If this report did not help you, or you think it is wrong, write to <a href="mailto:info@holistischadviseur.nl?subject=Bug%20Bounty%20Intelligence%20v2-2025-11-brix-money" style="color:#38bdf8">info@holistischadviseur.nl</a> with the job id <code>v2-2025-11-brix-money</code>. You can ask for a new attempt or a refund.
+<br><br>
+Method, limits and test results: <a href="https://github.com/holistis/bug-bounty-intelligence-mcp" style="color:#38bdf8">github.com/holistis/bug-bounty-intelligence-mcp</a>
+&nbsp;|&nbsp; Official sources: <a href="https://tokenizen.nl/notes/official-sources" style="color:#38bdf8">tokenizen.nl/notes/official-sources</a>
+</div>
+</body>
+</html>

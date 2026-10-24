@@ -1,0 +1,264 @@
+{
+ "repo": "code-423n4/2026-03-intuition",
+ "outcome": "hypotheses",
+ "model": "nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter), openai/gpt-oss-120b (Groq)",
+ "sources": [
+  "nvidia/nemotron-3-ultra-550b-a55b:free (OpenRouter)",
+  "openai/gpt-oss-120b (Groq)"
+ ],
+ "coverage": {
+  "scopeFiles": 23,
+  "scopeBytes": 288589,
+  "analysedBytes": 102381,
+  "analysedPct": 35,
+  "chunksPlanned": 6,
+  "chunksAnalysed": 6,
+  "filesFull": 2,
+  "filesPartial": [
+   "src/protocol/MultiVault.sol"
+  ],
+  "notAnalysedFiles": [
+   "intuition-contracts-v2-periphery/contracts/EmissionsAutomationAdapter.sol",
+   "src/Trust.sol",
+   "src/WrappedTrust.sol",
+   "src/legacy/TrustToken.sol",
+   "src/libraries/ProgressiveCurveMathLib.sol",
+   "src/protocol/MultiVaultCore.sol",
+   "src/protocol/MultiVaultMigrationMode.sol",
+   "src/protocol/curves/BaseCurve.sol",
+   "src/protocol/curves/BondingCurveRegistry.sol",
+   "src/protocol/curves/LinearCurve.sol",
+   "src/protocol/curves/OffsetProgressiveCurve.sol",
+   "src/protocol/curves/ProgressiveCurve.sol",
+   "src/protocol/emissions/BaseEmissionsController.sol",
+   "src/protocol/emissions/CoreEmissionsController.sol",
+   "src/protocol/emissions/MetaERC20Dispatcher.sol",
+   "src/protocol/emissions/SatelliteEmissionsController.sol",
+   "src/protocol/emissions/TrustBonding.sol",
+   "src/protocol/wallet/AtomWallet.sol",
+   "src/protocol/wallet/AtomWalletFactory.sol",
+   "src/protocol/wallet/AtomWarden.sol"
+  ],
+  "skipped": {
+   "tests": 83,
+   "mocks": 0,
+   "scripts": 27,
+   "vendor": 0,
+   "interfaces": 27,
+   "tooSmall": 0,
+   "tooLarge": 0,
+   "noLogic": 0,
+   "symlink": 0,
+   "unreadable": 0
+  },
+  "submodules": {
+   "declared": 8,
+   "fetched": [
+    "intuition-contracts-v2-periphery"
+   ],
+   "failed": [],
+   "skipped": [
+    {
+     "path": "lib/forge-std",
+     "reason": "afhankelijkheid"
+    },
+    {
+     "path": "lib/openzeppelin-foundry-upgrades",
+     "reason": "afhankelijkheid"
+    },
+    {
+     "path": "lib/openzeppelin-contracts-upgradeable",
+     "reason": "afhankelijkheid"
+    },
+    {
+     "path": "lib/openzeppelin-contracts",
+     "reason": "afhankelijkheid"
+    },
+    {
+     "path": "lib/solady",
+     "reason": "afhankelijkheid"
+    },
+    {
+     "path": "lib/prb-math",
+     "reason": "afhankelijkheid"
+    },
+    {
+     "path": "lib/account-abstraction",
+     "reason": "afhankelijkheid"
+    }
+   ]
+  },
+  "droppedHypotheses": 0,
+  "deadlineHit": false
+ },
+ "hypotheses": [
+  {
+   "title": "Unrestricted sweep of accumulated protocol fees",
+   "severity": "High",
+   "category": "ACCESS",
+   "file": "src/protocol/MultiVault.sol",
+   "function": "sweepAccumulatedProtocolFees(uint256)",
+   "description": "The `sweepAccumulatedProtocolFees` external function can be called by any address because it lacks any access‑control modifier. It forwards the call to the internal `_claimAccumulatedProtocolFees` routine, which (by naming convention) distributes the accumulated protocol fees for a given epoch. If the internal routine transfers the fees to `msg.sender` or otherwise allows the caller to dictate the recipient, an attacker can drain all protocol fees.",
+   "attackPath": "1. Attacker calls `sweepAccumulatedProtocolFees(epoch)` with a target epoch that has non‑zero accumulated fees.",
+   "impact": "Loss of all accumulated protocol fees to an attacker, reducing protocol revenue and potentially destabilizing fee‑based incentives.",
+   "recommendation": "Restrict `sweepAccumulatedProtocolFees` to a privileged role (e.g., `onlyRole(DEFAULT_ADMIN_ROLE)`) or make it internal and expose a controlled admin‑only wrapper. Ensure the fee distribution logic sends funds to a designated treasury address, not `msg.sender`.",
+   "confidence": 0.95
+  },
+  {
+   "title": "Inaccurate block-to-timestamp estimation in totalSupplyAt enables governance manipulation",
+   "severity": "Medium",
+   "category": "SETTLEMENT",
+   "file": "src/external/curve/VotingEscrow.sol",
+   "function": "totalSupplyAt()",
+   "description": "The `totalSupplyAt` function estimates a historical timestamp for a given block number using linear interpolation between checkpoints. When `point.blk == point_next.blk` (consecutive checkpoints in the same block) or `point.blk == block.number` (latest checkpoint), the division is skipped and `dt` remains 0, causing the function to return the supply at the exact checkpoint timestamp rather than the interpolated time. This systematic underestimation of elapsed time inflates the calculated total voting power for periods immediately after checkpoints.",
+   "attackPath": "1. Attacker identifies a period where a new global checkpoint was created (e.g., after a large lock creation). 2. Attacker calls `totalSupplyAt` with a block number shortly after that checkpoint's block. 3. Due to the `dt = 0` fallback, the returned supply is higher than the true time-decayed supply. 4. If this value is used on-chain for quorum thresholds or proposal validation (e.g., via an external governor reading `totalSupplyAt`), the attacker can make proposals appear to meet quorum when they do not, or bypass minimum-voting-power requirements.",
+   "impact": "Governance decisions (quorum, vote thresholds) based on `totalSupplyAt` can be manipulated to pass illegitimate proposals or block legitimate ones, leading to protocol misgovernance.",
+   "recommendation": "When `point.blk == point_next.blk`, fall back to using `block.timestamp - point.ts` (or the next checkpoint's timestamp) for `dt` instead of leaving it at 0. Add a comment documenting the interpolation assumption.",
+   "confidence": 0.65
+  },
+  {
+   "title": "Unbounded loop in _supply_at allows gas griefing via totalSupplyAtT",
+   "severity": "Low",
+   "category": "LIVENESS",
+   "file": "src/external/curve/VotingEscrow.sol",
+   "function": "_supply_at()",
+   "description": "The `_supply_at` internal function iterates up to 255 times (weekly steps) to compute total supply at a target timestamp `t`. While the loop is bounded, an attacker can call the public `totalSupplyAtT(t)` with a `t` value far in the future (e.g., `type(uint256).max`), forcing the loop to execute all 255 iterations and consume ~200k+ gas. Although view functions cannot halt the protocol, they can be used to grief off-chain indexers, simulation tools, or gas-estimation APIs that call this function during transaction simulation.",
+   "attackPath": "1. Attacker calls `totalSupplyAtT(type(uint256).max)` via `eth_call` or a contract that relays the call. 2. The EVM executes 255 loop iterations with slope-change lookups. 3. Repeated calls degrade RPC performance or cause gas-estimation failures for downstream integrators.",
+   "impact": "Degraded off-chain tooling reliability; potential DoS for front-ends that simulate governance actions using this view.",
+   "recommendation": "Cap the maximum timestamp accepted by `totalSupplyAtT` to `block.timestamp + MAX_FUTURE_LOOKAHEAD` (e.g., 4 years) and revert for larger values.",
+   "confidence": 0.55
+  },
+  {
+   "title": "Precision loss in balanceOfAt block-time interpolation skews user voting power",
+   "severity": "Low",
+   "category": "ACCOUNTING",
+   "file": "src/external/curve/VotingEscrow.sol",
+   "function": "balanceOfAt()",
+   "description": "The `balanceOfAt` function estimates the block timestamp for a historical block using `dt = (d_t * (_block - point_0.blk)) / d_block`. When `d_block` is large, integer division truncates the fractional progress, causing `block_time` to be slightly earlier than the true timestamp. This results in a marginally higher calculated voting power (since less decay is applied). The bias is small per call but systematic and favors the caller.",
+   "attackPath": "1. Attacker queries `balanceOfAt(addr, historical_block)` for a block far from the nearest checkpoint. 2. The truncated `block_time` yields a voting power slightly above the true value. 3. If this value is used on-chain (e.g., for a snapshot-based vote or a contract that checks `balanceOfAt` for eligibility), the attacker gains a small but repeatable advantage.",
+   "impact": "Minor inflation of historical voting power; could affect close snapshot votes or eligibility checks that rely on precise historical balances.",
+   "recommendation": "Use a rounding-up division for `dt` when calculating `block_time` (e.g., `(d_t * (_block - point_0.blk) + d_block - 1) / d_block`) to avoid systematic underestimation of elapsed time.",
+   "confidence": 0.5
+  }
+ ],
+ "rawCount": 4,
+ "dropped": 0,
+ "durationMs": 432309,
+ "filesInScope": [
+  {
+   "rel": "intuition-contracts-v2-periphery/contracts/EmissionsAutomationAdapter.sol",
+   "bytes": 6001,
+   "score": 0
+  },
+  {
+   "rel": "intuition-contracts-v2-periphery/contracts/TrustSwapAndBridgeRouter.sol",
+   "bytes": 12497,
+   "score": 10
+  },
+  {
+   "rel": "src/Trust.sol",
+   "bytes": 4282,
+   "score": 2
+  },
+  {
+   "rel": "src/WrappedTrust.sol",
+   "bytes": 2719,
+   "score": 4
+  },
+  {
+   "rel": "src/external/curve/VotingEscrow.sol",
+   "bytes": 30223,
+   "score": 9
+  },
+  {
+   "rel": "src/legacy/TrustToken.sol",
+   "bytes": 1424,
+   "score": 2
+  },
+  {
+   "rel": "src/libraries/ProgressiveCurveMathLib.sol",
+   "bytes": 1217,
+   "score": 0
+  },
+  {
+   "rel": "src/protocol/MultiVault.sol",
+   "bytes": 75168,
+   "score": 9
+  },
+  {
+   "rel": "src/protocol/MultiVaultCore.sol",
+   "bytes": 13936,
+   "score": 3
+  },
+  {
+   "rel": "src/protocol/MultiVaultMigrationMode.sol",
+   "bytes": 8093,
+   "score": 5
+  },
+  {
+   "rel": "src/protocol/curves/BaseCurve.sol",
+   "bytes": 9036,
+   "score": 3
+  },
+  {
+   "rel": "src/protocol/curves/BondingCurveRegistry.sol",
+   "bytes": 12397,
+   "score": 3
+  },
+  {
+   "rel": "src/protocol/curves/LinearCurve.sol",
+   "bytes": 6473,
+   "score": 0
+  },
+  {
+   "rel": "src/protocol/curves/OffsetProgressiveCurve.sol",
+   "bytes": 8065,
+   "score": 3
+  },
+  {
+   "rel": "src/protocol/curves/ProgressiveCurve.sol",
+   "bytes": 7580,
+   "score": 2
+  },
+  {
+   "rel": "src/protocol/emissions/BaseEmissionsController.sol",
+   "bytes": 10199,
+   "score": 5
+  },
+  {
+   "rel": "src/protocol/emissions/CoreEmissionsController.sol",
+   "bytes": 9328,
+   "score": 3
+  },
+  {
+   "rel": "src/protocol/emissions/MetaERC20Dispatcher.sol",
+   "bytes": 5766,
+   "score": 0
+  },
+  {
+   "rel": "src/protocol/emissions/SatelliteEmissionsController.sol",
+   "bytes": 11043,
+   "score": 5
+  },
+  {
+   "rel": "src/protocol/emissions/TrustBonding.sol",
+   "bytes": 26992,
+   "score": 7
+  },
+  {
+   "rel": "src/protocol/wallet/AtomWallet.sol",
+   "bytes": 14092,
+   "score": 8
+  },
+  {
+   "rel": "src/protocol/wallet/AtomWalletFactory.sol",
+   "bytes": 6480,
+   "score": 2
+  },
+  {
+   "rel": "src/protocol/wallet/AtomWarden.sol",
+   "bytes": 5578,
+   "score": 2
+  }
+ ]
+}
