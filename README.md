@@ -2,6 +2,10 @@
 
 AI-powered smart contract security analysis for AI agents and developers.
 
+## Update, 25 October 2026, night: a quick scan for 1 dollar
+
+There are now two prices. The quick scan, POST https://x402.tokenizen.nl/api/bug-intel-quick for 1 USDC on Base, returns the 15 hypotheses the model is most confident about. The full scan, POST https://x402.tokenizen.nl/api/bug-intel for 5 USDC, adds 15 more with lower confidence. It is the same engine and the same kind of report. The hit rates we measured (8 of 105 and 5 of 66) are for the first 15 hypotheses, so they are the numbers of the quick scan; the second list is the extra of the full scan. The quick scan costs exactly 1 dollar because the official x402 client refuses payments above 1 dollar per request unless its owner raises the limit, so an agent with default settings can buy it. Both routes sign their offers.
+
 ## Update, 25 October 2026, night: a standard x402 client can now buy the scan
 
 Until today the scan endpoint accepted only a transaction hash from a payment you had made by hand, and it answered 400 to the signed authorization that standard x402 clients send, although its 402 answer said that would work. That is fixed. A standard client (@x402/fetch 2.28.0) bought the scan from a throwaway address, got the receipt in the response, and the six checks on the receipt pass: [results/2026-10-25-v31/standard-client-purchase/README.md](results/2026-10-25-v31/standard-client-purchase/README.md). It was a self test with our own money, one purchase. One thing a buyer needs to know: the official client refuses payments above 1 dollar per request unless its owner raises the limit, and the scan costs 5 dollars.
@@ -46,7 +50,7 @@ Reading the production scan code on 24 October 2026 showed that earlier text on 
 Official source: this repository and the payment address in the payment section below are the only official ones for Bug Bounty Intelligence. If a listing, a reply or a website gives a different payment address, it is not ours. Check the address against the one below before you pay.
 
 **Drawn from a corpus of 27,681 submitted findings across 105 Sherlock and Code4rena contests.**
-**Cost: $5 USDC on Base (eip155:8453) via x402.**
+**Cost: $5 USDC on Base (eip155:8453) via x402 for the full scan, $1 USDC for the quick scan.**
 **Free tool: `list_vulnerability_patterns`, no payment needed.**
 
 `list_vulnerability_patterns`' acceptance-rate numbers are computed only from the subset where
