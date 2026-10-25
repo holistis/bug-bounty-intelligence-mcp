@@ -2,6 +2,10 @@
 
 AI-powered smart contract security analysis for AI agents and developers.
 
+## Update, 25 October 2026, night: a standard x402 client can now buy the scan
+
+Until today the scan endpoint accepted only a transaction hash from a payment you had made by hand, and it answered 400 to the signed authorization that standard x402 clients send, although its 402 answer said that would work. That is fixed. A standard client (@x402/fetch 2.28.0) bought the scan from a throwaway address, got the receipt in the response, and the six checks on the receipt pass: [results/2026-10-25-v31/standard-client-purchase/README.md](results/2026-10-25-v31/standard-client-purchase/README.md). It was a self test with our own money, one purchase. One thing a buyer needs to know: the official client refuses payments above 1 dollar per request unless its owner raises the limit, and the scan costs 5 dollars.
+
 ## Update, 25 October 2026, night: the scan on contests from the last year
 
 We ran the scan once on 9 Code4rena contests from September 2025 to March 2026 (66 known High and Medium findings), with the rule for reading the result written beforehand. The first 15 hypotheses of a report held 5 of the 66 (7.6 percent) and the first 30 held 8 (12.1 percent). That is the same rate as on the 8 Sherlock contests, so by our own rule the result holds on newer contests. It is still a low rate: 58 of the 66 known findings were not in the first 15. Numbers, judgements, the whole lists and the limits: [results/2026-10-25-c4-fresh/README.md](results/2026-10-25-c4-fresh/README.md).
