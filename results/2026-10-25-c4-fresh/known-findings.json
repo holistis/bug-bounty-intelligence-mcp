@@ -1,0 +1,834 @@
+[
+  {
+    "contest": "2025-10-hybra-finance",
+    "report": "https://code4rena.com/reports/2025-10-hybra-finance",
+    "repository": "https://github.com/code-423n4/2025-10-hybra-finance",
+    "known": [
+      {
+        "id": "H-1",
+        "severity": "High",
+        "title": "Assets deposited before calculating shares amount to mint will cause users to mint less shares",
+        "submittedByApprox": 34,
+        "files": [
+          "GovernanceHYBR.sol",
+          "com/code-423n4/2025-10-hybra-finance/blob/66c42f3c9754f1b38942c69ebc0d3e4c0f8fdeb2/ve33/contracts/GovernanceHYBR.sol"
+        ]
+      },
+      {
+        "id": "M-1",
+        "severity": "Medium",
+        "title": "CLFactory ignores dynamic fees above 10% and silently falls back to default",
+        "submittedByApprox": 5,
+        "files": [
+          "CLFactory.sol",
+          "com/code-423n4/2025-10-hybra-finance/blob/main/cl/contracts/core/CLFactory.sol",
+          "cl/contracts/core/CLFactory.sol",
+          "t.sol",
+          "forge-std/Test.sol",
+          "contracts/core/fees/DynamicSwapFeeModule.sol"
+        ]
+      },
+      {
+        "id": "M-2",
+        "severity": "Medium",
+        "title": "Users emergency withdrawing will lose all past accrued rewards",
+        "submittedByApprox": 7,
+        "files": [
+          "com/code-423n4/2025-10-hybra-finance/blob/6299bfbc089158221e5c645d4aaceceea474f5be/ve33/contracts/GaugeV2.sol",
+          "t.sol"
+        ]
+      },
+      {
+        "id": "M-3",
+        "severity": "Medium",
+        "title": "First depositor attack possible through multiple attack paths because the deposit function does not check 0 shares received",
+        "submittedByApprox": 30,
+        "files": [
+          "GovernanceHYBR.sol",
+          "com/code-423n4/2025-10-hybra-finance/blob/66c42f3c9754f1b38942c69ebc0d3e4c0f8fdeb2/ve33/contracts/GovernanceHYBR.sol"
+        ]
+      },
+      {
+        "id": "M-4",
+        "severity": "Medium",
+        "title": "Dust vote on one pool prevents poke()",
+        "submittedByApprox": 4,
+        "files": [
+          "VoterV3.sol",
+          "com/code-423n4/2025-10-hybra-finance/blob/6299bfbc089158221e5c645d4aaceceea474f5be/ve33/contracts/VoterV3.sol",
+          "t.sol"
+        ]
+      },
+      {
+        "id": "M-5",
+        "severity": "Medium",
+        "title": "Rollover rewards are permanently lost due to flawed rewardRate calculation",
+        "submittedByApprox": 3,
+        "files": [
+          "GaugeCL.sol",
+          "com/code-423n4/2025-10-hybra-finance/blob/66c42f3c9754f1b38942c69ebc0d3e4c0f8fdeb2/ve33/contracts/CLGauge/GaugeCL.sol"
+        ]
+      },
+      {
+        "id": "M-6",
+        "severity": "Medium",
+        "title": "ClaimFees steals staking rewards",
+        "submittedByApprox": 9,
+        "files": [
+          "CLGauge/GaugeCL.sol",
+          "com/code-423n4/2025-10-hybra-finance/blob/6299bfbc089158221e5c645d4aaceceea474f5be/ve33/contracts/CLGauge/GaugeCL.sol",
+          "forge-std/Test.sol",
+          "t.sol",
+          "/contracts/CLGauge/GaugeCL.sol",
+          "/contracts/CLGauge/interface/ICLPool.sol"
+        ]
+      },
+      {
+        "id": "M-7",
+        "severity": "Medium",
+        "title": "Claiming rewards in GovernanceHYBR will always revert",
+        "submittedByApprox": 3,
+        "files": [
+          "GovernanceHYBR.sol",
+          "com/code-423n4/2025-10-hybra-finance/blob/74c2b93e8a4796c1d41e1fbaa07e40b426944c44/ve33/contracts/GovernanceHYBR.sol",
+          "VoterV3.sol",
+          "com/code-423n4/2025-10-hybra-finance/blob/main/ve33/contracts/interfaces/IVoter.sol",
+          "MockERC20.sol",
+          "t.sol"
+        ]
+      },
+      {
+        "id": "M-8",
+        "severity": "Medium",
+        "title": "Incorrect voting power calculation when create_lock and increase_amount are called in the same transaction",
+        "submittedByApprox": 2,
+        "files": [
+          "VotingEscrow.sol",
+          "com/code-423n4/2025-10-hybra-finance/blob/74c2b93e8a4796c1d41e1fbaa07e40b426944c44/ve33/contracts/VotingEscrow.sol",
+          "t.sol",
+          "forge-std/Test.sol",
+          "openzeppelin/contracts/token/ERC20/ERC20.sol",
+          "/contracts/Bribes.sol"
+        ]
+      },
+      {
+        "id": "M-9",
+        "severity": "Medium",
+        "title": "CL gauge accepts unverified pools, allowing malicious pool to brick distribution",
+        "submittedByApprox": 15,
+        "files": [
+          "GaugeManager.sol",
+          "com/code-423n4/2025-10-hybra-finance/blob/main/ve33/contracts/GaugeManager.sol",
+          "GaugeCL.sol",
+          "com/code-423n4/2025-10-hybra-finance/blob/main/ve33/contracts/CLGauge/GaugeCL.sol",
+          "t.sol",
+          "forge-std/Test.sol"
+        ]
+      }
+    ]
+  },
+  {
+    "contest": "2025-10-sequence",
+    "report": "https://code4rena.com/reports/2025-10-sequence",
+    "repository": "https://github.com/code-423n4/2025-10-sequence",
+    "known": [
+      {
+        "id": "H-1",
+        "severity": "High",
+        "title": "Chained signature with checkpoint usage disabled can bypass all checkpointer validation",
+        "submittedByApprox": 1,
+        "files": [
+          "com/code-423n4/2025-10-sequence/blob/b0e5fb15bf6735ec9aaba02f5eca28a7882d815d/src/modules/auth/BaseSig.sol",
+          "BaseSig.sol",
+          "a/src/modules/auth/BaseSig.sol",
+          "b/src/modules/auth/BaseSig.sol"
+        ]
+      },
+      {
+        "id": "H-2",
+        "severity": "High",
+        "title": "Partial signature replay/frontrunning attack on session calls",
+        "submittedByApprox": 1,
+        "files": [
+          "com/code-423n4/2025-10-sequence/blob/b0e5fb15bf6735ec9aaba02f5eca28a7882d815d/src/modules/Calls.sol",
+          "com/code-423n4/2025-10-sequence/blob/b0e5fb15bf6735ec9aaba02f5eca28a7882d815d/src/extensions/sessions/SessionSig.sol",
+          "src/modules/Calls.sol",
+          "src/extensions/sessions/SessionSig.sol",
+          "t.sol",
+          "forge-std/Test.sol"
+        ]
+      },
+      {
+        "id": "M-1",
+        "severity": "Medium",
+        "title": "Session signatures replay across wallets due to missing wallet binding",
+        "submittedByApprox": 14,
+        "files": [
+          "com/code-423n4/2025-10-sequence/blob/main/src/extensions/sessions/SessionSig.sol",
+          "com/code-423n4/2025-10-sequence/blob/main/src/extensions/sessions/SessionManager.sol",
+          "com/code-423n4/2025-10-sequence/blob/main/src/modules/auth/BaseAuth.sol",
+          "com/code-423n4/2025-10-sequence/blob/main/src/modules/auth/Stage2Auth.sol",
+          "src/extensions/sessions/SessionSig.sol",
+          "src/extensions/sessions/SessionManager.sol"
+        ]
+      },
+      {
+        "id": "M-2",
+        "severity": "Medium",
+        "title": "Static signatures bound to caller revert under ERC-4337, causing DoS",
+        "submittedByApprox": 3,
+        "files": [
+          "com/code-423n4/2025-10-sequence/blob/ccc328beeadd28fdbde53b034098c865104fcaf3/src/modules/ERC4337v07.sol",
+          "com/code-423n4/2025-10-sequence/blob/ccc328beeadd28fdbde53b034098c865104fcaf3/src/modules/auth/BaseAuth.sol",
+          "t.sol",
+          "/src/modules/auth/BaseAuth.sol"
+        ]
+      },
+      {
+        "id": "M-3",
+        "severity": "Medium",
+        "title": "BaseAuth.recoverSapientSignature returns a constant instead of signer image hash, breaking sapient signer flows",
+        "submittedByApprox": 5,
+        "files": [
+          "com/code-423n4/2025-10-sequence/blob/ccc328beeadd28fdbde53b034098c865104fcaf3/src/modules/auth/BaseAuth.sol",
+          "com/code-423n4/2025-10-sequence/blob/ccc328beeadd28fdbde53b034098c865104fcaf3/src/modules/interfaces/ISapient.sol",
+          "t.sol",
+          "BaseAuth.sol",
+          "/src/modules/auth/BaseAuth.sol"
+        ]
+      },
+      {
+        "id": "M-4",
+        "severity": "Medium",
+        "title": "Factory deploy reverts instead of returning address when account already exists",
+        "submittedByApprox": 1,
+        "files": [
+          "com/code-423n4/2025-10-sequence/blob/b0e5fb15bf6735ec9aaba02f5eca28a7882d815d/src/Factory.sol",
+          "t.sol"
+        ]
+      }
+    ]
+  },
+  {
+    "contest": "2025-11-brix-money",
+    "report": "https://code4rena.com/reports/2025-11-brix-money",
+    "repository": "https://github.com/code-423n4/2025-11-brix-money",
+    "known": [
+      {
+        "id": "M-1",
+        "severity": "Medium",
+        "title": "User can bypass staking restrictions through composer and deposit on another chain",
+        "submittedByApprox": 8,
+        "files": [
+          "com/code-423n4/2025-11-brix-money/blob/main/src/token/wiTRY/StakediTry.sol",
+          "token/wiTRY/crosschain/wiTryVaultComposer.sol",
+          "com/code-423n4/2025-11-brix-money/blob/main/src/token/wiTRY/crosschain/wiTryVaultComposer.sol",
+          "token/wiTRY/crosschain/libraries/VaultComposerSync.sol",
+          "com/code-423n4/2025-11-brix-money/blob/main/src/token/wiTRY/crosschain/libraries/VaultComposerSync.sol",
+          "t.sol"
+        ]
+      },
+      {
+        "id": "M-2",
+        "severity": "Medium",
+        "title": "Cross-chain unstake and fast redeem operations fail due to minAmountLD not accounting for LayerZero dust removal",
+        "submittedByApprox": 17,
+        "files": [
+          "token/wiTRY/crosschain/wiTryVaultComposer.sol",
+          "com/code-423n4/2025-11-brix-money/blob/main/src/token/wiTRY/crosschain/wiTryVaultComposer.sol",
+          "OFTCore.sol",
+          "t.sol"
+        ]
+      },
+      {
+        "id": "M-3",
+        "severity": "Medium",
+        "title": "Incompatibility with Account Abstraction and Multisigs due to enforced address symmetry in cross chain unstaking",
+        "submittedByApprox": 3,
+        "files": [
+          "token/wiTRY/crosschain/UnstakeMessenger.sol",
+          "com/code-423n4/2025-11-brix-money/blob/main/src/token/wiTRY/crosschain/UnstakeMessenger.sol",
+          "token/wiTRY/crosschain/wiTryVaultComposer.sol",
+          "com/code-423n4/2025-11-brix-money/blob/main/src/token/wiTRY/crosschain/wiTryVaultComposer.sol",
+          "t.sol"
+        ]
+      }
+    ]
+  },
+  {
+    "contest": "2025-11-ekubo",
+    "report": "https://code4rena.com/reports/2025-11-ekubo",
+    "repository": "https://github.com/code-423n4/2025-11-ekubo",
+    "known": [
+      {
+        "id": "M-1",
+        "severity": "Medium",
+        "title": "Oracle Data Corruption via Storage Key Collision",
+        "submittedByApprox": 8,
+        "files": [
+          "com/code-423n4/2025-11-ekubo/blob/main/src/extensions/Oracle.sol",
+          "src/extensions/Oracle.sol",
+          "src/math/ticks.sol",
+          "src/types/bitmap.sol",
+          "src/math/time.sol",
+          "t.sol"
+        ]
+      },
+      {
+        "id": "M-2",
+        "severity": "Medium",
+        "title": "TWAMM Instant Orders Can Steal Historical Rewards",
+        "submittedByApprox": 1,
+        "files": [
+          "com/code-423n4/2025-11-ekubo/blob/bbc87eb26d73700cf886f1b3f06f8a348d9c6aef/src/extensions/TWAMM.sol",
+          "TWAMM.sol",
+          "/src/types/poolKey.sol",
+          "/src/types/poolConfig.sol",
+          "/src/types/poolId.sol",
+          "/src/math/constants.sol"
+        ]
+      },
+      {
+        "id": "M-3",
+        "severity": "Medium",
+        "title": "Wrong rounding direction in DurationRemaining leads to value loss from TWAMM extension and Temporarily Freezing of a Pool",
+        "submittedByApprox": 1,
+        "files": [
+          "com/code-423n4/2025-11-ekubo/blob/bbc87eb26d73700cf886f1b3f06f8a348d9c6aef/src/extensions/TWAMM.sol",
+          "TWAMM.sol",
+          "src/extensions/TWAMM.sol",
+          "t.sol",
+          "/src/types/poolKey.sol",
+          "/src/types/poolId.sol"
+        ]
+      },
+      {
+        "id": "M-4",
+        "severity": "Medium",
+        "title": "Router does not check if Exact Out Single Swap was partial leading to unexpected results for the users",
+        "submittedByApprox": 2,
+        "files": [
+          "com/code-423n4/2025-11-ekubo/blob/main/src/Router.sol",
+          "com/Uniswap/v3-periphery/blob/main/contracts/SwapRouter.sol"
+        ]
+      }
+    ]
+  },
+  {
+    "contest": "2025-11-megapot",
+    "report": "https://code4rena.com/reports/2025-11-megapot",
+    "repository": "https://github.com/code-423n4/2025-11-megapot",
+    "known": [
+      {
+        "id": "H-1",
+        "severity": "High",
+        "title": "Attacker can steal JackpotTicketNFT ’s from JackpotBridgeManager.sol",
+        "submittedByApprox": 12,
+        "files": [
+          "com/code-423n4/2025-11-megapot/blob/f0a7297d59c376e38b287b2c56740617dbbfbdc7/contracts/JackpotBridgeManager.sol",
+          "Exploit.sol",
+          "openzeppelin/contracts/token/ERC20/IERC20.sol",
+          "openzeppelin/contracts/token/ERC721/IERC721Receiver.sol",
+          "openzeppelin/contracts/token/ERC721/IERC721.sol"
+        ]
+      },
+      {
+        "id": "H-2",
+        "severity": "High",
+        "title": "Unoptimized subset matches counting implementation will exceed tx gas limit on base chain",
+        "submittedByApprox": 8,
+        "files": [
+          "com/code-423n4/2025-11-megapot/blob/f0a7297d59c376e38b287b2c56740617dbbfbdc7/contracts/lib/TicketComboTracker.sol",
+          "com/code-423n4/2025-11-megapot/blob/f0a7297d59c376e38b287b2c56740617dbbfbdc7/contracts/Jackpot.sol",
+          "2025-11-megapot/contracts/Jackpot.sol",
+          "2025-11-megapot/contracts/lib/TicketComboTracker.sol",
+          "a/contracts/lib/TicketComboTracker.sol",
+          "b/contracts/lib/TicketComboTracker.sol"
+        ]
+      },
+      {
+        "id": "H-3",
+        "severity": "High",
+        "title": "LP pool cap may be exceeded on drawing settlement",
+        "submittedByApprox": 2,
+        "files": [
+          "com/code-423n4/2025-11-megapot/blob/f0a7297d59c376e38b287b2c56740617dbbfbdc7/contracts/JackpotLPManager.sol",
+          "com/code-423n4/2025-11-megapot/blob/f0a7297d59c376e38b287b2c56740617dbbfbdc7/contracts/Jackpot.sol",
+          "2025-11-megapot/contracts/Jackpot.sol",
+          "com/code-423n4/2025-11-megapot/blob/f0a7297d59c376e38b287b2c56740617dbbfbdc7/contracts/lib/TicketComboTracker.sol",
+          "2025-11-megapot/contracts/lib/TicketComboTracker.sol",
+          "2025-11-megapot/contracts/JackpotLPManager.sol"
+        ]
+      },
+      {
+        "id": "M-1",
+        "severity": "Medium",
+        "title": "Global Variable Manipulation During Active Draw Alters End Result",
+        "submittedByApprox": 1,
+        "files": [
+          "com/code-423n4/2025-11-megapot/blob/main/contracts/Jackpot.sol",
+          "/interfaces/IScaledEntropyProvider.sol",
+          "/interfaces/IJackpotLPManager.sol",
+          "/interfaces/IPayoutCalculator.sol"
+        ]
+      },
+      {
+        "id": "M-2",
+        "severity": "Medium",
+        "title": "Incorrect ticket price reference in JackpotBridgeManager causes user overpayment after price updates",
+        "submittedByApprox": 39,
+        "files": [
+          "com/code-423n4/2025-11-megapot/blob/f0a7297d59c376e38b287b2c56740617dbbfbdc7/contracts/JackpotBridgeManager.sol",
+          "Jackpot.sol"
+        ]
+      },
+      {
+        "id": "M-3",
+        "severity": "Medium",
+        "title": "Deliberately increasing liquidity can DoS updates to the protocol’s governance parameters.",
+        "submittedByApprox": 10,
+        "files": [
+          "com/code-423n4/2025-11-megapot/blob/f0a7297d59c376e38b287b2c56740617dbbfbdc7/contracts/JackpotLPManager.sol",
+          "com/code-423n4/2025-11-megapot/blob/f0a7297d59c376e38b287b2c56740617dbbfbdc7/contracts/Jackpot.sol"
+        ]
+      },
+      {
+        "id": "M-4",
+        "severity": "Medium",
+        "title": "lpEarnings generated in emergency mode become stuck on the contract",
+        "submittedByApprox": 6,
+        "files": [
+          "com/code-423n4/2025-11-megapot/blob/f0a7297d59c376e38b287b2c56740617dbbfbdc7/contracts/Jackpot.sol"
+        ]
+      },
+      {
+        "id": "M-5",
+        "severity": "Medium",
+        "title": "Randomness can be exploited in some cases",
+        "submittedByApprox": 2,
+        "files": [
+          "com/code-423n4/2025-11-megapot/blob/main/contracts/ScaledEntropyProvider.sol"
+        ]
+      },
+      {
+        "id": "M-6",
+        "severity": "Medium",
+        "title": "Changes to Pyth entropy provider used by ScaledEntropyProvider allow attacker to fix jackpot result",
+        "submittedByApprox": 1,
+        "files": [
+          "com/code-423n4/2025-11-megapot/blob/f0a7297d59c376e38b287b2c56740617dbbfbdc7/contracts/ScaledEntropyProvider.sol",
+          "com/pyth-network/pyth-crosschain/blob/3bb18ac24944f5bd07142fb99991733b4bb88f46/target_chains/ethereum/contracts/contracts/entropy/EntropyState.sol",
+          "ScaledEntropyProvider.sol",
+          "a/contracts/ScaledEntropyProvider.sol",
+          "b/contracts/ScaledEntropyProvider.sol",
+          "IEntropyV2Complete.sol"
+        ]
+      },
+      {
+        "id": "M-7",
+        "severity": "Medium",
+        "title": "Changing Entropy Provider During Active Drawing Causes Permanent Protocol Lock and Callback Failure",
+        "submittedByApprox": 8,
+        "files": [
+          "/interfaces/IScaledEntropyProvider.sol",
+          "/interfaces/IJackpotLPManager.sol",
+          "/interfaces/IPayoutCalculator.sol"
+        ]
+      },
+      {
+        "id": "M-8",
+        "severity": "Medium",
+        "title": "Changing Payout Calculator During Active Drawing Causes Loss of Unclaimed Winnings",
+        "submittedByApprox": 24,
+        "files": [
+          "/interfaces/IScaledEntropyProvider.sol",
+          "/interfaces/IJackpotLPManager.sol",
+          "/interfaces/IPayoutCalculator.sol"
+        ]
+      }
+    ]
+  },
+  {
+    "contest": "2025-11-merkl",
+    "report": "https://code4rena.com/reports/2025-11-merkl",
+    "repository": "https://github.com/code-423n4/2025-11-merkl",
+    "known": [
+      {
+        "id": "M-1",
+        "severity": "Medium",
+        "title": "Minimum Reward-Per-Hour Validation Applied to Gross Instead of Net Amount",
+        "submittedByApprox": 1,
+        "files": [
+          "com/code-423n4/2025-11-merkl/blob/e8c1d6f5a91c1144571c3ed238358a2b032dd32e/contracts/DistributionCreator.sol",
+          "DistributionCreator.sol"
+        ]
+      },
+      {
+        "id": "M-2",
+        "severity": "Medium",
+        "title": "Improper Error Handling of onClaim Callback in _claim Function",
+        "submittedByApprox": 1,
+        "files": [
+          "com/code-423n4/2025-11-merkl/blob/e8c1d6f5a91c1144571c3ed238358a2b032dd32e/contracts/Distributor.sol",
+          "Distributor.sol"
+        ]
+      },
+      {
+        "id": "M-3",
+        "severity": "Medium",
+        "title": "Multi-step campaign overrides are anchored to the original campaign, making later overrides impossible",
+        "submittedByApprox": 9,
+        "files": [
+          "com/code-423n4/2025-11-merkl/blob/e8c1d6f5a91c1144571c3ed238358a2b032dd32e/contracts/DistributionCreator.sol",
+          "DistributionCreator.sol"
+        ]
+      }
+    ]
+  },
+  {
+    "contest": "2025-11-sukukfi",
+    "report": "https://code4rena.com/reports/2025-11-sukukfi",
+    "repository": "https://github.com/code-423n4/2025-11-sukukfi",
+    "known": [
+      {
+        "id": "H-1",
+        "severity": "High",
+        "title": "Missing Authorization Check Allows Unauthorized Fund Withdrawal",
+        "submittedByApprox": 1,
+        "files": [
+          "src/WERC7575Vault.sol",
+          "com/code-423n4/2025-11-sukukfi/blob/163216500a54627afc6abaac3bffdc3a830051fa/src/WERC7575Vault.sol"
+        ]
+      },
+      {
+        "id": "M-1",
+        "severity": "Medium",
+        "title": "The unregistering of vaults can be DoSed by a malicious user.",
+        "submittedByApprox": 1,
+        "files": [
+          "src/ShareTokenUpgradeable.sol",
+          "com/code-423n4/2025-11-sukukfi/blob/main/src/ShareTokenUpgradeable.sol",
+          "src/WERC7575ShareToken.sol",
+          "com/code-423n4/2025-11-sukukfi/blob/main/src/WERC7575ShareToken.sol",
+          "ShareTokenUpgradeable.sol",
+          "WERC7575ShareToken.sol"
+        ]
+      },
+      {
+        "id": "M-2",
+        "severity": "Medium",
+        "title": "Stale Redemption Liabilities Lead to Leveraged Losses for Remaining Shareholders and Potential Denial of Service",
+        "submittedByApprox": 7,
+        "files": [
+          "src/ERC7575VaultUpgradeable.sol",
+          "com/code-423n4/2025-11-sukukfi/blob/18fe2578cf1c6203dac7ff21513533010f3dda3e/src/ERC7575VaultUpgradeable.sol",
+          "src/ShareTokenUpgradeable.sol",
+          "com/code-423n4/2025-11-sukukfi/blob/18fe2578cf1c6203dac7ff21513533010f3dda3e/src/ShareTokenUpgradeable.sol",
+          "ERC7575VaultUpgradeable.sol"
+        ]
+      },
+      {
+        "id": "M-3",
+        "severity": "Medium",
+        "title": "fulfillRedeem may corrupt share price and allow over-redemption of assets",
+        "submittedByApprox": 10,
+        "files": [
+          "src/ShareTokenUpgradeable.sol",
+          "com/code-423n4/2025-11-sukukfi/blob/main/src/ShareTokenUpgradeable.sol",
+          "src/ERC7575VaultUpgradeable.sol",
+          "com/code-423n4/2025-11-sukukfi/blob/main/src/ERC7575VaultUpgradeable.sol"
+        ]
+      }
+    ]
+  },
+  {
+    "contest": "2026-01-olas",
+    "report": "https://code4rena.com/reports/2026-01-olas",
+    "repository": "https://github.com/code-423n4/2026-01-olas",
+    "known": [
+      {
+        "id": "H-1",
+        "severity": "High",
+        "title": "Broken TWAP validation allows spot-price manipulation and renders slippage checks ineffective",
+        "submittedByApprox": 1,
+        "files": [
+          "/contracts/oracles/UniswapPriceOracle.sol",
+          "com/valory-xyz/autonolas-tokenomics/blob/bbec5ac12721a62672fb7a5ffba5c40f5a46d8cb/contracts/oracles/UniswapPriceOracle.sol"
+        ]
+      },
+      {
+        "id": "H-2",
+        "severity": "High",
+        "title": "Variable Overwrite in checkPoolAndGetCenterPrice() Creates Dead-Code Deviation Check, Leaving All V3 Protocol-Owned Liquidity Operations Unprotected",
+        "submittedByApprox": 1,
+        "files": [
+          "/contracts/pol/LiquidityManagerCore.sol",
+          "2-pre-external-audit/contracts/pol/LiquidityManagerCore.sol"
+        ]
+      },
+      {
+        "id": "H-3",
+        "severity": "High",
+        "title": "Balancer oracle uses vault balances as price and can be steered by anyone",
+        "submittedByApprox": 13,
+        "files": [
+          "/contracts/oracles/BalancerPriceOracle.sol",
+          "com/valory-xyz/autonolas-tokenomics/blob/bbec5ac12721a62672fb7a5ffba5c40f5a46d8cb/contracts/oracles/BalancerPriceOracle.sol"
+        ]
+      },
+      {
+        "id": "H-4",
+        "severity": "High",
+        "title": "Incorrect TWAP calculation in BalancerPriceOracle allows price manipulation and breaks oracle guarantees",
+        "submittedByApprox": 9,
+        "files": [
+          "/contracts/oracles/BalancerPriceOracle.sol",
+          "com/valory-xyz/autonolas-tokenomics/blob/bbec5ac12721a62672fb7a5ffba5c40f5a46d8cb/contracts/oracles/BalancerPriceOracle.sol"
+        ]
+      },
+      {
+        "id": "H-5",
+        "severity": "High",
+        "title": "Insolvency via Cross-Service Reentrancy in StakingBase._withdraw",
+        "submittedByApprox": 34,
+        "files": [
+          "/contracts/staking/StakingBase.sol",
+          "com/valory-xyz/autonolas-registries/blob/be1057a5e37f17f26b13c41311fe0e8e40259484/contracts/staking/StakingBase.sol",
+          "StakingBase.sol"
+        ]
+      },
+      {
+        "id": "H-6",
+        "severity": "High",
+        "title": "Service owner can steal protocol tokens by exploiting reentrancy in create",
+        "submittedByApprox": 3,
+        "files": [
+          "/contracts/ServiceManager.sol",
+          "com/valory-xyz/autonolas-registries/blob/be1057a5e37f17f26b13c41311fe0e8e40259484/contracts/ServiceManager.sol",
+          "/contracts/ServiceRegistry.sol",
+          "com/valory-xyz/autonolas-registries/blob/be1057a5e37f17f26b13c41311fe0e8e40259484/contracts/ServiceRegistry.sol"
+        ]
+      },
+      {
+        "id": "H-7",
+        "severity": "High",
+        "title": "Missing deadline parameter in register signatures",
+        "submittedByApprox": 3,
+        "files": [
+          "/contracts/ServiceManager.sol",
+          "com/valory-xyz/autonolas-registries/blob/be1057a5e37f17f26b13c41311fe0e8e40259484/contracts/ServiceManager.sol"
+        ]
+      },
+      {
+        "id": "H-8",
+        "severity": "High",
+        "title": "Critical Logic Inversion in Price Guard Allows Flash-Loan Manipulation of Liquidity Operations",
+        "submittedByApprox": 5,
+        "files": [
+          "/contracts/pol/LiquidityManagerCore.sol",
+          "com/valory-xyz/autonolas-tokenomics/blob/bbec5ac12721a62672fb7a5ffba5c40f5a46d8cb/contracts/pol/LiquidityManagerCore.sol",
+          "LiquidityManagerCore.sol"
+        ]
+      },
+      {
+        "id": "H-9",
+        "severity": "High",
+        "title": "Missing maximum bond signature parameter",
+        "submittedByApprox": 7,
+        "files": [
+          "/contracts/ServiceManager.sol",
+          "com/valory-xyz/autonolas-registries/blob/be1057a5e37f17f26b13c41311fe0e8e40259484/contracts/ServiceManager.sol"
+        ]
+      },
+      {
+        "id": "H-10",
+        "severity": "High",
+        "title": "Token Callback Reentrancy",
+        "submittedByApprox": 1,
+        "files": [
+          "/contracts/staking/StakingBase.sol",
+          "com/valory-xyz/autonolas-registries/blob/be1057a5e37f17f26b13c41311fe0e8e40259484/contracts/staking/StakingBase.sol",
+          "/contracts/ServiceManager.sol",
+          "com/valory-xyz/autonolas-registries/blob/be1057a5e37f17f26b13c41311fe0e8e40259484/contracts/ServiceManager.sol"
+        ]
+      },
+      {
+        "id": "H-11",
+        "severity": "High",
+        "title": "cumulativePrice is corrupted when price updates are rejected",
+        "submittedByApprox": 7,
+        "files": [
+          "/contracts/oracles/BalancerPriceOracle.sol",
+          "com/valory-xyz/autonolas-tokenomics/blob/bbec5ac12721a62672fb7a5ffba5c40f5a46d8cb/contracts/oracles/BalancerPriceOracle.sol"
+        ]
+      },
+      {
+        "id": "M-1",
+        "severity": "Medium",
+        "title": "Arbitrum Retryable-Ticket Refund/Value Not Verified Enables Timelock ETH Exfiltration",
+        "submittedByApprox": 16,
+        "files": [
+          "/contracts/multisigs/GuardCM.sol",
+          "com/valory-xyz/autonolas-governance/blob/6ea160398200a7b1ca6bf916fc2cd91483bff707/contracts/multisigs/GuardCM.sol",
+          "/contracts/multisigs/bridge_verifier/ProcessBridgedDataArbitrum.sol",
+          "com/valory-xyz/autonolas-governance/blob/6ea160398200a7b1ca6bf916fc2cd91483bff707/contracts/multisigs/bridge_verifier/ProcessBridgedDataArbitrum.sol",
+          "GuardCM.sol"
+        ]
+      },
+      {
+        "id": "M-2",
+        "severity": "Medium",
+        "title": "Uniswap oracle validateprice can be griefed per block via sync()",
+        "submittedByApprox": 8,
+        "files": [
+          "/contracts/oracles/UniswapPriceOracle.sol",
+          "com/valory-xyz/autonolas-tokenomics/blob/bbec5ac12721a62672fb7a5ffba5c40f5a46d8cb/contracts/oracles/UniswapPriceOracle.sol"
+        ]
+      },
+      {
+        "id": "M-3",
+        "severity": "Medium",
+        "title": "Price cumulative last is used inverted in Uniswap Oracle",
+        "submittedByApprox": 7,
+        "files": [
+          "/contracts/oracles/UniswapPriceOracle.sol",
+          "com/valory-xyz/autonolas-tokenomics/blob/bbec5ac12721a62672fb7a5ffba5c40f5a46d8cb/contracts/oracles/UniswapPriceOracle.sol"
+        ]
+      },
+      {
+        "id": "M-4",
+        "severity": "Medium",
+        "title": "DoS in Liquidity Migration due to Unit Mismatch in UniswapPriceOracle",
+        "submittedByApprox": 9,
+        "files": [
+          "/contracts/oracles/UniswapPriceOracle.sol",
+          "com/valory-xyz/autonolas-tokenomics/blob/bbec5ac12721a62672fb7a5ffba5c40f5a46d8cb/contracts/oracles/UniswapPriceOracle.sol"
+        ]
+      },
+      {
+        "id": "M-5",
+        "severity": "Medium",
+        "title": "BalancerPriceOracle::validatePrice uses stale TWAP",
+        "submittedByApprox": 4,
+        "files": [
+          "/contracts/oracles/BalancerPriceOracle.sol",
+          "com/valory-xyz/autonolas-tokenomics/blob/bbec5ac12721a62672fb7a5ffba5c40f5a46d8cb/contracts/oracles/BalancerPriceOracle.sol"
+        ]
+      },
+      {
+        "id": "M-6",
+        "severity": "Medium",
+        "title": "changeRanges silently fails when price is out of tick range, sending all liquidity to treasury instead of creating new position",
+        "submittedByApprox": 6,
+        "files": [
+          "/contracts/pol/LiquidityManagerCore.sol",
+          "com/valory-xyz/autonolas-tokenomics/blob/bbec5ac12721a62672fb7a5ffba5c40f5a46d8cb/contracts/pol/LiquidityManagerCore.sol",
+          "LiquidityManagerCore.sol"
+        ]
+      },
+      {
+        "id": "M-7",
+        "severity": "Medium",
+        "title": "Malicious user can prevent buying back OLAS token via Slipstream",
+        "submittedByApprox": 2,
+        "files": [
+          "autonolas-tokenomics/blame/bbec5ac12721a62672fb7a5ffba5c40f5a46d8cb/contracts/utils/BuyBackBurner.sol",
+          "com/valory-xyz/autonolas-tokenomics/blame/bbec5ac12721a62672fb7a5ffba5c40f5a46d8cb/contracts/utils/BuyBackBurner.sol",
+          "com/valory-xyz/autonolas-tokenomics/blame/bbec5ac12721a62672fb7a5ffba5c40f5a46d8cb/contracts/utils/BuyBackBurnerBalancer.sol",
+          "BuyBackBurnerBalancer.sol",
+          "com/velodrome-finance/slipstream/blame/cabcb49861f7ab45953aa1d6c3dad2c167ab4053/contracts/periphery/SwapRouter.sol",
+          "com/velodrome-finance/slipstream/blame/cabcb49861f7ab45953aa1d6c3dad2c167ab4053/contracts/periphery/base/PeripheryPayments.sol"
+        ]
+      },
+      {
+        "id": "M-8",
+        "severity": "Medium",
+        "title": "Incorrect proportional reward splits when an operator has been slashed",
+        "submittedByApprox": 2,
+        "files": [
+          "/contracts/staking/StakingBase.sol",
+          "com/valory-xyz/autonolas-registries/blob/be1057a5e37f17f26b13c41311fe0e8e40259484/contracts/staking/StakingBase.sol"
+        ]
+      },
+      {
+        "id": "M-9",
+        "severity": "Medium",
+        "title": "checkpoint() does not correct effectiveBond downward at year boundaries where inflation decreases",
+        "submittedByApprox": 2,
+        "files": [
+          "/contracts/Tokenomics.sol",
+          "com/valory-xyz/autonolas-tokenomics/blob/bbec5ac12721a62672fb7a5ffba5c40f5a46d8cb/contracts/Tokenomics.sol",
+          "/contracts/TokenomicsConstants.sol",
+          "com/valory-xyz/autonolas-tokenomics/blob/bbec5ac12721a62672fb7a5ffba5c40f5a46d8cb/contracts/TokenomicsConstants.sol",
+          "TokenomicsConstants.sol"
+        ]
+      },
+      {
+        "id": "M-10",
+        "severity": "Medium",
+        "title": "Services can earn undeserved rewards by manipulating checkpoint timing during reward droughts",
+        "submittedByApprox": 6,
+        "files": [
+          "/contracts/staking/StakingBase.sol",
+          "2-pre-external-audit/contracts/staking/StakingBase.sol",
+          "StakingBase.sol",
+          "2-pre-external-audit/contracts/staking/StakingActivityChecker.sol",
+          "StakingActivityChecker.sol"
+        ]
+      },
+      {
+        "id": "M-11",
+        "severity": "Medium",
+        "title": "No slippage protection on Uniswap swap",
+        "submittedByApprox": 1,
+        "files": [
+          "/contracts/utils/BuyBackBurnerBalancer.sol",
+          "com/valory-xyz/autonolas-tokenomics/blob/bbec5ac12721a62672fb7a5ffba5c40f5a46d8cb/contracts/utils/BuyBackBurnerBalancer.sol"
+        ]
+      },
+      {
+        "id": "M-12",
+        "severity": "Medium",
+        "title": "Balancer oracle deadlock from cumulative price weight",
+        "submittedByApprox": 13,
+        "files": [
+          "/contracts/oracles/BalancerPriceOracle.sol",
+          "com/valory-xyz/autonolas-tokenomics/blob/bbec5ac12721a62672fb7a5ffba5c40f5a46d8cb/contracts/oracles/BalancerPriceOracle.sol"
+        ]
+      }
+    ]
+  },
+  {
+    "contest": "2026-03-intuition",
+    "report": "https://code4rena.com/reports/2026-03-intuition",
+    "repository": "https://github.com/code-423n4/2026-03-intuition",
+    "known": [
+      {
+        "id": "M-1",
+        "severity": "Medium",
+        "title": "Unsigned validity window metadata",
+        "submittedByApprox": 1,
+        "files": [
+          "protocol/wallet/AtomWallet.sol",
+          "com/code-423n4/2026-03-intuition/blob/314b7d4d9ccbaf27e4484a6c0706af83d3f75f36/src/protocol/wallet/AtomWallet.sol",
+          "a/src/protocol/wallet/AtomWallet.sol",
+          "b/src/protocol/wallet/AtomWallet.sol"
+        ]
+      },
+      {
+        "id": "M-2",
+        "severity": "Medium",
+        "title": "Epoch-boundary checkpoints retroactively qualify for the previous epoch’s rewards",
+        "submittedByApprox": 42,
+        "files": [
+          "/protocol/emissions/CoreEmissionsController.sol",
+          "com/code-423n4/2026-03-intuition/blob/314b7d4/src/protocol/emissions/CoreEmissionsController.sol",
+          "/protocol/emissions/TrustBonding.sol",
+          "com/code-423n4/2026-03-intuition/blob/314b7d4/src/protocol/emissions/TrustBonding.sol",
+          "com/code-423n4/2026-03-intuition/blob/314b7d4/src/external/curve/VotingEscrow.sol",
+          "VotingEscrow.sol"
+        ]
+      }
+    ]
+  }
+]
