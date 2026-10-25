@@ -2,7 +2,7 @@
 
 AI-powered smart contract security analysis for AI agents and developers.
 
-## Update, 26 October 2026, night: a standard x402 client can now buy the scan
+## Update, 25 October 2026, night: a standard x402 client can now buy the scan
 
 Until today the scan endpoint accepted only a transaction hash from a payment you had made by hand, and it answered 400 to the signed authorization that standard x402 clients send, although its 402 answer said that would work. That is fixed. A standard client (@x402/fetch 2.28.0) bought the scan from a throwaway address, got the receipt in the response, and the six checks on the receipt pass: [results/2026-10-25-v31/standard-client-purchase/README.md](results/2026-10-25-v31/standard-client-purchase/README.md). It was a self test with our own money, one purchase. One thing a buyer needs to know: the official client refuses payments above 1 dollar per request unless its owner raises the limit, and the scan costs 5 dollars.
 
