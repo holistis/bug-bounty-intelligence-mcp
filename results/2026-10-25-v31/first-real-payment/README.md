@@ -23,7 +23,7 @@ It makes five checks and prints pass or FAIL for each:
 4. It is a USDC transfer to the payment address of the service.
 5. The payer in the receipt is the sender of that transfer.
 
-All five pass on 25 October 2026. The first version of our own payer check said false because of a bug in our check script. We read the chain again, the payer matches, and the evidence file says so under `controle.opmerking`.
+All five pass on 25 October 2026.
 
 ## What this shows and what it does not
 
