@@ -2,6 +2,10 @@
 
 AI-powered smart contract security analysis for AI agents and developers.
 
+## Update, 25 October 2026: version 3.1 is live
+
+Paid scans now run on a newer version, V3.1. On the same 8 contests as the sealed run it found 8 of 105 known High and Medium findings (7.6 percent), against 4 for the version before it and 1 for the scan that was in production until the evening of 25 October: [results/2026-10-25-v31/README.md](results/2026-10-25-v31/README.md). Two things changed at once and those contests are no longer secret, so this is a doubling from a low level and not a proof. 97 of the 105 were still not found. A scan takes about 20 to 45 seconds and costs us 0.02 to 0.15 dollar. The earlier version stays in place as the fallback.
+
 ## Update, 24 October 2026, evening: the sealed run
 
 The one run on the sealed set is done, with the rule written before it: [results/2026-10-24-sealed/README.md](results/2026-10-24-sealed/README.md). On 8 contests that nobody here had run anything on, the scan as it runs today found 1 of 105 known High and Medium findings. A newer version, not in production, found 4 of 105. The rule needed at least 5 findings that production does not find, and it found 3, so production stays as it is. The scan still produces hypotheses to review by hand, and it has not been shown to find what a human audit finds.
@@ -70,7 +74,7 @@ We also reported a related `divide-before-multiply` pattern on the same `lib/sol
 
 ## What it does
 
-Submit a public GitHub repo containing Solidity smart contracts. Receive a report of AI-generated hypotheses, usually within the hour, that states how much of the code was read (see the update and the limits at the top of this page).
+Submit a public GitHub repo containing Solidity smart contracts. Receive a report of AI-generated hypotheses, usually within a few minutes, that states how much of the code was read (see the update and the limits at the top of this page).
 
 ## Tools
 
