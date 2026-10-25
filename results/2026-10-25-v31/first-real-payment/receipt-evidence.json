@@ -1,0 +1,67 @@
+{
+  "gemeten": "2026-10-25T15:51:58.828Z",
+  "transactie": "0x6a2ec7952f1ff68064ecd6f50381802b9618ac10318b819a008a3fba39437df9",
+  "antwoord": {
+    "jobId": "bi-mvo0c37e-g890",
+    "job_id": "bi-mvo0c37e-g890",
+    "status": "queued",
+    "repo": "sherlock-audit/2025-03-symm-io-stacking",
+    "price_paid_usd": "5.00",
+    "estimatedHours": 24,
+    "typical_minutes": 10,
+    "poll_interval_sec": 60,
+    "pollUrl": "https://x402.tokenizen.nl/api/bug-intel/bi-mvo0c37e-g890",
+    "reportUrl": "https://x402.tokenizen.nl/api/bug-intel/bi-mvo0c37e-g890/report",
+    "note": "Poll pollUrl tot status = \"complete\". Rapport wordt dan beschikbaar via reportUrl.",
+    "receipt": {
+      "format": "eip712",
+      "payload": {
+        "version": 1,
+        "network": "eip155:8453",
+        "resourceUrl": "https://x402.tokenizen.nl/api/bug-intel",
+        "payer": "0xdffcc75a674257be6fe1b5549fe52e8f8a6a3a5a",
+        "issuedAt": 1792943614,
+        "transaction": "0x6a2ec7952f1ff68064ecd6f50381802b9618ac10318b819a008a3fba39437df9"
+      },
+      "signature": "0x2dc8c7f873e844ad90eca4187f0506f95baf0fa789a0a8d9bbb55f6be613be97406c04b8f95aaa77b51d821384ae1894f505c1a4d5597baa8fd34b65bbe613351c"
+    }
+  },
+  "paymentResponseHeader": {
+    "success": true,
+    "transaction": "0x6a2ec7952f1ff68064ecd6f50381802b9618ac10318b819a008a3fba39437df9",
+    "network": "eip155:8453",
+    "payer": "0xdffcc75a674257be6fe1b5549fe52e8f8a6a3a5a",
+    "extensions": {
+      "offer-receipt": {
+        "info": {
+          "receipt": {
+            "format": "eip712",
+            "payload": {
+              "version": 1,
+              "network": "eip155:8453",
+              "resourceUrl": "https://x402.tokenizen.nl/api/bug-intel",
+              "payer": "0xdffcc75a674257be6fe1b5549fe52e8f8a6a3a5a",
+              "issuedAt": 1792943614,
+              "transaction": "0x6a2ec7952f1ff68064ecd6f50381802b9618ac10318b819a008a3fba39437df9"
+            },
+            "signature": "0x2dc8c7f873e844ad90eca4187f0506f95baf0fa789a0a8d9bbb55f6be613be97406c04b8f95aaa77b51d821384ae1894f505c1a4d5597baa8fd34b65bbe613351c"
+          }
+        }
+      }
+    }
+  },
+  "controle": {
+    "jobId": "bi-mvo0c37e-g890",
+    "http": 200,
+    "bonnetjeInBody": true,
+    "bonnetjeInKop": true,
+    "herleidTot": "0xf30b0706E78b3166745E6a2f351992321088058f",
+    "zelfdeAlsDeOndertekenaar": true,
+    "transactieKlopt": true,
+    "kopGelijkAanBody": true,
+    "betalerKlopt": true,
+    "bedragUsdc": 5.1,
+    "naarOntvangstadres": true,
+    "opmerking": "De eerste versie van de betalercontrole gaf false door een fout in het controlescript; opnieuw tegen de chain gelezen, hierboven de juiste waarden."
+  }
+}
