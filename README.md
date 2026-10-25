@@ -2,6 +2,10 @@
 
 AI-powered smart contract security analysis for AI agents and developers.
 
+## Update, 25 October 2026, night: two free tools next to the scan
+
+We ran Slither 0.11.6 and Aderyn 0.6.8 with default settings on the same contests and had the same two judges compare their output with the known High and Medium findings. They found none: Slither 0 of 34 and Aderyn 0 of 70, on the contests where our setup could run them. On the same contests our scan found 6 of 34 and 10 of 70 in its first 15 hypotheses. Static tools are not built for the business-logic flaws that contests reward, the older contests may be in the training data of the model behind our scan, and the judges are language models, so read it as a description and not as a ranking: [results/2026-10-25-free-tools/README.md](results/2026-10-25-free-tools/README.md).
+
 ## Update, 25 October 2026, night: a quick scan for 1 dollar
 
 There are now two prices. The quick scan, POST https://x402.tokenizen.nl/api/bug-intel-quick for 1 USDC on Base, returns the 15 hypotheses the model is most confident about. The full scan, POST https://x402.tokenizen.nl/api/bug-intel for 5 USDC, adds 15 more with lower confidence. It is the same engine and the same kind of report. The hit rates we measured (8 of 105 and 5 of 66) are for the first 15 hypotheses, so they are the numbers of the quick scan; the second list is the extra of the full scan. The quick scan costs exactly 1 dollar because the official x402 client refuses payments above 1 dollar per request unless its owner raises the limit, and we checked with a real purchase that an agent with default settings can buy it: [results/2026-10-25-v31/quick-scan-purchase/README.md](results/2026-10-25-v31/quick-scan-purchase/README.md). Both routes sign their offers.
