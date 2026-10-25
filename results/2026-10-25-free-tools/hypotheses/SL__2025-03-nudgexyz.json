@@ -1,0 +1,49 @@
+{
+ "contest": "2025-03-nudgexyz",
+ "gereedschap": "Slither",
+ "totaalGevonden": 6,
+ "hypotheses": [
+  {
+   "title": "arbitrary-send-eth (High, confidence Medium)",
+   "severity": "High",
+   "file": "src/campaign/NudgeCampaignFactory.sol",
+   "function": "deployAndFundCampaign",
+   "description": "NudgeCampaignFactory.deployAndFundCampaign(uint32,address,address,uint256,address,uint256,address,uint256,uint256) (src/campaign/NudgeCampaignFactory.sol#133-179) sends eth to arbitrary user Dangerous calls: - (sent,None) = campaign.call{value: initialRewardAmount}() (src/campaign/NudgeCampaignFactory.sol#162) "
+  },
+  {
+   "title": "reentrancy-balance (High, confidence Medium)",
+   "severity": "High",
+   "file": "src/campaign/NudgeCampaign.sol",
+   "function": "handleReallocation",
+   "description": "Reentrancy in NudgeCampaign.handleReallocation(uint256,address,address,uint256,bytes) (src/campaign/NudgeCampaign.sol#164-233): External call allowing reentrancy: - _transfer(toToken,userAddress,amountReceived) (src/campaign/NudgeCampaign.sol#206) - (sent,None) = to.call{value: amount}() (src/campaign/NudgeCampaign.sol#479) Balance read before the call: - amountReceived = getBalanceOfSelf(toToken) - balanceBefore (src/campaign/NudgeCampaign.sol#199) Possible stale balance used after the call in a condition: - rewardAmountIncludingFees > rewardsAvailable (src/campaign/NudgeCampaign.sol#213) - stale variable `rewardAmountIncludingFees` "
+  },
+  {
+   "title": "reentrancy-balance (High, confidence Medium)",
+   "severity": "High",
+   "file": "src/campaign/NudgeCampaign.sol",
+   "function": "handleReallocation",
+   "description": "Reentrancy in NudgeCampaign.handleReallocation(uint256,address,address,uint256,bytes) (src/campaign/NudgeCampaign.sol#164-233): External call allowing reentrancy: - _transfer(toToken,userAddress,amountReceived) (src/campaign/NudgeCampaign.sol#206) - (sent,None) = to.call{value: amount}() (src/campaign/NudgeCampaign.sol#479) Balance read before the call: - balanceBefore = getBalanceOfSelf(toToken) (src/campaign/NudgeCampaign.sol#195) Possible stale balance used after the call in a condition: - rewardAmountIncludingFees > rewardsAvailable (src/campaign/NudgeCampaign.sol#213) - stale variable `rewardAmountIncludingFees` "
+  },
+  {
+   "title": "reentrancy-eth (High, confidence Medium)",
+   "severity": "High",
+   "file": "src/campaign/NudgeCampaign.sol",
+   "function": "claimRewards",
+   "description": "Reentrancy in NudgeCampaign.claimRewards(uint256[]) (src/campaign/NudgeCampaign.sol#256-299): External calls: - _transfer(rewardToken,participation.userAddress,userRewards) (src/campaign/NudgeCampaign.sol#295) - (sent,None) = to.call{value: amount}() (src/campaign/NudgeCampaign.sol#479) State variables written after the call(s): - distributedRewards += userRewards (src/campaign/NudgeCampaign.sol#289) NudgeCampaign.distributedRewards (src/campaign/NudgeCampaign.sol#51) can be used in cross function reentrancies: - NudgeCampaign.claimRewards(uint256[]) (src/campaign/NudgeCampaign.sol#256-299) - NudgeCampaign.distributedRewards (src/campaign/NudgeCampaign.sol#51) - NudgeCampaign.getCampaignInfo() (src/campaign/NudgeCampaign.sol#439-467) - participation.status = ParticipationStatus.CLAIMED (src/campaign/NudgeCampaign.sol#292) NudgeCampaign.participations (src/campaign/NudgeCampaign.sol#56) c"
+  },
+  {
+   "title": "reentrancy-eth (High, confidence Medium)",
+   "severity": "High",
+   "file": "src/campaign/NudgePointsCampaigns.sol",
+   "function": "handleReallocation",
+   "description": "Reentrancy in NudgePointsCampaigns.handleReallocation(uint256,address,address,uint256,bytes) (src/campaign/NudgePointsCampaigns.sol#126-178): External calls: - _transfer(toToken,userAddress,amountReceived) (src/campaign/NudgePointsCampaigns.sol#160) - (sent,None) = to.call{value: amount}() (src/campaign/NudgePointsCampaigns.sol#237) State variables written after the call(s): - campaign.totalReallocatedAmount += amountReceived (src/campaign/NudgePointsCampaigns.sol#162) NudgePointsCampaigns.campaigns (src/campaign/NudgePointsCampaigns.sol#22) can be used in cross function reentrancies: - NudgePointsCampaigns.campaigns (src/campaign/NudgePointsCampaigns.sol#22) - NudgePointsCampaigns.createPointsCampaign(uint256,uint32,address) (src/campaign/NudgePointsCampaigns.sol#50-74) - NudgePointsCampaigns.createPointsCampaigns(uint256[],uint32[],address[]) (src/campaign/NudgePointsCampaigns.sol#82-1"
+  },
+  {
+   "title": "uninitialized-local (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/campaign/NudgeCampaignFactory.sol",
+   "function": "collectFeesFromCampaigns",
+   "description": "NudgeCampaignFactory.collectFeesFromCampaigns(address[]).totalAmount (src/campaign/NudgeCampaignFactory.sol#262) is a local variable never initialized "
+  }
+ ]
+}

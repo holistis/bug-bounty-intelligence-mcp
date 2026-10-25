@@ -1,0 +1,1764 @@
+{
+ "voorvoegsel": "SL",
+ "wedstrijden": {
+  "2025-10-sequence": {
+   "hypotheses": 21,
+   "bekend": 6,
+   "gevondenStreng": [],
+   "gevondenRuim": [],
+   "recallStreng": 0,
+   "recallRuim": 0,
+   "precisieStreng": 0,
+   "precisieRuim": 0,
+   "overeenstemming": 1,
+   "ongeldigeAntwoorden": 0,
+   "perNiveau": {
+    "makkelijk": {
+     "totaal": 2,
+     "streng": 0,
+     "ruim": 0
+    },
+    "midden": {
+     "totaal": 1,
+     "streng": 0,
+     "ruim": 0
+    },
+    "moeilijk": {
+     "totaal": 3,
+     "streng": 0,
+     "ruim": 0
+    }
+   },
+   "hypothesesLijst": [
+    {
+     "title": "incorrect-shift (High, confidence High)",
+     "file": "src/utils/LibBytes.sol",
+     "function": "readUintX",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an incorrect shift bug in LibBytes.sol, which does not correspond to any of the known findings about signature handling, replay attacks, or factory deployment.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a bit-shift bug in LibBytes.readUintX, which is unrelated to any of the known signature, session, ERC-4337, or factory findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "controlled-delegatecall (High, confidence Medium)",
+     "file": "src/modules/Hooks.sol",
+     "function": "fallback",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an uncontrolled delegatecall in Hooks.sol, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes a controlled delegatecall in Hooks.fallback, which is not related to any of the known findings about signature validation, replay, wallet binding, ERC-4337, sapient sig",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "incorrect-exp (High, confidence Medium)",
+     "file": "src/utils/Base64.sol",
+     "function": "encode",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a Base64 encoding bug unrelated to any known findings about signatures, replay, or factory deployment.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding relates to the Base64 exponentiation operator bug.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "locked-ether (Medium, confidence High)",
+     "file": "src/Factory.sol",
+     "function": "deploy",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a missing withdrawal function, which does not correspond to any listed finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding about locked ether in Factory.sol is not described in any of the known valid findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "write-after-write (Medium, confidence High)",
+     "file": "src/modules/auth/BaseSig.sol",
+     "function": "recoverBranch",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a write-after-write issue in BaseSig.recoverBranch, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a write-after-write code smell in BaseSig.recoverBranch, which is unrelated to the root causes or impacts of any known valid finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "write-after-write (Medium, confidence High)",
+     "file": "src/modules/auth/BaseSig.sol",
+     "function": "recoverBranch",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a write-after-write bug in BaseSig.recoverBranch, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a write-after-write issue in BaseSig.recoverBranch, which is not related to any of the known findings about signature validation, replay, wallet binding, DoS, constant return, ",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "write-after-write (Medium, confidence High)",
+     "file": "src/modules/auth/BaseSig.sol",
+     "function": "recoverBranch",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a write-after-write issue in BaseSig.recoverBranch, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "None of the known findings describe a write-after-write in BaseSig.recoverBranch.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "write-after-write (Medium, confidence High)",
+     "file": "src/extensions/recovery/Recovery.sol",
+     "function": "_recoverBranch",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a write-after-write bug in Recovery._recoverBranch, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a write-after-write bug in Recovery._recoverBranch, which is unrelated to any of the known findings about signature bypass, replay attacks, missing binding, ERC-4337 issues, co",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "write-after-write (Medium, confidence High)",
+     "file": "src/extensions/passkeys/Passkeys.sol",
+     "function": "_decodeSignature",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a write-after-write bug in Passkeys._decodeSignature, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a write-after-write in Passkeys._decodeSignature, which is unrelated to any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "write-after-write (Medium, confidence High)",
+     "file": "src/extensions/passkeys/Passkeys.sol",
+     "function": "_decodeSignature",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a write-after-write bug in Passkeys._decodeSignature, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a write-after-write in Passkeys._decodeSignature, which is unrelated to any of the listed known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "write-after-write (Medium, confidence High)",
+     "file": "src/extensions/sessions/SessionSig.sol",
+     "function": "recoverConfiguration",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a write-after-write bug in SessionSig.recoverConfiguration, which does not correspond to any listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a write-after-write issue in SessionSig.recoverConfiguration, which is not related to any of the known findings about signature validation, replay attacks, or other vulnerabili",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "write-after-write (Medium, confidence High)",
+     "file": "src/modules/auth/BaseSig.sol",
+     "function": "recoverBranch",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a write-after-write issue in BaseSig.recoverBranch, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a write-after-write code quality issue in BaseSig.recoverBranch, which is not related to any of the known security findings (H-1, H-2, M-1, M-2, M-3, M-4).",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "divide-before-multiply (Medium, confidence Medium)",
+     "file": "src/utils/Base64.sol",
+     "function": "encode",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an arithmetic issue in Base64.encode, which does not correspond to any of the known signature, replay, or factory-related findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about integer division/multiplication in Base64.encode, which is unrelated to any known finding about signatures, factory deploy, or ERC-4337.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "uninitialized-local (Medium, confidence Medium)",
+     "file": "src/modules/auth/BaseSig.sol",
+     "function": "recover",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable in BaseSig.recover, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about an uninitialized local variable, which is not mentioned in any of the known valid findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "uninitialized-local (Medium, confidence Medium)",
+     "file": "src/modules/auth/BaseSig.sol",
+     "function": "recoverChained",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable in BaseSig.recoverChained, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable in recoverChained, which is not the root cause of any listed known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "uninitialized-local (Medium, confidence Medium)",
+     "file": "src/modules/auth/BaseSig.sol",
+     "function": "recoverChained",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable in BaseSig.recoverChained, which does not correspond to any listed root cause or impact.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable, not the bypass flaw in chained signature validation described by known finding H-1.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "uninitialized-local (Medium, confidence Medium)",
+     "file": "src/extensions/sessions/explicit/ExplicitSessionManager.sol",
+     "function": "_validateExplicitCall",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable bug, which does not correspond to any of the known findings about signature handling, replay, or factory deployment.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "Candidate describes an uninitialized local variable in ExplicitSessionManager, which is unrelated to any known finding's root cause or impact.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "uninitialized-local (Medium, confidence Medium)",
+     "file": "src/extensions/sessions/SessionSig.sol",
+     "function": "recoverSignature",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable in recoverSignature, which does not correspond to any listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable, which is not the root cause of any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/extensions/sessions/explicit/PermissionValidator.sol",
+     "function": "validatePermission",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unused return value bug in PermissionValidator, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding describes an unused return value in PermissionValidator.validatePermission.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/modules/auth/BaseAuth.sol",
+     "function": "signatureValidation",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unused return value in BaseAuth.signatureValidation, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes an unused return value in BaseAuth.signatureValidation, which is a code quality issue, not a security vulnerability matching any of the listed findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/extensions/recovery/Recovery.sol",
+     "function": "isValidSignature",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unused return value in Recovery.isValidSignature, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about an unused return value in Recovery.isValidSignature, which is not covered by any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    }
+   ]
+  },
+  "2025-11-merkl": {
+   "hypotheses": 28,
+   "bekend": 3,
+   "gevondenStreng": [],
+   "gevondenRuim": [],
+   "recallStreng": 0,
+   "recallRuim": 0,
+   "precisieStreng": 0,
+   "precisieRuim": 0,
+   "overeenstemming": 1,
+   "ongeldigeAntwoorden": 0,
+   "perNiveau": {
+    "makkelijk": {
+     "totaal": 1,
+     "streng": 0,
+     "ruim": 0
+    },
+    "midden": {
+     "totaal": 0,
+     "streng": 0,
+     "ruim": 0
+    },
+    "moeilijk": {
+     "totaal": 2,
+     "streng": 0,
+     "ruim": 0
+    }
+   },
+   "hypothesesLijst": [
+    {
+     "title": "arbitrary-send-erc20 (High, confidence High)",
+     "file": "contracts/partners/tokenWrappers/PullTokenWrapperWithdraw.sol",
+     "function": "_beforeTokenTransfer",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an arbitrary from address issue in a token wrapper, which does not correspond to any of the listed known findings about reward validation, callback error handling, or campaign ",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes an arbitrary transferFrom vulnerability in PullTokenWrapperWithdraw.sol, which is unrelated to the known findings about reward validation, error handling, or campaign o",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "arbitrary-send-erc20 (High, confidence High)",
+     "file": "contracts/partners/tokenWrappers/PullTokenWrapperAllow.sol",
+     "function": "_beforeTokenTransfer",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an arbitrary ERC20 transferFrom issue, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about an arbitrary transferFrom in PullTokenWrapperAllow.sol, which is unrelated to the known findings about reward validation, error handling, or campaign overrides.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "uninitialized-state (High, confidence High)",
+     "file": "contracts/DistributionCreator.sol",
+     "function": "distribution",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized state variable, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized state in distributionList, which is not the root cause of any of the known findings (M-1, M-2, M-3).",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "reentrancy-balance (High, confidence Medium)",
+     "file": "contracts/Disputer.sol",
+     "function": "toggleDispute",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy issue in Disputer.toggleDispute, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding describes reentrancy in Disputer.toggleDispute; all known findings concern DistributionCreator or Distributor.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "reentrancy-eth (High, confidence Medium)",
+     "file": "contracts/partners/tokenWrappers/TokenTGEWrapper.sol",
+     "function": "_afterTokenTransfer",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy issue in TokenTGEWrapper, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy issue in TokenTGEWrapper, which is unrelated to the known DistributionCreator/Distributor findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "reentrancy-eth (High, confidence Medium)",
+     "file": "contracts/partners/tokenWrappers/TokenTGEWrapper.sol",
+     "function": "_beforeTokenTransfer",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy issue in TokenTGEWrapper, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes a reentrancy issue in TokenTGEWrapper.sol, while the known findings are about different contracts and different issues (reward validation, error handling, campaign over",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "reentrancy-eth (High, confidence Medium)",
+     "file": "contracts/partners/tokenWrappers/PufferPointTokenWrapper.sol",
+     "function": "_afterTokenTransfer",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy issue in PufferPointTokenWrapper, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes reentrancy in PufferPointTokenWrapper, while known findings concern DistributionCreator and Distributor contracts with different root causes.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "reentrancy-eth (High, confidence Medium)",
+     "file": "contracts/ReferralRegistry.sol",
+     "function": "becomeReferrer",
+     "a": {
+      "match": null,
+      "reden": "Candidate describes a reentrancy issue, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy issue in ReferralRegistry.becomeReferrer, while known findings concern DistributionCreator and Distributor with unrelated bugs.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "reentrancy-eth (High, confidence Medium)",
+     "file": "contracts/partners/tokenWrappers/PufferPointTokenWrapper.sol",
+     "function": "_beforeTokenTransfer",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy issue, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes a reentrancy vulnerability in PufferPointTokenWrapper, which is unrelated to the known findings about reward validation, error handling, and campaign overrides in Distr",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unchecked-transfer (High, confidence Medium)",
+     "file": "contracts/Disputer.sol",
+     "function": "withdrawFunds",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unchecked ERC20 transfer, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about an unchecked transfer in Disputer.sol, which is not among the known findings that concern DistributionCreator.sol and Distributor.sol issues.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "divide-before-multiply (Medium, confidence Medium)",
+     "file": "contracts/Distributor.sol",
+     "function": "_revokeTree",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a divide-before-multiply issue in _revokeTree, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes a divide-before-multiply issue in _revokeTree, which is not among the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "reentrancy-no-eth (Medium, confidence Medium)",
+     "file": "contracts/Disputer.sol",
+     "function": "setDistributor",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy issue in Disputer.setDistributor, which does not correspond to any of the listed known findings about reward validation, onClaim callback handling, or campaign ove",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "Candidate describes reentrancy in Disputer.setDistributor, which is not among the known valid findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "reentrancy-no-eth (Medium, confidence Medium)",
+     "file": "contracts/Distributor.sol",
+     "function": "_claim",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy issue, while known findings cover reward validation and callback error handling, not reentrancy.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy vulnerability in Distributor._claim, which is not covered by any of the known findings (M-1, M-2, M-3).",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "reentrancy-no-eth (Medium, confidence Medium)",
+     "file": "contracts/partners/tokenWrappers/SonicFragment.sol",
+     "function": "settleContract",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy issue, which does not correspond to any of the known findings about reward validation, onClaim callback handling, or campaign overrides.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy issue in SonicFragment.settleContract, while all known findings concern different contracts (DistributionCreator, Distributor) and different root causes.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "reentrancy-no-eth (Medium, confidence Medium)",
+     "file": "contracts/Distributor.sol",
+     "function": "resolveDispute",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy issue in resolveDispute, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "Known findings concern reward validation, onClaim error handling, and campaign override logic, none describing reentrancy in resolveDispute.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "reentrancy-no-eth (Medium, confidence Medium)",
+     "file": "contracts/Distributor.sol",
+     "function": "disputeTree",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy issue in disputeTree, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "None of the known findings describe the reentrancy issue in Distributor.disputeTree.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "uninitialized-local (Medium, confidence Medium)",
+     "file": "contracts/DistributionCreator.sol",
+     "function": "_pullTokens",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable in _pullTokens, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable in _pullTokens, which is unrelated to the three known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "uninitialized-local (Medium, confidence Medium)",
+     "file": "contracts/AccessControlManager.sol",
+     "function": "setAccessControlManager",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable in AccessControlManager, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about an uninitialized local variable in AccessControlManager.sol, which is unrelated to any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "contracts/partners/tokenWrappers/PullTokenWrapperAllow.sol",
+     "function": "initialize",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unused return value in a token wrapper, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about an unused return value in PullTokenWrapperAllow.sol, which is not among the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "contracts/partners/middleman/MerklGaugeMiddlemanTemplate.sol",
+     "function": "notifyReward",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unused return value bug, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding concerns an unused return value in MerklGaugeMiddlemanTemplate, which is unrelated to the known findings about reward validation, callback error handling, or campaign overrides.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "contracts/Disputer.sol",
+     "function": "setDistributor",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an ignored return value in Disputer.setDistributor, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "Known findings concern reward validation, callback handling, and campaign overrides, not an unused return value in Disputer.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "contracts/partners/tokenWrappers/SonicFragment.sol",
+     "function": "constructor",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unused return value in a constructor, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate concerns an unused return value in SonicFragment's constructor, which is unrelated to any of the known findings in DistributionCreator or Distributor.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "contracts/partners/tokenWrappers/PullTokenWrapperWithdraw.sol",
+     "function": "_beforeTokenTransfer",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unused return value in a token wrapper contract, which does not correspond to any of the listed known findings about reward validation, onClaim callback handling, or campaig",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding about an unused return in PullTokenWrapperWithdraw is unrelated to any known finding, which concern DistributionCreator and Distributor bugs.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "contracts/partners/tokenWrappers/PullTokenWrapperWithdraw.sol",
+     "function": "initialize",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unused return value in a token wrapper contract, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes an unused return value in PullTokenWrapperWithdraw, which is unrelated to the known findings about reward validation, onClaim error handling, or campaign overrides.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "contracts/partners/tokenWrappers/PullTokenWrapperTransferV0.sol",
+     "function": "initialize",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an ignored return value in a token balance check, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding concerns an unused return value in PullTokenWrapperTransferV0.initialize, which is unrelated to the known findings about DistributionCreator and Distributor.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "contracts/Disputer.sol",
+     "function": "constructor",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unused return value in Disputer.sol, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about an unused return value in Disputer.sol constructor, which is not among the known findings that cover different issues in other contracts.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "contracts/Disputer.sol",
+     "function": "setDistributor",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unused return value in Disputer.setDistributor, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about an unused return value in Disputer.sol, which is not among the known findings that cover different contracts and issues.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "contracts/partners/tokenWrappers/PullTokenWrapperTransfer.sol",
+     "function": "initialize",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unused return value in a token wrapper contract, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes an unused return value in PullTokenWrapperTransfer, which is unrelated to the known findings about reward validation, error handling, and campaign overrides.",
+      "model": "deepseek-v4-flash"
+     }
+    }
+   ]
+  },
+  "2025-11-sukukfi": {
+   "hypotheses": 29,
+   "bekend": 4,
+   "gevondenStreng": [],
+   "gevondenRuim": [
+    "H-1",
+    "M-1"
+   ],
+   "recallStreng": 0,
+   "recallRuim": 0.5,
+   "precisieStreng": 0,
+   "precisieRuim": 0.06896551724137931,
+   "overeenstemming": 0.9310344827586207,
+   "ongeldigeAntwoorden": 0,
+   "perNiveau": {
+    "makkelijk": {
+     "totaal": 2,
+     "streng": 0,
+     "ruim": 0
+    },
+    "midden": {
+     "totaal": 0,
+     "streng": 0,
+     "ruim": 0
+    },
+    "moeilijk": {
+     "totaal": 2,
+     "streng": 0,
+     "ruim": 2
+    }
+   },
+   "hypothesesLijst": [
+    {
+     "title": "arbitrary-send-erc20 (High, confidence High)",
+     "file": "src/ERC7575VaultUpgradeable.sol",
+     "function": "requestDeposit",
+     "a": {
+      "match": "H-1",
+      "reden": "Both findings involve missing authorization checks in ERC7575VaultUpgradeable allowing arbitrary token transfers/withdrawals.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes an arbitrary from vulnerability in requestDeposit, which is not among the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "arbitrary-send-erc20 (High, confidence High)",
+     "file": "src/SafeTokenTransfers.sol",
+     "function": "safeTransferFrom",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a missing authorization check in a different contract/function than any known finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes an arbitrary 'from' in transferFrom, which is not the same root cause as any listed known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "shadowing-state (High, confidence High)",
+     "file": "src/WERC7575ShareToken.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a state variable shadowing issue, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a state variable shadowing issue, which is not among the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "shadowing-state (High, confidence High)",
+     "file": "src/WERC7575ShareToken.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a state variable shadowing issue, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes state variable shadowing, which is not among the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "incorrect-equality (Medium, confidence High)",
+     "file": "src/ERC7575VaultUpgradeable.sol",
+     "function": "withdrawFromInvestment",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an incorrect equality check in withdrawFromInvestment, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding about strict equality in withdrawFromInvestment is not described in any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "incorrect-equality (Medium, confidence High)",
+     "file": "src/WERC7575Vault.sol",
+     "function": "_withdraw",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a strict equality check bug, which does not correspond to any of the listed findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding about strict equality in _withdraw is not related to any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "incorrect-equality (Medium, confidence High)",
+     "file": "src/WERC7575Vault.sol",
+     "function": "_deposit",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a strict equality check in _deposit, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding describes the dangerous strict equality in _deposit.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "uninitialized-local (Medium, confidence Medium)",
+     "file": "src/WERC7575Vault.sol",
+     "function": "constructor",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable in the constructor, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about an uninitialized local variable, which is not related to any of the known findings that involve authorization, DoS, stale liabilities, or share price corruption.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "uninitialized-local (Medium, confidence Medium)",
+     "file": "src/ERC7575VaultUpgradeable.sol",
+     "function": "initialize",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable in the initialize function, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable, which is not the root cause of any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/ERC7575VaultUpgradeable.sol",
+     "function": "redeem",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an ignored return value bug, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding about ignoring a return value from remove() is not described in any of the known valid findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/WERC7575ShareToken.sol",
+     "function": "unregisterVault",
+     "a": {
+      "match": "M-1",
+      "reden": "Both findings concern the same unregisterVault function where a missing check of the _assetToVault.remove return value can enable a denial‑of‑service.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes ignoring a return value in unregisterVault, which is a different issue from the known findings; M-1 is about DoS of vault unregistration but not related to return value checks.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/ShareTokenUpgradeable.sol",
+     "function": "unregisterVault",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an ignored return value bug, which does not correspond to any listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about ignoring return value, which is not described in any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/ERC7575VaultUpgradeable.sol",
+     "function": "cancelDepositRequest",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an ignored return value in cancelDepositRequest, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding about ignoring return value in cancelDepositRequest is not related to any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/ERC7575VaultUpgradeable.sol",
+     "function": "cancelRedeemRequest",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an ignored return value in cancelRedeemRequest, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a minor unused return value issue, not related to any of the known findings' root causes or impacts.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/ERC7575VaultUpgradeable.sol",
+     "function": "claimCancelRedeemRequest",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an ignored return value bug, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding concerns an unused return value in claimCancelRedeemRequest, which is not the root cause of any known valid finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/ERC7575VaultUpgradeable.sol",
+     "function": "deposit",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an ignored return value in deposit, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding about unused return value in deposit does not match any of the known findings which cover different vulnerabilities.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/ERC7575VaultUpgradeable.sol",
+     "function": "claimCancelDepositRequest",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an ignored return value, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding describes an unused return value in claimCancelDepositRequest; the candidate is a different issue.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/ERC7575VaultUpgradeable.sol",
+     "function": "requestRedeem",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an ignored return value bug, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "Candidate is about an unused return value, which is not the root cause of any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/ERC7575VaultUpgradeable.sol",
+     "function": "mint",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an ignored return value in mint, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding about an unused return value in the mint function does not correspond to any of the known findings, which cover authorization, DoS, stale liabilities, and share price corruption.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/ShareTokenUpgradeable.sol",
+     "function": "getCirculatingSupplyAndAssets",
+     "a": {
+      "match": null,
+      "reden": "The unused-return issue is unrelated to the listed findings about authorization, vault unregistration DoS, stale redemption liabilities, or over-redemption.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes an unused return value being ignored, which is not related to any of the known findings that cover authorization, DoS, stale liabilities, or share price corruption.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/ERC7575VaultUpgradeable.sol",
+     "function": "cancelRedeemRequest",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an ignored return value in cancelRedeemRequest, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding concerns an unused return value from a set removal in cancelRedeemRequest, which is not the root cause of any listed known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/ERC7575VaultUpgradeable.sol",
+     "function": "requestDeposit",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an ignored return value in requestDeposit, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about an unused return value in requestDeposit, which is not related to any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/ERC7575VaultUpgradeable.sol",
+     "function": "withdraw",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an ignored return value bug, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding about ignoring return value of remove does not correspond to any of the known findings which cover authorization, DoS, redemption liabilities, and share price corruption.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/WERC7575ShareToken.sol",
+     "function": "registerVault",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an ignored return value in registerVault, which does not correspond to any listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes an unused return value in registerVault, which is unrelated to the authorization, DoS, stale redemption, or share price issues in the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/ShareTokenUpgradeable.sol",
+     "function": "_configureVaultInvestmentSettings",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an ignored return value from an ERC20 approve call, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding about an ignored return value from approve is not present among the known findings, which cover different vulnerabilities such as missing authorization, DoS on vault unregistrati",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/ShareTokenUpgradeable.sol",
+     "function": "setInvestmentManager",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an ignored return value in setInvestmentManager, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding about unused return value in setInvestmentManager is not described in any of the known valid findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/ERC7575VaultUpgradeable.sol",
+     "function": "withdrawFromInvestment",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unchecked return value, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about ignoring a return value, which is not described in any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/ERC7575VaultUpgradeable.sol",
+     "function": "cancelDepositRequest",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an ignored return value bug, which does not correspond to any listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding about ignoring a return value in cancelDepositRequest does not correspond to any of the known findings which cover authorization, DoS, or share price corruption.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/ShareTokenUpgradeable.sol",
+     "function": "vault",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an ignored return value, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about an unused return value, which is a code quality issue, not matching any of the known security vulnerabilities.",
+      "model": "deepseek-v4-flash"
+     }
+    }
+   ]
+  },
+  "2026-03-intuition": {
+   "hypotheses": 29,
+   "bekend": 2,
+   "gevondenStreng": [],
+   "gevondenRuim": [],
+   "recallStreng": 0,
+   "recallRuim": 0,
+   "precisieStreng": 0,
+   "precisieRuim": 0,
+   "overeenstemming": 1,
+   "ongeldigeAntwoorden": 0,
+   "perNiveau": {
+    "makkelijk": {
+     "totaal": 1,
+     "streng": 0,
+     "ruim": 0
+    },
+    "midden": {
+     "totaal": 0,
+     "streng": 0,
+     "ruim": 0
+    },
+    "moeilijk": {
+     "totaal": 1,
+     "streng": 0,
+     "ruim": 0
+    }
+   },
+   "hypothesesLijst": [
+    {
+     "title": "uninitialized-state (High, confidence High)",
+     "file": "src/protocol/MultiVault.sol",
+     "function": "getUserLastActiveEpoch",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized state variable in MultiVault, which does not correspond to the root causes of M-1 or M-2.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "Candidate describes uninitialized userEpochHistory, which is not the root cause of either known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "arbitrary-send-eth (High, confidence Medium)",
+     "file": "src/protocol/wallet/AtomWallet.sol",
+     "function": "_call",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an arbitrary ETH send issue in AtomWallet, which does not correspond to the known findings about metadata signing or epoch timestamp calculations.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes an arbitrary ETH send vulnerability in AtomWallet.sol, which is unrelated to the known findings about metadata and epoch calculations.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "erc20-interface (Medium, confidence High)",
+     "file": "src/protocol/emissions/SatelliteEmissionsController.sol",
+     "function": "transfer",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an ERC20 interface issue, which does not correspond to the known findings about metadata validity or epoch timestamp calculations.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes an incorrect ERC20 interface in SatelliteEmissionsController, which is unrelated to the known findings about unsigned validity window metadata or epoch-boundary checkpo",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "erc20-interface (Medium, confidence High)",
+     "file": "src/protocol/emissions/SatelliteEmissionsController.sol",
+     "function": "transfer",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an ERC20 interface issue, which does not correspond to the listed known findings about metadata validity windows or epoch timestamp calculations.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes an incorrect ERC20 interface in SatelliteEmissionsController.transfer, which is unrelated to the known findings about unsigned validity window metadata or epoch-boundar",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "incorrect-equality (Medium, confidence High)",
+     "file": "src/protocol/emissions/TrustBonding.sol",
+     "function": "_getPersonalUtilizationRatio",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a strict equality check in TrustBonding.sol, which does not correspond to the epoch arithmetic or metadata issues of the known findings M-1 or M-2.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes a dangerous strict equality check in TrustBonding._getPersonalUtilizationRatio, which is unrelated to the known findings about unsigned validity window metadata or epoc",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "incorrect-equality (Medium, confidence High)",
+     "file": "src/protocol/emissions/TrustBonding.sol",
+     "function": "_userEligibleRewardsForEpoch",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a strict equality check in TrustBonding.sol, which does not correspond to the root causes of M-1 or M-2.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes a dangerous strict equality in TrustBonding._userEligibleRewardsForEpoch, which is not related to the known findings about unsigned validity window metadata or epoch-bo",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "incorrect-equality (Medium, confidence High)",
+     "file": "src/protocol/emissions/TrustBonding.sol",
+     "function": "getUserCurrentClaimableRewards",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a strict equality check in TrustBonding.sol, which does not correspond to the epoch arithmetic or metadata issues of the known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a strict equality check in TrustBonding.sol, which is unrelated to the two known findings about unsigned validity metadata and epoch-boundary reward qualification.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "incorrect-equality (Medium, confidence High)",
+     "file": "src/external/curve/VotingEscrow.sol",
+     "function": "_checkpoint",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a strict equality check in VotingEscrow._checkpoint, which does not correspond to the root causes of the known findings M-1 or M-2.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate concerns a strict equality in VotingEscrow._checkpoint, while the known findings address a metadata validity window and epoch-boundary checkpoint arithmetic in CoreEmissionsController, w",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "incorrect-equality (Medium, confidence High)",
+     "file": "src/protocol/emissions/TrustBonding.sol",
+     "function": "getUserApy",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an equality check issue in TrustBonding.getUserApy, which does not correspond to the known findings about unsigned metadata or epoch timestamp arithmetic.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about strict equality in TrustBonding.sol, which is not related to the known findings about epoch timestamp arithmetic or metadata.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "incorrect-equality (Medium, confidence High)",
+     "file": "src/protocol/emissions/TrustBonding.sol",
+     "function": "getSystemApy",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a strict equality check in TrustBonding.getSystemApy, which does not correspond to the known findings about unsigned metadata or epoch timestamp calculations.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes a dangerous equality check in TrustBonding.getSystemApy, which is unrelated to the known findings about unsigned validity window metadata or epoch-boundary checkpoints.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "incorrect-equality (Medium, confidence High)",
+     "file": "src/external/curve/VotingEscrow.sol",
+     "function": "_supply_at",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a strict equality bug in VotingEscrow._supply_at, which does not correspond to the known findings about unsigned validity windows or epoch timestamp calculations.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes a strict equality issue in VotingEscrow._supply_at, which is unrelated to the known findings about unsigned validity window metadata or epoch-boundary checkpoints.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "incorrect-equality (Medium, confidence High)",
+     "file": "src/protocol/emissions/TrustBonding.sol",
+     "function": "claimRewards",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a strict equality check in TrustBonding.claimRewards, which does not correspond to the root causes of the known findings M-1 or M-2.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding about strict equality in claimRewards does not match the known findings which are about epoch boundary and validity window metadata.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "incorrect-equality (Medium, confidence High)",
+     "file": "src/protocol/emissions/TrustBonding.sol",
+     "function": "claimRewards",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a strict equality check in TrustBonding.claimRewards, which does not correspond to the known findings about unsigned metadata or epoch timestamp calculations.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a strict equality check in TrustBonding.claimRewards, which is unrelated to the known findings about unsigned validity window metadata or epoch-boundary checkpoint arithmetic.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "incorrect-equality (Medium, confidence High)",
+     "file": "src/protocol/emissions/TrustBonding.sol",
+     "function": "_previousEpoch",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a strict equality issue in TrustBonding._previousEpoch, which does not correspond to the root causes of M-1 or M-2.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes a dangerous strict equality in TrustBonding._previousEpoch(), which is a different issue and contract from the known findings about unsigned validity window metadata an",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "incorrect-equality (Medium, confidence High)",
+     "file": "src/protocol/emissions/TrustBonding.sol",
+     "function": "getUserRewardsForEpoch",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a strict equality check issue in TrustBonding.getUserRewardsForEpoch, which does not correspond to the root causes of the known findings M-1 or M-2.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a different issue in a different contract (TrustBonding.sol) related to strict equality, while the known findings are about unsigned validity window metadata and epoch boundary",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "incorrect-equality (Medium, confidence High)",
+     "file": "src/protocol/emissions/CoreEmissionsController.sol",
+     "function": "_applyCliffReductions",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a strict equality check in _applyCliffReductions, which does not correspond to the root causes of the known findings M-1 or M-2.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes a dangerous strict equality in _applyCliffReductions, which is unrelated to the known findings about unsigned validity window metadata or epoch-boundary checkpoints.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "incorrect-equality (Medium, confidence High)",
+     "file": "src/protocol/emissions/TrustBonding.sol",
+     "function": "claimRewards",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a strict equality check in TrustBonding.claimRewards, which does not correspond to the epoch arithmetic or metadata issues of the known findings M-1 or M-2.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about a strict equality check in TrustBonding.claimRewards, while the known findings concern different root causes in other contracts.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "divide-before-multiply (Medium, confidence Medium)",
+     "file": "src/external/curve/VotingEscrow.sol",
+     "function": "_increase_unlock_time",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a divide‑then‑multiply rounding issue in VotingEscrow, which does not correspond to the root causes of M-1 or M-2.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes a divide-before-multiply precision loss in VotingEscrow.sol, which is unrelated to the known findings about unsigned validity window metadata or epoch-boundary checkpoi",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "divide-before-multiply (Medium, confidence Medium)",
+     "file": "src/external/curve/VotingEscrow.sol",
+     "function": "_checkpoint",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a divide-before-multiply issue in VotingEscrow._checkpoint, which does not correspond to the known findings about unsigned metadata or epoch timestamp arithmetic.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a divide-before-multiply issue in VotingEscrow, while known findings are about validity window metadata and epoch-boundary checkpoints, which are unrelated.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "divide-before-multiply (Medium, confidence Medium)",
+     "file": "src/external/curve/VotingEscrow.sol",
+     "function": "_supply_at",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a divide-before-multiply issue in VotingEscrow._supply_at, which does not correspond to the root causes of the known findings M-1 or M-2.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a precision loss in VotingEscrow._supply_at, which is unrelated to the known findings about epoch arithmetic in CoreEmissionsController or validity window metadata.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "divide-before-multiply (Medium, confidence Medium)",
+     "file": "src/external/curve/VotingEscrow.sol",
+     "function": "_create_lock",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a divide‑before‑multiply rounding issue, which does not correspond to the root causes of M-1 or M-2.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a rounding issue in VotingEscrow._create_lock, unrelated to the known findings about unsigned validity metadata or epoch-boundary checkpoints.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "uninitialized-local (Medium, confidence Medium)",
+     "file": "src/protocol/emissions/TrustBonding.sol",
+     "function": "getUserInfo",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable, which does not correspond to the known findings about unsigned validity window metadata or epoch-boundary checkpoint logic.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable in TrustBonding.getUserInfo, which is unrelated to the known findings about validity window metadata or epoch-boundary checkpoints.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "uninitialized-local (Medium, confidence Medium)",
+     "file": "src/protocol/emissions/TrustBonding.sol",
+     "function": "getUserInfo",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable bug, which does not correspond to the known findings about metadata validity or epoch timestamp calculations.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is an uninitialized local variable, while neither known finding describes that issue.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "uninitialized-local (Medium, confidence Medium)",
+     "file": "src/protocol/MultiVault.sol",
+     "function": "redeemBatch",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable, which does not correspond to the known findings about metadata validity windows or epoch timestamp calculations.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable, which is a different issue from any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "uninitialized-local (Medium, confidence Medium)",
+     "file": "src/external/curve/VotingEscrow.sol",
+     "function": "_checkpoint",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable in VotingEscrow, which does not correspond to the known findings about unsigned metadata or epoch timestamp calculations.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about an uninitialized local variable in VotingEscrow._checkpoint, which is unrelated to the known findings about unsigned validity window metadata or epoch-boundary checkpoin",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "uninitialized-local (Medium, confidence Medium)",
+     "file": "src/external/curve/VotingEscrow.sol",
+     "function": "_deposit_for",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable, which does not correspond to either known finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable in VotingEscrow.sol, while known findings are about metadata validity and epoch arithmetic in CoreEmissionsController.sol.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "uninitialized-local (Medium, confidence Medium)",
+     "file": "src/external/curve/VotingEscrow.sol",
+     "function": "_checkpoint",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable bug, which does not correspond to either known finding M-1 or M-2.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is about an uninitialized local variable in VotingEscrow._checkpoint, while both known findings concern unrelated issues (metadata validity and epoch boundary checkpoints).",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/protocol/wallet/AtomWalletFactory.sol",
+     "function": "_getDeploymentData",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an ignored return value bug, which does not correspond to the listed known findings about unsigned metadata or epoch timestamp calculations.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about an unused return value in AtomWalletFactory.sol, which is unrelated to the known findings about unsigned validity window metadata and epoch-boundary checkpoints.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/protocol/emissions/BaseEmissionsController.sol",
+     "function": "_mintAndBridge",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unused return value bug, which does not correspond to the listed known findings about unsigned validity windows or epoch-boundary checkpoint logic.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding concerns an unused return value from approve in BaseEmissionsController, which is unrelated to the known valid findings M-1 and M-2.",
+      "model": "deepseek-v4-flash"
+     }
+    }
+   ]
+  }
+ },
+ "totaal": {
+  "bekend": 15,
+  "hyps": 107,
+  "streng": 0,
+  "ruim": 2,
+  "strengHyp": 0,
+  "eens": 105,
+  "perNiveau": {
+   "makkelijk": {
+    "totaal": 6,
+    "streng": 0
+   },
+   "midden": {
+    "totaal": 1,
+    "streng": 0
+   },
+   "moeilijk": {
+    "totaal": 8,
+    "streng": 0
+   }
+  },
+  "recallStreng": 0,
+  "recallRuim": 0.13333333333333333,
+  "precisieStreng": 0,
+  "overeenstemming": 0.9813084112149533
+ },
+ "kosten": 0.022054019400000006
+}

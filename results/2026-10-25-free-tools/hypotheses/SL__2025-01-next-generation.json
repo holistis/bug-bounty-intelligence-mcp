@@ -1,0 +1,35 @@
+{
+ "contest": "2025-01-next-generation",
+ "gereedschap": "Slither",
+ "totaalGevonden": 4,
+ "hypotheses": [
+  {
+   "title": "encode-packed-collision (High, confidence High)",
+   "severity": "High",
+   "file": "contracts/Forwarder.sol",
+   "function": "_getEncoded",
+   "description": "Forwarder._getEncoded(Forwarder.ForwardRequest,bytes32,bytes) (contracts/Forwarder.sol#158-169) calls abi.encodePacked() with multiple dynamic arguments: - abi.encodePacked(requestTypeHash,abi.encode(req.from,req.to,req.value,req.gas,req.nonce,keccak256(bytes)(req.data)),suffixData) (contracts/Forwarder.sol#163-168) "
+  },
+  {
+   "title": "arbitrary-send-eth (High, confidence Medium)",
+   "severity": "High",
+   "file": "contracts/Forwarder.sol",
+   "function": "execute",
+   "description": "Forwarder.execute(Forwarder.ForwardRequest,bytes32,bytes32,bytes,bytes) (contracts/Forwarder.sol#93-118) sends eth to arbitrary user Dangerous calls: - (success,ret) = req.to.call{gas: req.gas,value: req.value}(abi.encodePacked(req.data,req.from)) (contracts/Forwarder.sol#112) "
+  },
+  {
+   "title": "tautology (Medium, confidence High)",
+   "severity": "Medium",
+   "file": "contracts/FeesHandlerUpgradeable.sol",
+   "function": "setGaslessBasefee",
+   "description": "FeesHandlerUpgradeable.setGaslessBasefee(uint256) (contracts/FeesHandlerUpgradeable.sol#34-38) contains a tautology or contradiction: - newGaslessBasefee < 0 (contracts/FeesHandlerUpgradeable.sol#35) "
+  },
+  {
+   "title": "tautology (Medium, confidence High)",
+   "severity": "Medium",
+   "file": "contracts/FeesHandlerUpgradeable.sol",
+   "function": "setTxFeeRate",
+   "description": "FeesHandlerUpgradeable.setTxFeeRate(uint256) (contracts/FeesHandlerUpgradeable.sol#28-32) contains a tautology or contradiction: - newTxFeeRate > FEE_RATIO || newTxFeeRate < 0 (contracts/FeesHandlerUpgradeable.sol#29) "
+  }
+ ]
+}

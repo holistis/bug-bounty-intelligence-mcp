@@ -1,0 +1,1056 @@
+{
+ "voorvoegsel": "SL",
+ "wedstrijden": {
+  "2025-01-liquid-ron": {
+   "hypotheses": 14,
+   "bekend": 3,
+   "gevondenStreng": [],
+   "gevondenRuim": [],
+   "recallStreng": 0,
+   "recallRuim": 0,
+   "precisieStreng": 0,
+   "precisieRuim": 0,
+   "overeenstemming": 1,
+   "ongeldigeAntwoorden": 0,
+   "perNiveau": {
+    "makkelijk": {
+     "totaal": 1,
+     "streng": 0,
+     "ruim": 0
+    },
+    "midden": {
+     "totaal": 0,
+     "streng": 0,
+     "ruim": 0
+    },
+    "moeilijk": {
+     "totaal": 2,
+     "streng": 0,
+     "ruim": 0
+    }
+   },
+   "hypothesesLijst": [
+    {
+     "title": "arbitrary-send-erc20 (High, confidence High)",
+     "file": "src/LiquidRon.sol",
+     "function": "redeem",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an arbitrary ERC20 transferFrom issue in redeem, which does not correspond to any of the listed findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes an arbitrary from in transferFrom in redeem, which is not among the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "arbitrary-send-eth (High, confidence Medium)",
+     "file": "src/LiquidRon.sol",
+     "function": "_checkUserCanReceiveRon",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an arbitrary ETH send issue, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes an unnecessary zero-value call, while the known findings cover accounting, reward timing, and modifier access control issues.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "arbitrary-send-eth (High, confidence Medium)",
+     "file": "src/RonHelper.sol",
+     "function": "_depositRONTo",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an arbitrary ETH send issue in RonHelper._depositRONTo, which does not correspond to any of the listed findings about totalAssets calculation, reward front‑running, or operator",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes an arbitrary ETH send in RonHelper, while the valid findings concern totalAssets fee accounting, frontrunning rewards, and an operator modifier bug.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "reentrancy-eth (High, confidence Medium)",
+     "file": "src/LiquidRon.sol",
+     "function": "requestWithdrawal",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy issue, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "Candidate describes a reentrancy vulnerability, while known findings concern fee accounting, reward frontrunning, and modifier logic.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unchecked-transfer (High, confidence Medium)",
+     "file": "src/LiquidRon.sol",
+     "function": "redeem",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unchecked ERC20 transfer in redeem, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes an unchecked transfer return value in redeem, which is not related to any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "erc20-interface (Medium, confidence High)",
+     "file": "src/RonHelper.sol",
+     "function": "transfer",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an ERC20 interface issue, which does not correspond to any of the known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes an incorrect ERC20 interface, which is not among the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "uninitialized-local (Medium, confidence Medium)",
+     "file": "src/LiquidProxy.sol",
+     "function": "undelegateAmount",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable bug, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable, which is not the root cause of any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "uninitialized-local (Medium, confidence Medium)",
+     "file": "src/LiquidRon.sol",
+     "function": "getTotalStaked",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable in getTotalStaked, which does not correspond to any of the known findings about fee calculation, reward front‑running, or modifier logic.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable in getTotalStaked, which is unrelated to the known findings about fee accounting, reward frontrunning, or modifier access control.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "uninitialized-local (Medium, confidence Medium)",
+     "file": "src/LiquidRon.sol",
+     "function": "delegateAmount",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable in delegateAmount, which does not correspond to any of the listed findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable, which is unrelated to the known findings about totalAssets calculation, reward frontrunning, or modifier access control.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "uninitialized-local (Medium, confidence Medium)",
+     "file": "src/LiquidRon.sol",
+     "function": "_getTotalStakedInProxy",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes an uninitialized local variable, which is not mentioned in any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "uninitialized-local (Medium, confidence Medium)",
+     "file": "src/LiquidRon.sol",
+     "function": "getTotalRewards",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable in getTotalRewards, which does not correspond to any of the listed findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes an uninitialized local variable, which is not related to any of the known findings about totalAssets calculation, frontrunning rewards, or operator modifier.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "uninitialized-local (Medium, confidence Medium)",
+     "file": "src/LiquidRon.sol",
+     "function": "_getTotalRewardsInProxy",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable, which is unrelated to the known findings' root causes in fee calculation, reward timing, or modifier access control.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/LiquidRon.sol",
+     "function": "constructor",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unused return value in the constructor, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes an unused return value in the constructor, which is not the root cause of any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/Escrow.sol",
+     "function": "constructor",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unused return value in Escrow constructor, which does not correspond to any of the listed findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding about unused return value in Escrow constructor is not related to any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    }
+   ]
+  },
+  "2025-01-next-generation": {
+   "hypotheses": 4,
+   "bekend": 4,
+   "gevondenStreng": [],
+   "gevondenRuim": [],
+   "recallStreng": 0,
+   "recallRuim": 0,
+   "precisieStreng": 0,
+   "precisieRuim": 0,
+   "overeenstemming": 1,
+   "ongeldigeAntwoorden": 0,
+   "perNiveau": {
+    "makkelijk": {
+     "totaal": 3,
+     "streng": 0,
+     "ruim": 0
+    },
+    "midden": {
+     "totaal": 1,
+     "streng": 0,
+     "ruim": 0
+    },
+    "moeilijk": {
+     "totaal": 0,
+     "streng": 0,
+     "ruim": 0
+    }
+   },
+   "hypothesesLijst": [
+    {
+     "title": "encode-packed-collision (High, confidence High)",
+     "file": "contracts/Forwarder.sol",
+     "function": "_getEncoded",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an abi.encodePacked collision issue, which does not correspond to any of the listed findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes an encode-packed collision vulnerability in Forwarder._getEncoded, but none of the known findings relate to that issue.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "arbitrary-send-eth (High, confidence Medium)",
+     "file": "contracts/Forwarder.sol",
+     "function": "execute",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an arbitrary ETH send via low-level call, which does not correspond to any listed finding's root cause.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes an arbitrary ETH send vulnerability in Forwarder.execute, which is not covered by any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "tautology (Medium, confidence High)",
+     "file": "contracts/FeesHandlerUpgradeable.sol",
+     "function": "setGaslessBasefee",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a tautological condition in setGaslessBasefee, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about a tautology in FeesHandlerUpgradeable.sol, which is not among the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "tautology (Medium, confidence High)",
+     "file": "contracts/FeesHandlerUpgradeable.sol",
+     "function": "setTxFeeRate",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a tautology check in setTxFeeRate, which does not correspond to any of the listed findings about allowance bypass, approve invariants, or missing deadline checks.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a different code area and issue (tautology in fee rate check) unrelated to the known findings about allowance, blacklist approval, or signature replay.",
+      "model": "deepseek-v4-flash"
+     }
+    }
+   ]
+  },
+  "2025-03-nudgexyz": {
+   "hypotheses": 6,
+   "bekend": 4,
+   "gevondenStreng": [],
+   "gevondenRuim": [],
+   "recallStreng": 0,
+   "recallRuim": 0,
+   "precisieStreng": 0,
+   "precisieRuim": 0,
+   "overeenstemming": 1,
+   "ongeldigeAntwoorden": 0,
+   "perNiveau": {
+    "makkelijk": {
+     "totaal": 2,
+     "streng": 0,
+     "ruim": 0
+    },
+    "midden": {
+     "totaal": 1,
+     "streng": 0,
+     "ruim": 0
+    },
+    "moeilijk": {
+     "totaal": 1,
+     "streng": 0,
+     "ruim": 0
+    }
+   },
+   "hypothesesLijst": [
+    {
+     "title": "arbitrary-send-eth (High, confidence Medium)",
+     "file": "src/campaign/NudgeCampaignFactory.sol",
+     "function": "deployAndFundCampaign",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an arbitrary ETH send in deployAndFundCampaign, which does not correspond to any of the listed findings about handleReallocation or reallocation issues.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "Candidate describes an arbitrary ETH send in NudgeCampaignFactory, not related to the reallocation/reward vulnerabilities in known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "reentrancy-balance (High, confidence Medium)",
+     "file": "src/campaign/NudgeCampaign.sol",
+     "function": "handleReallocation",
+     "a": {
+      "match": null,
+      "reden": "Candidate describes a reentrancy and stale balance issue not covered by any known finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy/stale balance issue, while all known findings concern authorization, DoS, cross-chain address mismatches, or transaction initiator verification, not reentrancy.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "reentrancy-balance (High, confidence Medium)",
+     "file": "src/campaign/NudgeCampaign.sol",
+     "function": "handleReallocation",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy and stale balance issue, which is not covered by any of the known findings that focus on access control or DOS.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy vulnerability, while the known findings describe different root causes such as caller validation, DoS, cross-chain issues, and initiator verification.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "reentrancy-eth (High, confidence Medium)",
+     "file": "src/campaign/NudgeCampaign.sol",
+     "function": "claimRewards",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy issue in claimRewards, which does not correspond to any of the known findings that focus on handleReallocation or other unrelated issues.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy issue in claimRewards, while the known findings cover different vulnerabilities (reallocation, DOS, cross-chain loss, initiator verification).",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "reentrancy-eth (High, confidence Medium)",
+     "file": "src/campaign/NudgePointsCampaigns.sol",
+     "function": "handleReallocation",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy issue, while none of the known findings address reentrancy in handleReallocation.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy vulnerability, while the known findings cover unauthorized reallocation, DOS, cross-chain token loss, and lack of initiator verification, none of which involve ree",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "uninitialized-local (Medium, confidence Medium)",
+     "file": "src/campaign/NudgeCampaignFactory.sol",
+     "function": "collectFeesFromCampaigns",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable, which does not correspond to any of the known findings about reallocation, reward handling, or access control.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The known findings concern reallocation, DOS, account abstraction, and participation validation, not an uninitialized local variable in collectFeesFromCampaigns.",
+      "model": "deepseek-v4-flash"
+     }
+    }
+   ]
+  },
+  "2025-04-kinetiq": {
+   "hypotheses": 36,
+   "bekend": 8,
+   "gevondenStreng": [],
+   "gevondenRuim": [],
+   "recallStreng": 0,
+   "recallRuim": 0,
+   "precisieStreng": 0,
+   "precisieRuim": 0,
+   "overeenstemming": 1,
+   "ongeldigeAntwoorden": 0,
+   "perNiveau": {
+    "makkelijk": {
+     "totaal": 7,
+     "streng": 0,
+     "ruim": 0
+    },
+    "midden": {
+     "totaal": 1,
+     "streng": 0,
+     "ruim": 0
+    },
+    "moeilijk": {
+     "totaal": 0,
+     "streng": 0,
+     "ruim": 0
+    }
+   },
+   "hypothesesLijst": [
+    {
+     "title": "reentrancy-balance (High, confidence Medium)",
+     "file": "src/StakingManager.sol",
+     "function": "batchConfirmWithdrawals",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy issue in batchConfirmWithdrawals, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy vulnerability in batchConfirmWithdrawals, which is not mentioned in any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unchecked-transfer (High, confidence Medium)",
+     "file": "src/StakingManager.sol",
+     "function": "cancelWithdrawal",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unchecked transfer return value in cancelWithdrawal, which does not correspond to any listed finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes an unchecked transfer return value in cancelWithdrawal, which is not the root cause of any listed known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unchecked-transfer (High, confidence Medium)",
+     "file": "src/StakingManager.sol",
+     "function": "_processConfirmation",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unchecked ERC20 transfer, which is not covered by any listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding describes the unchecked return value of kHYPE.transfer in _processConfirmation.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unchecked-transfer (High, confidence Medium)",
+     "file": "src/StakingManager.sol",
+     "function": "queueWithdrawal",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unchecked ERC20 transfer return value, which is not covered by any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes an unchecked transfer return value in queueWithdrawal, which is not the root cause of any of the known valid findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "reentrancy-no-eth (Medium, confidence Medium)",
+     "file": "src/OracleManager.sol",
+     "function": "generatePerformance",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy issue in OracleManager, which does not correspond to any of the listed known findings focused on StakingManager and related withdrawal logic.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes a reentrancy vulnerability in OracleManager.generatePerformance, while all known findings relate to StakingManager buffer, withdrawal, and delegation issues.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "reentrancy-no-eth (Medium, confidence Medium)",
+     "file": "src/StakingManager.sol",
+     "function": "processL1Operations",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy issue in processL1Operations, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding describes a reentrancy vulnerability in processL1Operations; the candidate's root cause and impact differ from all listed findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "reentrancy-no-eth (Medium, confidence Medium)",
+     "file": "src/StakingManager.sol",
+     "function": "queueWithdrawal",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes a reentrancy issue in queueWithdrawal",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy vulnerability in queueWithdrawal, which is not among the known findings that cover buffer locks, slashing, HYPE handling, redelegation, pause checks, cancel state,",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "reentrancy-no-eth (Medium, confidence Medium)",
+     "file": "src/StakingManager.sol",
+     "function": "processL1Operations",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy issue, which does not correspond to any of the listed findings that focus on buffer locking, slashing, balance checks, missing pause checks, state restoration, ord",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy vulnerability in processL1Operations, which is not covered by any of the known findings that focus on buffer locking, withdrawal queue issues, HYPE handling, balan",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "reentrancy-no-eth (Medium, confidence Medium)",
+     "file": "src/StakingManager.sol",
+     "function": "_processL1Withdrawals",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy issue in _processL1Withdrawals, which is not covered by any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy issue in _processL1Withdrawals, which is not described by any known finding; the known findings cover different root causes and impacts.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "reentrancy-no-eth (Medium, confidence Medium)",
+     "file": "src/StakingManager.sol",
+     "function": "_processL1Deposits",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy issue in _processL1Deposits, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is about reentrancy in _processL1Deposits, while all known findings concern different issues (buffer locking, withdrawal ordering, HYPE handling, balance checks, pause modifiers, state r",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "uninitialized-local (Medium, confidence Medium)",
+     "file": "src/OracleManager.sol",
+     "function": "generatePerformance",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable in OracleManager, which does not correspond to any of the listed StakingManager-related findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about an uninitialized local variable in OracleManager, while all known findings concern StakingManager logic issues.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "uninitialized-local (Medium, confidence Medium)",
+     "file": "src/OracleManager.sol",
+     "function": "generatePerformance",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable in OracleManager, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about an uninitialized local variable in OracleManager, while all known findings are about StakingManager and different issues.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "uninitialized-local (Medium, confidence Medium)",
+     "file": "src/OracleManager.sol",
+     "function": "generatePerformance",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable in OracleManager, which does not correspond to any of the listed StakingManager-related findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about an uninitialized local variable in OracleManager, while all known findings concern StakingManager and different issues.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "uninitialized-local (Medium, confidence Medium)",
+     "file": "src/ValidatorManager.sol",
+     "function": "activeValidatorsCount",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable in ValidatorManager, which does not correspond to any listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about an uninitialized local variable in ValidatorManager.sol, while all known findings are about StakingManager.sol and involve different root causes.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "uninitialized-local (Medium, confidence Medium)",
+     "file": "src/OracleManager.sol",
+     "function": "generatePerformance",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable in OracleManager, which does not correspond to any listed StakingManager-related findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about an uninitialized local variable in OracleManager, while all known findings are about StakingManager and different issues.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "uninitialized-local (Medium, confidence Medium)",
+     "file": "src/OracleManager.sol",
+     "function": "generatePerformance",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable in OracleManager, which does not correspond to any of the listed StakingManager-related findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about an uninitialized local variable in OracleManager, while all known findings are about StakingManager and different issues.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "uninitialized-local (Medium, confidence Medium)",
+     "file": "src/OracleManager.sol",
+     "function": "generatePerformance",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable in OracleManager, which does not correspond to any of the listed StakingManager-related findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about an uninitialized local variable in OracleManager.sol, while all known findings are in StakingManager.sol and involve different issues.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "uninitialized-local (Medium, confidence Medium)",
+     "file": "src/OracleManager.sol",
+     "function": "generatePerformance",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable in OracleManager, which does not correspond to any of the listed StakingManager-related findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is an uninitialized local variable in OracleManager.generatePerformance, which is not described by any known finding; all known findings concern StakingManager buffer, withdrawal, slashi",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "uninitialized-local (Medium, confidence Medium)",
+     "file": "src/OracleManager.sol",
+     "function": "generatePerformance",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable in OracleManager, which does not correspond to any of the listed StakingManager-related findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about an uninitialized local variable in OracleManager, while all known findings are about StakingManager and different issues.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/PauserRegistry.sol",
+     "function": "initialize",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unused return value in PauserRegistry, which does not correspond to any listed staking manager related findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes an unused return value in PauserRegistry.initialize, which is unrelated to any of the known findings about StakingManager buffer, withdrawal, or L1 operations.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/ValidatorManager.sol",
+     "function": "_addRebalanceRequest",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unused return value in ValidatorManager, which does not correspond to any listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is about an unchecked return value in ValidatorManager, which is unrelated to any of the known findings about StakingManager buffer, withdrawals, redelegation, or queued operations.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/ValidatorManager.sol",
+     "function": "_addRebalanceRequest",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unused return value in ValidatorManager._addRebalanceRequest, which does not correspond to any listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about an unused return value in ValidatorManager._addRebalanceRequest, which is unrelated to any of the known findings that focus on StakingManager issues.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/StakingAccountant.sol",
+     "function": "deauthorizeStakingManager",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unused return value in StakingAccountant, which does not correspond to any listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about ignoring return value in StakingAccountant.deauthorizeStakingManager, which is not described in any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/StakingAccountant.sol",
+     "function": "deauthorizeStakingManager",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an ignored return value in StakingAccountant, which does not correspond to any listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding describes an unused return value in StakingAccountant.deauthorizeStakingManager; the candidate is a distinct, unrelated issue.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/StakingManager.sol",
+     "function": "addToWhitelist",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unused return value in addToWhitelist, which does not correspond to any listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about an unused return value in addToWhitelist, which is not related to any of the known findings' root causes or impacts.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/ValidatorManager.sol",
+     "function": "validatorAt",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an ignored return value in ValidatorManager.validatorAt, which does not correspond to any listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is about an unused return value in ValidatorManager.validatorAt, which is unrelated to any of the known findings that concern StakingManager, buffer handling, withdrawal issues, or L1 op",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/PauserRegistry.sol",
+     "function": "deauthorizeContract",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an ignored return value in PauserRegistry.deauthorizeContract, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about an unused return in PauserRegistry, while all known findings concern different issues in StakingManager.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/ValidatorManager.sol",
+     "function": "activateValidator",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unused return value in ValidatorManager, which does not correspond to any listed known finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding concerns an unrelated unused return value in ValidatorManager.activateValidator, while all known findings pertain to StakingManager and different root causes.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/oracles/DefaultOracle.sol",
+     "function": "updateValidatorMetrics",
+     "a": {
+      "match": null,
+      "reden": "Candidate describes an unused return value in DefaultOracle, which does not correspond to any listed finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding describes the unused return value in DefaultOracle.updateValidatorMetrics.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/StakingAccountant.sol",
+     "function": "authorizeStakingManager",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an ignored return value in authorizeStakingManager, which does not correspond to any known finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about an unused return value in StakingAccountant, which is not related to any of the known findings that focus on StakingManager issues.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/ValidatorManager.sol",
+     "function": "closeRebalanceRequests",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unused return value in ValidatorManager, which does not correspond to any listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about an unused return value in ValidatorManager.closeRebalanceRequests, which is unrelated to any of the known findings that focus on StakingManager buffer, withdrawal, and L",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/StakingAccountant.sol",
+     "function": "authorizeStakingManager",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unused return value in StakingAccountant.authorizeStakingManager, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about an unused return value in StakingAccountant.authorizeStakingManager, which is not related to any of the known findings that focus on StakingManager buffer, withdrawal, o",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/OracleManager.sol",
+     "function": "authorizeOracleAdapter",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unused return value in OracleManager, which does not correspond to any of the listed StakingManager-related findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about an unused return value in OracleManager.sol, while all known findings are about StakingManager.sol and different issues.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/StakingAccountant.sol",
+     "function": "deauthorizeStakingManager",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unused return value in deauthorizeStakingManager, which does not correspond to any listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about an unused return value in StakingAccountant, which is not related to any of the known findings that cover different vulnerabilities.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/OracleManager.sol",
+     "function": "deauthorizeOracle",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an ignored return value in OracleManager.deauthorizeOracle, which does not correspond to any of the listed StakingManager-related findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about an unused return value in OracleManager, while all known findings are about StakingManager and related issues.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "unused-return (Medium, confidence Medium)",
+     "file": "src/PauserRegistry.sol",
+     "function": "authorizeContract",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an ignored return value in PauserRegistry, which does not correspond to any of the listed staking‑manager related findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about an unused return value in PauserRegistry, which is unrelated to any of the known findings that focus on StakingManager issues.",
+      "model": "deepseek-v4-flash"
+     }
+    }
+   ]
+  }
+ },
+ "totaal": {
+  "bekend": 19,
+  "hyps": 60,
+  "streng": 0,
+  "ruim": 0,
+  "strengHyp": 0,
+  "eens": 60,
+  "perNiveau": {
+   "makkelijk": {
+    "totaal": 13,
+    "streng": 0
+   },
+   "midden": {
+    "totaal": 3,
+    "streng": 0
+   },
+   "moeilijk": {
+    "totaal": 3,
+    "streng": 0
+   }
+  },
+  "recallStreng": 0,
+  "recallRuim": 0,
+  "precisieStreng": 0,
+  "overeenstemming": 1
+ },
+ "kosten": 0.013591165599999998
+}

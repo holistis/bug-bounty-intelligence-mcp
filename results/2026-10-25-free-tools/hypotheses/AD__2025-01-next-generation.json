@@ -1,0 +1,133 @@
+{
+ "contest": "2025-01-next-generation",
+ "gereedschap": "Aderyn",
+ "totaalGevonden": 18,
+ "hypotheses": [
+  {
+   "title": "`abi.encodePacked()` Hash Collision",
+   "severity": "High",
+   "file": "contracts/Forwarder.sol",
+   "function": "",
+   "description": "abi.encodePacked() should not be used with dynamic types when passing the result to a hash function such as `keccak256()`. Use `abi.encode()` instead which will pad items to 32 bytes, preventing hash collisions: https://docs.soliditylang.org/en/v0.8.13/abi-spec.html#non-standard-packed-mode. (e.g. `abi.encodePacked(0x123,0x456)` => `0x123456` => `abi.encodePacked(0x1,0x23456)`, but `abi.encode(0x123,0x456)` => `0x0...1230...456`). Unless there is a compelling reason, `abi.encode` should be preferred. If there is only one argument to `abi.encodePacked()` it can often be cast to `bytes()` or `bytes32()` instead: https://ethereum.stackexchange.com/questions/30912/how-to-compare-strings-in-solidity#answer-82739. If all arguments are strings and or bytes, `bytes.concat()` should be used instead. Instances: contracts/Forwarder.sol:71, contracts/Forwarder.sol:134, contracts/Forwarder.sol:164"
+  },
+  {
+   "title": "Arbitrary `from` Passed to `transferFrom`",
+   "severity": "High",
+   "file": "contracts/Token.sol",
+   "function": "",
+   "description": "Passing an arbitrary `from` address to `transferFrom` (or `safeTransferFrom`) can lead to loss of funds, because anyone can transfer tokens from the `from` address if an approval is made. Instances: contracts/Token.sol:168"
+  },
+  {
+   "title": "Contract locks Ether without a withdraw function",
+   "severity": "High",
+   "file": "contracts/Token.sol",
+   "function": "",
+   "description": "It appears that the contract includes a payable function to accept Ether but lacks a corresponding function to withdraw it, which leads to the Ether being locked in the contract. To resolve this issue, please implement a public or external function that allows for the withdrawal of Ether from the contract. Instances: contracts/Token.sol:35"
+  },
+  {
+   "title": "Experimental ABI Encoder",
+   "severity": "High",
+   "file": "contracts/Forwarder.sol",
+   "function": "",
+   "description": "Experimental encoders should not be used in production. There are multiple known compiler bugs that are caused by the experimental encoder. Upgrade your solidity version to remove the need for experimental features. Instances: contracts/Forwarder.sol:25"
+  },
+  {
+   "title": "Tautology or Contradiction in comparison",
+   "severity": "High",
+   "file": "contracts/FeesHandlerUpgradeable.sol",
+   "function": "",
+   "description": "The condition has been determined to be either always true or always false due to the integer range in which we're operating. Instances: contracts/FeesHandlerUpgradeable.sol:29, contracts/FeesHandlerUpgradeable.sol:35"
+  },
+  {
+   "title": "Centralization Risk",
+   "severity": "Low",
+   "file": "contracts/ERC20AdminUpgradeable.sol",
+   "function": "",
+   "description": "Contracts have owners with privileged rights to perform admin tasks and need to be trusted to not perform malicious updates or drain funds. Instances: contracts/ERC20AdminUpgradeable.sol:34, contracts/ERC20AdminUpgradeable.sol:45, contracts/ERC20AdminUpgradeable.sol:65"
+  },
+  {
+   "title": "Empty Block",
+   "severity": "Low",
+   "file": "contracts/Token.sol",
+   "function": "",
+   "description": "Consider removing empty blocks. Instances: contracts/Token.sol:87"
+  },
+  {
+   "title": "Inconsistent uint256/uint (or) int256/int types",
+   "severity": "Low",
+   "file": "contracts/Forwarder.sol",
+   "function": "",
+   "description": "Inconsistency in declaring uint256/uint (or) int256/int variables within a contract. Use explicit size declarations (uint256 or int256). Consider keeping the naming convention consistent in a given contract. Explicit size declarations are preferred (uint256, int256) over implicit ones (uint, int) to avoid confusion. Instances: contracts/Forwarder.sol:129"
+  },
+  {
+   "title": "Large Numeric Literal",
+   "severity": "Low",
+   "file": "contracts/FeesHandlerUpgradeable.sol",
+   "function": "",
+   "description": "Large literal values multiples of 10000 can be replaced with scientific notation.Use `e` notation, for example: `1e18`, instead of its full numeric value. Instances: contracts/FeesHandlerUpgradeable.sol:12"
+  },
+  {
+   "title": "Literal Instead of Constant",
+   "severity": "Low",
+   "file": "contracts/Forwarder.sol",
+   "function": "",
+   "description": "Define and use `constant` variables instead of using literals. If the same constant literal value is used multiple times, create a constant state variable and reference it throughout the contract. Instances: contracts/Forwarder.sol:88, contracts/Forwarder.sol:107"
+  },
+  {
+   "title": "Loop Contains `require`/`revert`",
+   "severity": "Low",
+   "file": "contracts/Forwarder.sol",
+   "function": "",
+   "description": "Avoid `require` / `revert` statements in a loop because a single bad item can cause the whole transaction to fail. It's better to forgive on fail and return failed elements post processing of the loop Instances: contracts/Forwarder.sol:129"
+  },
+  {
+   "title": "State Change Without Event",
+   "severity": "Low",
+   "file": "contracts/Forwarder.sol",
+   "function": "",
+   "description": "There are state variable changes in this function but no event is emitted. Consider emitting an event to enable offchain indexers to track the changes. Instances: contracts/Forwarder.sol:93"
+  },
+  {
+   "title": "Address State Variable Set Without Checks",
+   "severity": "Low",
+   "file": "contracts/FeesHandlerUpgradeable.sol",
+   "function": "",
+   "description": "Check for `address(0)` when assigning values to address state variables. Instances: contracts/FeesHandlerUpgradeable.sol:24"
+  },
+  {
+   "title": "Unchecked Return",
+   "severity": "Low",
+   "file": "contracts/ERC20AdminUpgradeable.sol",
+   "function": "",
+   "description": "Function returns a value but it is ignored. Consider checking the return value. Instances: contracts/ERC20AdminUpgradeable.sol:31, contracts/ERC20ControlerMinterUpgradeable.sol:39, contracts/Token.sol:58"
+  },
+  {
+   "title": "Unsafe ERC20 Operation",
+   "severity": "Low",
+   "file": "contracts/Token.sol",
+   "function": "",
+   "description": "ERC20 functions may not behave as expected. For example: return values are not always meaningful. It is recommended to use OpenZeppelin's SafeERC20 library. Instances: contracts/Token.sol:163"
+  },
+  {
+   "title": "Unspecific Solidity Pragma",
+   "severity": "Low",
+   "file": "contracts/ERC20AdminUpgradeable.sol",
+   "function": "",
+   "description": "Consider using a specific version of Solidity in your contracts instead of a wide version. For example, instead of `pragma solidity ^0.8.0;`, use `pragma solidity 0.8.0;` Instances: contracts/ERC20AdminUpgradeable.sol:2, contracts/ERC20ControlerMinterUpgradeable.sol:2, contracts/ERC20MetaTxUpgradeable.sol:2"
+  },
+  {
+   "title": "Public Function Not Used Internally",
+   "severity": "Low",
+   "file": "contracts/Forwarder.sol",
+   "function": "",
+   "description": "If a function is marked public but is not used internally, consider marking it as `external`. Instances: contracts/Forwarder.sol:58, contracts/Forwarder.sol:62, contracts/Forwarder.sol:66"
+  },
+  {
+   "title": "Unused State Variable",
+   "severity": "Low",
+   "file": "contracts/Token.sol",
+   "function": "",
+   "description": "State variable appears to be unused. No analysis has been performed to see if any inline assembly references it. Consider removing this unused variable. Instances: contracts/Token.sol:184"
+  }
+ ]
+}

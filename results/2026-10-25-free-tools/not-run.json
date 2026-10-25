@@ -1,0 +1,37 @@
+[
+  {
+    "contest": "2025-10-hybra-finance",
+    "slither": "no result: the Foundry build inside Slither did not finish",
+    "aderyn": "no Solidity files found in the scope it derived from the project settings"
+  },
+  {
+    "contest": "2026-01-olas",
+    "slither": "no result: the Foundry build inside Slither did not finish",
+    "aderyn": "no Solidity files found in the scope it derived from the project settings"
+  },
+  {
+    "contest": "2025-11-megapot",
+    "slither": "compilation failed, no build-info folder",
+    "aderyn": "imports of dependencies could not be resolved"
+  },
+  {
+    "contest": "2025-11-brix-money",
+    "slither": "imports of dependencies could not be resolved",
+    "aderyn": "imports of dependencies could not be resolved"
+  },
+  {
+    "contest": "2025-11-ekubo",
+    "slither": "project settings name a macOS compiler binary that does not exist on our server",
+    "aderyn": "project settings name a macOS compiler binary that does not exist on our server"
+  },
+  {
+    "contest": "2025-01-iq-ai",
+    "slither": "needs the Cancun EVM setting that our Slither run did not pass on",
+    "aderyn": null
+  },
+  {
+    "contest": "2025-04-virtuals-protocol",
+    "slither": "stack too deep without the via-IR setting that our Slither run did not pass on",
+    "aderyn": null
+  }
+]

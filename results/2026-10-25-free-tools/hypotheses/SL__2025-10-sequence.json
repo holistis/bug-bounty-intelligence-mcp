@@ -1,0 +1,154 @@
+{
+ "contest": "2025-10-sequence",
+ "gereedschap": "Slither",
+ "totaalGevonden": 21,
+ "hypotheses": [
+  {
+   "title": "incorrect-shift (High, confidence High)",
+   "severity": "High",
+   "file": "src/utils/LibBytes.sol",
+   "function": "readUintX",
+   "description": "LibBytes.readUintX(bytes,uint256,uint256) (src/utils/LibBytes.sol#68-79) contains an incorrect shift operation: a = word_readUintX_asm_0 >> shift_readUintX_asm_0 & 1 << 8 * _length - 1 (src/utils/LibBytes.sol#76) "
+  },
+  {
+   "title": "controlled-delegatecall (High, confidence Medium)",
+   "severity": "High",
+   "file": "src/modules/Hooks.sol",
+   "function": "fallback",
+   "description": "Hooks.fallback() (src/modules/Hooks.sol#108-119) uses delegatecall to a input-controlled function id - (success,result) = target.delegatecall(msg.data) (src/modules/Hooks.sol#112) "
+  },
+  {
+   "title": "incorrect-exp (High, confidence Medium)",
+   "severity": "High",
+   "file": "src/utils/Base64.sol",
+   "function": "encode",
+   "description": "Base64.encode(bytes,bool,bool) (src/utils/Base64.sol#14-70) has bitwise-xor operator ^ instead of the exponentiation operator **: - mstore(uint256,uint256)(0x3f,ghijklmnopqrstuvwxyz0123456789-_ ^ ! fileSafe * 0x0670) (src/utils/Base64.sol#33) "
+  },
+  {
+   "title": "locked-ether (Medium, confidence High)",
+   "severity": "Medium",
+   "file": "src/Factory.sol",
+   "function": "deploy",
+   "description": "Contract locking ether found: Contract Factory (src/Factory.sol#9-28) has payable functions: - Factory.deploy(address,bytes32) (src/Factory.sol#18-26) But does not have a function to withdraw the ether "
+  },
+  {
+   "title": "write-after-write (Medium, confidence High)",
+   "severity": "Medium",
+   "file": "src/modules/auth/BaseSig.sol",
+   "function": "recoverBranch",
+   "description": "BaseSig.recoverBranch(Payload.Decoded,bytes32,bytes).rindex (src/modules/auth/BaseSig.sol#202) is written in both (size_scope_11,rindex) = _signature.readUint24(rindex) (src/modules/auth/BaseSig.sol#349) rindex = nrindex_scope_12 (src/modules/auth/BaseSig.sol#353) "
+  },
+  {
+   "title": "write-after-write (Medium, confidence High)",
+   "severity": "Medium",
+   "file": "src/modules/auth/BaseSig.sol",
+   "function": "recoverBranch",
+   "description": "BaseSig.recoverBranch(Payload.Decoded,bytes32,bytes).rindex (src/modules/auth/BaseSig.sol#202) is written in both (size_scope_32,rindex) = _signature.readUintX(rindex,sizeSize_scope_31) (src/modules/auth/BaseSig.sol#479) rindex = nrindex_scope_33 (src/modules/auth/BaseSig.sol#487) "
+  },
+  {
+   "title": "write-after-write (Medium, confidence High)",
+   "severity": "Medium",
+   "file": "src/modules/auth/BaseSig.sol",
+   "function": "recoverBranch",
+   "description": "BaseSig.recoverBranch(Payload.Decoded,bytes32,bytes).rindex (src/modules/auth/BaseSig.sol#202) is written in both (size_scope_25,rindex) = _signature.readUintX(rindex,sizeSize_scope_26) (src/modules/auth/BaseSig.sol#444) rindex = nrindex_scope_27 (src/modules/auth/BaseSig.sol#452) "
+  },
+  {
+   "title": "write-after-write (Medium, confidence High)",
+   "severity": "Medium",
+   "file": "src/extensions/recovery/Recovery.sol",
+   "function": "_recoverBranch",
+   "description": "Recovery._recoverBranch(address,bytes32,bytes).rindex (src/extensions/recovery/Recovery.sol#81) is written in both (size,rindex) = _signature.readUint24(rindex) (src/extensions/recovery/Recovery.sol#120) rindex = nrindex (src/extensions/recovery/Recovery.sol#126) "
+  },
+  {
+   "title": "write-after-write (Medium, confidence High)",
+   "severity": "Medium",
+   "file": "src/extensions/passkeys/Passkeys.sol",
+   "function": "_decodeSignature",
+   "description": "Passkeys._decodeSignature(bytes).pointer (src/extensions/passkeys/Passkeys.sol#69) is written in both (authDataSize,pointer) = LibBytes.readUintX(_signature,pointer,bytesAuthDataSize) (src/extensions/passkeys/Passkeys.sol#77) pointer = nextPointer (src/extensions/passkeys/Passkeys.sol#80) "
+  },
+  {
+   "title": "write-after-write (Medium, confidence High)",
+   "severity": "Medium",
+   "file": "src/extensions/passkeys/Passkeys.sol",
+   "function": "_decodeSignature",
+   "description": "Passkeys._decodeSignature(bytes).pointer (src/extensions/passkeys/Passkeys.sol#69) is written in both (clientDataJSONSize,pointer) = LibBytes.readUintX(_signature,pointer,bytesClientDataJSONSize) (src/extensions/passkeys/Passkeys.sol#85) pointer = nextPointer_scope_0 (src/extensions/passkeys/Passkeys.sol#88) "
+  },
+  {
+   "title": "write-after-write (Medium, confidence High)",
+   "severity": "Medium",
+   "file": "src/extensions/sessions/SessionSig.sol",
+   "function": "recoverConfiguration",
+   "description": "SessionSig.recoverConfiguration(bytes).pointer (src/extensions/sessions/SessionSig.sol#198) is written in both (size,pointer) = encoded.readUintX(pointer,sizeSize) (src/extensions/sessions/SessionSig.sol#264) pointer = nrindex (src/extensions/sessions/SessionSig.sol#269) "
+  },
+  {
+   "title": "write-after-write (Medium, confidence High)",
+   "severity": "Medium",
+   "file": "src/modules/auth/BaseSig.sol",
+   "function": "recoverBranch",
+   "description": "BaseSig.recoverBranch(Payload.Decoded,bytes32,bytes).rindex (src/modules/auth/BaseSig.sol#202) is written in both (size_scope_8,rindex) = _signature.readUintX(rindex,sizeSize_scope_7) (src/modules/auth/BaseSig.sol#317) rindex = nrindex_scope_9 (src/modules/auth/BaseSig.sol#323) "
+  },
+  {
+   "title": "divide-before-multiply (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/utils/Base64.sol",
+   "function": "encode",
+   "description": "Base64.encode(bytes,bool,bool) (src/utils/Base64.sol#14-70) performs a multiplication on the result of a division: - o_encode_asm_0 = 2 / dataLength_encode_asm_0 % 3 (src/utils/Base64.sol#61) - o_encode_asm_0 = ! ! noPadding * o_encode_asm_0 (src/utils/Base64.sol#65) "
+  },
+  {
+   "title": "uninitialized-local (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/modules/auth/BaseSig.sol",
+   "function": "recover",
+   "description": "BaseSig.recover(Payload.Decoded,bytes,bool,address).snapshot (src/modules/auth/BaseSig.sol#83) is a local variable never initialized "
+  },
+  {
+   "title": "uninitialized-local (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/modules/auth/BaseSig.sol",
+   "function": "recoverChained",
+   "description": "BaseSig.recoverChained(Payload.Decoded,address,Snapshot,bytes).linkedPayload (src/modules/auth/BaseSig.sol#149) is a local variable never initialized "
+  },
+  {
+   "title": "uninitialized-local (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/modules/auth/BaseSig.sol",
+   "function": "recoverChained",
+   "description": "BaseSig.recoverChained(Payload.Decoded,address,Snapshot,bytes).rindex (src/modules/auth/BaseSig.sol#152) is a local variable never initialized "
+  },
+  {
+   "title": "uninitialized-local (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/extensions/sessions/explicit/ExplicitSessionManager.sol",
+   "function": "_validateExplicitCall",
+   "description": "ExplicitSessionManager._validateExplicitCall(Payload.Decoded,uint256,address,address,SessionPermissions[],uint8,SessionUsageLimits).sessionPermissions (src/extensions/sessions/explicit/ExplicitSessionManager.sol#52) is a local variable never initialized "
+  },
+  {
+   "title": "uninitialized-local (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/extensions/sessions/SessionSig.sol",
+   "function": "recoverSignature",
+   "description": "SessionSig.recoverSignature(Payload.Decoded,bytes).callSignature (src/extensions/sessions/SessionSig.sol#137) is a local variable never initialized "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/extensions/sessions/explicit/PermissionValidator.sol",
+   "function": "validatePermission",
+   "description": "PermissionValidator.validatePermission(Permission,Payload.Call,address,address,UsageLimit[]) (src/extensions/sessions/explicit/PermissionValidator.sol#46-133) ignores return value by (value,None) = call.data.readBytes32(rule.offset) (src/extensions/sessions/explicit/PermissionValidator.sol#69) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/modules/auth/BaseAuth.sol",
+   "function": "signatureValidation",
+   "description": "BaseAuth.signatureValidation(Payload.Decoded,bytes) (src/modules/auth/BaseAuth.sol#81-117) ignores return value by (threshold,weight,imageHash,None,opHash) = BaseSig.recover(_payload,_signature,false,address(0)) (src/modules/auth/BaseAuth.sol#109) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/extensions/recovery/Recovery.sol",
+   "function": "isValidSignature",
+   "description": "Recovery.isValidSignature(address,address,Payload.Decoded,bytes) (src/extensions/recovery/Recovery.sol#188-215) ignores return value by (r,s,v,None) = _signature.readRSVCompact(0) (src/extensions/recovery/Recovery.sol#201) "
+  }
+ ]
+}

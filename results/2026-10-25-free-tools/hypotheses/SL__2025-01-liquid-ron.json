@@ -1,0 +1,105 @@
+{
+ "contest": "2025-01-liquid-ron",
+ "gereedschap": "Slither",
+ "totaalGevonden": 14,
+ "hypotheses": [
+  {
+   "title": "arbitrary-send-erc20 (High, confidence High)",
+   "severity": "High",
+   "file": "src/LiquidRon.sol",
+   "function": "redeem",
+   "description": "LiquidRon.redeem(uint256) (src/LiquidRon.sol#362-375) uses arbitrary from in transferFrom: IERC20(asset()).transferFrom(escrow,address(this),assets) (src/LiquidRon.sol#372) "
+  },
+  {
+   "title": "arbitrary-send-eth (High, confidence Medium)",
+   "severity": "High",
+   "file": "src/LiquidRon.sol",
+   "function": "_checkUserCanReceiveRon",
+   "description": "LiquidRon._checkUserCanReceiveRon(address) (src/LiquidRon.sol#429-432) sends eth to arbitrary user Dangerous calls: - (success,None) = address(_user).call{value: 0}() (src/LiquidRon.sol#430) "
+  },
+  {
+   "title": "arbitrary-send-eth (High, confidence Medium)",
+   "severity": "High",
+   "file": "src/RonHelper.sol",
+   "function": "_depositRONTo",
+   "description": "RonHelper._depositRONTo(address,uint256) (src/RonHelper.sol#30-33) sends eth to arbitrary user Dangerous calls: - IWRON(wron).deposit{value: amount}() (src/RonHelper.sol#31) "
+  },
+  {
+   "title": "reentrancy-eth (High, confidence Medium)",
+   "severity": "High",
+   "file": "src/LiquidRon.sol",
+   "function": "requestWithdrawal",
+   "description": "Reentrancy in LiquidRon.requestWithdrawal(uint256) (src/LiquidRon.sol#348-357): External calls: - _checkUserCanReceiveRon(msg.sender) (src/LiquidRon.sol#352) - (success,None) = address(_user).call{value: 0}() (src/LiquidRon.sol#430) State variables written after the call(s): - request.shares += _shares (src/LiquidRon.sol#353) LiquidRon.withdrawalRequestsPerEpoch (src/LiquidRon.sol#54) can be used in cross function reentrancies: - LiquidRon.redeem(uint256) (src/LiquidRon.sol#362-375) - LiquidRon.requestWithdrawal(uint256) (src/LiquidRon.sol#348-357) - LiquidRon.withdrawalRequestsPerEpoch (src/LiquidRon.sol#54) "
+  },
+  {
+   "title": "unchecked-transfer (High, confidence Medium)",
+   "severity": "High",
+   "file": "src/LiquidRon.sol",
+   "function": "redeem",
+   "description": "LiquidRon.redeem(uint256) (src/LiquidRon.sol#362-375) ignores return value by IERC20(asset()).transferFrom(escrow,address(this),assets) (src/LiquidRon.sol#372) "
+  },
+  {
+   "title": "erc20-interface (Medium, confidence High)",
+   "severity": "Medium",
+   "file": "src/RonHelper.sol",
+   "function": "transfer",
+   "description": "IWRON (src/RonHelper.sol#10-14) has incorrect ERC20 function interface:IWRON.transfer(address,uint256) (src/RonHelper.sol#13) "
+  },
+  {
+   "title": "uninitialized-local (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/LiquidProxy.sol",
+   "function": "undelegateAmount",
+   "description": "LiquidProxy.undelegateAmount(uint256[],address[]).totalUndelegated (src/LiquidProxy.sol#85) is a local variable never initialized "
+  },
+  {
+   "title": "uninitialized-local (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/LiquidRon.sol",
+   "function": "getTotalStaked",
+   "description": "LiquidRon.getTotalStaked().totalStaked (src/LiquidRon.sol#265) is a local variable never initialized "
+  },
+  {
+   "title": "uninitialized-local (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/LiquidRon.sol",
+   "function": "delegateAmount",
+   "description": "LiquidRon.delegateAmount(uint256,uint256[],address[]).total (src/LiquidRon.sol#169) is a local variable never initialized "
+  },
+  {
+   "title": "uninitialized-local (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/LiquidRon.sol",
+   "function": "_getTotalStakedInProxy",
+   "description": "LiquidRon._getTotalStakedInProxy(uint256,address[]).totalStaked (src/LiquidRon.sol#406) is a local variable never initialized "
+  },
+  {
+   "title": "uninitialized-local (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/LiquidRon.sol",
+   "function": "getTotalRewards",
+   "description": "LiquidRon.getTotalRewards().totalRewards (src/LiquidRon.sol#279) is a local variable never initialized "
+  },
+  {
+   "title": "uninitialized-local (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/LiquidRon.sol",
+   "function": "_getTotalRewardsInProxy",
+   "description": "LiquidRon._getTotalRewardsInProxy(uint256,address[]).totalRewards (src/LiquidRon.sol#390) is a local variable never initialized "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/LiquidRon.sol",
+   "function": "constructor",
+   "description": "LiquidRon.constructor(address,address,uint256,address,string,string) (src/LiquidRon.sol#74-87) ignores return value by IERC20(_wron).approve(address(this),type()(uint256).max) (src/LiquidRon.sol#86) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/Escrow.sol",
+   "function": "constructor",
+   "description": "Escrow.constructor(address) (src/Escrow.sol#23-26) ignores return value by IERC20(_token).approve(msg.sender,type()(uint256).max) (src/Escrow.sol#25) "
+  }
+ ]
+}

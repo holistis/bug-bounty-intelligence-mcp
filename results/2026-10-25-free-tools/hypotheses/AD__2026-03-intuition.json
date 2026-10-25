@@ -1,0 +1,182 @@
+{
+ "contest": "2026-03-intuition",
+ "gereedschap": "Aderyn",
+ "totaalGevonden": 25,
+ "hypotheses": [
+  {
+   "title": "`abi.encodePacked()` Hash Collision",
+   "severity": "High",
+   "file": "src/protocol/wallet/AtomWalletFactory.sol",
+   "function": "",
+   "description": "abi.encodePacked() should not be used with dynamic types when passing the result to a hash function such as `keccak256()`. Use `abi.encode()` instead which will pad items to 32 bytes, preventing hash collisions: https://docs.soliditylang.org/en/v0.8.13/abi-spec.html#non-standard-packed-mode. (e.g. `abi.encodePacked(0x123,0x456)` => `0x123456` => `abi.encodePacked(0x1,0x23456)`, but `abi.encode(0x123,0x456)` => `0x0...1230...456`). Unless there is a compelling reason, `abi.encode` should be preferred. If there is only one argument to `abi.encodePacked()` it can often be cast to `bytes()` or `bytes32()` instead: https://ethereum.stackexchange.com/questions/30912/how-to-compare-strings-in-solidity#answer-82739. If all arguments are strings and or bytes, `bytes.concat()` should be used instead. Instances: src/protocol/wallet/AtomWalletFactory.sol:160"
+  },
+  {
+   "title": "ETH transferred without address checks",
+   "severity": "High",
+   "file": "src/WrappedTrust.sol",
+   "function": "",
+   "description": "Consider introducing checks for `msg.sender` to ensure the recipient of the money is as intended. Instances: src/WrappedTrust.sol:42, src/protocol/MultiVault.sol:1038"
+  },
+  {
+   "title": "Incorrect ERC20 interface",
+   "severity": "High",
+   "file": "src/protocol/emissions/SatelliteEmissionsController.sol",
+   "function": "",
+   "description": "Incorrect return values for ERC20 functions. A contract compiled with Solidity > 0.4.22 interacting with these functions will fail to execute them, as the return value is missing. Set the appropriate return values and types for the defined ERC20 functions. Instances: src/protocol/emissions/SatelliteEmissionsController.sol:134"
+  },
+  {
+   "title": "Reentrancy: State change after external call",
+   "severity": "High",
+   "file": "src/protocol/curves/BondingCurveRegistry.sol",
+   "function": "",
+   "description": "Changing state after an external call can lead to re-entrancy attacks.Use the checks-effects-interactions pattern to avoid this issue. Instances: src/protocol/curves/BondingCurveRegistry.sol:96, src/protocol/emissions/SatelliteEmissionsController.sol:192, src/protocol/emissions/SatelliteEmissionsController.sol:222"
+  },
+  {
+   "title": "Centralization Risk",
+   "severity": "Low",
+   "file": "src/Trust.sol",
+   "function": "",
+   "description": "Contracts have owners with privileged rights to perform admin tasks and need to be trusted to not perform malicious updates or drain funds. Instances: src/Trust.sol:102, src/external/curve/VotingEscrow.sol:142, src/external/curve/VotingEscrow.sol:148"
+  },
+  {
+   "title": "Costly operations inside loop",
+   "severity": "Low",
+   "file": "src/external/curve/VotingEscrow.sol",
+   "function": "",
+   "description": "Invoking `SSTORE` operations in loops may waste gas. Use a local variable to hold the loop computation result. Instances: src/external/curve/VotingEscrow.sol:237, src/protocol/MultiVault.sol:428, src/protocol/MultiVault.sol:549"
+  },
+  {
+   "title": "Dead Code",
+   "severity": "Low",
+   "file": "src/protocol/MultiVault.sol",
+   "function": "",
+   "description": "Functions that are not used. Consider removing them. Instances: src/protocol/MultiVault.sol:1336, src/protocol/MultiVault.sol:1349"
+  },
+  {
+   "title": "Empty `require()` / `revert()` Statement",
+   "severity": "Low",
+   "file": "src/WrappedTrust.sol",
+   "function": "",
+   "description": "Use descriptive reason strings or custom errors for revert paths. Instances: src/WrappedTrust.sol:43, src/WrappedTrust.sol:64, src/WrappedTrust.sol:67"
+  },
+  {
+   "title": "Internal Function Used Only Once",
+   "severity": "Low",
+   "file": "src/libraries/ProgressiveCurveMathLib.sol",
+   "function": "",
+   "description": "Instead of separating the logic into a separate function, consider inlining the logic into the calling function. This can reduce the number of function calls and improve readability. Instances: src/libraries/ProgressiveCurveMathLib.sol:15"
+  },
+  {
+   "title": "Large Numeric Literal",
+   "severity": "Low",
+   "file": "src/external/curve/VotingEscrow.sol",
+   "function": "",
+   "description": "Large literal values multiples of 10000 can be replaced with scientific notation.Use `e` notation, for example: `1e18`, instead of its full numeric value. Instances: src/external/curve/VotingEscrow.sol:87, src/protocol/emissions/CoreEmissionsController.sol:15, src/protocol/emissions/MetaERC20Dispatcher.sol:10"
+  },
+  {
+   "title": "Literal Instead of Constant",
+   "severity": "Low",
+   "file": "src/external/curve/VotingEscrow.sol",
+   "function": "",
+   "description": "Define and use `constant` variables instead of using literals. If the same constant literal value is used multiple times, create a constant state variable and reference it throughout the contract. Instances: src/external/curve/VotingEscrow.sol:191, src/external/curve/VotingEscrow.sol:237, src/external/curve/VotingEscrow.sol:273"
+  },
+  {
+   "title": "Local Variable Shadows State Variable",
+   "severity": "Low",
+   "file": "src/protocol/emissions/TrustBonding.sol",
+   "function": "",
+   "description": "Rename the local variable that shadows another state variable. Instances: src/protocol/emissions/TrustBonding.sol:159, src/protocol/emissions/TrustBonding.sol:179, src/protocol/emissions/TrustBonding.sol:194"
+  },
+  {
+   "title": "Missing Inheritance",
+   "severity": "Low",
+   "file": "src/WrappedTrust.sol",
+   "function": "",
+   "description": "There is an interface / abstract contract that is potentially missing (not included in) the inheritance of this contract. Instances: src/WrappedTrust.sol:20, src/protocol/emissions/MetaERC20Dispatcher.sol:6"
+  },
+  {
+   "title": "Modifier Invoked Only Once",
+   "severity": "Low",
+   "file": "src/Trust.sol",
+   "function": "",
+   "description": "Consider removing the modifier or inlining the logic into the calling function. Instances: src/Trust.sol:30"
+  },
+  {
+   "title": "`nonReentrant` is Not the First Modifier",
+   "severity": "Low",
+   "file": "src/protocol/MultiVault.sol",
+   "function": "",
+   "description": "To protect against reentrancy in other modifiers, the `nonReentrant` modifier should be the first modifier in the list of modifiers. Instances: src/protocol/MultiVault.sol:397, src/protocol/MultiVault.sol:510, src/protocol/MultiVault.sol:669"
+  },
+  {
+   "title": "Loop Contains `require`/`revert`",
+   "severity": "Low",
+   "file": "src/protocol/MultiVault.sol",
+   "function": "",
+   "description": "Avoid `require` / `revert` statements in a loop because a single bad item can cause the whole transaction to fail. It's better to forgive on fail and return failed elements post processing of the loop Instances: src/protocol/MultiVault.sol:428, src/protocol/MultiVault.sol:549, src/protocol/MultiVault.sol:712"
+  },
+  {
+   "title": "State Change Without Event",
+   "severity": "Low",
+   "file": "src/external/curve/VotingEscrow.sol",
+   "function": "",
+   "description": "There are state variable changes in this function but no event is emitted. Consider emitting an event to enable offchain indexers to track the changes. Instances: src/external/curve/VotingEscrow.sol:142, src/external/curve/VotingEscrow.sol:148, src/external/curve/VotingEscrow.sol:153"
+  },
+  {
+   "title": "Address State Variable Set Without Checks",
+   "severity": "Low",
+   "file": "src/external/curve/VotingEscrow.sol",
+   "function": "",
+   "description": "Check for `address(0)` when assigning values to address state variables. Instances: src/external/curve/VotingEscrow.sol:120, src/external/curve/VotingEscrow.sol:774"
+  },
+  {
+   "title": "State Variable Could Be Constant",
+   "severity": "Low",
+   "file": "src/WrappedTrust.sol",
+   "function": "",
+   "description": "State variables that are not updated following deployment should be declared constant to save gas. Add the `constant` attribute to state variables that never change. Instances: src/WrappedTrust.sol:21, src/WrappedTrust.sol:22, src/WrappedTrust.sol:23"
+  },
+  {
+   "title": "Unchecked Return",
+   "severity": "Low",
+   "file": "src/external/curve/VotingEscrow.sol",
+   "function": "",
+   "description": "Function returns a value but it is ignored. Consider checking the return value. Instances: src/external/curve/VotingEscrow.sol:115, src/protocol/MultiVault.sol:186, src/protocol/MultiVault.sol:781"
+  },
+  {
+   "title": "Unsafe ERC20 Operation",
+   "severity": "Low",
+   "file": "src/protocol/emissions/BaseEmissionsController.sol",
+   "function": "",
+   "description": "ERC20 functions may not behave as expected. For example: return values are not always meaningful. It is recommended to use OpenZeppelin's SafeERC20 library. Instances: src/protocol/emissions/BaseEmissionsController.sol:229, src/protocol/emissions/TrustBonding.sol:390"
+  },
+  {
+   "title": "Unused Error",
+   "severity": "Low",
+   "file": "src/legacy/TrustToken.sol",
+   "function": "",
+   "description": "Consider using or removing the unused error. Instances: src/legacy/TrustToken.sol:8, src/legacy/TrustToken.sol:9, src/legacy/TrustToken.sol:10"
+  },
+  {
+   "title": "Unused Import",
+   "severity": "Low",
+   "file": "src/external/curve/VotingEscrow.sol",
+   "function": "",
+   "description": "Redundant import statement. Consider removing it. Instances: src/external/curve/VotingEscrow.sol:30"
+  },
+  {
+   "title": "Public Function Not Used Internally",
+   "severity": "Low",
+   "file": "src/WrappedTrust.sol",
+   "function": "",
+   "description": "If a function is marked public but is not used internally, consider marking it as `external`. Instances: src/WrappedTrust.sol:42, src/WrappedTrust.sol:49, src/WrappedTrust.sol:53"
+  },
+  {
+   "title": "Unused State Variable",
+   "severity": "Low",
+   "file": "src/Trust.sol",
+   "function": "",
+   "description": "State variable appears to be unused. No analysis has been performed to see if any inline assembly references it. Consider removing this unused variable. Instances: src/Trust.sol:23, src/external/curve/VotingEscrow.sol:105, src/protocol/emissions/BaseEmissionsController.sol:52"
+  }
+ ]
+}

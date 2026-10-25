@@ -1,0 +1,84 @@
+{
+ "contest": "2025-03-nudgexyz",
+ "gereedschap": "Aderyn",
+ "totaalGevonden": 11,
+ "hypotheses": [
+  {
+   "title": "`abi.encodePacked()` Hash Collision",
+   "severity": "High",
+   "file": "src/campaign/NudgeCampaignFactory.sol",
+   "function": "",
+   "description": "abi.encodePacked() should not be used with dynamic types when passing the result to a hash function such as `keccak256()`. Use `abi.encode()` instead which will pad items to 32 bytes, preventing hash collisions: https://docs.soliditylang.org/en/v0.8.13/abi-spec.html#non-standard-packed-mode. (e.g. `abi.encodePacked(0x123,0x456)` => `0x123456` => `abi.encodePacked(0x1,0x23456)`, but `abi.encode(0x123,0x456)` => `0x0...1230...456`). Unless there is a compelling reason, `abi.encode` should be preferred. If there is only one argument to `abi.encodePacked()` it can often be cast to `bytes()` or `bytes32()` instead: https://ethereum.stackexchange.com/questions/30912/how-to-compare-strings-in-solidity#answer-82739. If all arguments are strings and or bytes, `bytes.concat()` should be used instead. Instances: src/campaign/NudgeCampaignFactory.sol:111, src/campaign/NudgeCampaignFactory.sol:230"
+  },
+  {
+   "title": "Reentrancy: State change after external call",
+   "severity": "High",
+   "file": "src/campaign/NudgeCampaign.sol",
+   "function": "",
+   "description": "Changing state after an external call can lead to re-entrancy attacks.Use the checks-effects-interactions pattern to avoid this issue. Instances: src/campaign/NudgeCampaign.sol:95, src/campaign/NudgeCampaign.sol:96, src/campaign/NudgeCampaign.sol:174"
+  },
+  {
+   "title": "Centralization Risk",
+   "severity": "Low",
+   "file": "src/campaign/NudgeCampaign.sol",
+   "function": "",
+   "description": "Contracts have owners with privileged rights to perform admin tasks and need to be trusted to not perform malicious updates or drain funds. Instances: src/campaign/NudgeCampaign.sol:14, src/campaign/NudgeCampaign.sol:326, src/campaign/NudgeCampaignFactory.sol:14"
+  },
+  {
+   "title": "Costly operations inside loop",
+   "severity": "Low",
+   "file": "src/campaign/NudgeCampaign.sol",
+   "function": "",
+   "description": "Invoking `SSTORE` operations in loops may waste gas. Use a local variable to hold the loop computation result. Instances: src/campaign/NudgeCampaign.sol:263, src/campaign/NudgeCampaign.sol:309, src/campaign/NudgeCampaignFactory.sol:276"
+  },
+  {
+   "title": "Large Numeric Literal",
+   "severity": "Low",
+   "file": "src/campaign/NudgeCampaign.sol",
+   "function": "",
+   "description": "Large literal values multiples of 10000 can be replaced with scientific notation.Use `e` notation, for example: `1e18`, instead of its full numeric value. Instances: src/campaign/NudgeCampaign.sol:20, src/campaign/NudgeCampaignFactory.sol:251"
+  },
+  {
+   "title": "Literal Instead of Constant",
+   "severity": "Low",
+   "file": "src/campaign/NudgeCampaign.sol",
+   "function": "",
+   "description": "Define and use `constant` variables instead of using literals. If the same constant literal value is used multiple times, create a constant state variable and reference it throughout the contract. Instances: src/campaign/NudgeCampaign.sol:95, src/campaign/NudgeCampaign.sol:96, src/campaign/NudgeCampaign.sol:99"
+  },
+  {
+   "title": "Modifier Invoked Only Once",
+   "severity": "Low",
+   "file": "src/campaign/NudgeCampaign.sol",
+   "function": "",
+   "description": "Consider removing the modifier or inlining the logic into the calling function. Instances: src/campaign/NudgeCampaign.sol:123, src/campaign/NudgeCampaign.sol:131, src/campaign/NudgePointsCampaigns.sol:39"
+  },
+  {
+   "title": "Loop Contains `require`/`revert`",
+   "severity": "Low",
+   "file": "src/campaign/NudgeCampaign.sol",
+   "function": "",
+   "description": "Avoid `require` / `revert` statements in a loop because a single bad item can cause the whole transaction to fail. It's better to forgive on fail and return failed elements post processing of the loop Instances: src/campaign/NudgeCampaign.sol:263, src/campaign/NudgeCampaignFactory.sol:264, src/campaign/NudgeCampaignFactory.sol:276"
+  },
+  {
+   "title": "State Variable Could Be Immutable",
+   "severity": "Low",
+   "file": "src/campaign/NudgeCampaign.sol",
+   "function": "",
+   "description": "State variables that are only changed in the constructor should be declared immutable to save gas. Add the `immutable` attribute to state variables that are only changed in the constructor Instances: src/campaign/NudgeCampaign.sol:37"
+  },
+  {
+   "title": "Unchecked Return",
+   "severity": "Low",
+   "file": "src/campaign/NudgeCampaign.sol",
+   "function": "",
+   "description": "Function returns a value but it is ignored. Consider checking the return value. Instances: src/campaign/NudgeCampaign.sol:102, src/campaign/NudgeCampaignFactory.sol:45, src/campaign/NudgeCampaignFactory.sol:46"
+  },
+  {
+   "title": "Unspecific Solidity Pragma",
+   "severity": "Low",
+   "file": "src/campaign/NudgeCampaign.sol",
+   "function": "",
+   "description": "Consider using a specific version of Solidity in your contracts instead of a wide version. For example, instead of `pragma solidity ^0.8.0;`, use `pragma solidity 0.8.0;` Instances: src/campaign/NudgeCampaign.sol:2, src/campaign/NudgeCampaignFactory.sol:2, src/campaign/NudgePointsCampaigns.sol:2"
+  }
+ ]
+}

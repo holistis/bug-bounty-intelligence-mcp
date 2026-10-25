@@ -1,0 +1,238 @@
+{
+ "contest": "2025-04-virtuals-protocol",
+ "gereedschap": "Aderyn",
+ "totaalGevonden": 33,
+ "hypotheses": [
+  {
+   "title": "`abi.encodePacked()` Hash Collision",
+   "severity": "High",
+   "file": "contracts/dev/ERC6551BytecodeLib.sol",
+   "function": "",
+   "description": "abi.encodePacked() should not be used with dynamic types when passing the result to a hash function such as `keccak256()`. Use `abi.encode()` instead which will pad items to 32 bytes, preventing hash collisions: https://docs.soliditylang.org/en/v0.8.13/abi-spec.html#non-standard-packed-mode. (e.g. `abi.encodePacked(0x123,0x456)` => `0x123456` => `abi.encodePacked(0x1,0x23456)`, but `abi.encode(0x123,0x456)` => `0x0...1230...456`). Unless there is a compelling reason, `abi.encode` should be preferred. If there is only one argument to `abi.encodePacked()` it can often be cast to `bytes()` or `bytes32()` instead: https://ethereum.stackexchange.com/questions/30912/how-to-compare-strings-in-solidity#answer-82739. If all arguments are strings and or bytes, `bytes.concat()` should be used instead. Instances: contracts/dev/ERC6551BytecodeLib.sol:13"
+  },
+  {
+   "title": "Contract locks Ether without a withdraw function",
+   "severity": "High",
+   "file": "contracts/dev/ProxyAdmin.sol",
+   "function": "",
+   "description": "It appears that the contract includes a payable function to accept Ether but lacks a corresponding function to withdraw it, which leads to the Ether being locked in the contract. To resolve this issue, please implement a public or external function that allows for the withdrawal of Ether from the contract. Instances: contracts/dev/ProxyAdmin.sol:5"
+  },
+  {
+   "title": "ETH transferred without address checks",
+   "severity": "High",
+   "file": "contracts/AgentInference.sol",
+   "function": "",
+   "description": "Consider introducing checks for `msg.sender` to ensure the recipient of the money is as intended. Instances: contracts/AgentInference.sol:35, contracts/AgentInference.sol:62, contracts/AgentRewardV2.sol:116"
+  },
+  {
+   "title": "Reentrancy: State change after external call",
+   "severity": "High",
+   "file": "contracts/AgentInference.sol",
+   "function": "",
+   "description": "Changing state after an external call can lead to re-entrancy attacks.Use the checks-effects-interactions pattern to avoid this issue. Instances: contracts/AgentInference.sol:50, contracts/AgentInference.sol:54, contracts/AgentInference.sol:78"
+  },
+  {
+   "title": "Contract Name Reused in Different Files",
+   "severity": "High",
+   "file": "contracts/dev/ERC6551BytecodeLib.sol",
+   "function": "",
+   "description": "When compiling contracts with certain development frameworks (for example: Truffle), having contracts with the same name across different files can lead to one being overwritten. Instances: contracts/dev/ERC6551BytecodeLib.sol:4, contracts/virtualPersona/ERC20Votes.sol:9"
+  },
+  {
+   "title": "Storage Array Edited with Memory",
+   "severity": "High",
+   "file": "contracts/virtualPersona/AgentFactory.sol",
+   "function": "",
+   "description": "Storage reference is passed to a function with a memory parameter. This will not update the storage variable as expected. Consider using storage parameters instead. Instances: contracts/virtualPersona/AgentFactory.sol:218, contracts/virtualPersona/AgentFactoryV3.sol:211, contracts/virtualPersona/AgentFactoryV3.sol:282"
+  },
+  {
+   "title": "Unsafe Casting of integers",
+   "severity": "High",
+   "file": "contracts/virtualPersona/AgentToken.sol",
+   "function": "",
+   "description": "Downcasting int/uints in Solidity can be unsafe due to the potential for data loss and unintended behavior.When downcasting a larger integer type to a smaller one (e.g., uint256 to uint128), the value may exceed the range of the target type,leading to truncation and loss of significant digits. Use OpenZeppelin's SafeCast library to safely downcast integers. Instances: contracts/virtualPersona/AgentToken.sol:699, contracts/virtualPersona/AgentToken.sol:707, contracts/virtualPersona/AgentToken.sol:914"
+  },
+  {
+   "title": "Centralization Risk",
+   "severity": "Low",
+   "file": "contracts/AgentRewardV2.sol",
+   "function": "",
+   "description": "Contracts have owners with privileged rights to perform admin tasks and need to be trusted to not perform malicious updates or drain funds. Instances: contracts/AgentRewardV2.sol:19, contracts/AgentRewardV3.sol:22, contracts/contribution/ServiceNft.sol:141"
+  },
+  {
+   "title": "Costly operations inside loop",
+   "severity": "Low",
+   "file": "contracts/AgentInference.sol",
+   "function": "",
+   "description": "Invoking `SSTORE` operations in loops may waste gas. Use a local variable to hold the loop computation result. Instances: contracts/AgentInference.sol:52, contracts/AgentInference.sol:82, contracts/AgentRewardV2.sol:133"
+  },
+  {
+   "title": "Dead Code",
+   "severity": "Low",
+   "file": "contracts/fun/FERC20.sol",
+   "function": "",
+   "description": "Functions that are not used. Consider removing them. Instances: contracts/fun/FERC20.sol:131"
+  },
+  {
+   "title": "Empty Block",
+   "severity": "Low",
+   "file": "contracts/genesis/MockAgentFactoryV3.sol",
+   "function": "",
+   "description": "Consider removing empty blocks. Instances: contracts/genesis/MockAgentFactoryV3.sol:61, contracts/virtualPersona/AgentToken.sol:1044, contracts/virtualPersona/AgentToken.sol:1060"
+  },
+  {
+   "title": "Empty `require()` / `revert()` Statement",
+   "severity": "Low",
+   "file": "contracts/fun/Bonding.sol",
+   "function": "",
+   "description": "Use descriptive reason strings or custom errors for revert paths. Instances: contracts/fun/Bonding.sol:213"
+  },
+  {
+   "title": "Inconsistent uint256/uint (or) int256/int types",
+   "severity": "Low",
+   "file": "contracts/AgentRewardV2.sol",
+   "function": "",
+   "description": "Inconsistency in declaring uint256/uint (or) int256/int variables within a contract. Use explicit size declarations (uint256 or int256). Consider keeping the naming convention consistent in a given contract. Explicit size declarations are preferred (uint256, int256) over implicit ones (uint, int) to avoid confusion. Instances: contracts/AgentRewardV2.sol:269, contracts/AgentRewardV2.sol:287, contracts/AgentRewardV3.sol:134"
+  },
+  {
+   "title": "Internal Function Used Only Once",
+   "severity": "Low",
+   "file": "contracts/libs/Elo.sol",
+   "function": "",
+   "description": "Instead of separating the logic into a separate function, consider inlining the logic into the calling function. This can reduce the number of function calls and improve readability. Instances: contracts/libs/Elo.sol:9, contracts/virtualPersona/EloCalculator.sol:23"
+  },
+  {
+   "title": "Large Numeric Literal",
+   "severity": "Low",
+   "file": "contracts/AgentRewardV2.sol",
+   "function": "",
+   "description": "Large literal values multiples of 10000 can be replaced with scientific notation.Use `e` notation, for example: `1e18`, instead of its full numeric value. Instances: contracts/AgentRewardV2.sol:26, contracts/AgentRewardV3.sol:29, contracts/contribution/ServiceNft.sol:101"
+  },
+  {
+   "title": "Literal Instead of Constant",
+   "severity": "Low",
+   "file": "contracts/dev/ERC6551Registry.sol",
+   "function": "",
+   "description": "Define and use `constant` variables instead of using literals. If the same constant literal value is used multiple times, create a constant state variable and reference it throughout the contract. Instances: contracts/dev/ERC6551Registry.sol:20, contracts/dev/ERC6551Registry.sol:30, contracts/fun/Bonding.sol:184"
+  },
+  {
+   "title": "Local Variable Shadows State Variable",
+   "severity": "Low",
+   "file": "contracts/genesis/Genesis.sol",
+   "function": "",
+   "description": "Rename the local variable that shadows another state variable. Instances: contracts/genesis/Genesis.sol:400, contracts/genesis/Genesis.sol:401, contracts/genesis/Genesis.sol:402"
+  },
+  {
+   "title": "Modifier Invoked Only Once",
+   "severity": "Low",
+   "file": "contracts/genesis/Genesis.sol",
+   "function": "",
+   "description": "Consider removing the modifier or inlining the logic into the calling function. Instances: contracts/genesis/Genesis.sol:104, contracts/genesis/Genesis.sol:115, contracts/genesis/Genesis.sol:123"
+  },
+  {
+   "title": "`nonReentrant` is Not the First Modifier",
+   "severity": "Low",
+   "file": "contracts/fun/FFactory.sol",
+   "function": "",
+   "description": "To protect against reentrancy in other modifiers, the `nonReentrant` modifier should be the first modifier in the list of modifiers. Instances: contracts/fun/FFactory.sol:60, contracts/fun/FRouter.sol:135, contracts/fun/FRouter.sol:165"
+  },
+  {
+   "title": "PUSH0 Opcode",
+   "severity": "Low",
+   "file": "contracts/AgentInference.sol",
+   "function": "",
+   "description": "Solc compiler version 0.8.20 switches the default target EVM version to Shanghai, which means that the generated bytecode will include PUSH0 opcodes. Be sure to select the appropriate EVM version in case you intend to deploy on a chain other than mainnet like L2 chains that may not support PUSH0, otherwise deployment of your contracts will fail. Instances: contracts/AgentInference.sol:2, contracts/AgentRewardV2.sol:2, contracts/AgentRewardV3.sol:2"
+  },
+  {
+   "title": "Loop Contains `require`/`revert`",
+   "severity": "Low",
+   "file": "contracts/AgentInference.sol",
+   "function": "",
+   "description": "Avoid `require` / `revert` statements in a loop because a single bad item can cause the whole transaction to fail. It's better to forgive on fail and return failed elements post processing of the loop Instances: contracts/AgentInference.sol:52, contracts/AgentInference.sol:82, contracts/AgentRewardV2.sol:344"
+  },
+  {
+   "title": "State Change Without Event",
+   "severity": "Low",
+   "file": "contracts/AgentRewardV2.sol",
+   "function": "",
+   "description": "There are state variable changes in this function but no event is emitted. Consider emitting an event to enable offchain indexers to track the changes. Instances: contracts/AgentRewardV2.sol:436, contracts/AgentRewardV2.sol:442, contracts/AgentRewardV2.sol:554"
+  },
+  {
+   "title": "Address State Variable Set Without Checks",
+   "severity": "Low",
+   "file": "contracts/AgentInference.sol",
+   "function": "",
+   "description": "Check for `address(0)` when assigning values to address state variables. Instances: contracts/AgentInference.sol:31, contracts/AgentInference.sol:32, contracts/AgentRewardV2.sol:77"
+  },
+  {
+   "title": "State Variable Could Be Immutable",
+   "severity": "Low",
+   "file": "contracts/fun/FERC20.sol",
+   "function": "",
+   "description": "State variables that are only changed in the constructor should be declared immutable to save gas. Add the `immutable` attribute to state variables that are only changed in the constructor Instances: contracts/fun/FERC20.sol:10, contracts/fun/FERC20.sol:12, contracts/fun/FERC20.sol:14"
+  },
+  {
+   "title": "Unchecked Return",
+   "severity": "Low",
+   "file": "contracts/AgentInference.sol",
+   "function": "",
+   "description": "Function returns a value but it is ignored. Consider checking the return value. Instances: contracts/AgentInference.sol:28, contracts/AgentInference.sol:29, contracts/AgentRewardV2.sol:82"
+  },
+  {
+   "title": "Uninitialized Local Variable",
+   "severity": "Low",
+   "file": "contracts/fun/Bonding.sol",
+   "function": "",
+   "description": "Initialize all the variables. If a variable is meant to be initialized to zero, explicitly set it to zero to improve code readability. Instances: contracts/fun/Bonding.sol:122"
+  },
+  {
+   "title": "Unsafe ERC20 Operation",
+   "severity": "Low",
+   "file": "contracts/fun/Bonding.sol",
+   "function": "",
+   "description": "ERC20 functions may not behave as expected. For example: return values are not always meaningful. It is recommended to use OpenZeppelin's SafeERC20 library. Instances: contracts/fun/Bonding.sol:276, contracts/fun/Bonding.sol:417, contracts/genesis/FGenesis.sol:78"
+  },
+  {
+   "title": "Unsafe `ERC721::_mint()`",
+   "severity": "Low",
+   "file": "contracts/contribution/ContributionNft.sol",
+   "function": "",
+   "description": "Using `ERC721::_mint()` can mint ERC721 tokens to addresses which don't support ERC721 tokens. Use `_safeMint()` instead of `_mint()` for ERC721 tokens. Instances: contracts/contribution/ContributionNft.sol:82, contracts/contribution/ServiceNft.sol:71, contracts/virtualPersona/AgentNftV2.sol:97"
+  },
+  {
+   "title": "Unspecific Solidity Pragma",
+   "severity": "Low",
+   "file": "contracts/AgentInference.sol",
+   "function": "",
+   "description": "Consider using a specific version of Solidity in your contracts instead of a wide version. For example, instead of `pragma solidity ^0.8.0;`, use `pragma solidity 0.8.0;` Instances: contracts/AgentInference.sol:2, contracts/AgentRewardV2.sol:2, contracts/AgentRewardV3.sol:2"
+  },
+  {
+   "title": "Unused Error",
+   "severity": "Low",
+   "file": "contracts/IAgentReward.sol",
+   "function": "",
+   "description": "Consider using or removing the unused error. Instances: contracts/IAgentReward.sol:73, contracts/IAgentRewardV3.sol:43, contracts/dev/ERC6551Registry.sol:11"
+  },
+  {
+   "title": "Unused Import",
+   "severity": "Low",
+   "file": "contracts/AgentRewardV3.sol",
+   "function": "",
+   "description": "Redundant import statement. Consider removing it. Instances: contracts/AgentRewardV3.sol:5, contracts/AgentRewardV3.sol:10, contracts/AgentRewardV3.sol:17"
+  },
+  {
+   "title": "Public Function Not Used Internally",
+   "severity": "Low",
+   "file": "contracts/AgentInference.sol",
+   "function": "",
+   "description": "If a function is marked public but is not used internally, consider marking it as `external`. Instances: contracts/AgentInference.sol:35, contracts/AgentInference.sol:62, contracts/AgentRewardV2.sol:116"
+  },
+  {
+   "title": "Unused State Variable",
+   "severity": "Low",
+   "file": "contracts/contribution/ServiceNft.sol",
+   "function": "",
+   "description": "State variable appears to be unused. No analysis has been performed to see if any inline assembly references it. Consider removing this unused variable. Instances: contracts/contribution/ServiceNft.sol:25, contracts/governance/VirtualGenesisDAO.sol:27, contracts/tax/AgentTax.sol:50"
+  }
+ ]
+}

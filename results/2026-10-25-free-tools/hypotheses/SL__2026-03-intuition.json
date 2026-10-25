@@ -1,0 +1,210 @@
+{
+ "contest": "2026-03-intuition",
+ "gereedschap": "Slither",
+ "totaalGevonden": 29,
+ "hypotheses": [
+  {
+   "title": "uninitialized-state (High, confidence High)",
+   "severity": "High",
+   "file": "src/protocol/MultiVault.sol",
+   "function": "getUserLastActiveEpoch",
+   "description": "MultiVault.userEpochHistory (src/protocol/MultiVault.sol#83) is never initialized. It is used in: - MultiVault.getUserLastActiveEpoch(address) (src/protocol/MultiVault.sol#229-231) - MultiVault.getUserUtilizationInEpoch(address,uint256) (src/protocol/MultiVault.sol#234-259) - MultiVault._addUtilization(address,int256) (src/protocol/MultiVault.sol#1471-1493) - MultiVault._removeUtilization(address,int256) (src/protocol/MultiVault.sol#1498-1519) - MultiVault._rollover(address) (src/protocol/MultiVault.sol#1524-1548) "
+  },
+  {
+   "title": "arbitrary-send-eth (High, confidence Medium)",
+   "severity": "High",
+   "file": "src/protocol/wallet/AtomWallet.sol",
+   "function": "_call",
+   "description": "AtomWallet._call(address,uint256,bytes) (src/protocol/wallet/AtomWallet.sol#319-326) sends eth to arbitrary user Dangerous calls: - (success,result) = target.call{value: value}(data) (src/protocol/wallet/AtomWallet.sol#320) "
+  },
+  {
+   "title": "erc20-interface (Medium, confidence High)",
+   "severity": "Medium",
+   "file": "src/protocol/emissions/SatelliteEmissionsController.sol",
+   "function": "transfer",
+   "description": "SatelliteEmissionsController (src/protocol/emissions/SatelliteEmissionsController.sol#20-278) has incorrect ERC20 function interface:ISatelliteEmissionsController.transfer(address,uint256) (src/interfaces/ISatelliteEmissionsController.sol#97) "
+  },
+  {
+   "title": "erc20-interface (Medium, confidence High)",
+   "severity": "Medium",
+   "file": "src/protocol/emissions/SatelliteEmissionsController.sol",
+   "function": "transfer",
+   "description": "SatelliteEmissionsController (src/protocol/emissions/SatelliteEmissionsController.sol#20-278) has incorrect ERC20 function interface:SatelliteEmissionsController.transfer(address,uint256) (src/protocol/emissions/SatelliteEmissionsController.sol#134-142) "
+  },
+  {
+   "title": "incorrect-equality (Medium, confidence High)",
+   "severity": "Medium",
+   "file": "src/protocol/emissions/TrustBonding.sol",
+   "function": "_getPersonalUtilizationRatio",
+   "description": "TrustBonding._getPersonalUtilizationRatio(address,uint256) (src/protocol/emissions/TrustBonding.sol#494-545) uses a dangerous strict equality: - _userEligibleRewardsForEpoch(_account,_epoch - 1) == 0 (src/protocol/emissions/TrustBonding.sol#528) "
+  },
+  {
+   "title": "incorrect-equality (Medium, confidence High)",
+   "severity": "Medium",
+   "file": "src/protocol/emissions/TrustBonding.sol",
+   "function": "_userEligibleRewardsForEpoch",
+   "description": "TrustBonding._userEligibleRewardsForEpoch(address,uint256) (src/protocol/emissions/TrustBonding.sol#475-492) uses a dangerous strict equality: - userBalance == 0 || totalBalance == 0 (src/protocol/emissions/TrustBonding.sol#487) "
+  },
+  {
+   "title": "incorrect-equality (Medium, confidence High)",
+   "severity": "Medium",
+   "file": "src/protocol/emissions/TrustBonding.sol",
+   "function": "getUserCurrentClaimableRewards",
+   "description": "TrustBonding.getUserCurrentClaimableRewards(address) (src/protocol/emissions/TrustBonding.sol#274-291) uses a dangerous strict equality: - _currEpoch == 0 (src/protocol/emissions/TrustBonding.sol#277) "
+  },
+  {
+   "title": "incorrect-equality (Medium, confidence High)",
+   "severity": "Medium",
+   "file": "src/external/curve/VotingEscrow.sol",
+   "function": "_checkpoint",
+   "description": "VotingEscrow._checkpoint(address,LockedBalance,LockedBalance) (src/external/curve/VotingEscrow.sol#184-318) uses a dangerous strict equality: - t_i == block.timestamp (src/external/curve/VotingEscrow.sol#262) "
+  },
+  {
+   "title": "incorrect-equality (Medium, confidence High)",
+   "severity": "Medium",
+   "file": "src/protocol/emissions/TrustBonding.sol",
+   "function": "getUserApy",
+   "description": "TrustBonding.getUserApy(address) (src/protocol/emissions/TrustBonding.sol#257-271) uses a dangerous strict equality: - userRewards == 0 || locked <= 0 (src/protocol/emissions/TrustBonding.sol#263) "
+  },
+  {
+   "title": "incorrect-equality (Medium, confidence High)",
+   "severity": "Medium",
+   "file": "src/protocol/emissions/TrustBonding.sol",
+   "function": "getSystemApy",
+   "description": "TrustBonding.getSystemApy() (src/protocol/emissions/TrustBonding.sol#305-317) uses a dangerous strict equality: - _supply == 0 (src/protocol/emissions/TrustBonding.sol#307) "
+  },
+  {
+   "title": "incorrect-equality (Medium, confidence High)",
+   "severity": "Medium",
+   "file": "src/external/curve/VotingEscrow.sol",
+   "function": "_supply_at",
+   "description": "VotingEscrow._supply_at(Point,uint256) (src/external/curve/VotingEscrow.sol#704-727) uses a dangerous strict equality: - t_i == t (src/external/curve/VotingEscrow.sol#716) "
+  },
+  {
+   "title": "incorrect-equality (Medium, confidence High)",
+   "severity": "Medium",
+   "file": "src/protocol/emissions/TrustBonding.sol",
+   "function": "claimRewards",
+   "description": "TrustBonding.claimRewards(address) (src/protocol/emissions/TrustBonding.sol#348-393) uses a dangerous strict equality: - userRewards == 0 (src/protocol/emissions/TrustBonding.sol#376) "
+  },
+  {
+   "title": "incorrect-equality (Medium, confidence High)",
+   "severity": "Medium",
+   "file": "src/protocol/emissions/TrustBonding.sol",
+   "function": "claimRewards",
+   "description": "TrustBonding.claimRewards(address) (src/protocol/emissions/TrustBonding.sol#348-393) uses a dangerous strict equality: - rawUserRewards == 0 (src/protocol/emissions/TrustBonding.sol#365) "
+  },
+  {
+   "title": "incorrect-equality (Medium, confidence High)",
+   "severity": "Medium",
+   "file": "src/protocol/emissions/TrustBonding.sol",
+   "function": "_previousEpoch",
+   "description": "TrustBonding._previousEpoch() (src/protocol/emissions/TrustBonding.sol#652-655) uses a dangerous strict equality: - curr == 0 (src/protocol/emissions/TrustBonding.sol#654) "
+  },
+  {
+   "title": "incorrect-equality (Medium, confidence High)",
+   "severity": "Medium",
+   "file": "src/protocol/emissions/TrustBonding.sol",
+   "function": "getUserRewardsForEpoch",
+   "description": "TrustBonding.getUserRewardsForEpoch(address,uint256) (src/protocol/emissions/TrustBonding.sol#294-302) uses a dangerous strict equality: - _currEpoch == 0 || epoch > _currEpoch (src/protocol/emissions/TrustBonding.sol#296) "
+  },
+  {
+   "title": "incorrect-equality (Medium, confidence High)",
+   "severity": "Medium",
+   "file": "src/protocol/emissions/CoreEmissionsController.sol",
+   "function": "_applyCliffReductions",
+   "description": "CoreEmissionsController._applyCliffReductions(uint256,uint256,uint256) (src/protocol/emissions/CoreEmissionsController.sol#222-241) uses a dangerous strict equality: - cliffsToApply == 0 (src/protocol/emissions/CoreEmissionsController.sol#231) "
+  },
+  {
+   "title": "incorrect-equality (Medium, confidence High)",
+   "severity": "Medium",
+   "file": "src/protocol/emissions/TrustBonding.sol",
+   "function": "claimRewards",
+   "description": "TrustBonding.claimRewards(address) (src/protocol/emissions/TrustBonding.sol#348-393) uses a dangerous strict equality: - currentEpochLocal == 0 (src/protocol/emissions/TrustBonding.sol#356) "
+  },
+  {
+   "title": "divide-before-multiply (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/external/curve/VotingEscrow.sol",
+   "function": "_increase_unlock_time",
+   "description": "VotingEscrow._increase_unlock_time(uint256) (src/external/curve/VotingEscrow.sol#426-436) performs a multiplication on the result of a division: - unlock_time = (_unlock_time / WEEK) * WEEK (src/external/curve/VotingEscrow.sol#428) "
+  },
+  {
+   "title": "divide-before-multiply (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/external/curve/VotingEscrow.sol",
+   "function": "_checkpoint",
+   "description": "VotingEscrow._checkpoint(address,LockedBalance,LockedBalance) (src/external/curve/VotingEscrow.sol#184-318) performs a multiplication on the result of a division: - t_i = (last_checkpoint / WEEK) * WEEK (src/external/curve/VotingEscrow.sol#236) "
+  },
+  {
+   "title": "divide-before-multiply (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/external/curve/VotingEscrow.sol",
+   "function": "_supply_at",
+   "description": "VotingEscrow._supply_at(Point,uint256) (src/external/curve/VotingEscrow.sol#704-727) performs a multiplication on the result of a division: - t_i = (last_point.ts / WEEK) * WEEK (src/external/curve/VotingEscrow.sol#706) "
+  },
+  {
+   "title": "divide-before-multiply (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/external/curve/VotingEscrow.sol",
+   "function": "_create_lock",
+   "description": "VotingEscrow._create_lock(uint256,uint256) (src/external/curve/VotingEscrow.sol#384-395) performs a multiplication on the result of a division: - unlock_time = (_unlock_time / WEEK) * WEEK (src/external/curve/VotingEscrow.sol#390) "
+  },
+  {
+   "title": "uninitialized-local (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/protocol/emissions/TrustBonding.sol",
+   "function": "getUserInfo",
+   "description": "TrustBonding.getUserInfo(address).personalUtilization (src/protocol/emissions/TrustBonding.sol#238) is a local variable never initialized "
+  },
+  {
+   "title": "uninitialized-local (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/protocol/emissions/TrustBonding.sol",
+   "function": "getUserInfo",
+   "description": "TrustBonding.getUserInfo(address).userRewards (src/protocol/emissions/TrustBonding.sol#237) is a local variable never initialized "
+  },
+  {
+   "title": "uninitialized-local (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/protocol/MultiVault.sol",
+   "function": "redeemBatch",
+   "description": "MultiVault.redeemBatch(address,bytes32[],uint256[],uint256[],uint256[])._totalAssetsBeforeFees (src/protocol/MultiVault.sol#871) is a local variable never initialized "
+  },
+  {
+   "title": "uninitialized-local (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/external/curve/VotingEscrow.sol",
+   "function": "_checkpoint",
+   "description": "VotingEscrow._checkpoint(address,LockedBalance,LockedBalance).u_new (src/external/curve/VotingEscrow.sol#186) is a local variable never initialized "
+  },
+  {
+   "title": "uninitialized-local (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/external/curve/VotingEscrow.sol",
+   "function": "_deposit_for",
+   "description": "VotingEscrow._deposit_for(address,uint256,uint256,LockedBalance,VotingEscrow.DepositType).old_locked (src/external/curve/VotingEscrow.sol#339) is a local variable never initialized "
+  },
+  {
+   "title": "uninitialized-local (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/external/curve/VotingEscrow.sol",
+   "function": "_checkpoint",
+   "description": "VotingEscrow._checkpoint(address,LockedBalance,LockedBalance).u_old (src/external/curve/VotingEscrow.sol#185) is a local variable never initialized "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/protocol/wallet/AtomWalletFactory.sol",
+   "function": "_getDeploymentData",
+   "description": "AtomWalletFactory._getDeploymentData(bytes32) (src/protocol/wallet/AtomWalletFactory.sol#144-161) ignores return value by (entryPoint,None,atomWalletBeacon,None) = IMultiVaultCore(multiVault).walletConfig() (src/protocol/wallet/AtomWalletFactory.sol#146) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/protocol/emissions/BaseEmissionsController.sol",
+   "function": "_mintAndBridge",
+   "description": "BaseEmissionsController._mintAndBridge(uint256,uint256) (src/protocol/emissions/BaseEmissionsController.sol#208-251) ignores return value by IERC20(_TRUST_TOKEN).approve(_metaERC20SpokeOrHub,amount) (src/protocol/emissions/BaseEmissionsController.sol#229) "
+  }
+ ]
+}

@@ -1,0 +1,203 @@
+{
+ "contest": "2025-11-merkl",
+ "gereedschap": "Slither",
+ "totaalGevonden": 28,
+ "hypotheses": [
+  {
+   "title": "arbitrary-send-erc20 (High, confidence High)",
+   "severity": "High",
+   "file": "contracts/partners/tokenWrappers/PullTokenWrapperWithdraw.sol",
+   "function": "_beforeTokenTransfer",
+   "description": "PullTokenWrapperWithdraw._beforeTokenTransfer(address,address,uint256) (contracts/partners/tokenWrappers/PullTokenWrapperWithdraw.sol#78-84) uses arbitrary from in transferFrom: IERC20(token).safeTransferFrom(holder,address(this),amount) (contracts/partners/tokenWrappers/PullTokenWrapperWithdraw.sol#81) "
+  },
+  {
+   "title": "arbitrary-send-erc20 (High, confidence High)",
+   "severity": "High",
+   "file": "contracts/partners/tokenWrappers/PullTokenWrapperAllow.sol",
+   "function": "_beforeTokenTransfer",
+   "description": "PullTokenWrapperAllow._beforeTokenTransfer(address,address,uint256) (contracts/partners/tokenWrappers/PullTokenWrapperAllow.sol#63-66) uses arbitrary from in transferFrom: IERC20(token).safeTransferFrom(holder,to,amount) (contracts/partners/tokenWrappers/PullTokenWrapperAllow.sol#65) "
+  },
+  {
+   "title": "uninitialized-state (High, confidence High)",
+   "severity": "High",
+   "file": "contracts/DistributionCreator.sol",
+   "function": "distribution",
+   "description": "DistributionCreator.distributionList (contracts/DistributionCreator.sol#59) is never initialized. It is used in: - DistributionCreatorWithDistributions.distribution(uint256) (contracts/DistributionCreatorWithDistributions.sol#22-24) "
+  },
+  {
+   "title": "reentrancy-balance (High, confidence Medium)",
+   "severity": "High",
+   "file": "contracts/Disputer.sol",
+   "function": "toggleDispute",
+   "description": "Reentrancy in Disputer.toggleDispute(string) (contracts/Disputer.sol#47-61): External call allowing reentrancy: - ! IERC20(disputeToken).transferFrom(msg.sender,address(this),disputeAmount - contractBalance) (contracts/Disputer.sol#54) Balance read before the call: - contractBalance = IERC20(disputeToken).balanceOf(address(this)) (contracts/Disputer.sol#51) Possible stale balance used after the call in a condition: - ! IERC20(disputeToken).transferFrom(msg.sender,address(this),disputeAmount - contractBalance) (contracts/Disputer.sol#54) - stale variable `contractBalance` "
+  },
+  {
+   "title": "reentrancy-eth (High, confidence Medium)",
+   "severity": "High",
+   "file": "contracts/partners/tokenWrappers/TokenTGEWrapper.sol",
+   "function": "_afterTokenTransfer",
+   "description": "Reentrancy in TokenTGEWrapper._afterTokenTransfer(address,address,uint256) (contracts/partners/tokenWrappers/TokenTGEWrapper.sol#79-89): External calls: - _burn(to,amount) (contracts/partners/tokenWrappers/TokenTGEWrapper.sol#81) - returndata = address(token).functionCall(data,SafeERC20: low-level call failed) (node_modules/@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol#122) - IERC20(underlying).safeTransferFrom(from,address(this),amount) (contracts/partners/tokenWrappers/TokenTGEWrapper.sol#68) - (success,returndata) = target.call{value: value}(data) (node_modules/@openzeppelin/contracts/utils/Address.sol#135) - IERC20(underlying).safeTransferFrom(from,feeRecipient,amount) (contracts/partners/tokenWrappers/TokenTGEWrapper.sol#74) - IERC20(token()).safeTransfer(to,amount) (contracts/partners/tokenWrappers/TokenTGEWrapper.sol#87) - _burn(to,amount) (contracts/partners/tokenWrappe"
+  },
+  {
+   "title": "reentrancy-eth (High, confidence Medium)",
+   "severity": "High",
+   "file": "contracts/partners/tokenWrappers/TokenTGEWrapper.sol",
+   "function": "_beforeTokenTransfer",
+   "description": "Reentrancy in TokenTGEWrapper._beforeTokenTransfer(address,address,uint256) (contracts/partners/tokenWrappers/TokenTGEWrapper.sol#65-77): External calls: - IERC20(underlying).safeTransferFrom(from,address(this),amount) (contracts/partners/tokenWrappers/TokenTGEWrapper.sol#68) - _mint(from,amount) (contracts/partners/tokenWrappers/TokenTGEWrapper.sol#69) - returndata = address(token).functionCall(data,SafeERC20: low-level call failed) (node_modules/@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol#122) - IERC20(underlying).safeTransferFrom(from,address(this),amount) (contracts/partners/tokenWrappers/TokenTGEWrapper.sol#68) - (success,returndata) = target.call{value: value}(data) (node_modules/@openzeppelin/contracts/utils/Address.sol#135) - IERC20(underlying).safeTransferFrom(from,feeRecipient,amount) (contracts/partners/tokenWrappers/TokenTGEWrapper.sol#74) - IERC20(token()).safeTr"
+  },
+  {
+   "title": "reentrancy-eth (High, confidence Medium)",
+   "severity": "High",
+   "file": "contracts/partners/tokenWrappers/PufferPointTokenWrapper.sol",
+   "function": "_afterTokenTransfer",
+   "description": "Reentrancy in PufferPointTokenWrapper._afterTokenTransfer(address,address,uint256) (contracts/partners/tokenWrappers/PufferPointTokenWrapper.sol#100-118): External calls: - _burn(to,amount) (contracts/partners/tokenWrappers/PufferPointTokenWrapper.sol#102) - returndata = address(token).functionCall(data,SafeERC20: low-level call failed) (node_modules/@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol#122) - IERC20(underlying).safeTransferFrom(from,address(this),amount) (contracts/partners/tokenWrappers/PufferPointTokenWrapper.sol#89) - (success,returndata) = target.call{value: value}(data) (node_modules/@openzeppelin/contracts/utils/Address.sol#135) - IERC20(underlying).safeTransferFrom(from,feeRecipient,amount) (contracts/partners/tokenWrappers/PufferPointTokenWrapper.sol#95) - IERC20(token()).safeTransfer(to,amount) (contracts/partners/tokenWrappers/PufferPointTokenWrapper.sol#115"
+  },
+  {
+   "title": "reentrancy-eth (High, confidence Medium)",
+   "severity": "High",
+   "file": "contracts/ReferralRegistry.sol",
+   "function": "becomeReferrer",
+   "description": "Reentrancy in ReferralRegistry.becomeReferrer(string,string) (contracts/ReferralRegistry.sol#134-156): External calls: - (sent,None) = program.owner.call{value: msg.value}() (contracts/ReferralRegistry.sol#143) - IERC20(program.paymentToken).safeTransferFrom(msg.sender,program.owner,program.cost) (contracts/ReferralRegistry.sol#146) External calls sending eth: - (sent,None) = program.owner.call{value: msg.value}() (contracts/ReferralRegistry.sol#143) State variables written after the call(s): - codeToReferrer[key][referrerCode] = msg.sender (contracts/ReferralRegistry.sol#154) ReferralRegistry.codeToReferrer (contracts/ReferralRegistry.sol#55) can be used in cross function reentrancies: - ReferralRegistry.acknowledgeReferrerByKey(string,string) (contracts/ReferralRegistry.sol#186-190) - ReferralRegistry.becomeReferrer(string,string) (contracts/ReferralRegistry.sol#134-156) - ReferralRegi"
+  },
+  {
+   "title": "reentrancy-eth (High, confidence Medium)",
+   "severity": "High",
+   "file": "contracts/partners/tokenWrappers/PufferPointTokenWrapper.sol",
+   "function": "_beforeTokenTransfer",
+   "description": "Reentrancy in PufferPointTokenWrapper._beforeTokenTransfer(address,address,uint256) (contracts/partners/tokenWrappers/PufferPointTokenWrapper.sol#86-98): External calls: - IERC20(underlying).safeTransferFrom(from,address(this),amount) (contracts/partners/tokenWrappers/PufferPointTokenWrapper.sol#89) - _mint(from,amount) (contracts/partners/tokenWrappers/PufferPointTokenWrapper.sol#90) - returndata = address(token).functionCall(data,SafeERC20: low-level call failed) (node_modules/@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol#122) - IERC20(underlying).safeTransferFrom(from,address(this),amount) (contracts/partners/tokenWrappers/PufferPointTokenWrapper.sol#89) - (success,returndata) = target.call{value: value}(data) (node_modules/@openzeppelin/contracts/utils/Address.sol#135) - IERC20(underlying).safeTransferFrom(from,feeRecipient,amount) (contracts/partners/tokenWrappers/PufferPo"
+  },
+  {
+   "title": "unchecked-transfer (High, confidence Medium)",
+   "severity": "High",
+   "file": "contracts/Disputer.sol",
+   "function": "withdrawFunds",
+   "description": "Disputer.withdrawFunds(address,address,uint256) (contracts/Disputer.sol#68-70) ignores return value by IERC20(asset).transfer(to,amount) (contracts/Disputer.sol#69) "
+  },
+  {
+   "title": "divide-before-multiply (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "contracts/Distributor.sol",
+   "function": "_revokeTree",
+   "description": "Distributor._revokeTree() (contracts/Distributor.sol#495-506) performs a multiplication on the result of a division: - TreeUpdated(_tree.merkleRoot,_tree.ipfsHash,(uint48(block.timestamp) / epochDuration) * (epochDuration)) (contracts/Distributor.sol#501-505) "
+  },
+  {
+   "title": "reentrancy-no-eth (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "contracts/Disputer.sol",
+   "function": "setDistributor",
+   "description": "Reentrancy in Disputer.setDistributor(Distributor) (contracts/Disputer.sol#102-108): External calls: - IERC20(distributor.disputeToken()).approve(address(distributor),0) (contracts/Disputer.sol#104) State variables written after the call(s): - distributor = _distributor (contracts/Disputer.sol#105) Disputer.distributor (contracts/Disputer.sol#12) can be used in cross function reentrancies: - Disputer.constructor(address,address[],Distributor) (contracts/Disputer.sol#29-42) - Disputer.distributor (contracts/Disputer.sol#12) - Disputer.setDistributor(Distributor) (contracts/Disputer.sol#102-108) - Disputer.toggleDispute(string) (contracts/Disputer.sol#47-61) "
+  },
+  {
+   "title": "reentrancy-no-eth (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "contracts/Distributor.sol",
+   "function": "_claim",
+   "description": "Reentrancy in Distributor._claim(address[],address[],uint256[],bytes32[][],address[],bytes[]) (contracts/Distributor.sol#425-491): External calls: - IERC20(token).safeTransfer(recipient,toSend) (contracts/Distributor.sol#480) - callbackSuccess = IClaimRecipient(recipient).onClaim(user,token,amount,data) (contracts/Distributor.sol#482-484) State variables written after the call(s): - claimed[user][token] = Claim(SafeCast.toUint208(amount),uint48(block.timestamp),getMerkleRoot()) (contracts/Distributor.sol#466) Distributor.claimed (contracts/Distributor.sol#78) can be used in cross function reentrancies: - Distributor._claim(address[],address[],uint256[],bytes32[][],address[],bytes[]) (contracts/Distributor.sol#425-491) - Distributor.claimed (contracts/Distributor.sol#78) "
+  },
+  {
+   "title": "reentrancy-no-eth (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "contracts/partners/tokenWrappers/SonicFragment.sol",
+   "function": "settleContract",
+   "description": "Reentrancy in SonicFragment.settleContract(uint256) (contracts/partners/tokenWrappers/SonicFragment.sol#59-64): External calls: - IERC20(sToken).safeTransferFrom(msg.sender,address(this),sTokenAmount) (contracts/partners/tokenWrappers/SonicFragment.sol#62) State variables written after the call(s): - sTokenAmount = uint128(_sTokenAmount) (contracts/partners/tokenWrappers/SonicFragment.sol#63) SonicFragment.sTokenAmount (contracts/partners/tokenWrappers/SonicFragment.sol#25) can be used in cross function reentrancies: - SonicFragment.recover(uint256,address) (contracts/partners/tokenWrappers/SonicFragment.sol#67-70) - SonicFragment.redeem(uint256,address) (contracts/partners/tokenWrappers/SonicFragment.sol#73-79) - SonicFragment.sTokenAmount (contracts/partners/tokenWrappers/SonicFragment.sol#25) - SonicFragment.settleContract(uint256) (contracts/partners/tokenWrappers/SonicFragment.sol#5"
+  },
+  {
+   "title": "reentrancy-no-eth (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "contracts/Distributor.sol",
+   "function": "resolveDispute",
+   "description": "Reentrancy in Distributor.resolveDispute(bool) (contracts/Distributor.sol#352-364): External calls: - IERC20(disputeToken).safeTransfer(disputer,disputeAmount) (contracts/Distributor.sol#355) - IERC20(disputeToken).safeTransfer(msg.sender,disputeAmount) (contracts/Distributor.sol#359) State variables written after the call(s): - disputer = address(0) (contracts/Distributor.sol#362) Distributor.disputer (contracts/Distributor.sol#65) can be used in cross function reentrancies: - Distributor.disputeTree(string) (contracts/Distributor.sol#288-294) - Distributor.disputer (contracts/Distributor.sol#65) - Distributor.getMerkleRoot() (contracts/Distributor.sol#232-235) - Distributor.resolveDispute(bool) (contracts/Distributor.sol#352-364) - Distributor.revokeTree() (contracts/Distributor.sol#369-372) - Distributor.setDisputeAmount(uint256) (contracts/Distributor.sol#406-410) - Distributor.setDi"
+  },
+  {
+   "title": "reentrancy-no-eth (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "contracts/Distributor.sol",
+   "function": "disputeTree",
+   "description": "Reentrancy in Distributor.disputeTree(string) (contracts/Distributor.sol#288-294): External calls: - IERC20(disputeToken).safeTransferFrom(msg.sender,address(this),disputeAmount) (contracts/Distributor.sol#291) State variables written after the call(s): - disputer = msg.sender (contracts/Distributor.sol#292) Distributor.disputer (contracts/Distributor.sol#65) can be used in cross function reentrancies: - Distributor.disputeTree(string) (contracts/Distributor.sol#288-294) - Distributor.disputer (contracts/Distributor.sol#65) - Distributor.getMerkleRoot() (contracts/Distributor.sol#232-235) - Distributor.resolveDispute(bool) (contracts/Distributor.sol#352-364) - Distributor.revokeTree() (contracts/Distributor.sol#369-372) - Distributor.setDisputeAmount(uint256) (contracts/Distributor.sol#406-410) - Distributor.setDisputeToken(IERC20) (contracts/Distributor.sol#396-400) - Distributor.update"
+  },
+  {
+   "title": "uninitialized-local (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "contracts/DistributionCreator.sol",
+   "function": "_pullTokens",
+   "description": "DistributionCreator._pullTokens(address,address,uint256,uint256)._feeRecipient (contracts/DistributionCreator.sol#587) is a local variable never initialized "
+  },
+  {
+   "title": "uninitialized-local (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "contracts/AccessControlManager.sol",
+   "function": "setAccessControlManager",
+   "description": "AccessControlManager.setAccessControlManager(IAccessControlManager).success (contracts/AccessControlManager.sol#92) is a local variable never initialized "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "contracts/partners/tokenWrappers/PullTokenWrapperAllow.sol",
+   "function": "initialize",
+   "description": "PullTokenWrapperAllow.initialize(address,address,address,string,string) (contracts/partners/tokenWrappers/PullTokenWrapperAllow.sol#44-61) ignores return value by IERC20(_token).balanceOf(_holder) (contracts/partners/tokenWrappers/PullTokenWrapperAllow.sol#54) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "contracts/partners/middleman/MerklGaugeMiddlemanTemplate.sol",
+   "function": "notifyReward",
+   "description": "MerklGaugeMiddlemanTemplate.notifyReward(address,address,uint256) (contracts/partners/middleman/MerklGaugeMiddlemanTemplate.sol#47-60) ignores return value by _distributionCreator.createCampaign(params) (contracts/partners/middleman/MerklGaugeMiddlemanTemplate.sol#58) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "contracts/Disputer.sol",
+   "function": "setDistributor",
+   "description": "Disputer.setDistributor(Distributor) (contracts/Disputer.sol#102-108) ignores return value by IERC20(_distributor.disputeToken()).approve(address(_distributor),type()(uint256).max) (contracts/Disputer.sol#107) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "contracts/partners/tokenWrappers/SonicFragment.sol",
+   "function": "constructor",
+   "description": "SonicFragment.constructor(address,address,address,uint256,string,string) (contracts/partners/tokenWrappers/SonicFragment.sol#32-47) ignores return value by IAccessControlManager(_accessControlManager).isGovernor(msg.sender) (contracts/partners/tokenWrappers/SonicFragment.sol#42) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "contracts/partners/tokenWrappers/PullTokenWrapperWithdraw.sol",
+   "function": "_beforeTokenTransfer",
+   "description": "PullTokenWrapperWithdraw._beforeTokenTransfer(address,address,uint256) (contracts/partners/tokenWrappers/PullTokenWrapperWithdraw.sol#78-84) ignores return value by IAavePool(pool).withdraw(underlying,amount,to) (contracts/partners/tokenWrappers/PullTokenWrapperWithdraw.sol#82) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "contracts/partners/tokenWrappers/PullTokenWrapperWithdraw.sol",
+   "function": "initialize",
+   "description": "PullTokenWrapperWithdraw.initialize(address,address,address,string,string) (contracts/partners/tokenWrappers/PullTokenWrapperWithdraw.sol#57-76) ignores return value by IERC20(_token).balanceOf(_holder) (contracts/partners/tokenWrappers/PullTokenWrapperWithdraw.sol#67) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "contracts/partners/tokenWrappers/PullTokenWrapperTransferV0.sol",
+   "function": "initialize",
+   "description": "PullTokenWrapperTransferV0.initialize(address,address,address,string,string) (contracts/partners/tokenWrappers/PullTokenWrapperTransferV0.sol#42-59) ignores return value by IERC20(_token).balanceOf(_holder) (contracts/partners/tokenWrappers/PullTokenWrapperTransferV0.sol#52) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "contracts/Disputer.sol",
+   "function": "constructor",
+   "description": "Disputer.constructor(address,address[],Distributor) (contracts/Disputer.sol#29-42) ignores return value by IERC20(_distributor.disputeToken()).approve(address(_distributor),type()(uint256).max) (contracts/Disputer.sol#33) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "contracts/Disputer.sol",
+   "function": "setDistributor",
+   "description": "Disputer.setDistributor(Distributor) (contracts/Disputer.sol#102-108) ignores return value by IERC20(distributor.disputeToken()).approve(address(distributor),0) (contracts/Disputer.sol#104) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "contracts/partners/tokenWrappers/PullTokenWrapperTransfer.sol",
+   "function": "initialize",
+   "description": "PullTokenWrapperTransfer.initialize(address,address,address,string,string) (contracts/partners/tokenWrappers/PullTokenWrapperTransfer.sol#49-70) ignores return value by IERC20(_token).balanceOf(_minter) (contracts/partners/tokenWrappers/PullTokenWrapperTransfer.sol#59) "
+  }
+ ]
+}
