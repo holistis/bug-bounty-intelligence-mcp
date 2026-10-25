@@ -2,6 +2,12 @@
 
 AI-powered smart contract security analysis for AI agents and developers.
 
+## Update, 25 October 2026, evening: the offer is signed
+
+The paid endpoint now declares the x402 offer-receipt extension and signs its offer. You can check it yourself without paying: `npx -y agent-receipt-verify https://x402.tokenizen.nl/api/bug-intel` reaches level 2 (asks for payment the way x402 says, declares the extension, and the signature of the offer verifies). The signer is 0xf30b0706E78b3166745E6a2f351992321088058f. That key only signs offers and receipts and holds no funds. The address that receives payments is the one in the payment section below.
+
+After a payment the answer to the paid request is built to carry a signed receipt for that payment transaction, in the body as `receipt` and in the `PAYMENT-RESPONSE` header (level 3). That part is covered by a test on the signing code, but it has not yet been shown on a real payment, so level 3 stays unmeasured until the first paid scan, and this note will be updated then. A receipt says that our service saw payment transaction X for this resource. It says nothing about how good the report is.
+
 ## Update, 25 October 2026: version 3.1 is live
 
 Paid scans now run on a newer version, V3.1. On the same 8 contests as the sealed run it found 8 of 105 known High and Medium findings (7.6 percent), against 4 for the version before it and 1 for the scan that was in production until the evening of 25 October: [results/2026-10-25-v31/README.md](results/2026-10-25-v31/README.md). Two things changed at once and those contests are no longer secret, so this is a doubling from a low level and not a proof. 97 of the 105 were still not found. A scan takes about 20 to 45 seconds and costs us 0.02 to 0.15 dollar. The earlier version stays in place as the fallback.
