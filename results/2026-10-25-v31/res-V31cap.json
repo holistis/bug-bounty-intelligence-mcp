@@ -1,0 +1,2109 @@
+{
+ "voorvoegsel": "V31cap",
+ "wedstrijden": {
+  "2025-03-symm-io-stacking": {
+   "hypotheses": 15,
+   "bekend": 6,
+   "gevondenStreng": [
+    "M-1",
+    "M-2",
+    "M-4"
+   ],
+   "gevondenRuim": [
+    "M-1",
+    "M-2",
+    "M-4"
+   ],
+   "recallStreng": 0.5,
+   "recallRuim": 0.5,
+   "precisieStreng": 0.26666666666666666,
+   "precisieRuim": 0.26666666666666666,
+   "overeenstemming": 1,
+   "ongeldigeAntwoorden": 0,
+   "perNiveau": {
+    "makkelijk": {
+     "totaal": 4,
+     "streng": 2,
+     "ruim": 2
+    },
+    "midden": {
+     "totaal": 1,
+     "streng": 1,
+     "ruim": 1
+    },
+    "moeilijk": {
+     "totaal": 1,
+     "streng": 0,
+     "ruim": 0
+    }
+   },
+   "hypothesesLijst": [
+    {
+     "title": "notifyRewardAmount lacks REWARD_MANAGER_ROLE check",
+     "file": "SymmStaking.sol",
+     "function": "notifyRewardAmount()",
+     "a": {
+      "match": "M-4",
+      "reden": "Both describe the missing access control on SymmStaking.notifyRewardAmount allowing any caller to manipulate rewards",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": "M-4",
+      "reden": "Both findings identify that notifyRewardAmount lacks access control, allowing anyone to add rewards.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "__vesting_init is public and re-callable via SymmVesting",
+     "file": "Vesting.sol",
+     "function": "__vesting_init()",
+     "a": {
+      "match": "M-1",
+      "reden": "Both describe the same __vesting_init function being improperly exposed due to using the initializer modifier, allowing re‑initialization and role takeover.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": "M-1",
+      "reden": "Both findings describe the same root cause: __vesting_init() uses the public initializer modifier instead of onlyInitializing, which can lead to improper initialization in derived contracts like SymmV",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "getLiquidityQuote uses manipulable spot pool balances for USDC amount",
+     "file": "SymmVesting.sol",
+     "function": "getLiquidityQuote()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a price manipulation issue in getLiquidityQuote, which is unrelated to any listed findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes a liquidity quote manipulation via spot pool balances in SymmVesting.sol, which is not covered by any of the known findings that focus on staking rewards, vesting initi",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "initialize can be front-run to seize admin roles",
+     "file": "SymmStaking.sol",
+     "function": "initialize()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a front‑run issue in SymmStaking.initialize, which is not covered by any known finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes a front-running vulnerability in initialize functions, which is not among the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "SymmVesting.initialize is public and front-runnable",
+     "file": "SymmVesting.sol",
+     "function": "initialize()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a front‑runnable public initialize in SymmVesting, which is not covered by any of the listed findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a front-running vulnerability in SymmVesting.initialize, which is not mentioned in any of the known findings. The known findings cover different issues in SymmStaking and Vesti",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "SymmVesting getLiquidityQuote decimals mismatch for USDC",
+     "file": "SymmVesting.sol",
+     "function": "getLiquidityQuote()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a decimal conversion bug in SymmVesting.getLiquidityQuote, which is not covered by any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes a decimal mismatch in getLiquidityQuote, which is not covered by any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "_addLiquidity passes expectedLpAmount as minLpAmount to router, ignoring user slippage",
+     "file": "SymmVesting.sol",
+     "function": "_addLiquidity()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a slippage protection issue in _addLiquidity, which does not correspond to any listed known finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "None of the known findings relate to slippage protection in _addLiquidity or incorrect use of minLpAmount.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Reverting reward token blocks all deposits, withdrawals, and claims",
+     "file": "SymmStaking.sol",
+     "function": "_updateRewardsStates()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a freeze due to a reverting reward token in _updateRewardsStates, which is not covered by any listed finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a denial-of-service via a reverting reward token, which is not covered by any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "SymmVesting._addLiquidity uses block.timestamp for Permit2 expiration, causing immediate expiry",
+     "file": "SymmVesting.sol",
+     "function": "_addLiquidity()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a Permit2 expiration bug in SymmVesting._addLiquidity, which is a different root cause than any listed findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "None of the known findings describe the same root cause: Permit2 expiration set to block.timestamp in SymmVesting._addLiquidity.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Reward rate dilution via repeated notifyRewardAmount with tiny amounts",
+     "file": "SymmStaking.sol",
+     "function": "notifyRewardAmount()",
+     "a": {
+      "match": "M-4",
+      "reden": "Both findings describe diluting staking rewards by repeatedly calling notifyRewardAmount with tiny amounts, extending the period and reducing the effective rate.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": "M-4",
+      "reden": "Both describe reward rate dilution via repeated notifyRewardAmount calls by anyone, extending the reward period and delaying rewards.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "SymmVesting assumes poolTokens[0]=SYMM and [1]=USDC without validation",
+     "file": "SymmVesting.sol",
+     "function": "_addLiquidity()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a token ordering assumption bug, which does not correspond to any listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes an assumption about pool token ordering in SymmVesting.sol _addLiquidity, which is not mentioned in any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Reward double-counting when a token is re-whitelisted after removal",
+     "file": "SymmStaking.sol",
+     "function": "configureRewardToken()",
+     "a": {
+      "match": "M-2",
+      "reden": "Both findings describe that re‑adding a previously removed reward token leaves stale reward state (perTokenStored, lastUpdated, periodFinish, userRewardPerTokenPaid) causing users to receive excess re",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": "M-2",
+      "reden": "Both findings describe the same root cause: re-whitelisting a reward token without clearing stale state leads to incorrect reward calculations and over-distribution.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "rescueTokens lets admin drain staking/reward tokens",
+     "file": "SymmStaking.sol",
+     "function": "rescueTokens()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an admin rescueTokens function draining tokens, which is not covered by any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "None of the known findings describe unrestricted rescueTokens in SymmStaking.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "SymmStaking reward rate truncation causes stuck pendingRewards",
+     "file": "SymmStaking.sol",
+     "function": "_addRewardsForToken()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a truncation/remainder accounting bug, which does not correspond to any listed finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a specific truncation issue in SymmStaking's _addRewardsForToken that causes stuck pendingRewards, which is not covered by any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "_addRewardsForToken rate truncation and leftover math can strand or misprice rewards",
+     "file": "SymmStaking.sol",
+     "function": "_addRewardsForToken()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the same truncation and leftover math issue in _addRewardsForToken",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes rounding/truncation issues in _addRewardsForToken and leftover math, which is not covered by any of the known findings (H-1, M-1 to M-5).",
+      "model": "deepseek-v4-flash"
+     }
+    }
+   ]
+  },
+  "2025-05-yearn-ybold": {
+   "hypotheses": 15,
+   "bekend": 3,
+   "gevondenStreng": [
+    "H-1"
+   ],
+   "gevondenRuim": [
+    "H-1"
+   ],
+   "recallStreng": 0.3333333333333333,
+   "recallRuim": 0.3333333333333333,
+   "precisieStreng": 0.06666666666666667,
+   "precisieRuim": 0.06666666666666667,
+   "overeenstemming": 1,
+   "ongeldigeAntwoorden": 0,
+   "perNiveau": {
+    "makkelijk": {
+     "totaal": 0,
+     "streng": 0,
+     "ruim": 0
+    },
+    "midden": {
+     "totaal": 0,
+     "streng": 0,
+     "ruim": 0
+    },
+    "moeilijk": {
+     "totaal": 3,
+     "streng": 1,
+     "ruim": 1
+    }
+   },
+   "hypothesesLijst": [
+    {
+     "title": "Accountant.distribute() callable by anyone to drain fee tokens",
+     "file": "Accountant.sol",
+     "function": "distribute(address)",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unrestricted distribute function in Accountant.sol, which does not correspond to any of the listed findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes an unprotected function in Accountant.sol, while all known findings relate to different contracts and root causes in the Strategy or StabilityPool.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Accountant charges 100% performance fee on gains, zero to depositors",
+     "file": "Accountant.sol",
+     "function": "report()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a 100% performance fee bug, which does not correspond to any of the listed findings about share inflation, deposit timing, or dustThreshold.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes a performance fee bug in Accountant.sol, while all known findings pertain to issues in Strategy.sol (share inflation, timing exploit, dust threshold). No known finding ",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "StakerFactory.newStrategy lacks access control",
+     "file": "StakerFactory.sol",
+     "function": "newStrategy(address,string)",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an access control issue in StakerFactory.newStrategy, which does not correspond to any of the listed findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a missing access control in StakerFactory.newStrategy, which is not related to any of the known findings (H-1, H-2, M-1).",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Strategy._tend sets starting price with wrong buffer scaling",
+     "file": "Strategy.sol",
+     "function": "_tend()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a pricing calculation error in _tend, which is unrelated to the share inflation, timing deposit, or dustThreshold issues in the known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a scaling bug in _tend() price calculation, which is not covered by any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "No check that fetched price is non-zero or fresh before auction start price",
+     "file": "Strategy.sol",
+     "function": "_tend",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a missing oracle price check, which is unrelated to the share inflatability, timing deposit, or dustThreshold issues in the known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a missing zero-check on oracle price in _tend, which is not covered by any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Strategy estimatedTotalAssets ignores pending collateral gains",
+     "file": "Strategy.sol",
+     "function": "estimatedTotalAssets()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a different issue (underreporting assets in estimatedTotalAssets) not covered by any known finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes a specific omission in estimatedTotalAssets() that ignores pending collateral gains, which is not mentioned in any of the known findings. H-1 is about first depositor i",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "StakerFactory.newStrategy is permissionless and can deploy strategies with attacker-chosen asset",
+     "file": "StakerFactory.sol",
+     "function": "newStrategy()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a permissionless factory deployment issue, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes a permissionless factory function that can overwrite deployment mappings, which is not addressed in any of the known findings. Known findings cover share inflation, tim",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "StakerFactory.setAddresses missing onlyManagement modifier",
+     "file": "StakerFactory.sol",
+     "function": "setAddresses(address,address,address)",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a missing onlyManagement modifier in StakerFactory, which does not correspond to any of the listed findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes an access control issue in StakerFactory.setAddresses and its interaction with newStrategy, which is unrelated to the known findings about share inflation, timing attacks, or d",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "First-depositor / donation attack via estimatedTotalAssets inflation",
+     "file": "Strategy.sol",
+     "function": "estimatedTotalAssets()",
+     "a": {
+      "match": "H-1",
+      "reden": "Both describe the first‑depositor share dilution attack caused by inflating total assets before the initial deposit",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": "H-1",
+      "reden": "The candidate describes the same first-depositor donation attack by inflating total assets through direct BOLD transfers, which is exactly the root cause in H-1 regarding the initial deposit vulnerabi",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Auction starting price ignores oracle staleness in oracle-down multiplier logic",
+     "file": "Strategy.sol",
+     "function": "_tend",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a distinct oracle staleness pricing bug, which does not correspond to any of the listed findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes oracle staleness and auction starting price manipulation, none of the known findings address oracle staleness or auction price logic; they cover share inflation, deposi",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Unbounded trove iteration in aprAfterDebtChange causes DoS",
+     "file": "StrategyAprOracle.sol",
+     "function": "aprAfterDebtChange()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unbounded loop DoS in aprAfterDebtChange, which is unrelated to the share inflation, timing deposit, or dustThreshold issues in the known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a DoS due to unbounded trove iteration, which is not covered by any of the known findings (H-1, H-2, M-1).",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Accountant.report trusts caller-supplied gain/loss without verifying strategy report",
+     "file": "Accountant.sol",
+     "function": "report()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a different issue in Accountant.report, unrelated to the known findings' root causes.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a trust issue in Accountant.report() with caller-supplied gain/loss, while none of the known findings address that same root cause or code location.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Accountant fee logic can zero out fees but still report gain, mis-accounting vault",
+     "file": "Accountant.sol",
+     "function": "report()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a fee accounting bug in Accountant.sol, which is unrelated to the share inflation, loss‑report timing, or dustThreshold issues of the known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a fee accounting issue in Accountant.sol, while all known findings involve different contracts (Strategy.sol, TokenizedStrategy) and different root causes (share inflation, tim",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Staker strategy distributes rewards but does not account for losses",
+     "file": "Staker.sol",
+     "function": "_harvestAndReport()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a different function and root cause (ignoring losses in reward distribution) not present in any known finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a different bug related to ignoring losses in reward distribution, which is not covered by any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "StrategyAprOracle.aprAfterDebtChange ignores _delta sign for positive deltas",
+     "file": "StrategyAprOracle.sol",
+     "function": "aprAfterDebtChange()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a different function and bug (APR calculation overflow/truncation) not covered by any known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding concerns the APR calculation oracle function, while known findings address different vulnerabilities in the Strategy contract (initial deposit attack, deposit timing, dust thresh",
+      "model": "deepseek-v4-flash"
+     }
+    }
+   ]
+  },
+  "2025-04-aegis-op-grant": {
+   "hypotheses": 15,
+   "bekend": 3,
+   "gevondenStreng": [
+    "H-1"
+   ],
+   "gevondenRuim": [
+    "H-1"
+   ],
+   "recallStreng": 0.3333333333333333,
+   "recallRuim": 0.3333333333333333,
+   "precisieStreng": 0.06666666666666667,
+   "precisieRuim": 0.13333333333333333,
+   "overeenstemming": 0.9333333333333333,
+   "ongeldigeAntwoorden": 0,
+   "perNiveau": {
+    "makkelijk": {
+     "totaal": 2,
+     "streng": 1,
+     "ruim": 1
+    },
+    "midden": {
+     "totaal": 0,
+     "streng": 0,
+     "ruim": 0
+    },
+    "moeilijk": {
+     "totaal": 1,
+     "streng": 0,
+     "ruim": 0
+    }
+   },
+   "hypothesesLijst": [
+    {
+     "title": "Redeem request replay via missing nonce deduplication",
+     "file": "AegisMinting.sol",
+     "function": "requestRedeem()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a replay issue due to missing nonce deduplication, which is unrelated to the known findings about insolvency, collateral handling, or redeem limit griefing.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes a replay attack due to missing nonce deduplication in requestRedeem, which is not covered by any of the known findings (H-1, M-1, M-2).",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "withdrawRedeemRequest lacks caller/benefactor check, anyone can trigger",
+     "file": "AegisMinting.sol",
+     "function": "withdrawRedeemRequest()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a missing access control issue, which is not covered by any of the listed findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes missing access control in withdrawRedeemRequest, which is not the same root cause as any of the known findings (H-1, M-1, M-2).",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Missing staleness check on AegisOracle YUSD/USD price",
+     "file": "AegisOracle.sol",
+     "function": "yusdUSDPrice()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a missing price freshness check, which is unrelated to the known findings about redemption fees, collateral handling, or redeem limit griefing.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a missing staleness check in the oracle, which is not mentioned in any known valid finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Redeem request can be permanently blocked by front-running requestId",
+     "file": "AegisMinting.sol",
+     "function": "requestRedeem()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a front‑running requestId issue, which is not covered by any of the listed findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a front-running vulnerability on requestId in requestRedeem, which is not present in any of the known findings (H-1, M-1, M-2).",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Missing deadline check on mint/requestRedeem/depositIncome orders",
+     "file": "AegisMinting.sol",
+     "function": "mint()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a missing expiry check, which is unrelated to the insolvency, collateral, or redeem‑limit issues of the known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding about missing deadline checks on orders is not among the known findings, which cover different issues.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Reward claim allows partial amounts leaving reward claimable again",
+     "file": "AegisRewards.sol",
+     "function": "claimRewards()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a reward claim partial amount bug in AegisRewards.sol, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is in AegisRewards.sol about reward claim residual stranding, none of the known findings relate to that contract or that specific issue.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Redeem fee charged on full yusdAmount while collateral computed from same amount",
+     "file": "AegisMinting.sol",
+     "function": "approveRedeemRequest()",
+     "a": {
+      "match": "H-1",
+      "reden": "Both describe that approveRedeemRequest computes collateral from the full yUSD amount while a redemption fee is taken from the yUSD burned, leading to insufficient collateral backing and a value leak.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": "H-1",
+      "reden": "Both findings describe that collateral is calculated from the full yusdAmount while fee is deducted from burnAmount, causing a value leak and depegging risk.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "assetChainlinkUSDPrice / assetAegisOracleYUSDPrice revert or return 0 without heartbeat validation for unconfigured assets",
+     "file": "AegisMinting.sol",
+     "function": "_getAssetUSDPriceChainlink()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an oracle heartbeat validation issue, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a missing staleness check and silent fallback when Chainlink price is zero, which is not covered by any of the known findings about fee insolvency, collateral stuck, or redeem ",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Blacklisted user blocks redeem approval and traps locked YUSD",
+     "file": "AegisMinting.sol",
+     "function": "approveRedeemRequest()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a blacklist-related lockout scenario, which does not correspond to any of the listed findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a blacklist-related stuck request issue, which is not covered by any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Redeem request can be withdrawn after approval, double-spending locked YUSD",
+     "file": "AegisMinting.sol",
+     "function": "withdrawRedeemRequest()",
+     "a": {
+      "match": "H-1",
+      "reden": "Both describe the fee handling in approveRedeemRequest causing accounting divergence and potential insolvency",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a fee accounting divergence where totalRedeemLockedYUSD is decremented by the full yusdAmount but only the post-fee amount is burned, causing leftover YUSD and accounting misma",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "_stringToBytes32 truncates IDs causing reward collisions",
+     "file": "AegisRewards.sol",
+     "function": "_stringToBytes32()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a string truncation ID collision in AegisRewards.sol, which is unrelated to the known findings about insolvency, collateral handling, or redeem limit griefing.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes a string truncation bug in _stringToBytes32 causing reward collisions, which is unrelated to any of the known findings about insolvency, collateral management, or redee",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "claimRewards allows partial claim leaving reward amount inconsistent",
+     "file": "AegisRewards.sol",
+     "function": "claimRewards()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a reward claim logic flaw in AegisRewards.sol, which does not correspond to any of the listed findings about minting, redemption, or collateral issues.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about claimRewards in AegisRewards.sol, while known findings are about AegisMinting.sol and different issues.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Missing staleness check on ChainlinkFeedRegistry in YUSD conversion",
+     "file": "AegisMinting.sol",
+     "function": "_getAssetYUSDPriceOracle()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a Chainlink staleness check issue, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes a Chainlink oracle staleness issue in _getAssetYUSDPriceOracle, while known findings cover insolvency, collateral stuck, and redeem limit griefing; no match in root cau",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "approveRedeemRequest transfers collateral before burning YUSD",
+     "file": "AegisMinting.sol",
+     "function": "approveRedeemRequest()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy issue due to transfer order, which is not covered by any known finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy issue in approveRedeemRequest, which is not mentioned in any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Redeem limit period can be reset by anyone via zero-amount boundary",
+     "file": "AegisMinting.sol",
+     "function": "_checkMintRedeemLimit()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a period reset via zero-amount request, which differs from the known limit consumption griefing finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a period reset attack via tiny amounts, while known findings address different issues: fee distribution, collateral stuck, and limit consumption without reversal.",
+      "model": "deepseek-v4-flash"
+     }
+    }
+   ]
+  },
+  "2025-07-mellow-flexible-vaults": {
+   "hypotheses": 15,
+   "bekend": 15,
+   "gevondenStreng": [
+    "H-1"
+   ],
+   "gevondenRuim": [
+    "H-1"
+   ],
+   "recallStreng": 0.06666666666666667,
+   "recallRuim": 0.06666666666666667,
+   "precisieStreng": 0.06666666666666667,
+   "precisieRuim": 0.06666666666666667,
+   "overeenstemming": 1,
+   "ongeldigeAntwoorden": 0,
+   "perNiveau": {
+    "makkelijk": {
+     "totaal": 10,
+     "streng": 1,
+     "ruim": 1
+    },
+    "midden": {
+     "totaal": 4,
+     "streng": 0,
+     "ruim": 0
+    },
+    "moeilijk": {
+     "totaal": 1,
+     "streng": 0,
+     "ruim": 0
+    }
+   },
+   "hypothesesLijst": [
+    {
+     "title": "mintAllocatedShares lacks access control allowing theft of allocated shares",
+     "file": "ShareManager.sol",
+     "function": "mintAllocatedShares()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unguarded mintAllocatedShares function, which is not covered by any known finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a missing access control on mintAllocatedShares, which is not mentioned in any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "RiskManager.setVault is callable once by anyone to hijack vault binding",
+     "file": "RiskManager.sol",
+     "function": "setVault()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unprotected setVault function in RiskManager, which is unrelated to any listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes an access control flaw in RiskManager.setVault, which is not related to any of the known findings (which cover signature validation, queue accounting, native token handling, fe",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Consensus.checkSignatures allows duplicate signers to satisfy threshold",
+     "file": "Consensus.sol",
+     "function": "checkSignatures()",
+     "a": {
+      "match": "H-1",
+      "reden": "Both describe the same flaw in Consensus.checkSignatures where duplicate signer addresses are not prevented, allowing threshold bypass.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": "H-1",
+      "reden": "The candidate describes the same root cause (missing duplicate signer check in Consensus.checkSignatures) and impact (bypassing threshold with repeated signatures) as known finding H-1.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "SignatureQueue order hash omits chainId/contract, enabling cross-chain replay",
+     "file": "SignatureQueue.sol",
+     "function": "hashOrder()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a missing chainId/verifyingContract in EIP-712 domain, which is not covered by any known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding describes missing chainId/verifyingContract in EIP-712 domain for cross-chain signature replay.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Slots in VaultModule use wrong storage slot name; collides with SubvaultModule",
+     "file": "VaultModule.sol",
+     "function": "_vaultStorage()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a storage slot collision bug, which is not covered by any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a storage slot collision issue not present in any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "claimShares(account) lets anyone push accumulated shares to any account",
+     "file": "ShareModule.sol",
+     "function": "claimShares()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the same external claimShares access control issue in ShareModule.sol.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes an access control flaw in `claimShares`, but none of the known findings address that specific function or vulnerability.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "SignatureDepositQueue mints requested shares without verifying price against ordered assets",
+     "file": "SignatureDepositQueue.sol",
+     "function": "deposit()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes missing oracle price validation in SignatureDepositQueue.deposit leading to arbitrary share minting.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes missing price validation when oracle is zero in SignatureDepositQueue.deposit, which is not mentioned in any known finding. Known findings cover different root causes such as s",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "SignatureQueue price validation uses inverted ratio for redeem queues",
+     "file": "SignatureQueue.sol",
+     "function": "validateOrder()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a price ratio inversion bug in SignatureQueue.validateOrder, which is not covered by any listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a price ratio inversion bug in SignatureQueue.validateOrder for redeem queues, which is not mentioned in any of the known valid findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "ShareModule.createQueue lets role-holder create queue with attacker-chosen owner",
+     "file": "ShareModule.sol",
+     "function": "createQueue()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a distinct privilege‑abuse in ShareModule.createQueue, which is not covered by any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a privilege-abuse surface in createQueue, which is not among the listed known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "RedeemQueue claim uses stale batch.shares causing over/under payout",
+     "file": "RedeemQueue.sol",
+     "function": "claim()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a rounding/dust issue in claim(), which does not correspond to any listed finding's root cause.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a rounding issue in RedeemQueue.claim() due to floor division in mulDiv, which is not described in any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "SignatureQueue validateOrder accepts zero/absent oracle report as valid",
+     "file": "SignatureQueue.sol",
+     "function": "validateOrder()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an oracle freshness issue in SignatureQueue.validateOrder, which is not covered by any known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a missing freshness check on oracle reports in SignatureQueue.validateOrder, which is not described in any of the known valid findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "SignatureRedeemQueue.redeem burns shares before hook pulls assets, enabling reentrancy",
+     "file": "SignatureRedeemQueue.sol",
+     "function": "redeem()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the same reentrancy issue in SignatureRedeemQueue.redeem",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy vulnerability in SignatureRedeemQueue.redeem due to burning shares before the hook pulls assets, which is not mentioned in any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "SignatureDepositQueue.deposit mints shares after external hook call",
+     "file": "SignatureDepositQueue.sol",
+     "function": "deposit()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy issue in SignatureDepositQueue.deposit, which is not covered by any listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding describes the reentrancy/state inconsistency due to external hook call before minting shares in SignatureDepositQueue.deposit.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "ShareModule.claimShares loops all queues; one reverting queue bricks claims",
+     "file": "ShareModule.sol",
+     "function": "claimShares()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a DoS issue in ShareModule.claimShares looping over queues, which is not covered by any listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a DoS in ShareModule.claimShares due to looping over all queues without handling reverts, which is not covered by any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "SignatureQueue nonce is per-caller and not bound to order fields, enabling replay of distinct orders",
+     "file": "SignatureQueue.sol",
+     "function": "validateOrder()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a nonce replay issue in SignatureQueue, which is not covered by any known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes a nonce replay vulnerability in SignatureQueue, which is not covered by any of the known findings that address different issues such as signature duplication, accountin",
+      "model": "deepseek-v4-flash"
+     }
+    }
+   ]
+  },
+  "2025-06-notional-exponent": {
+   "hypotheses": 15,
+   "bekend": 37,
+   "gevondenStreng": [],
+   "gevondenRuim": [
+    "M-25"
+   ],
+   "recallStreng": 0,
+   "recallRuim": 0.02702702702702703,
+   "precisieStreng": 0,
+   "precisieRuim": 0.06666666666666667,
+   "overeenstemming": 0.9333333333333333,
+   "ongeldigeAntwoorden": 1,
+   "perNiveau": {
+    "makkelijk": {
+     "totaal": 17,
+     "streng": 0,
+     "ruim": 0
+    },
+    "midden": {
+     "totaal": 6,
+     "streng": 0,
+     "ruim": 0
+    },
+    "moeilijk": {
+     "totaal": 14,
+     "streng": 0,
+     "ruim": 1
+    }
+   },
+   "hypothesesLijst": [
+    {
+     "title": "Anyone can call finalizeRequestManual to finalize any account's withdraw request",
+     "file": "AbstractWithdrawRequestManager.sol",
+     "function": "finalizeRequestManual()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unrestricted access control issue in finalizeRequestManual, which does not correspond to any listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding describes missing access control on finalizeRequestManual.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Chainlink oracle round staleness/answeredInRound not validated in custom oracles",
+     "file": "Curve2TokenOracle.sol",
+     "function": "_calculateBaseToQuote()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes missing validation of Chainlink round data, which does not correspond to any listed known finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding describes missing Chainlink round staleness/answeredInRound validation in oracle functions.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Morpho flash loan callback lacks initiator authentication",
+     "file": "MorphoLendingRouter.sol",
+     "function": "onMorphoFlashLoan()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the same missing initiator authentication in MorphoLendingRouter.sol's onMorphoFlashLoan function.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "None of the known findings describe a missing initiator check in the flash loan callback.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Dinero canFinalizeWithdrawRequest returns true when outstandingRedemptions <= totalAssets",
+     "file": "Dinero.sol",
+     "function": "canFinalizeWithdrawRequest",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the same reversed logic bug in Dinero.sol's canFinalizeWithdrawRequest function.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a logic error in canFinalizeWithdrawRequest where the condition is inverted, which is not described in any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Curve LP oracle spot price check uses manipulable get_dy without TWAP",
+     "file": "Curve2TokenOracle.sol",
+     "function": "_lpTokenValue()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the same root cause in Curve2TokenOracle.sol's _lpTokenValue function.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding describes the same root cause (manipulable `get_dy` spot price in `Curve2TokenOracle._lpTokenValue`) or the same impact (LP valuation skew via flash loan).",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "AbstractRewardManager.updateAccountRewards can be called by anyone via fallback",
+     "file": "RewardManagerMixin.sol",
+     "function": "fallback()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the same root cause of unrestricted external updateAccountRewards in AbstractRewardManager",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding describes the same root cause in the same code; the candidate is about updateAccountRewards being callable by anyone, which is not covered by any listed finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "First-depositor inflation attack via virtual shares offset",
+     "file": "AbstractYieldStrategy.sol",
+     "function": "_mintSharesGivenAssets",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a virtual share inflation issue in AbstractYieldStrategy._mintSharesGivenAssets, which differs from all listed findings in code location and impact.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes a first-depositor inflation attack via virtual shares offset, which is not mentioned in any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "getWithdrawRequestValue divides by sharesAmount without zero check",
+     "file": "AbstractWithdrawRequestManager.sol",
+     "function": "getWithdrawRequestValue",
+     "a": {
+      "match": "M-25",
+      "reden": "Both findings describe a revert in AbstractWithdrawRequestManager.sol's getWithdrawRequestValue due to missing zero check on sharesAmount leading to division by zero.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding describes a division-by-zero in getWithdrawRequestValue due to zero sharesAmount.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "AbstractCustomOracle.latestAnswer/latestTimestamp skip sequencer check",
+     "file": "AbstractCustomOracle.sol",
+     "function": "latestAnswer()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the same sequencer check omission in AbstractCustomOracle.latestAnswer",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes missing sequencer checks in AbstractCustomOracle's legacy AggregatorV2V3 functions, which is not covered by any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "EtherFi finalize uses ownerOf check that reverts on burned NFT",
+     "file": "EtherFi.sol",
+     "function": "canFinalizeWithdrawRequest()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the same ownerOf revert issue in EtherFi's canFinalizeWithdrawRequest function",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding describes a revert in canFinalizeWithdrawRequest due to ownerOf on burned NFT in EtherFi.sol.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Liquidator can claim rewards on shares they never held via pre/post liquidation accounting",
+     "file": "RewardManagerMixin.sol",
+     "function": "_postLiquidation()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the same reward accounting bug in RewardManagerMixin._postLiquidation",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding describes the same root cause of double-counting shares in reward accumulator during liquidation in _postLiquidation.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "finalizeAndRedeemWithdrawRequest partial-withdraw math uses stale totalWithdraw",
+     "file": "AbstractWithdrawRequestManager.sol",
+     "function": "finalizeAndRedeemWithdrawRequest",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a distinct double-scaling math bug in finalizeAndRedeemWithdrawRequest, which does not correspond to any listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a math double-scaling error in `finalizeAndRedeemWithdrawRequest` specific to the partial-withdraw branch. None of the known findings address this root cause or function.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Partial finalize in finalizeAndRedeemWithdrawRequest can leave inconsistent state",
+     "file": "AbstractWithdrawRequestManager.sol",
+     "function": "finalizeAndRedeemWithdrawRequest",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a partial finalize state inconsistency in AbstractWithdrawRequestManager, which does not correspond to any listed known finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding describes the same root cause of not updating tokenized request totals during partial finalize in finalizeAndRedeemWithdrawRequest.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Reentrancy in initiateWithdraw via _initiateWithdrawImpl external calls",
+     "file": "AbstractWithdrawRequestManager.sol",
+     "function": "initiateWithdraw()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the same reentrancy issue in AbstractWithdrawRequestManager.initiateWithdraw; existing reentrancy findings refer to different contracts or variants.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "ongeldig": "geen-json",
+      "reden": "",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "tokenizeWithdrawRequest allows overwriting _to's yieldTokenAmount without checking requestId match",
+     "file": "AbstractWithdrawRequestManager.sol",
+     "function": "tokenizeWithdrawRequest",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a unique issue in AbstractWithdrawRequestManager.sol's tokenizeWithdrawRequest, which does not correspond to any listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding describes a flaw in tokenizeWithdrawRequest or AbstractWithdrawRequestManager.",
+      "model": "deepseek-v4-flash"
+     }
+    }
+   ]
+  },
+  "2025-05-dodo-cross-chain-dex": {
+   "hypotheses": 15,
+   "bekend": 17,
+   "gevondenStreng": [
+    "H-5",
+    "M-12"
+   ],
+   "gevondenRuim": [
+    "H-5",
+    "M-12"
+   ],
+   "recallStreng": 0.11764705882352941,
+   "recallRuim": 0.11764705882352941,
+   "precisieStreng": 0.13333333333333333,
+   "precisieRuim": 0.13333333333333333,
+   "overeenstemming": 1,
+   "ongeldigeAntwoorden": 0,
+   "perNiveau": {
+    "makkelijk": {
+     "totaal": 16,
+     "streng": 2,
+     "ruim": 2
+    },
+    "midden": {
+     "totaal": 1,
+     "streng": 0,
+     "ruim": 0
+    },
+    "moeilijk": {
+     "totaal": 0,
+     "streng": 0,
+     "ruim": 0
+    }
+   },
+   "hypothesesLijst": [
+    {
+     "title": "claimRefund allows anyone to steal refunds with non-20-byte walletAddress",
+     "file": "GatewayCrossChain.sol",
+     "function": "claimRefund()",
+     "a": {
+      "match": "H-5",
+      "reden": "Both describe the same authorization flaw in claimRefund allowing anyone to claim refunds for non‑EVM chain addresses",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": "H-5",
+      "reden": "The candidate describes the same root cause in claimRefund: when walletAddress is not 20 bytes (non-EVM), the receiver is set to msg.sender, allowing unauthorized claims. This is exactly the vulnerabi",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "GatewayTransferNative.withdraw is public and callable by anyone",
+     "file": "GatewayTransferNative.sol",
+     "function": "withdraw()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the missing access control on GatewayTransferNative.withdraw; existing findings address different root causes.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a different root cause (public visibility of withdraw) than any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Missing slippage protection on DODO mixSwap output in onCall",
+     "file": "GatewayCrossChain.sol",
+     "function": "_doMixSwap()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes missing slippage protection in _doMixSwap; the listed findings cover different root causes.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes missing slippage protection via user-controlled minReturnAmount, which is not mentioned in any known finding. The known findings cover different issues such as swap-output toke",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "claimRefund deletes refundInfo after external token transfer",
+     "file": "",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the same reentrancy issue in claimRefund",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy vulnerability in claimRefund due to state deletion after external transfer, which is not found in the known valid findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Cross-chain message lacks chain/contract binding; replay across chains/contracts",
+     "file": "GatewayCrossChain.sol",
+     "function": "onCall()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a missing source chain/contract verification in onCall, which is not covered by any listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a cross-chain message replay attack due to missing chain/contract binding, which is not covered by any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "GatewayTransferNative.onCall trusts arbitrary message; no source authentication",
+     "file": "GatewayTransferNative.sol",
+     "function": "onCall()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes missing source authentication in GatewayTransferNative.onCall",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes missing source authentication in onCall, which is not covered by any known finding that focuses on different validation issues like msg.value or swap mismatches.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Uniswap V2 spot reserves used for gas-fee swap without TWAP",
+     "file": "GatewayCrossChain.sol",
+     "function": "_swapAndSendERC20Tokens()",
+     "a": {
+      "match": "M-12",
+      "reden": "Both describe manipulation of UniswapV2 spot reserves in _swapAndSendERC20Tokens() leading to attacker stealing value",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": "M-12",
+      "reden": "The candidate describes the same spot reserve manipulation in `_swapAndSendERC20Tokens()` via UniswapV2 `getReserves`, which is exactly the root cause in finding M-12.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "onRevert in GatewaySend sends funds to attacker-controlled sender",
+     "file": "",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a different flaw in GatewaySend.onRevert than any listed findings",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding describes the exact issue of attacker-controlled sender in GatewaySend.onRevert via unvalidated revertMessage.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "onCall in GatewaySend uses transferFrom on gateway, causing DoS",
+     "file": "GatewaySend.sol",
+     "function": "onCall()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the same root cause of GatewaySend.onCall calling transferFrom on the gateway without allowance, leading to a denial of service.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding describes a transferFrom from gateway without allowance in onCall of GatewaySend; known issues are in different contracts or different functions.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "onCall in GatewaySend trusts msg.sender as token source for transferFrom",
+     "file": "GatewaySend.sol",
+     "function": "onCall()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the same root cause of trusting msg.sender as token source in GatewaySend.onCall",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a different bug in GatewaySend.onCall regarding incorrect msg.sender usage, which is not among the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "GatewaySend.onCall trusts gateway-supplied fromToken without verifying deposit",
+     "file": "GatewaySend.sol",
+     "function": "onCall()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the same root cause in GatewaySend.onCall trusting gateway-supplied fromToken",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a different vulnerability in GatewaySend.onCall regarding trusting gateway-supplied fromToken, which is not covered by any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Fee deducted but swap runs on gross amount in GatewayCrossChain",
+     "file": "GatewayCrossChain.sol",
+     "function": "onCall()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the same fee deduction vs swap amount issue in GatewayCrossChain.onCall",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a fee deduction issue in GatewayCrossChain's onCall, but none of the known findings address the same root cause in the same contract.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "onCall in GatewaySend has no refund/fee accounting and can be drained",
+     "file": "GatewaySend.sol",
+     "function": "onCall()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the same onCall issue in GatewaySend.sol",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes a vulnerability in GatewaySend.sol's onCall function regarding unchecked swapData fromTokenAmount, which is not covered by any known finding. Known findings focus on Ga",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Missing deadline/expiry check on user-supplied DODO swap deadline",
+     "file": "GatewayCrossChain.sol",
+     "function": "_doMixSwap()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes a missing deadline check in _doMixSwap() of GatewayCrossChain.sol",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a missing deadline check on DODO swap parameters, which is not mentioned in any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "onCall in GatewaySend transfers to arbitrary recipient before state finalization",
+     "file": "",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the same reentrancy issue in GatewaySend.onCall",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding matches the described reentrancy and arbitrary recipient issue in GatewaySend.onCall.",
+      "model": "deepseek-v4-flash"
+     }
+    }
+   ]
+  },
+  "2025-01-perennial-v2-4-update": {
+   "hypotheses": 15,
+   "bekend": 7,
+   "gevondenStreng": [],
+   "gevondenRuim": [],
+   "recallStreng": 0,
+   "recallRuim": 0,
+   "precisieStreng": 0,
+   "precisieRuim": 0,
+   "overeenstemming": 1,
+   "ongeldigeAntwoorden": 0,
+   "perNiveau": {
+    "makkelijk": {
+     "totaal": 0,
+     "streng": 0,
+     "ruim": 0
+    },
+    "midden": {
+     "totaal": 0,
+     "streng": 0,
+     "ruim": 0
+    },
+    "moeilijk": {
+     "totaal": 7,
+     "streng": 0,
+     "ruim": 0
+    }
+   },
+   "hypothesesLijst": [
+    {
+     "title": "MetaQuantsFactory signatures lack per-signer/per-version replay protection",
+     "file": "MetaQuantsFactory.sol",
+     "function": "_parsePrices()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a signature replay issue unrelated to any known findings about health accounting, margin checks, fees, liquidation, or vault profit shares.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a signature replay vulnerability in MetaQuantsFactory, which is unrelated to any of the known findings, all of which concern market/health accounting, collateral, liquidation, ",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Chainlink price feed lacks staleness/round checks in KeeperFactory",
+     "file": "ChainlinkFactory.sol",
+     "function": "_parsePrices",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a missing staleness check in Chainlink price feed parsing, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes a missing staleness/round check in Chainlink price feed usage, which is not addressed in any of the known findings (which cover intent accounting, liquidation, vault, e",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Pyth price feed accepts any publishTime within wide validFrom/validTo window",
+     "file": "PythFactory.sol",
+     "function": "_parsePrices",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a Pyth price feed freshness issue, which does not correspond to any of the listed known findings about health accounting, margin checks, intents, liquidation, or vault profit s",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes a vulnerability related to Pyth price feed timestamp validation with wide validFrom/validTo window, while none of the known findings address this issue; they focus on o",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Pendings array allows any user to front-run victim's update with maxPending exhaustion",
+     "file": "Market.sol",
+     "function": "update(address, Fixed6, address)",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a maxPending exhaustion front‑run issue, which is not covered by any of the listed findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a front-running attack on maxPending exhaustion, which is not covered by any of the known findings about intent orders, margin checks, liquidation, or vault accounting.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Vault._settleUnderlying loops all markets; one failing market bricks the vault",
+     "file": "Vault.sol",
+     "function": "_settleUnderlying()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a loop over markets in Vault._settleUnderlying causing a vault-wide freeze, which does not correspond to any listed known finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a DoS due to a reverting market in _settleUnderlying, which is not covered by any known finding that focuses on fund theft, liquidation, or profit share loss.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "_updateIntent charges solver's settlement fee to the wrong signer due to order invalidation",
+     "file": "Market.sol",
+     "function": "_updateIntent()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a fee attribution bug specific to _updateIntent, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a fee attribution issue where the solver's account is charged instead of the intent's signer, which is not covered by any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "MetaQuantsFactory accepts signed updates with no timestamp freshness check",
+     "file": "MetaQuantsFactory.sol",
+     "function": "_parsePrices",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a missing timestamp freshness check leading to replay attacks, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "Candidate describes a missing timestamp freshness check in MetaQuantsFactory._parsePrices, while known findings are about market health accounting, intent fees, liquidation bugs, and vault share issue",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "VersionLib._accumulateSettlementFee underflows when guarantee.orders > order.orders",
+     "file": "VersionLib.sol",
+     "function": "_accumulateSettlementFee()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an underflow bug in VersionLib._accumulateSettlementFee, which is not covered by any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes an underflow in VersionLib._accumulateSettlementFee from invalidation causing guarantee.orders > order.orders, which is not present in any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "CheckpointLib._accumulateSettlementFee underflow on invalidated orders",
+     "file": "CheckpointLib.sol",
+     "function": "_accumulateSettlementFee()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an underflow bug in CheckpointLib unrelated to any listed findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes an underflow in CheckpointLib._accumulateSettlementFee due to order invalidation, which is not mentioned in any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "TriggerOrder.canExecute uses latest oracle price without staleness check",
+     "file": "TriggerOrder.sol",
+     "function": "canExecute",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a missing staleness check in TriggerOrder.canExecute, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes a missing staleness check on oracle price in TriggerOrder.canExecute, which is not addressed in any of the known findings. The known findings cover different issues suc",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "MultiInvoker._executeOrder uses stale pending position without freshness check",
+     "file": "MultiInvoker.sol",
+     "function": "_executeOrder",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a stale oracle price issue in MultiInvoker._executeOrder, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate concerns stale oracle usage in _executeOrder, which is not covered by any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Manager.executeOrder charges interface fee before order execution, allowing fee on unexecuted order",
+     "file": "Manager.sol",
+     "function": "executeOrder",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a fee‑charging order execution timing issue, which does not correspond to any listed finding's root cause.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding concerns Manager.executeOrder and interface fee charging before order execution, which is a different contract and function from all known valid findings that focus on Market, Va",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "MultiInvoker executeOrder raises fee from account before executing, reverts if account lacks DSU",
+     "file": "MultiInvoker.sol",
+     "function": "_executeOrder()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a fee withdrawal ordering issue in MultiInvoker, which is unrelated to the listed health, intent, liquidation, or profitShares findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a different root cause (order of operations causing revert on keeper fee withdrawal) not covered by any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Verifier._authorized accepts any market factory signer for any domain",
+     "file": "Verifier.sol",
+     "function": "_authorized()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an authorization flaw in Verifier._authorized, which is unrelated to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about a missing domain check in Verifier._authorized, which is not mentioned in any of the known findings. The known findings involve market accounting, health checks, liquida",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "KeeperFactory.commit is unrestricted; any caller can commit prices",
+     "file": "KeeperFactory.sol",
+     "function": "commit()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unrestricted commit function in KeeperFactory, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes an access control issue in KeeperFactory.commit, which is not related to any of the known findings about market accounting, liquidation, intents, or vault.",
+      "model": "deepseek-v4-flash"
+     }
+    }
+   ]
+  },
+  "2025-07-malda": {
+   "hypotheses": 15,
+   "bekend": 17,
+   "gevondenStreng": [],
+   "gevondenRuim": [],
+   "recallStreng": 0,
+   "recallRuim": 0,
+   "precisieStreng": 0,
+   "precisieRuim": 0,
+   "overeenstemming": 1,
+   "ongeldigeAntwoorden": 0,
+   "perNiveau": {
+    "makkelijk": {
+     "totaal": 10,
+     "streng": 0,
+     "ruim": 0
+    },
+    "midden": {
+     "totaal": 2,
+     "streng": 0,
+     "ruim": 0
+    },
+    "moeilijk": {
+     "totaal": 5,
+     "streng": 0,
+     "ruim": 0
+    }
+   },
+   "hypothesesLijst": [
+    {
+     "title": "ChainlinkOracle lacks staleness and round-completeness checks",
+     "file": "ChainlinkOracle.sol",
+     "function": "_getLatestPrice",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the same missing staleness checks in ChainlinkOracle's _getLatestPrice function",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "None of the known findings describe missing staleness or round-completeness checks in ChainlinkOracle's _getLatestPrice function.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "MixedPriceOracleV4 uses stale eOracle price when api3 is fresh but delta is high",
+     "file": "MixedPriceOracleV4.sol",
+     "function": "_getLatestPrice",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a different issue in MixedPriceOracleV4 (_getLatestPrice) than the known finding about decimal mismatches (M-14).",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a different bug in MixedPriceOracleV4 (lack of positive check on eOracle price in fallback) not present in any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Referral signature lacks chainId and contract address, replayable cross-chain",
+     "file": "ReferralSigning.sol",
+     "function": "claimReferral()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the same missing chainId/address replay issue in ReferralSigning.sol",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding about a missing chainId in referral signature replay is unrelated to any known finding, which cover different contracts and bugs.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "mTokenGateway.outHere sends funds to journal sender, not receiver",
+     "file": "mTokenGateway.sol",
+     "function": "_outHere()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the same receiver overwrite bug in _outHere; existing outHere finding concerns blacklist bypass only.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding describes the issue of _outHere sending funds to the journal sender instead of the specified receiver.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "mErc20Host external ops overwrite receiver with journal sender",
+     "file": "mErc20Host.sol",
+     "function": "_mintExternal(), _repayExternal(), _liquidateExternal()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the receiver overwrite bug in mErc20Host's external operations",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding describes the overwriting of receiver with journal sender in mErc20Host external ops.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "mTokenGateway outHere allows forwarder to redirect funds to arbitrary sender",
+     "file": "mTokenGateway.sol",
+     "function": "_outHere()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a forwarder bypass allowing arbitrary fund redirection, which does not correspond to any listed known finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a forwarder redirecting funds via _sender in outHere, which is not present among the known findings; the closest is M-4 about blacklist bypass, but that is a different root cau",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Pauser can pause Redeem/Repay/Transfer, permanently trapping user funds",
+     "file": "Pauser.sol",
+     "function": "emergencyPauseMarket()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the pausing vulnerability in Pauser.sol",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a pausing mechanism that can trap user funds, which is not covered by any of the known findings that focus on rebalancing, migrations, oracles, bridges, etc.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "mTokenGateway outHere allows replay of same journal to drain underlying",
+     "file": "mTokenGateway.sol",
+     "function": "outHere()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the replay vulnerability in outHere; existing outHere finding is about blacklist bypass only.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a replay vulnerability in mTokenGateway.outHere where the same journal can be reused with different amounts, leading to draining of underlying funds. None of the known findings",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Operator.initialize can be front-run by anyone",
+     "file": "Operator.sol",
+     "function": "initialize()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the same initializer front‑run issue in Operator.sol",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes a front-running vulnerability in Operator.initialize, which is not among the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "ChainlinkOracle.getUnderlyingPrice uses symbol lookup, vulnerable to symbol collision",
+     "file": "ChainlinkOracle.sol",
+     "function": "getUnderlyingPrice",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a symbol-collision oracle issue not present in any known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a symbol collision vulnerability in ChainlinkOracle, which is not covered by any known finding. Known findings relate to rebalancer, mToken, oracle decimal mismatch, etc.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Reentrancy in mTokenGateway.outHere via ERC20 transfer callback",
+     "file": "mTokenGateway.sol",
+     "function": "_outHere()",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the same reentrancy issue in mTokenGateway.outHere",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding describes a reentrancy attack in mTokenGateway.outHere via ERC20 transfer callback.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Blacklisted user can be liquidated but cannot repay, trapping their position",
+     "file": "Operator.sol",
+     "function": "beforeMTokenRepay()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a missing blacklist check in Operator.sol, which does not correspond to any listed known finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a missing blacklist check in beforeMTokenRepay leading to a trapped position, but none of the known findings address this specific inconsistency; known findings cover different",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "mErc20Host external ops accept journals without binding to msg.sender",
+     "file": "mErc20Host.sol",
+     "function": "_checkSender()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a unique bypass in mErc20Host's _checkSender, which is not covered by any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a vulnerability in mErc20Host's _checkSender allowing proof-forwarders to spoof sender, which is not covered by any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "mTokenGateway.supplyOnHost credits receiver without whitelist check",
+     "file": "mTokenGateway.sol",
+     "function": "supplyOnHost()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a missing whitelist check in supplyOnHost, which does not correspond to any listed known finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a missing whitelist check on receiver in supplyOnHost, while known finding M-4 is about blacklist bypass on outHere; different function and different access control mechanism.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Reward index not updated on transfer, allowing double-claim of MALDA rewards",
+     "file": "Operator.sol",
+     "function": "beforeMTokenTransfer()",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a reward index update bug in Operator.sol, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes a reward distribution bug in Operator.sol's beforeMTokenTransfer, none of the known findings cover this issue.",
+      "model": "deepseek-v4-flash"
+     }
+    }
+   ]
+  }
+ },
+ "totaal": {
+  "bekend": 105,
+  "hyps": 120,
+  "streng": 8,
+  "ruim": 9,
+  "strengHyp": 9,
+  "eens": 118,
+  "perNiveau": {
+   "makkelijk": {
+    "totaal": 59,
+    "streng": 6
+   },
+   "midden": {
+    "totaal": 14,
+    "streng": 1
+   },
+   "moeilijk": {
+    "totaal": 32,
+    "streng": 1
+   }
+  },
+  "recallStreng": 0.0761904761904762,
+  "recallRuim": 0.08571428571428572,
+  "precisieStreng": 0.075,
+  "overeenstemming": 0.9833333333333333
+ },
+ "kosten": 0.03576542668
+}
