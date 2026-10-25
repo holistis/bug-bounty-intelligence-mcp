@@ -45,4 +45,5 @@ Paid scans run on V3.1 since the evening of 25 October. The earlier version stay
 - `res-V31cap.json`: every judgement of both judges, per hypothesis.
 - `judge-V31cap.log`: the log of the judging.
 - `raw/`: the 15 hypotheses per contest as the scan produced them, without settings or per-call records.
+- `sample-report-symm-io-stacking.html`: a real report as the paid flow delivers it, made by the production pipeline on the public repository of one of these contests (a test job with the payment check skipped, so nobody paid for it). Its sha256 is a4ca62cd2737eccf0aa3f447d6320ee429fb989f7cc3fc7af7d6b2e0898c9d5f, the same hash the service recorded when it delivered it.
 - `SHA256SUMS`: the hashes of the files above.
