@@ -15,15 +15,16 @@ npm install ethers
 node verify-receipt.mjs receipt-evidence.json
 ```
 
-It makes five checks and prints pass or FAIL for each:
+It makes six checks and prints pass or FAIL for each:
 
 1. The signature on the receipt recovers to an address.
 2. The offer that the live endpoint signs today recovers to the same address, so the key that signs offers also signed this receipt. That address is 0xf30b0706E78b3166745E6a2f351992321088058f, a key that only signs and holds no funds.
-3. The transaction exists on Base and succeeded.
-4. It is a USDC transfer to the payment address of the service.
-5. The payer in the receipt is the sender of that transfer.
+3. That address is listed as a controller in the DNS record `_controllers.x402.tokenizen.nl`, the binding between a signing key and a service domain that the offer-receipt specification describes in section 4.5.1. You can read it yourself with `dig TXT _controllers.x402.tokenizen.nl`.
+4. The transaction exists on Base and succeeded.
+5. It is a USDC transfer to the payment address of the service.
+6. The payer in the receipt is the sender of that transfer.
 
-All five pass on 25 October 2026.
+All six pass on 25 October 2026. The DNS record was created at about 16:08 UTC that day, roughly 15 minutes after this receipt was issued (15:53 UTC). DNS keeps no history, so check 3 shows that the key belongs to the service today, not that it did at the minute of issue. The same key signed the offer the endpoint was already serving at that minute.
 
 ## What this shows and what it does not
 

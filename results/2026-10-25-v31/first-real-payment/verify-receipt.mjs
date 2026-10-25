@@ -1,9 +1,9 @@
 // Controleert zelf het bonnetje van de eerste echte betaling, zonder ons te vertrouwen.
 //   npm install ethers
 //   node verify-receipt.mjs receipt-evidence.json
-// Vier dingen: (1) de handtekening van het bonnetje herleidt tot een adres, (2) dat adres is hetzelfde als dat het
-// huidige, door het live eindpunt getekende aanbod ondertekent, (3) de transactie in het bonnetje bestaat op Base
-// en is een USDC-overboeking naar het ontvangstadres van de dienst, (4) de betaler in het bonnetje is de afzender.
+// Zes dingen: (1) de handtekening van het bonnetje herleidt tot een adres, (2) dat adres is hetzelfde als dat het
+// huidige, door het live eindpunt getekende aanbod ondertekent, (3) dat adres staat als controller in het DNS-record van het domein (spec 4.5.1), (4) de transactie in het bonnetje bestaat op Base
+// en is een USDC-overboeking naar het ontvangstadres van de dienst, (5) de betaler in het bonnetje is de afzender.
 import { createRequire } from 'node:module'
 import fs from 'node:fs'
 const eisen = [process.cwd() + '/', import.meta.url]
@@ -29,6 +29,10 @@ const live = await (await fetch('https://x402.tokenizen.nl/api/bug-intel')).json
 const aanbod = live.extensions?.['offer-receipt']?.info?.offers?.[0]
 const aanbodSigner = aanbod ? ethers.verifyTypedData(OFFER_DOMEIN, OFFER_TYPES, aanbod.payload, aanbod.signature) : null
 toets('het live aanbod is door hetzelfde adres getekend', aanbodSigner === herleid, String(aanbodSigner))
+
+const dns = await (await fetch('https://cloudflare-dns.com/dns-query?name=_controllers.x402.tokenizen.nl&type=TXT', { headers: { accept: 'application/dns-json' } })).json()
+const txt = (dns.Answer ?? []).map(x => String(x.data).replace(/"/g, '')).join(';')
+toets('het adres staat als controller in het DNS-record _controllers.x402.tokenizen.nl', txt.toLowerCase().includes('controller=did:pkh:eip155:1:' + herleid.toLowerCase()), txt)
 
 const rpc = await (await fetch('https://mainnet.base.org', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'eth_getTransactionReceipt', params: [bon.payload.transaction] }) })).json()
 const r = rpc.result
