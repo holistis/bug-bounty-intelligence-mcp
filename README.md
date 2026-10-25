@@ -2,6 +2,12 @@
 
 AI-powered smart contract security analysis for AI agents and developers.
 
+## Update, 25 October 2026, night: the scan on contests from the last year
+
+We ran the scan once on 9 Code4rena contests from September 2025 to March 2026 (66 known High and Medium findings), with the rule for reading the result written beforehand. The first 15 hypotheses of a report held 5 of the 66 (7.6 percent) and the first 30 held 8 (12.1 percent). That is the same rate as on the 8 Sherlock contests, so by our own rule the result holds on newer contests. It is still a low rate: 58 of the 66 known findings were not in the first 15. Numbers, judgements, the whole lists and the limits: [results/2026-10-25-c4-fresh/README.md](results/2026-10-25-c4-fresh/README.md).
+
+A report can now show up to 30 hypotheses, in two lists: the 15 the model is most confident about and 15 more with lower confidence. On the stored lists the second list held 8 known findings that the first list did not (5 on Sherlock, 3 on Code4rena), at a slightly lower precision. We chose this after seeing the numbers, so it is a product choice and not a pre-registered test.
+
 ## Update, 25 October 2026, evening: the offer is signed
 
 The paid endpoint now declares the x402 offer-receipt extension and signs its offer. You can check it yourself without paying: `npx -y agent-receipt-verify https://x402.tokenizen.nl/api/bug-intel` reaches level 2 (asks for payment the way x402 says, declares the extension, and the signature of the offer verifies). The signer is 0xf30b0706E78b3166745E6a2f351992321088058f. That key only signs offers and receipts and holds no funds. The key is bound to the service domain in DNS, the way section 4.5.1 of the offer-receipt specification describes: `dig TXT _controllers.x402.tokenizen.nl` lists it as a controller (set on 25 October 2026). The address that receives payments is the one in the payment section below.
