@@ -1,0 +1,54 @@
+{
+  "gemeten": "2026-10-25T18:43:48.024Z",
+  "soort": "koopproef met een standaard x402-client (@x402/fetch)",
+  "transactie": "0xc70f61cc79b604a6822a84e0b104df1876a50762dc8c1b0cae6f15e25b6ddf01",
+  "antwoord": {
+    "jobId": "bi-mvo6h1u6-sheu",
+    "job_id": "bi-mvo6h1u6-sheu",
+    "status": "queued",
+    "repo": "sherlock-audit/2025-03-symm-io-stacking",
+    "price_paid_usd": "1.00",
+    "estimatedHours": 24,
+    "typical_minutes": 10,
+    "poll_interval_sec": 60,
+    "pollUrl": "https://x402.tokenizen.nl/api/bug-intel/bi-mvo6h1u6-sheu",
+    "reportUrl": "https://x402.tokenizen.nl/api/bug-intel/bi-mvo6h1u6-sheu/report",
+    "note": "Poll pollUrl tot status = \"complete\". Rapport wordt dan beschikbaar via reportUrl.",
+    "receipt": {
+      "format": "eip712",
+      "payload": {
+        "version": 1,
+        "network": "eip155:8453",
+        "resourceUrl": "https://x402.tokenizen.nl/api/bug-intel-quick",
+        "payer": "0xAcAA4523430Bd9CC86541B65FbaCCaE942cBAC6e",
+        "issuedAt": 1792953923,
+        "transaction": "0xc70f61cc79b604a6822a84e0b104df1876a50762dc8c1b0cae6f15e25b6ddf01"
+      },
+      "signature": "0xb3b20eabff7ded92f0d52d9dc7059e2cfe8fcc5b78fd64a83120f0154b59fd28286a46bc579d92fb66ad6a269ae03a6835fd9d214aeded15e0f51beafa5b71f11c"
+    }
+  },
+  "paymentResponseHeader": {
+    "success": true,
+    "transaction": "0xc70f61cc79b604a6822a84e0b104df1876a50762dc8c1b0cae6f15e25b6ddf01",
+    "network": "eip155:8453",
+    "payer": "0xAcAA4523430Bd9CC86541B65FbaCCaE942cBAC6e",
+    "extensions": {
+      "offer-receipt": {
+        "info": {
+          "receipt": {
+            "format": "eip712",
+            "payload": {
+              "version": 1,
+              "network": "eip155:8453",
+              "resourceUrl": "https://x402.tokenizen.nl/api/bug-intel-quick",
+              "payer": "0xAcAA4523430Bd9CC86541B65FbaCCaE942cBAC6e",
+              "issuedAt": 1792953923,
+              "transaction": "0xc70f61cc79b604a6822a84e0b104df1876a50762dc8c1b0cae6f15e25b6ddf01"
+            },
+            "signature": "0xb3b20eabff7ded92f0d52d9dc7059e2cfe8fcc5b78fd64a83120f0154b59fd28286a46bc579d92fb66ad6a269ae03a6835fd9d214aeded15e0f51beafa5b71f11c"
+          }
+        }
+      }
+    }
+  }
+}
