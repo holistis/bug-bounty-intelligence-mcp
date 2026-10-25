@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bug Bounty Intelligence — sherlock-audit/2025-03-symm-io-stacking</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#0f172a;color:#e2e8f0;padding:2rem;max-width:900px;margin:0 auto}
+.header{border-bottom:1px solid #1e3a5f;padding-bottom:1.5rem;margin-bottom:2rem}
+h1{font-size:1.8rem;color:#38bdf8}
+.meta{color:#94a3b8;font-size:0.9rem;margin-top:0.4rem}
+.stats{display:flex;gap:1rem;margin:1rem 0 2rem;flex-wrap:wrap}
+.stat{background:#1e293b;border-radius:8px;padding:.75rem 1.25rem;display:flex;align-items:center;gap:.75rem}
+.count{font-size:1.5rem;font-weight:bold}
+.badge{padding:.25rem .6rem;border-radius:4px;font-size:.8rem;font-weight:bold;color:#fff}
+.finding{background:#1e293b;border-radius:8px;margin-bottom:1rem;border-left:4px solid #1e3a5f;overflow:hidden}
+.finding-header{padding:1rem 1.5rem;display:flex;align-items:center;gap:1rem}
+.finding-header h3{flex:1;font-size:1rem}
+.conf{font-size:.8rem;color:#94a3b8}
+.finding-body{padding:0 1.5rem 1.25rem;border-top:1px solid #0f172a}
+.finding-body p{margin-top:.75rem;line-height:1.6;color:#cbd5e1}
+code{background:#0f172a;padding:.1rem .4rem;border-radius:3px;font-size:.85rem}
+.no-findings{padding:2rem;text-align:center;color:#cbd5e1;background:#1e293b;border-radius:8px;line-height:1.7}
+.coverage{margin-bottom:2rem;padding:1rem 1.25rem;background:#1e293b;border-radius:8px;border-left:4px solid #38bdf8;font-size:.9rem;line-height:1.7;color:#cbd5e1}
+.coverage p{margin-top:.5rem}
+.limits{margin-bottom:1rem;padding:.75rem 1.25rem;background:#1e3a5f;border-radius:8px;border-left:4px solid #ca8a04;font-size:.85rem;color:#fbbf24}
+h2{font-size:1.1rem;margin-bottom:1rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em}
+.disclaimer{margin-top:3rem;padding:1.5rem;background:#1e293b;border-radius:8px;border-left:4px solid #ca8a04;font-size:.85rem;color:#94a3b8;line-height:1.7}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Bug Bounty Intelligence</h1>
+  <div class="meta">AI-generated hypotheses for Solidity code. Not an audit.</div>
+  <div class="meta">Repository: <code>sherlock-audit/2025-03-symm-io-stacking</code></div>
+  <div class="meta">Analyzed: 2026-10-25 18:08 UTC &nbsp;|&nbsp; Model: engine V3.1 (long-context reading) &nbsp;|&nbsp; Duration: 28s</div>
+</div>
+
+
+<h2>Coverage</h2>
+<div class="coverage">
+  <p><strong>100% of the in-scope Solidity was read by the analysis</strong>: 53 KB of 53 KB, in 1 of 1 planned parts.</p>
+  <p>Files read in full: 7 of 7.</p>
+  
+  <p>Left out as not the project's own logic: 1 mocks, 5 interfaces. Submodules: none declared.</p>
+  
+</div>
+
+<h2>Summary</h2>
+<div class="stats"><div class="stat"><span class="badge" style="background:#dc2626">Critical</span><span class="count">0</span></div><div class="stat"><span class="badge" style="background:#ea580c">High</span><span class="count">11</span></div><div class="stat"><span class="badge" style="background:#ca8a04">Medium</span><span class="count">15</span></div><div class="stat"><span class="badge" style="background:#16a34a">Low</span><span class="count">4</span></div><div class="stat"><span class="badge" style="background:#6b7280">Info</span><span class="count">0</span></div></div>
+
+<h2>Hypotheses</h2>
+<div class="limits">These are unverified AI hypotheses, not confirmed vulnerabilities. Check each one by hand before you act on it. How often this scan finds known issues in closed audit contests, including the misses, is published in the repository linked below.</div>
+<h3 class="tier">The 15 hypotheses the model is most confident about</h3>
+    <div class="finding" style="border-left-color:#ea580c">
+      <div class="finding-header">
+        <span class="badge" style="background:#ea580c">High</span>
+        <h3>notifyRewardAmount lacks REWARD_MANAGER_ROLE check</h3>
+        <span class="conf">Model confidence: 95%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>SymmStaking.sol</code></p>
+        <p><strong>Function:</strong> <code>notifyRewardAmount()</code></p>
+        <p><strong>Category:</strong> Access Control</p>
+        <p>The `notifyRewardAmount` function is documented as a restricted function but has no access control modifier. Any external caller can invoke it, transferring arbitrary whitelisted reward tokens from their own address into the contract and manipulating the reward rate/periodFinish for any whitelisted token. This lets an attacker grief existing stakers by resetting the reward schedule and diluting or extending reward distribution.</p>
+        <p><strong>Attack path:</strong> 1. Attacker identifies a whitelisted reward token. 2. Attacker calls `notifyRewardAmount([token], [1])` with a tiny amount. 3. `_addRewardsForToken` recomputes `state.rate` and resets `periodFinish = block.timestamp + duration`, extending the reward period and lowering the effective rate for existing stakers. 4. Attacker repeats to indefinitely postpone full reward accrual.</p>
+        <p><strong>Impact:</strong> Existing stakers' rewards are diluted/extended; reward accounting is manipulated by any untrusted actor; potential lockup of reward distribution schedule.</p>
+        <p><strong>Recommendation:</strong> Add `onlyRole(REWARD_MANAGER_ROLE)` to `notifyRewardAmount`.</p>
+      </div>
+    </div>
+    <div class="finding" style="border-left-color:#ea580c">
+      <div class="finding-header">
+        <span class="badge" style="background:#ea580c">High</span>
+        <h3>SymmStaking.notifyRewardAmount lacks access control</h3>
+        <span class="conf">Model confidence: 95%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>SymmStaking.sol</code></p>
+        <p><strong>Function:</strong> <code>notifyRewardAmount()</code></p>
+        <p><strong>Category:</strong> Access Control / State Consistency</p>
+        <p>The `notifyRewardAmount` function is declared `external` with no role restriction (no `onlyRole(REWARD_MANAGER_ROLE)`), unlike `configureRewardToken` and `claimFor`. Any external actor can call it, transferring arbitrary amounts of any whitelisted reward token from themselves into the contract and manipulating `rewardState[token].rate`, `periodFinish`, and `pendingRewards`. This lets an attacker grief existing stakers by diluting or resetting the reward schedule.</p>
+        <p><strong>Attack path:</strong> 1) Attacker acquires a tiny amount of a whitelisted reward token. 2) Calls `notifyRewardAmount([token], [1])` repeatedly. 3) Each call recomputes `state.rate = (amount + leftover) / state.duration` and resets `periodFinish = block.timestamp + duration`, extending the reward period and diluting the per-second rate for existing stakers. 4) Attacker can also front-run legitimate reward notifications to distort accounting.</p>
+        <p><strong>Impact:</strong> Reward schedule manipulation; existing stakers' effective APR is diluted and reward period is repeatedly extended; `pendingRewards` accounting is corrupted relative to intended emissions.</p>
+        <p><strong>Recommendation:</strong> Add `onlyRole(REWARD_MANAGER_ROLE)` to `notifyRewardAmount`.</p>
+      </div>
+    </div>
+    <div class="finding" style="border-left-color:#ea580c">
+      <div class="finding-header">
+        <span class="badge" style="background:#ea580c">High</span>
+        <h3>__vesting_init is public and re-callable via SymmVesting</h3>
+        <span class="conf">Model confidence: 90%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>Vesting.sol</code></p>
+        <p><strong>Function:</strong> <code>__vesting_init()</code></p>
+        <p><strong>Category:</strong> Initializer</p>
+        <p>`__vesting_init` is declared `public initializer`, meaning it can be invoked directly on the Vesting implementation (or on the proxy if not yet initialized) by any external caller. Because it grants DEFAULT_ADMIN_ROLE, SETTER_ROLE, OPERATOR_ROLE, PAUSER_ROLE, and UNPAUSER_ROLE to the `admin` argument, an attacker who calls it first becomes the full admin of the vesting system.</p>
+        <p><strong>Attack path:</strong> 1. Attacker calls `__vesting_init(attacker, 0, attacker)` on the proxy before legitimate initialization. 2. Attacker now holds all roles. 3. Attacker uses SETTER_ROLE to create vesting plans and OPERATOR_ROLE to claim on behalf of victims, or uses admin to pause/unpause and manipulate state.</p>
+        <p><strong>Impact:</strong> Complete privilege escalation; attacker controls all vesting operations and can drain/mint tokens.</p>
+        <p><strong>Recommendation:</strong> Make `__vesting_init` `internal` (called only from derived `initialize`) and rely on the `initializer` modifier on the external entry point.</p>
+      </div>
+    </div>
+    <div class="finding" style="border-left-color:#ea580c">
+      <div class="finding-header">
+        <span class="badge" style="background:#ea580c">High</span>
+        <h3>SymmVesting.initialize is public and callable by anyone</h3>
+        <span class="conf">Model confidence: 85%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>SymmVesting.sol</code></p>
+        <p><strong>Function:</strong> <code>initialize()</code></p>
+        <p><strong>Category:</strong> Initializer / Access Control</p>
+        <p>`SymmVesting.initialize` is declared `public initializer` (not `external` with an access guard) and, unlike typical proxy patterns, has no restriction preventing an arbitrary caller from front-running the intended initialization. If the proxy is deployed and not initialized atomically, any untrusted actor can call `initialize` first, granting themselves DEFAULT_ADMIN_ROLE, SETTER_ROLE, OPERATOR_ROLE, PAUSER_ROLE, and UNPAUSER_ROLE, and setting attacker-controlled POOL/ROUTER/PERMIT2/VAULT/SYMM/USDC/SYMM_LP addresses.</p>
+        <p><strong>Attack path:</strong> 1. Deployer deploys proxy pointing at SymmVesting implementation. 2. Before the legitimate `initialize` tx lands, attacker calls `initialize(attacker, attacker, attackerControlledPool, ...)`. 3. Attacker becomes admin and can set up vesting plans, mint SYMM via `_mintTokenIfPossible`, and drain funds.</p>
+        <p><strong>Impact:</strong> Full takeover of the vesting contract; attacker can mint SYMM, set arbitrary vesting plans, and drain tokens.</p>
+        <p><strong>Recommendation:</strong> Restrict `initialize` to `external` and ensure deployment uses atomic initialization (e.g., `upgradeToAndCall`), or add an initializer guard tied to the deployer.</p>
+      </div>
+    </div>
+    <div class="finding" style="border-left-color:#ea580c">
+      <div class="finding-header">
+        <span class="badge" style="background:#ea580c">High</span>
+        <h3>SymmStaking.rescueTokens can drain staking or reward tokens</h3>
+        <span class="conf">Model confidence: 85%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>SymmStaking.sol</code></p>
+        <p><strong>Function:</strong> <code>rescueTokens()</code></p>
+        <p><strong>Category:</strong> Integration / Fund Safety</p>
+        <p>`rescueTokens` allows the DEFAULT_ADMIN_ROLE to transfer any ERC20 held by the contract, including the `stakingToken` and whitelisted reward tokens, with no exclusion. While admin is trusted, the function is also callable by any address holding DEFAULT_ADMIN_ROLE, and the contract does not distinguish between &quot;stuck&quot; tokens and user funds. More importantly, the function lacks any check that the token is not the staking token or a reward token, so a compromised or malicious admin can rug all staked principal and pending rewards.</p>
+        <p><strong>Attack path:</strong> 1) Admin (or anyone who obtains DEFAULT_ADMIN_ROLE) calls `rescueTokens(stakingToken, balanceOf(contract), attacker)`. 2) All staked SYMM is transferred out. 3) Users' `balanceOf` and `totalSupply` remain unchanged, so `withdraw` will revert on `safeTransfer` due to insufficient balance.</p>
+        <p><strong>Impact:</strong> Complete loss of staked principal and pending rewards; contract becomes insolvent; users cannot withdraw.</p>
+        <p><strong>Recommendation:</strong> Disallow rescuing `stakingToken` and any whitelisted reward token, or restrict rescue to tokens not tracked by the contract.</p>
+      </div>
+    </div>
+    <div class="finding" style="border-left-color:#ea580c">
+      <div class="finding-header">
+        <span class="badge" style="background:#ea580c">High</span>
+        <h3>addLiquidity uses spot pool balances for quote, manipulable via flash loan</h3>
+        <span class="conf">Model confidence: 80%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>SymmVesting.sol</code></p>
+        <p><strong>Function:</strong> <code>getLiquidityQuote()</code></p>
+        <p><strong>Category:</strong> Spot-price manipulation</p>
+        <p>`getLiquidityQuote` derives `usdcAmount` and `expectedLpAmount` directly from `POOL.getCurrentLiveBalances()` (spot balances) with no TWAP or manipulation resistance. An attacker can flash-loan and skew the pool's SYMM/USDC balances right before calling `addLiquidity`, causing the contract to pull an inflated USDC amount from the user (or mint fewer LP tokens than fair). The `maxUsdcIn`/`minLpAmount` guards only protect the caller who sets them, but the default 1% slippage fallback in `_addLiquidity` is computed from the same manipulated `expectedLpAmount`, so it provides no real protection.</p>
+        <p><strong>Attack path:</strong> 1) Attacker flash-borrows USDC and swaps into the pool to push SYMM balance down / USDC up (or vice versa). 2) Calls `addLiquidity` (or `addLiquidityByPercentage`) with `minLpAmount=0` and `maxUsdcIn=0` so defaults apply. 3) `getLiquidityQuote` returns a skewed `usdcIn` and `expectedLpAmount`; the 1% slippage floor is derived from the manipulated expected value. 4) Router executes at manipulated ratio; attacker reverses the swap and repays flash loan, pocketing the difference extracted from the victim's SYMM vesting.</p>
+        <p><strong>Impact:</strong> Victim's locked SYMM is converted at an unfair rate; excess USDC drained from the user or LP tokens under-minted, resulting in direct loss of user funds.</p>
+        <p><strong>Recommendation:</strong> Use a manipulation-resistant oracle (e.g., pool TWAP or a trusted price feed) for the quote, and require callers to supply explicit `minLpAmount`/`maxUsdcIn` rather than defaulting to a spot-derived 1% floor.</p>
+      </div>
+    </div>
+    <div class="finding" style="border-left-color:#ea580c">
+      <div class="finding-header">
+        <span class="badge" style="background:#ea580c">High</span>
+        <h3>addLiquidity default slippage derived from manipulable expectedLpAmount</h3>
+        <span class="conf">Model confidence: 75%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>SymmVesting.sol</code></p>
+        <p><strong>Function:</strong> <code>_addLiquidity()</code></p>
+        <p><strong>Category:</strong> Slippage / minimum-out</p>
+        <p>When `minLpAmount == 0`, the code sets `minLpAmountWithSlippage = (expectedLpAmount * 99) / 100`, where `expectedLpAmount` comes from `getLiquidityQuote` using live pool balances. Because both the expected value and the floor are computed from the same spot state, a manipulator can shift the pool so that the &quot;1% slippage&quot; floor is itself far below the fair LP output, defeating the intended protection. The router is also called with `expectedLpAmount` as its min-out argument, again derived from the same manipulable quote.</p>
+        <p><strong>Attack path:</strong> 1) Attacker manipulates pool balances via flash loan. 2) Victim (or attacker on behalf of a victim via `addLiquidityByPercentage`) calls `addLiquidity` with `minLpAmount=0`. 3) `expectedLpAmount` is skewed low, so `minLpAmountWithSlippage` is also skewed low. 4) Router returns fewer LP tokens than fair; the check passes. 5) Attacker unwinds the pool manipulation.</p>
+        <p><strong>Impact:</strong> LP tokens minted to the vesting plan are materially less than fair value; user's locked SYMM is effectively burned at a bad rate.</p>
+        <p><strong>Recommendation:</strong> Require a caller-supplied `minLpAmount` (revert if zero) or compute the floor from a manipulation-resistant reference price, not from the same spot quote used for execution.</p>
+      </div>
+    </div>
+    <div class="finding" style="border-left-color:#ca8a04">
+      <div class="finding-header">
+        <span class="badge" style="background:#ca8a04">Medium</span>
+        <h3>SymmStaking reward rate truncation causes stuck pendingRewards</h3>
+        <span class="conf">Model confidence: 70%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>SymmStaking.sol</code></p>
+        <p><strong>Function:</strong> <code>_addRewardsForToken()</code></p>
+        <p><strong>Category:</strong> Rounding / Accounting drift</p>
+        <p>When a new reward amount is added, `state.rate = amount / state.duration` (or `(amount + leftover) / state.duration`) truncates the remainder. The full `amount` is added to `pendingRewards[token]`, but the sum of `rate * duration` distributed over time is less than `amount`. The truncated dust is never claimable, so `pendingRewards[token]` permanently exceeds the sum of all users' claimable rewards, and `_claimRewardsFor` will eventually underflow when the last claimer tries to subtract their reward from a `pendingRewards` that is smaller than the sum of individual rewards.</p>
+        <p><strong>Attack path:</strong> 1) Reward manager notifies a reward amount not divisible by `duration` (e.g. 1 wei over a week). 2) `rate` truncates, dust remains in `pendingRewards`. 3) Over many notifications the drift accumulates. 4) When users claim, `pendingRewards[token] -= reward` can underflow (revert) once the accumulated truncation exceeds the remaining balance, freezing claims for that token.</p>
+        <p><strong>Impact:</strong> Users cannot claim rewards (DoS on `claimRewards`/`claimFor`), and `pendingRewards` accounting permanently diverges from real distributable rewards.</p>
+        <p><strong>Recommendation:</strong> Track the undistributed remainder and roll it into the next notification, or compute `rate` from the actual distributable amount and reduce `pendingRewards` accordingly.</p>
+      </div>
+    </div>
+    <div class="finding" style="border-left-color:#ea580c">
+      <div class="finding-header">
+        <span class="badge" style="background:#ea580c">High</span>
+        <h3>claimRewards reverts on zero-amount reward transfer, blocking all rewards</h3>
+        <span class="conf">Model confidence: 70%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>SymmStaking.sol</code></p>
+        <p><strong>Function:</strong> <code>_claimRewardsFor()</code></p>
+        <p><strong>Category:</strong> Denial of Service / Revert on zero transfer</p>
+        <p>`_claimRewardsFor` iterates over ALL reward tokens and calls `IERC20(token).safeTransfer(user, reward)` whenever `reward &gt; 0`. Many ERC20 tokens (e.g. those using OpenZeppelin's `_transfer` with a zero-value revert, or tokens that revert on zero transfers like some ERC20 implementations) will revert. More critically, if a whitelisted reward token is later deprecated or its transfer is blocked (blacklist, paused token), the loop cannot complete; the entire `claimRewards()` call reverts, preventing the user from claiming ANY reward token, and `pendingRewards[token]` stays recorded forever.</p>
+        <p><strong>Attack path:</strong> (1) An attacker (or any user) is unable to claim rewards for a token whose transfer logic reverts (e.g., token that reverts on zero transfer to the user, or a blacklisted/pausable reward token). (2) `_claimRewardsFor` reverts mid-loop, reverting the entire `claimRewards()` transaction. (3) Even for whitelisted tokens later blocked, no mechanism exists to skip or quarantine the offending token, so users cannot claim any rewards.</p>
+        <p><strong>Impact:</strong> Users permanently unable to claim any staking rewards from any reward token; funds effectively frozen in the contract. The reward token list is also not removable because `configureRewardToken` reverts when `pendingRewards[token] &gt; 10`.</p>
+        <p><strong>Recommendation:</strong> Wrap each transfer in a try/catch or check `token` balance/eligibility before transfer; alternatively allow removing a reward token from the iteration (or skipping failing tokens) so a single bad token can't block claims.</p>
+      </div>
+    </div>
+    <div class="finding" style="border-left-color:#ca8a04">
+      <div class="finding-header">
+        <span class="badge" style="background:#ca8a04">Medium</span>
+        <h3>Permit2 approvals use block.timestamp as expiration, causing immediate expiry</h3>
+        <span class="conf">Model confidence: 70%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>SymmVesting.sol</code></p>
+        <p><strong>Function:</strong> <code>_addLiquidity()</code></p>
+        <p><strong>Category:</strong> Signature/Permit</p>
+        <p>The contract calls `PERMIT2.approve(SYMM, address(ROUTER), uint160(symmIn), uint48(block.timestamp))` and the same for USDC, setting the Permit2 allowance expiration to the current block timestamp. Permit2 treats an expiration equal to the current timestamp as already expired, so the subsequent `ROUTER.addLiquidityProportional` call cannot pull the tokens via Permit2. The approval is effectively useless and the router call will revert (or the tokens are pulled via a different path that may not be intended).</p>
+        <p><strong>Attack path:</strong> Any user calling `addLiquidity`/`addLiquidityByPercentage` triggers the flow; the Permit2 approval expires at the same second it is set, so the router cannot transferFrom via Permit2. If the router falls back to a direct allowance, the intended Permit2 security model is bypassed; otherwise the call reverts and the user's USDC is pulled but liquidity is never added (funds stuck in the contract until rescue).</p>
+        <p><strong>Impact:</strong> Broken liquidity-add flow; user USDC transferred into the contract but no LP minted, funds temporarily frozen pending admin rescue; potential loss of gas and denial of the core feature.</p>
+        <p><strong>Recommendation:</strong> Set the Permit2 expiration to a future timestamp (e.g., `block.timestamp + 1` or a bounded deadline parameter supplied by the caller) instead of `block.timestamp`.</p>
+      </div>
+    </div>
+    <div class="finding" style="border-left-color:#ea580c">
+      <div class="finding-header">
+        <span class="badge" style="background:#ea580c">High</span>
+        <h3>Reward rate dilution via notifyRewardAmount during active period</h3>
+        <span class="conf">Model confidence: 70%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>SymmStaking.sol</code></p>
+        <p><strong>Function:</strong> <code>notifyRewardAmount()</code></p>
+        <p><strong>Category:</strong> Reward accounting / incentive gaming</p>
+        <p>When a new reward notification arrives while a period is still active, `_addRewardsForToken` computes `state.rate = (amount + leftover) / state.duration` and then extends `periodFinish = block.timestamp + state.duration`. The `leftover` is computed as `remaining * state.rate` using the OLD rate, but the new rate is then applied over a full fresh `duration` window, so the total emitted rewards over the new window can exceed `amount + leftover` (or under-emit), and the per-second rate is reset to a value that does not preserve the previously accrued entitlement. Because `_updateRewardsStates(address(0))` is called before the loop, existing stakers' `perTokenStored` is snapshotted, but the new rate is applied to the entire new duration including time that was already accounted for at the old rate, causing double-counting or under-counting of rewards relative to the tokens actually deposited.</p>
+        <p><strong>Attack path:</strong> 1) Attacker (a staker) waits until a reward period is near its end with a large `leftover`. 2) Attacker (or any reward manager, but the flaw is exploitable by timing) triggers `notifyRewardAmount` with a tiny amount, which resets `periodFinish` to `block.timestamp + duration` and recomputes `rate` using the leftover. 3) The new rate is applied over the full new duration, so the attacker's share of rewards is computed against a rate that does not correspond to the actual tokens funded for that window. 4) Attacker claims at the optimal moment to capture more than their pro-rata share, leaving the contract short for other stakers.</p>
+        <p><strong>Impact:</strong> Reward token insolvency — the contract can owe more rewards than it holds, causing later claimants' `safeTransfer` to revert and freezing rewards for honest stakers.</p>
+        <p><strong>Recommendation:</strong> Compute the new rate as `(amount + leftover) / duration` only when `block.timestamp &gt;= periodFinish`; otherwise extend `periodFinish` by `amount / state.rate` (or use a proper accumulator) so the leftover is consumed at the old rate before the new rate applies.</p>
+      </div>
+    </div>
+    <div class="finding" style="border-left-color:#ca8a04">
+      <div class="finding-header">
+        <span class="badge" style="background:#ca8a04">Medium</span>
+        <h3>SymmVesting._addLiquidity assumes poolTokens[0]=SYMM, [1]=USDC</h3>
+        <span class="conf">Model confidence: 70%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>SymmVesting.sol</code></p>
+        <p><strong>Function:</strong> <code>_addLiquidity()</code></p>
+        <p><strong>Category:</strong> Integration / Wrong Assumptions</p>
+        <p>The code retrieves `poolTokens = POOL.getTokens()` and destructures `(IERC20 symm, IERC20 usdc) = (poolTokens[0], poolTokens[1])` with a comment &quot;Assumes poolTokens[0] is SYMM and poolTokens[1] is USDC.&quot; If the pool's token ordering differs (e.g., USDC first), the contract will approve and transfer the wrong tokens, and `getLiquidityQuote` (which also assumes `balances[0]=symm`, `balances[1]=usdc`) will compute incorrect amounts. This is a hard-coded assumption about an external protocol's state.</p>
+        <p><strong>Attack path:</strong> 1) If the pool is ever reordered or a different pool is configured, `getLiquidityQuote` returns wrong `usdcAmount`/`lpAmount`. 2) `_addLiquidity` then transfers the wrong token amounts, potentially sending USDC where SYMM is expected. 3) User loses funds or receives wrong LP amounts.</p>
+        <p><strong>Impact:</strong> Incorrect token transfers, loss of user funds, wrong LP minting, potential revert or stuck tokens.</p>
+        <p><strong>Recommendation:</strong> Verify token addresses against `SYMM`/`USDC` state variables instead of relying on index ordering, or fetch indices dynamically.</p>
+      </div>
+    </div>
+    <div class="finding" style="border-left-color:#ca8a04">
+      <div class="finding-header">
+        <span class="badge" style="background:#ca8a04">Medium</span>
+        <h3>AirdropHelper rescueFunds can drain airdrop tokens</h3>
+        <span class="conf">Model confidence: 60%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>AirdropHelper.sol</code></p>
+        <p><strong>Function:</strong> <code>rescueFunds()</code></p>
+        <p><strong>Category:</strong> Privileged Function / Trust</p>
+        <p>`rescueFunds` lets the owner transfer the entire balance of any ERC20, including the SYMM token reserved for the configured airdrop, to the owner. There is no check excluding `SYMM_TOKEN` or the currently configured airdrop amount, so the owner can rug the airdrop funds before `transferAirdrops` completes.</p>
+        <p><strong>Attack path:</strong> Owner (or attacker who compromises the owner key) calls `rescueFunds(address(SYMM_TOKEN))` after `configureAirdrop`, sweeping all airdrop funds to themselves; subsequent `transferAirdrops` calls revert on insufficient balance.</p>
+        <p><strong>Impact:</strong> Recipients never receive their airdrop; funds diverted to owner.</p>
+        <p><strong>Recommendation:</strong> Exclude `SYMM_TOKEN` from rescue, or require `totalConfiguredAirdrop == 0` before allowing rescue of SYMM.</p>
+      </div>
+    </div>
+    <div class="finding" style="border-left-color:#ca8a04">
+      <div class="finding-header">
+        <span class="badge" style="background:#ca8a04">Medium</span>
+        <h3>SymmStaking notifyRewardAmount can be front-run to dilute existing stakers</h3>
+        <span class="conf">Model confidence: 60%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>SymmStaking.sol</code></p>
+        <p><strong>Function:</strong> <code>notifyRewardAmount()</code></p>
+        <p><strong>Category:</strong> Reward accounting / first-depositor style</p>
+        <p>`_updateRewardsStates(address(0))` is called before the new reward is added, but `rewardPerToken` uses `totalSupply` at that moment. A user can deposit right before `notifyRewardAmount` (or right after, before `_updateRewardsStates` is triggered by others) to capture a share of the newly notified rewards without having staked during the prior period. Because `_updateRewardsStates` is only called on deposit/withdraw/claim, a staker who deposits in the same block as the notification (via mempool) gets `userRewardPerTokenPaid` set to the pre-notification value and then immediately accrues the new rate.</p>
+        <p><strong>Attack path:</strong> 1) Attacker sees pending `notifyRewardAmount` tx in mempool. 2) Attacker front-runs with a large `deposit`. 3) Notification lands, `rate` is set. 4) Attacker waits one block and calls `claimRewards`, receiving a disproportionate share of the new rewards relative to time staked.</p>
+        <p><strong>Impact:</strong> Existing stakers receive fewer rewards than intended; attacker extracts value from the reward pool with minimal time-at-risk.</p>
+        <p><strong>Recommendation:</strong> Require a minimum staking duration before rewards accrue, or snapshot `totalSupply` at notification time and only distribute to stakers present at that snapshot.</p>
+      </div>
+    </div>
+    <div class="finding" style="border-left-color:#ca8a04">
+      <div class="finding-header">
+        <span class="badge" style="background:#ca8a04">Medium</span>
+        <h3>SymmVesting _addLiquidity uses stale expectedLpAmount as router min</h3>
+        <span class="conf">Model confidence: 60%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>SymmVesting.sol</code></p>
+        <p><strong>Function:</strong> <code>_addLiquidity()</code></p>
+        <p><strong>Category:</strong> Slippage / accounting</p>
+        <p>`expectedLpAmount` is computed from `getLiquidityQuote` using current pool balances, then passed directly to `ROUTER.addLiquidityProportional` as the minimum LP amount. The subsequent `minLpAmountWithSlippage` check is applied only after the router call. If the pool is manipulated (e.g. via a flash loan) between the quote and the router call, the router's own min is the stale `expectedLpAmount`, which may be higher than the actual received amount, causing the router to revert — or if the router's min is lower than `minLpAmountWithSlippage`, the post-check catches it. However, the router's min being `expectedLpAmount` (not `minLpAmountWithSlippage`) means the user's explicit slippage parameter is not enforced at the router level, and a sandwich can still extract value up to the difference between `expectedLpAmount` and `minLpAmountWithSlippage`.</p>
+        <p><strong>Attack path:</strong> 1) Attacker observes a pending `addLiquidity` tx. 2) Attacker manipulates pool balances so `expectedLpAmount` is favorable to them. 3) Victim's tx executes with router min = stale `expectedLpAmount`, receiving fewer LP than `minLpAmountWithSlippage` would allow if the post-check is bypassed by rounding. 4) Attacker reverses manipulation for profit.</p>
+        <p><strong>Impact:</strong> User receives fewer LP tokens than their slippage tolerance implies; value extracted by sandwich attacker.</p>
+        <p><strong>Recommendation:</strong> Pass `minLpAmountWithSlippage` (not `expectedLpAmount`) as the router's minimum LP amount.</p>
+      </div>
+    </div><h3 class="tier">Further hypotheses, lower confidence</h3><div class="limits">These come after the first 15 because the model was less confident about them. In our own measurements about 3 in 100 of them matched a known valid finding, against about 4 in 100 of the first 15, and they also matched valid findings that the first 15 missed. Read them with that in mind.</div>
+    <div class="finding" style="border-left-color:#ca8a04">
+      <div class="finding-header">
+        <span class="badge" style="background:#ca8a04">Medium</span>
+        <h3>SymmAllocationClaimer adminClaimableAmount can be gamed by claim timing</h3>
+        <span class="conf">Model confidence: 60%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>SymmAllocationClaimer.sol</code></p>
+        <p><strong>Function:</strong> <code>claim()</code></p>
+        <p><strong>Category:</strong> Reward epoch / incentive gaming</p>
+        <p>In `claim()`, `amountToClaim = (userAllocations[msg.sender] * mintFactor) / 1e18` and `adminClaimableAmount += (userAllocations[msg.sender] - amountToClaim)`. The `mintFactor` is fixed at construction, so the split between user and admin is deterministic per allocation. However, `userAllocations[msg.sender]` is set to 0 after claiming, and `totalUserClaimedAmount` is incremented by `amountToClaim`. If `mintFactor` is set to a value that makes `amountToClaim` round down to 0 for small allocations (e.g., allocation &lt; 1e18 / mintFactor), the user receives nothing while the entire allocation is credited to `adminClaimableAmount`. A user with a small allocation can be forced to forfeit their entire allocation to the admin.</p>
+        <p><strong>Attack path:</strong> 1) Attacker (or any user) with a small allocation calls `claim()`. 2) Due to integer division, `amountToClaim` rounds to 0. 3) `adminClaimableAmount` is incremented by the full allocation, and `userAllocations[msg.sender]` is zeroed. 4) The user receives 0 tokens, and the admin can later claim the full amount via `adminClaim`.</p>
+        <p><strong>Impact:</strong> Users with small allocations lose their entire allocation to the admin; unfair distribution.</p>
+        <p><strong>Recommendation:</strong> Require `amountToClaim &gt; 0` before zeroing the allocation, or use a minimum allocation threshold, or round in favor of the user.</p>
+      </div>
+    </div>
+    <div class="finding" style="border-left-color:#ca8a04">
+      <div class="finding-header">
+        <span class="badge" style="background:#ca8a04">Medium</span>
+        <h3>notifyRewardAmount rate truncation lets reward period underpay or stall</h3>
+        <span class="conf">Model confidence: 60%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>SymmStaking.sol</code></p>
+        <p><strong>Function:</strong> <code>_addRewardsForToken()</code></p>
+        <p><strong>Category:</strong> Wrong decimals / accounting</p>
+        <p>`state.rate = amount / state.duration` (and the leftover branch) performs integer division with no remainder handling. For small `amount` relative to `duration` (e.g., a reward token with few decimals or a small notification), `rate` can round to 0, so `rewardPerToken` never increases and stakers earn nothing while `pendingRewards[token]` still holds the full amount. Conversely, truncation leaves dust that is never distributed, and `getFullPeriodReward` (`rate * duration`) under-reports the notified amount.</p>
+        <p><strong>Attack path:</strong> An untrusted reward notifier (anyone can call `notifyRewardAmount` for whitelisted tokens) can notify a tiny amount to set `rate=0`, or a legitimate small notification silently yields zero rewards; stakers' `earned` stays flat while tokens sit in the contract. A malicious notifier can also grief by repeatedly notifying dust to reset `lastUpdated`/`periodFinish` without distributing.</p>
+        <p><strong>Impact:</strong> Rewards are effectively frozen/undistributed; stakers receive less than notified; `pendingRewards` accounting diverges from claimable amounts.</p>
+        <p><strong>Recommendation:</strong> Scale `rate` by a precision factor (e.g., `amount * 1e18 / duration`) and divide accordingly in `rewardPerToken`, or revert when `amount / duration == 0`.</p>
+      </div>
+    </div>
+    <div class="finding" style="border-left-color:#16a34a">
+      <div class="finding-header">
+        <span class="badge" style="background:#16a34a">Low</span>
+        <h3>getLiquidityQuote division by pool balances can revert on zero, blocking addLiquidity</h3>
+        <span class="conf">Model confidence: 60%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>SymmVesting.sol</code></p>
+        <p><strong>Function:</strong> <code>getLiquidityQuote()</code></p>
+        <p><strong>Category:</strong> Denial of Service / Revert on empty pool</p>
+        <p>`getLiquidityQuote` does `usdcAmount = (symmAmount * usdcBalance) / symmBalance;` and `lpAmount = (symmAmount * totalSupply) / symmBalance;`. If `symmBalance == 0` (pool drained or freshly initialized), this reverts with a division-by-zero panic. `addLiquidity` and `addLiquidityByPercentage` call `_addLiquidity` → `getLiquidityQuote`, so users cannot add liquidity into an empty pool and cannot recover from that state — they simply cannot call the function.</p>
+        <p><strong>Attack path:</strong> An attacker (or market conditions) empties the SYMM side of the pool (e.g., through a swap). Then any user calling `addLiquidity` reverts on `getLiquidityQuote` division by zero, blocking the vesting-liquidity path entirely until the pool is re-seeded externally.</p>
+        <p><strong>Impact:</strong> `addLiquidityByPercentage` and `addLiquidity` become permanently unusable while the pool SYMM balance is zero; users blocked from converting vested SYMM to LP.</p>
+        <p><strong>Recommendation:</strong> Guard `if (symmBalance == 0 || totalSupply == 0) revert` with a clear error, or return zeros and handle in caller.</p>
+      </div>
+    </div>
+    <div class="finding" style="border-left-color:#16a34a">
+      <div class="finding-header">
+        <span class="badge" style="background:#16a34a">Low</span>
+        <h3>addLiquidityByPercentage truncates to zero for small locked amounts</h3>
+        <span class="conf">Model confidence: 60%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>SymmVesting.sol</code></p>
+        <p><strong>Function:</strong> <code>addLiquidityByPercentage()</code></p>
+        <p><strong>Category:</strong> Arithmetic / Input Validation</p>
+        <p>`amount = (getLockedAmountsForToken(msg.sender, SYMM) * percentage) / 1e18` truncates to zero when the locked amount times percentage is below 1e18. The resulting `amount == 0` is passed to `_addLiquidityProcess`, which then calls `_addLiquidity(0, ...)`. `getLiquidityQuote(0)` returns `usdcAmount = 0` and `lpAmount = 0`, and `minLpAmountWithSlippage` becomes `(0 * 99) / 100 = 0`, so the slippage check passes trivially. The router is invoked with zero amounts, and the vesting plan is reset with `symmLockedAmount - 0`, silently rebasing the plan's start/end times without any economic effect.</p>
+        <p><strong>Attack path:</strong> A user with a small locked SYMM balance calls `addLiquidityByPercentage` with a small percentage; the call succeeds with zero liquidity added but the vesting plan's `startTime`/`endTime` are rebased to `block.timestamp` and `block.timestamp + remaining`, extending the effective vesting schedule and resetting `claimedAmount` to 0 (which is fine) but shifting the schedule forward.</p>
+        <p><strong>Impact:</strong> Unintended vesting schedule rebasing for the user; no funds lost but the vesting timeline is silently altered, and the function succeeds when it should revert on zero amount.</p>
+        <p><strong>Recommendation:</strong> Revert when the computed `amount == 0` (or when `percentage == 0`) before calling `_addLiquidityProcess`.</p>
+      </div>
+    </div>
+    <div class="finding" style="border-left-color:#ca8a04">
+      <div class="finding-header">
+        <span class="badge" style="background:#ca8a04">Medium</span>
+        <h3>addLiquidityByPercentage uses locked amount but resets plan with amountsIn[0] mismatch</h3>
+        <span class="conf">Model confidence: 60%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>SymmVesting.sol</code></p>
+        <p><strong>Function:</strong> <code>_addLiquidityProcess()</code></p>
+        <p><strong>Category:</strong> Vesting accounting / unfair distribution</p>
+        <p>`_addLiquidityProcess` computes `symmLockedAmount = symmVestingPlan.lockedAmount()` and requires `symmLockedAmount &gt;= amount`, then calls `_addLiquidity(amount, ...)`. Inside `_addLiquidity`, the router may consume less SYMM than `amount` (returned in `amountsIn[0]`), and the plan is reset to `symmLockedAmount - amountsIn[0]`. However, `_claimUnlockedToken(SYMM, msg.sender)` is called first, which advances `claimedAmount` and reduces `totalVested`, but the subsequent `resetAmount` rebases `startTime = block.timestamp` and `endTime = block.timestamp + remaining`, effectively restarting the vesting clock for the remaining locked amount. A user can repeatedly call `addLiquidity` with tiny amounts to perpetually push `endTime` forward, keeping tokens locked indefinitely while still receiving LP tokens.</p>
+        <p><strong>Attack path:</strong> 1) Attacker calls `addLiquidity(1 wei, 0, 0)` repeatedly. 2) Each call triggers `resetAmount`, which sets `startTime = block.timestamp` and `endTime = block.timestamp + remaining`, so the remaining locked SYMM never vests. 3) Attacker accumulates LP tokens (which vest on their own schedule) while the SYMM vesting plan is frozen. 4) Attacker can also use `addLiquidityByPercentage` with a tiny percentage to achieve the same effect.</p>
+        <p><strong>Impact:</strong> Vesting schedule manipulation — locked tokens never unlock, defeating the vesting purpose; LP tokens are minted and can be claimed/used while SYMM remains locked.</p>
+        <p><strong>Recommendation:</strong> In `resetAmount`, preserve the original `endTime` (do not rebase) or only rebase when the plan is fully reset by an admin; alternatively, disallow `addLiquidity` calls that would extend the vesting end time.</p>
+      </div>
+    </div>
+    <div class="finding" style="border-left-color:#ca8a04">
+      <div class="finding-header">
+        <span class="badge" style="background:#ca8a04">Medium</span>
+        <h3>SymmVesting._addLiquidity leaves PERMIT2 approvals open</h3>
+        <span class="conf">Model confidence: 60%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>SymmVesting.sol</code></p>
+        <p><strong>Function:</strong> <code>_addLiquidity()</code></p>
+        <p><strong>Category:</strong> Approvals / Integration</p>
+        <p>The function calls `usdc.approve(address(PERMIT2), usdcIn)` and `symm.approve(address(PERMIT2), symmIn)` and then `PERMIT2.approve(SYMM, address(ROUTER), uint160(symmIn), uint48(block.timestamp))` and the same for USDC. The ERC20 approvals to PERMIT2 are never reset to zero, and the PERMIT2 allowances to ROUTER are set with an expiration of `block.timestamp` (already expired by the time the tx completes). The leftover ERC20 allowance to PERMIT2 persists across calls, and if PERMIT2 is ever compromised or the router address is reused, the residual allowance can be abused.</p>
+        <p><strong>Attack path:</strong> 1) Any user calls `addLiquidity`. 2) Contract grants PERMIT2 an allowance of `symmIn`/`usdcIn` on the ERC20 tokens. 3) If the router does not consume the full allowance (e.g., partial fill), residual allowance remains. 4) A malicious actor who can invoke PERMIT2's `transferFrom` on behalf of the contract (or a future upgrade of PERMIT2) can drain the residual allowance.</p>
+        <p><strong>Impact:</strong> Residual token allowances can be exploited to siphon tokens held by the vesting contract.</p>
+        <p><strong>Recommendation:</strong> Reset ERC20 approvals to PERMIT2 to zero after the router call, and use a longer/appropriate expiration for PERMIT2 allowances.</p>
+      </div>
+    </div>
+    <div class="finding" style="border-left-color:#ca8a04">
+      <div class="finding-header">
+        <span class="badge" style="background:#ca8a04">Medium</span>
+        <h3>configureRewardToken can remove token with pending rewards &gt;10</h3>
+        <span class="conf">Model confidence: 55%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>SymmStaking.sol</code></p>
+        <p><strong>Function:</strong> <code>configureRewardToken()</code></p>
+        <p><strong>Category:</strong> Access Control / Accounting</p>
+        <p>`configureRewardToken` allows REWARD_MANAGER_ROLE to remove a reward token from `rewardTokens` when `pendingRewards[token] &lt;= 10`. Once removed, `_updateRewardsStates` and `_claimRewardsFor` no longer iterate over that token, so any user with accrued `rewards[user][token]` (up to 10 wei) can never claim them, and `pendingRewards[token]` remains stuck. The threshold of 10 wei is arbitrary and permits silent loss of user rewards.</p>
+        <p><strong>Attack path:</strong> A compromised or malicious reward manager calls `configureRewardToken(token, false)` when pendingRewards is small; users with unclaimed rewards for that token lose the ability to claim.</p>
+        <p><strong>Impact:</strong> Permanent loss of small user reward balances; accounting mismatch between `pendingRewards` and actual claimable rewards.</p>
+        <p><strong>Recommendation:</strong> Require `pendingRewards[token] == 0` before removal, or track and allow claiming of removed tokens.</p>
+      </div>
+    </div>
+    <div class="finding" style="border-left-color:#16a34a">
+      <div class="finding-header">
+        <span class="badge" style="background:#16a34a">Low</span>
+        <h3>SymmVesting addLiquidityByPercentage rounds down allowing zero-amount grief</h3>
+        <span class="conf">Model confidence: 55%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>SymmVesting.sol</code></p>
+        <p><strong>Function:</strong> <code>addLiquidityByPercentage()</code></p>
+        <p><strong>Category:</strong> Rounding / dust</p>
+        <p>`amount = (getLockedAmountsForToken(msg.sender, SYMM) * percentage) / 1e18` truncates. For small locked amounts or small percentages, `amount` can be 0, and `_addLiquidityProcess` will proceed with `symmIn = 0`. `getLiquidityQuote(0)` returns `usdcAmount = 0` and `lpAmount = 0`, so the router call may succeed with zero inputs, and `symmVestingPlan.resetAmount(symmLockedAmount - 0)` rebases the plan's start/end times without changing the amount — silently extending the vesting schedule.</p>
+        <p><strong>Attack path:</strong> 1) Attacker with a tiny locked SYMM balance calls `addLiquidityByPercentage(1, 0, 0)`. 2) `amount` truncates to 0. 3) `_addLiquidityProcess` runs, `resetAmount` rebases `startTime`/`endTime` to now, extending the vesting period. 4) Attacker repeats to indefinitely postpone unlock.</p>
+        <p><strong>Impact:</strong> Vesting schedule can be silently extended; locked funds remain locked longer than intended.</p>
+        <p><strong>Recommendation:</strong> Revert when `amount == 0` in `addLiquidityByPercentage` (and in `_addLiquidityProcess`).</p>
+      </div>
+    </div>
+    <div class="finding" style="border-left-color:#ca8a04">
+      <div class="finding-header">
+        <span class="badge" style="background:#ca8a04">Medium</span>
+        <h3>getLiquidityQuote assumes poolTokens[0]=SYMM, [1]=USDC without validation</h3>
+        <span class="conf">Model confidence: 55%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>SymmVesting.sol</code></p>
+        <p><strong>Function:</strong> <code>getLiquidityQuote()</code></p>
+        <p><strong>Category:</strong> Inverted pairs / wrong decimals</p>
+        <p>`getLiquidityQuote` indexes `balances[0]` as SYMM and `balances[1]` as USDC, and `_addLiquidity` similarly assumes `poolTokens[0]` is SYMM and `poolTokens[1]` is USDC. If the pool's token ordering differs (or is changed), the quote and the approval/transfer logic will use the wrong token and wrong decimals, producing wildly incorrect `usdcAmount`/`lpAmount`. The `_mulDivUp(usdcAmount, 1e18, 1e30)` scaling hardcodes a 12-decimal adjustment (USDC 6 vs SYMM 18) that is only correct for that specific pair ordering.</p>
+        <p><strong>Attack path:</strong> An untrusted actor cannot change pool ordering, but any user calling `addLiquidity` on a pool whose ordering differs from the hardcoded assumption will have their USDC pulled in the wrong amount or the wrong token approved, causing loss. If the pool is upgradeable or re-registered, an attacker could front-run users into the misconfigured path.</p>
+        <p><strong>Impact:</strong> Users lose funds or receive incorrect LP amounts due to inverted pair / wrong decimal scaling.</p>
+        <p><strong>Recommendation:</strong> Read `poolTokens` and validate `poolTokens[0] == SYMM &amp;&amp; poolTokens[1] == USDC` (or handle both orderings), and derive decimal scaling from `IERC20.decimals()` rather than hardcoding 1e30.</p>
+      </div>
+    </div>
+    <div class="finding" style="border-left-color:#ca8a04">
+      <div class="finding-header">
+        <span class="badge" style="background:#ca8a04">Medium</span>
+        <h3>configureRewardToken removal leaves user rewards unclaimable and pendingRewards stuck</h3>
+        <span class="conf">Model confidence: 55%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>SymmStaking.sol</code></p>
+        <p><strong>Function:</strong> <code>configureRewardToken()</code></p>
+        <p><strong>Category:</strong> Frozen funds / accounting</p>
+        <p>When a reward token is de-whitelisted, the code only reverts if `pendingRewards[token] &gt; 10`; otherwise it removes the token from `rewardTokens`. Any user with `rewards[user][token] &gt; 0` (or accrued but unclaimed) can no longer claim because `_claimRewardsFor` iterates only over `rewardTokens`. The `pendingRewards[token]` remainder (≤10) and all user-accrued rewards become permanently stranded. An untrusted actor cannot call this directly, but the accounting flaw means any de-whitelist (even of a token with tiny pending) strands user funds.</p>
+        <p><strong>Attack path:</strong> Not directly attacker-triggerable by untrusted actor, but any user who accrued rewards before a de-whitelist loses them; a reward manager action (or a griefing notifier who keeps pending ≤10) strands user balances. Reported as accounting flaw reachable through normal protocol operation.</p>
+        <p><strong>Impact:</strong> Users' accrued rewards are frozen/unclaimable; `pendingRewards` and `rewards` mappings retain stale balances that can never be paid out.</p>
+        <p><strong>Recommendation:</strong> On de-whitelist, require `pendingRewards[token] == 0` and that all users have claimed (or migrate/refund remaining rewards), or keep the token in `rewardTokens` until fully drained.</p>
+      </div>
+    </div>
+    <div class="finding" style="border-left-color:#ea580c">
+      <div class="finding-header">
+        <span class="badge" style="background:#ea580c">High</span>
+        <h3>notifyRewardAmount reads state before transferring reward tokens</h3>
+        <span class="conf">Model confidence: 55%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>SymmStaking.sol</code></p>
+        <p><strong>Function:</strong> <code>notifyRewardAmount()</code></p>
+        <p><strong>Category:</strong> Cross-function reentrancy / token callback</p>
+        <p>The function calls _updateRewardsStates(address(0)) and then, inside the loop, performs IERC20(token).safeTransferFrom(msg.sender, address(this), amount) BEFORE adding to pendingRewards and calling _addRewardsForToken. If a whitelisted reward token is malicious or has a hook (ERC-777, ERC-1155, ERC-20 with callbacks), the token's transferFrom can reenter claim/withdraw while pendingRewards and rate still reflect the pre-transfer state, and the loops in _claimRewardsFor are iterated over rewardTokens while it's being mutated.</p>
+        <p><strong>Attack path:</strong> 1) Attacker gets a hooked token whitelisted (or deploys one and it's approved). 2) Attacker calls notifyRewardAmount with that token. 3) During safeTransferFrom the attacker's hook calls claimRewards() or withdraw(). 4) Because pendingRewards[token] hasn't been incremented yet, the payout accounting in _claimRewardsFor and rewardState[token] are stale; attacker extracts rewards based on the not-yet-notified amount or makes rewardRate inconsistent. 5) Repeat each block.</p>
+        <p><strong>Impact:</strong> Accounting corruption of rewards/rate, allowing attacker to drain other users' rewards or claim more than entitled; potential contract insolvency.</p>
+        <p><strong>Recommendation:</strong> Move safeTransferFrom to AFTER pendingRewards[token] += amount and _addRewardsForToken(token, amount), or use a strict checks-effects-interactions pattern and a pull pattern for reward notification.</p>
+      </div>
+    </div>
+    <div class="finding" style="border-left-color:#ea580c">
+      <div class="finding-header">
+        <span class="badge" style="background:#ea580c">High</span>
+        <h3>Reward token list grows unbounded, DoS on claim/deposit/withdraw/notify</h3>
+        <span class="conf">Model confidence: 55%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>SymmStaking.sol</code></p>
+        <p><strong>Function:</strong> <code>_updateRewardsStates()</code></p>
+        <p><strong>Category:</strong> Denial of Service / Unbounded loop</p>
+        <p>`_updateRewardsStates` loops over the entire `rewardTokens` array and is called from every `deposit`, `withdraw`, `claimRewards`, `claimFor`, `notifyRewardAmount`, and `configureRewardToken` call. `rewardTokens` can be pushed to an unbounded length by the REWARD_MANAGER_ROLE (which is set to admin at init). While adding tokens requires the privileged role, once the array is long (e.g., hundreds/thousands of tokens), any user's `deposit`/`withdraw`/`claimRewards` costs O(n) gas. If the array grows enough, these core user functions exceed the block gas limit and permanently revert, freezing all staked funds.</p>
+        <p><strong>Attack path:</strong> Although adding tokens requires a trusted role, the vulnerability is that the loop has no bound and the admin can't shrink the array safely (removing requires `pendingRewards[token] &lt;= 10`). An attacker cannot directly add tokens, but the liveness flaw is that ANY future reward token addition makes all existing users' `withdraw()` progressively more expensive — a user can be griefed by additions only if a privileged role cooperates. Under the &quot;untrusted actor only&quot; rule this is not exploitable by an untrusted party; downgraded.</p>
+        <p><strong>Impact:</strong> If reward token list becomes large, all staking operations (deposit/withdraw/claim) revert on gas, freezing user principal and rewards.</p>
+        <p><strong>Recommendation:</strong> Cap the number of reward tokens; or track per-user reward tokens; or allow forced removal of reward tokens with zero pending rewards in a bounded manner.</p>
+      </div>
+    </div>
+    <div class="finding" style="border-left-color:#16a34a">
+      <div class="finding-header">
+        <span class="badge" style="background:#16a34a">Low</span>
+        <h3>_claimUnlockedToken uses transfer instead of safeTransfer, reverting on non-standard ERC20</h3>
+        <span class="conf">Model confidence: 55%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>Vesting.sol</code></p>
+        <p><strong>Function:</strong> <code>_claimUnlockedToken()</code></p>
+        <p><strong>Category:</strong> Token Compatibility</p>
+        <p>`IERC20(token).transfer(user, claimableAmount)` is used directly rather than `SafeERC20.safeTransfer`. For tokens that do not return a boolean (e.g., USDT-like), the call reverts, permanently blocking claims for that token. Since `_claimUnlockedToken` is invoked from `_claimLockedToken`, `_resetVestingPlans`, and `_addLiquidityProcess`, a single non-standard reward/vesting token can brick the entire vesting flow for affected users.</p>
+        <p><strong>Attack path:</strong> Not directly attacker-triggered, but any user whose vesting token is a non-standard ERC20 cannot claim; the SETTER_ROLE cannot reset plans either because `_resetVestingPlans` calls `_claimUnlockedToken` first. The user's funds remain locked indefinitely.</p>
+        <p><strong>Impact:</strong> Frozen funds for users with non-standard ERC20 vesting tokens; denial of claim and reset functionality.</p>
+        <p><strong>Recommendation:</strong> Replace `IERC20(token).transfer(...)` with `IERC20(token).safeTransfer(...)` in `_claimUnlockedToken` and `_claimLockedToken`.</p>
+      </div>
+    </div>
+    <div class="finding" style="border-left-color:#ca8a04">
+      <div class="finding-header">
+        <span class="badge" style="background:#ca8a04">Medium</span>
+        <h3>pendingRewards accounting desync allows reward token removal with outstanding claims</h3>
+        <span class="conf">Model confidence: 55%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>SymmStaking.sol</code></p>
+        <p><strong>Function:</strong> <code>configureRewardToken()</code></p>
+        <p><strong>Category:</strong> Accounting / reward epoch manipulation</p>
+        <p>`configureRewardToken` only reverts when `pendingRewards[token] &gt; 10` on removal, but `pendingRewards[token]` is decremented in `_claimRewardsFor` and incremented in `notifyRewardAmount`. Because `_updateRewardsStates` accrues `rewards[account][token]` without touching `pendingRewards`, a token can be removed from `rewardTokens` while users still have unclaimed `rewards[user][token]` balances that are not reflected in `pendingRewards` (e.g., after the last notifier's amount was fully claimed by some users but others still hold entitlements). Once removed, `_claimRewardsFor` iterates only over `rewardTokens`, so those users can never claim.</p>
+        <p><strong>Attack path:</strong> 1) Attacker observes that `pendingRewards[token]` has dropped to ≤10 (e.g., most users claimed). 2) Attacker (with REWARD_MANAGER_ROLE — but the flaw is that the check is insufficient; an untrusted actor cannot call this, so the exploit path is via the manager) — note: since only the manager can call, this is a design flaw rather than an untrusted-actor exploit. Re-evaluating: the untrusted actor cannot call `configureRewardToken`. However, an untrusted actor can manipulate `pendingRewards` indirectly by claiming at specific times to drive it below 10 while other users still have `rewards` balances, then the manager's removal (a trusted action) strands those funds. This is a griefing/accounting flaw but requires a trusted call.</p>
+        <p><strong>Impact:</strong> Users' accrued rewards become permanently unclaimable; funds remain in the contract and can be swept by `rescueTokens`.</p>
+        <p><strong>Recommendation:</strong> On removal, iterate over all users or track a global `totalAccruedRewards[token]` that includes both `pendingRewards` and outstanding `rewards` balances, and revert if any remain.</p>
+      </div>
+    </div>
+    <div class="finding" style="border-left-color:#ca8a04">
+      <div class="finding-header">
+        <span class="badge" style="background:#ca8a04">Medium</span>
+        <h3>claimLockedToken penalty is transferred from contract balance, not from user's claim</h3>
+        <span class="conf">Model confidence: 55%</span>
+      </div>
+      <div class="finding-body">
+        <p><strong>File:</strong> <code>Vesting.sol</code></p>
+        <p><strong>Function:</strong> <code>_claimLockedToken()</code></p>
+        <p><strong>Category:</strong> Accounting / fee handling</p>
+        <p>`_claimLockedToken` computes `penalty = (amount * lockedClaimPenalty) / 1e18`, then transfers `amount - penalty` to the user and `penalty` to `lockedClaimPenaltyReceiver`. Both transfers come from the contract's balance, and `totalVested[token] -= amount` only accounts for the gross amount. If the contract's balance is insufficient (e.g., because `_ensureSufficientBalance` only mints the deficit for `amount`, not for the penalty separately), the penalty transfer can fail or drain funds earmarked for other users' vesting. More importantly, the penalty is taken from the contract's pooled balance rather than being deducted from the user's own vested entitlement, so other users effectively subsidize the penalty.</p>
+        <p><strong>Attack path:</strong> 1) Attacker sets up a vesting plan with a small amount. 2) Attacker calls `claimLockedToken` for the full locked amount. 3) The penalty is paid out of the contract's pooled balance, which includes other users' vested tokens. 4) If the contract is underfunded, the transfer reverts, but if overfunded, the attacker's penalty is effectively paid by others. 5) Repeated claims by many users can drain the pool.</p>
+        <p><strong>Impact:</strong> Cross-user subsidy of penalties; potential insolvency if penalties exceed the contract's free balance; `totalVested` accounting does not reflect the penalty outflow.</p>
+        <p><strong>Recommendation:</strong> Deduct the penalty from the user's vested amount before transferring, i.e., reduce `totalVested[token]` by `amount` and transfer `amount - penalty` to the user and `penalty` to the receiver, ensuring the contract's balance is sufficient for both.</p>
+      </div>
+    </div>
+
+<div class="disclaimer">
+<strong>Disclaimer:</strong> This report was produced by an automated pipeline that prompts a language model with parts of your code (model: engine V3.1 (long-context reading)).
+It is not a security audit, a certification or an approval. It can miss real issues and can include false ones. No warranty is provided.
+<br><br>
+If this report did not help you, or you think it is wrong, write to <a href="mailto:info@holistischadviseur.nl?subject=Bug%20Bounty%20Intelligence%20bi-mvo54fu7-sujc" style="color:#38bdf8">info@holistischadviseur.nl</a> with the job id <code>bi-mvo54fu7-sujc</code>. You can ask for a new attempt or a refund.
+<br><br>
+Method, limits and test results: <a href="https://github.com/holistis/bug-bounty-intelligence-mcp" style="color:#38bdf8">github.com/holistis/bug-bounty-intelligence-mcp</a>
+&nbsp;|&nbsp; Official sources: <a href="https://tokenizen.nl/notes/official-sources" style="color:#38bdf8">tokenizen.nl/notes/official-sources</a>
+</div>
+</body>
+</html>

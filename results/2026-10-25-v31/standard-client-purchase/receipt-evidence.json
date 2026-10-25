@@ -1,0 +1,54 @@
+{
+  "gemeten": "2026-10-25T18:05:59.984Z",
+  "soort": "koopproef met een standaard x402-client (@x402/fetch)",
+  "transactie": "0x221f1a6a5969f0888882755db8fcdb9f2c69dde86af97be95cd9fa719e7e5c4e",
+  "antwoord": {
+    "jobId": "bi-mvo54fu7-sujc",
+    "job_id": "bi-mvo54fu7-sujc",
+    "status": "queued",
+    "repo": "sherlock-audit/2025-03-symm-io-stacking",
+    "price_paid_usd": "5.00",
+    "estimatedHours": 24,
+    "typical_minutes": 10,
+    "poll_interval_sec": 60,
+    "pollUrl": "https://x402.tokenizen.nl/api/bug-intel/bi-mvo54fu7-sujc",
+    "reportUrl": "https://x402.tokenizen.nl/api/bug-intel/bi-mvo54fu7-sujc/report",
+    "note": "Poll pollUrl tot status = \"complete\". Rapport wordt dan beschikbaar via reportUrl.",
+    "receipt": {
+      "format": "eip712",
+      "payload": {
+        "version": 1,
+        "network": "eip155:8453",
+        "resourceUrl": "https://x402.tokenizen.nl/api/bug-intel",
+        "payer": "0xAcAA4523430Bd9CC86541B65FbaCCaE942cBAC6e",
+        "issuedAt": 1792951655,
+        "transaction": "0x221f1a6a5969f0888882755db8fcdb9f2c69dde86af97be95cd9fa719e7e5c4e"
+      },
+      "signature": "0x7f1b1974498667257c6b64623118269756b1067e08477f1fcc2818a2589a887e055957020e783e17c78da1e9025b8a8e564c4f9f749ec9ba2a7e1c06e45fd6c71c"
+    }
+  },
+  "paymentResponseHeader": {
+    "success": true,
+    "transaction": "0x221f1a6a5969f0888882755db8fcdb9f2c69dde86af97be95cd9fa719e7e5c4e",
+    "network": "eip155:8453",
+    "payer": "0xAcAA4523430Bd9CC86541B65FbaCCaE942cBAC6e",
+    "extensions": {
+      "offer-receipt": {
+        "info": {
+          "receipt": {
+            "format": "eip712",
+            "payload": {
+              "version": 1,
+              "network": "eip155:8453",
+              "resourceUrl": "https://x402.tokenizen.nl/api/bug-intel",
+              "payer": "0xAcAA4523430Bd9CC86541B65FbaCCaE942cBAC6e",
+              "issuedAt": 1792951655,
+              "transaction": "0x221f1a6a5969f0888882755db8fcdb9f2c69dde86af97be95cd9fa719e7e5c4e"
+            },
+            "signature": "0x7f1b1974498667257c6b64623118269756b1067e08477f1fcc2818a2589a887e055957020e783e17c78da1e9025b8a8e564c4f9f749ec9ba2a7e1c06e45fd6c71c"
+          }
+        }
+      }
+    }
+  }
+}
