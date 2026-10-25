@@ -1,0 +1,119 @@
+{
+ "contest": "2025-01-liquid-ron",
+ "gereedschap": "Aderyn",
+ "totaalGevonden": 16,
+ "hypotheses": [
+  {
+   "title": "Contract locks Ether without a withdraw function",
+   "severity": "High",
+   "file": "src/LiquidProxy.sol",
+   "function": "",
+   "description": "It appears that the contract includes a payable function to accept Ether but lacks a corresponding function to withdraw it, which leads to the Ether being locked in the contract. To resolve this issue, please implement a public or external function that allows for the withdrawal of Ether from the contract. Instances: src/LiquidProxy.sol:17"
+  },
+  {
+   "title": "ETH transferred without address checks",
+   "severity": "High",
+   "file": "src/LiquidRon.sol",
+   "function": "",
+   "description": "Consider introducing checks for `msg.sender` to ensure the recipient of the money is as intended. Instances: src/LiquidRon.sol:362"
+  },
+  {
+   "title": "Reentrancy: State change after external call",
+   "severity": "High",
+   "file": "src/LiquidRon.sol",
+   "function": "",
+   "description": "Changing state after an external call can lead to re-entrancy attacks.Use the checks-effects-interactions pattern to avoid this issue. Instances: src/LiquidRon.sol:136, src/LiquidRon.sol:151"
+  },
+  {
+   "title": "Centralization Risk",
+   "severity": "Low",
+   "file": "src/LiquidRon.sol",
+   "function": "",
+   "description": "Contracts have owners with privileged rights to perform admin tasks and need to be trusted to not perform malicious updates or drain funds. Instances: src/LiquidRon.sol:97, src/LiquidRon.sol:104, src/LiquidRon.sol:110"
+  },
+  {
+   "title": "Costly operations inside loop",
+   "severity": "Low",
+   "file": "src/LiquidRon.sol",
+   "function": "",
+   "description": "Invoking `SSTORE` operations in loops may waste gas. Use a local variable to hold the loop computation result. Instances: src/LiquidRon.sol:172, src/LiquidRon.sol:194, src/LiquidRon.sol:219"
+  },
+  {
+   "title": "Large Numeric Literal",
+   "severity": "Low",
+   "file": "src/LiquidRon.sol",
+   "function": "",
+   "description": "Large literal values multiples of 10000 can be replaced with scientific notation.Use `e` notation, for example: `1e18`, instead of its full numeric value. Instances: src/LiquidRon.sol:50"
+  },
+  {
+   "title": "Local Variable Shadows State Variable",
+   "severity": "Low",
+   "file": "src/LiquidRon.sol",
+   "function": "",
+   "description": "Rename the local variable that shadows another state variable. Instances: src/LiquidRon.sol:79, src/LiquidRon.sol:80, src/LiquidRon.sol:306"
+  },
+  {
+   "title": "Missing Inheritance",
+   "severity": "Low",
+   "file": "src/Escrow.sol",
+   "function": "",
+   "description": "There is an interface / abstract contract that is potentially missing (not included in) the inheritance of this contract. Instances: src/Escrow.sol:18"
+  },
+  {
+   "title": "Loop Contains `require`/`revert`",
+   "severity": "Low",
+   "file": "src/LiquidRon.sol",
+   "function": "",
+   "description": "Avoid `require` / `revert` statements in a loop because a single bad item can cause the whole transaction to fail. It's better to forgive on fail and return failed elements post processing of the loop Instances: src/LiquidRon.sol:172, src/LiquidRon.sol:194"
+  },
+  {
+   "title": "State Change Without Event",
+   "severity": "Low",
+   "file": "src/LiquidRon.sol",
+   "function": "",
+   "description": "There are state variable changes in this function but no event is emitted. Consider emitting an event to enable offchain indexers to track the changes. Instances: src/LiquidRon.sol:97, src/LiquidRon.sol:104, src/LiquidRon.sol:110"
+  },
+  {
+   "title": "Address State Variable Set Without Checks",
+   "severity": "Low",
+   "file": "src/LiquidProxy.sol",
+   "function": "",
+   "description": "Check for `address(0)` when assigning values to address state variables. Instances: src/LiquidProxy.sol:24, src/LiquidProxy.sol:25, src/LiquidRon.sol:82"
+  },
+  {
+   "title": "State Variable Could Be Immutable",
+   "severity": "Low",
+   "file": "src/Escrow.sol",
+   "function": "",
+   "description": "State variables that are only changed in the constructor should be declared immutable to save gas. Add the `immutable` attribute to state variables that are only changed in the constructor Instances: src/Escrow.sol:21, src/LiquidProxy.sol:20, src/LiquidProxy.sol:21"
+  },
+  {
+   "title": "Unchecked Return",
+   "severity": "Low",
+   "file": "src/Escrow.sol",
+   "function": "",
+   "description": "Function returns a value but it is ignored. Consider checking the return value. Instances: src/Escrow.sol:25, src/LiquidRon.sol:86, src/LiquidRon.sol:372"
+  },
+  {
+   "title": "Unsafe ERC20 Operation",
+   "severity": "Low",
+   "file": "src/Escrow.sol",
+   "function": "",
+   "description": "ERC20 functions may not behave as expected. For example: return values are not always meaningful. It is recommended to use OpenZeppelin's SafeERC20 library. Instances: src/Escrow.sol:25, src/LiquidRon.sol:86, src/LiquidRon.sol:372"
+  },
+  {
+   "title": "Unspecific Solidity Pragma",
+   "severity": "Low",
+   "file": "src/Escrow.sol",
+   "function": "",
+   "description": "Consider using a specific version of Solidity in your contracts instead of a wide version. For example, instead of `pragma solidity ^0.8.0;`, use `pragma solidity 0.8.0;` Instances: src/Escrow.sol:2, src/LiquidProxy.sol:2, src/LiquidRon.sol:2"
+  },
+  {
+   "title": "Public Function Not Used Internally",
+   "severity": "Low",
+   "file": "src/LiquidRon.sol",
+   "function": "",
+   "description": "If a function is marked public but is not used internally, consider marking it as `external`. Instances: src/LiquidRon.sol:288"
+  }
+ ]
+}

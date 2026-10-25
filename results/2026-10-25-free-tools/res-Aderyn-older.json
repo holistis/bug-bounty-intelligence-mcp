@@ -1,0 +1,2033 @@
+{
+ "voorvoegsel": "AD",
+ "wedstrijden": {
+  "2025-01-iq-ai": {
+   "hypotheses": 21,
+   "bekend": 4,
+   "gevondenStreng": [],
+   "gevondenRuim": [],
+   "recallStreng": 0,
+   "recallRuim": 0,
+   "precisieStreng": 0,
+   "precisieRuim": 0,
+   "overeenstemming": 1,
+   "ongeldigeAntwoorden": 0,
+   "perNiveau": {
+    "makkelijk": {
+     "totaal": 4,
+     "streng": 0,
+     "ruim": 0
+    },
+    "midden": {
+     "totaal": 0,
+     "streng": 0,
+     "ruim": 0
+    },
+    "moeilijk": {
+     "totaal": 0,
+     "streng": 0,
+     "ruim": 0
+    }
+   },
+   "hypothesesLijst": [
+    {
+     "title": "`abi.encodePacked()` Hash Collision",
+     "file": "src/AgentFactory.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an abi.encodePacked hash collision issue, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding concerns a hash collision risk from abi.encodePacked in AgentFactory.sol, which is unrelated to any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Contract locks Ether without a withdraw function",
+     "file": "src/Agent.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a missing withdraw function, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes a missing withdraw function in Agent.sol, which is not among the known findings that focus on governance and liquidity issues in other contracts.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Reentrancy: State change after external call",
+     "file": "src/Agent.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy issue, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "Candidate's reentrancy finding is unrelated to the known governance/liquidity/threshold vulnerabilities.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Centralization Risk",
+     "file": "src/AIToken.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a generic centralization/owner privilege issue, which does not correspond to any of the specific known findings listed.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a generic centralization risk, not the specific root cause of any listed known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Empty `require()` / `revert()` Statement",
+     "file": "src/BootstrapPool.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes missing revert messages in BootstrapPool.sol, which does not correspond to any of the listed root causes.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is a generic code quality issue about empty require/revert statements, which does not match any of the specific vulnerabilities described in the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Internal Function Used Only Once",
+     "file": "src/AgentFactory.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate is a code‑style suggestion about an internal function, which does not correspond to any of the security‑focused known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a code style/gas optimization suggestion about inlining internal functions, not a security vulnerability, and does not describe the same root cause or impact as any of the known findi",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Large Numeric Literal",
+     "file": "src/AIToken.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a code style issue (large numeric literals) unrelated to the security vulnerabilities listed in the known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a code style suggestion, not a security vulnerability, and does not match any known finding's root cause or impact.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Literal Instead of Constant",
+     "file": "src/AgentFactory.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a code style issue (using literals instead of constants) unrelated to the security bugs listed in the known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a code style recommendation about literals, not related to any of the known findings' root causes or impacts.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Local Variable Shadows State Variable",
+     "file": "src/TokenGovernor.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a variable shadowing issue, which is unrelated to the root causes of the known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about local variable shadowing, which is not described in any of the known valid findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Modifier Invoked Only Once",
+     "file": "src/Agent.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate finding about a modifier usage does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a code style suggestion about a modifier used once, not a security vulnerability matching any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "PUSH0 Opcode",
+     "file": "src/AIToken.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a compiler/EVM version compatibility issue, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding about PUSH0 opcodes is unrelated to any of the known findings, which cover voting power, liquidity fees, DOS, and proposal thresholds.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Loop Contains `require`/`revert`",
+     "file": "src/LiquidityManager.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a generic best‑practice issue about require in loops, not the specific DOS vulnerability detailed in the known finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a generic loop/revert issue, not any of the known findings' root causes or impacts.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "State Change Without Event",
+     "file": "src/Agent.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes missing event emissions, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about missing events for state changes, which is not related to any of the known findings that describe specific vulnerabilities in voting, liquidity, or threshold validation.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Address State Variable Set Without Checks",
+     "file": "src/Agent.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes missing address(0) checks, which does not correspond to any of the known findings about voting thresholds, fee manipulation, or liquidity migration.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes missing zero-address checks, while all known findings concern voting power, pair fees, DOS migration, or threshold validation.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "State Variable Could Be Immutable",
+     "file": "src/AgentRouter.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate is a gas‑optimization suggestion, not related to any of the security issues described in the known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a gas optimization suggestion about immutable state variables, which is unrelated to the known security findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Unchecked Return",
+     "file": "src/AgentFactory.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The unchecked return issue is unrelated to the known findings about voting, fee manipulation, DOS, or proposal thresholds.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes unchecked return values in AgentFactory, which is unrelated to the listed known findings' root causes and impacts.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Unsafe ERC20 Operation",
+     "file": "src/AgentFactory.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a generic ERC20 safety issue, which does not correspond to any of the specific known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding about unsafe ERC20 operations is not among the known findings, which cover different vulnerabilities.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Unsafe `ERC721::_mint()`",
+     "file": "src/Agent.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unsafe ERC721 minting issue, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes an unsafe ERC721 _mint in Agent.sol, which is unrelated to any of the known findings about governance, liquidity, or proposal threshold.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Unspecific Solidity Pragma",
+     "file": "src/AIToken.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a pragma version issue, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate addresses a generic pragma style recommendation, not any of the specific vulnerabilities listed.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Unused Error",
+     "file": "src/Agent.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unused error in Agent.sol, which does not correspond to any of the known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about an unused error definition, which is a code quality issue, not a security vulnerability matching any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Public Function Not Used Internally",
+     "file": "src/Agent.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a best‑practice visibility issue, which does not correspond to any of the listed security findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a general code style suggestion about public vs external visibility, not a security vulnerability described in any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    }
+   ]
+  },
+  "2025-01-liquid-ron": {
+   "hypotheses": 16,
+   "bekend": 3,
+   "gevondenStreng": [],
+   "gevondenRuim": [],
+   "recallStreng": 0,
+   "recallRuim": 0,
+   "precisieStreng": 0,
+   "precisieRuim": 0,
+   "overeenstemming": 1,
+   "ongeldigeAntwoorden": 0,
+   "perNiveau": {
+    "makkelijk": {
+     "totaal": 1,
+     "streng": 0,
+     "ruim": 0
+    },
+    "midden": {
+     "totaal": 0,
+     "streng": 0,
+     "ruim": 0
+    },
+    "moeilijk": {
+     "totaal": 2,
+     "streng": 0,
+     "ruim": 0
+    }
+   },
+   "hypothesesLijst": [
+    {
+     "title": "Contract locks Ether without a withdraw function",
+     "file": "src/LiquidProxy.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a missing withdraw function, which does not correspond to any known finding's root cause.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a lock of Ether due to missing withdrawal, which is unrelated to the known findings about totalAssets calculation, frontrunning rewards, or modifier access control.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "ETH transferred without address checks",
+     "file": "src/LiquidRon.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a missing address check for ETH transfer, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding about missing address checks for ETH transfers is not related to any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Reentrancy: State change after external call",
+     "file": "src/LiquidRon.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "Candidate describes a reentrancy issue, which is unrelated to the known findings about fee calculation, reward front‑running, or operator modifier bugs.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy issue, while none of the known findings involve reentrancy.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Centralization Risk",
+     "file": "src/LiquidRon.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a generic centralization risk, not a specific bug matching any known finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about centralization risk, which is a generic trust issue, not matching any of the specific technical bugs described in the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Costly operations inside loop",
+     "file": "src/LiquidRon.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a gas inefficiency issue, which does not correspond to any of the known findings about fee calculation, reward front‑running, or modifier logic.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a gas optimization issue in loops, which is unrelated to the known findings about accounting, rewards frontrunning, or modifier access control.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Large Numeric Literal",
+     "file": "src/LiquidRon.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a coding style issue, not the security bugs listed in the known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a code style suggestion, not a security vulnerability.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Local Variable Shadows State Variable",
+     "file": "src/LiquidRon.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a variable shadowing issue, which does not correspond to any of the known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a shadowing/style issue, not the same root cause or impact as any known valid finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Missing Inheritance",
+     "file": "src/Escrow.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a missing inheritance issue, which does not correspond to any of the known findings about fee calculation, reward front‑running, or incorrect modifier logic.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding about missing inheritance is unrelated to any of the known findings which cover calculation errors, frontrunning, and modifier issues.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Loop Contains `require`/`revert`",
+     "file": "src/LiquidRon.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a loop require/revert issue, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is a general best-practice remark about loops with require/revert, which does not correspond to any of the specific root causes described in the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "State Change Without Event",
+     "file": "src/LiquidRon.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes missing events, which does not correspond to any known finding about fee calculation, reward frontrunning, or operator modifier.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a generic best-practice remark about missing events, not the same root cause or impact as any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Address State Variable Set Without Checks",
+     "file": "src/LiquidProxy.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes missing zero-address checks, which does not correspond to any of the known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding about missing address(0) checks is not related to any of the known findings, which cover different issues.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "State Variable Could Be Immutable",
+     "file": "src/Escrow.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a gas‑optimization issue (missing immutable keyword), which does not correspond to any of the known findings about fee calculation, reward front‑running, or modifier logic.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a gas optimization about immutable state variables, unrelated to the known findings' logic, fee, or access control issues.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Unchecked Return",
+     "file": "src/Escrow.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unchecked return value issue, which does not correspond to any of the known findings about fee calculation, reward front‑running, or modifier logic.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a generic unchecked return value issue, not the same root cause as any of the listed findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Unsafe ERC20 Operation",
+     "file": "src/Escrow.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes unsafe ERC20 handling, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is a general recommendation to use SafeERC20, not a specific bug matching any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Unspecific Solidity Pragma",
+     "file": "src/Escrow.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a pragma version issue, which does not correspond to any known finding about fee calculation, reward front‑running, or modifier logic.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a generic best-practice recommendation about Solidity pragma, not the same root cause or impact as any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Public Function Not Used Internally",
+     "file": "src/LiquidRon.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a visibility issue, which does not correspond to any of the known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a generic best-practice suggestion about function visibility, not related to any specific vulnerability in the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    }
+   ]
+  },
+  "2025-01-next-generation": {
+   "hypotheses": 18,
+   "bekend": 4,
+   "gevondenStreng": [],
+   "gevondenRuim": [],
+   "recallStreng": 0,
+   "recallRuim": 0,
+   "precisieStreng": 0,
+   "precisieRuim": 0,
+   "overeenstemming": 1,
+   "ongeldigeAntwoorden": 0,
+   "perNiveau": {
+    "makkelijk": {
+     "totaal": 3,
+     "streng": 0,
+     "ruim": 0
+    },
+    "midden": {
+     "totaal": 1,
+     "streng": 0,
+     "ruim": 0
+    },
+    "moeilijk": {
+     "totaal": 0,
+     "streng": 0,
+     "ruim": 0
+    }
+   },
+   "hypothesesLijst": [
+    {
+     "title": "`abi.encodePacked()` Hash Collision",
+     "file": "contracts/Forwarder.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an abi.encodePacked hash collision issue, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding about abi.encodePacked() hash collision is not related to any of the known findings, which cover allowance bypass, blacklist approval, signature replay, and deadline checks.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Arbitrary `from` Passed to `transferFrom`",
+     "file": "contracts/Token.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an arbitrary from address issue in transferFrom, which does not correspond to any of the listed findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes an arbitrary `from` address in transferFrom, which is not covered by any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Contract locks Ether without a withdraw function",
+     "file": "contracts/Token.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an Ether lock due to missing withdraw function, which does not correspond to any of the listed findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding about locked Ether due to missing withdraw function is not described in any of the known valid findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Experimental ABI Encoder",
+     "file": "contracts/Forwarder.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a compiler feature issue unrelated to any listed findings",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is a generic best-practice remark about using an experimental ABI encoder, which is not related to any of the specific vulnerabilities described in the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Tautology or Contradiction in comparison",
+     "file": "contracts/FeesHandlerUpgradeable.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a tautology/contradiction bug, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding about tautology/contradiction in comparison is a generic code quality issue, not matching any of the listed findings which are about allowance bypass, blacklist approval, signatu",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Centralization Risk",
+     "file": "contracts/ERC20AdminUpgradeable.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an owner centralization risk, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes general centralization/owner privilege risks, which is not the root cause of any of the listed valid findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Empty Block",
+     "file": "contracts/Token.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a style issue (empty block) unrelated to any security bug listed.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a general code style suggestion about empty blocks, not a security vulnerability, and does not share root cause or impact with any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Inconsistent uint256/uint (or) int256/int types",
+     "file": "contracts/Forwarder.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a coding style inconsistency, not a security flaw matching any known finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about code style inconsistency, not a security vulnerability, and does not match any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Large Numeric Literal",
+     "file": "contracts/FeesHandlerUpgradeable.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a coding style issue, not a security flaw matching any known finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a code style suggestion about large numeric literals, not a security flaw matching any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Literal Instead of Constant",
+     "file": "contracts/Forwarder.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a coding style issue, not the security bugs detailed in the known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a code style issue with literal constants, which is unrelated to the security flaws in the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Loop Contains `require`/`revert`",
+     "file": "contracts/Forwarder.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a loop with require/revert, which does not correspond to any of the listed findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a generic loop require/revert best-practice issue, not the root cause of any known finding (allowance fee, blacklisted approve, signature replay, or deadline).",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "State Change Without Event",
+     "file": "contracts/Forwarder.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a missing event emission, which does not correspond to any known finding's root cause or impact.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a missing event for state changes, while all known findings concern different issues (allowance, blacklist approval, signature replay, deadline).",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Address State Variable Set Without Checks",
+     "file": "contracts/FeesHandlerUpgradeable.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a missing address(0) check, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a generic zero-address check issue, not the same root cause as any listed finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Unchecked Return",
+     "file": "contracts/ERC20AdminUpgradeable.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unchecked return value issue, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding about unchecked return values does not correspond to any of the known findings which cover different issues.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Unsafe ERC20 Operation",
+     "file": "contracts/Token.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a generic SafeERC20 usage issue, which does not correspond to any specific known finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a generic recommendation to use SafeERC20, not a specific vulnerability matching any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Unspecific Solidity Pragma",
+     "file": "contracts/ERC20AdminUpgradeable.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate addresses a pragma version issue, which does not correspond to any of the known findings' root causes or impacts.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a generic Solidity pragma best-practice remark and does not describe any of the known functional vulnerabilities.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Public Function Not Used Internally",
+     "file": "contracts/Forwarder.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a best‑practice issue unrelated to the security bugs listed in the known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a gas/style suggestion about public vs external functions, not related to any known security flaw.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Unused State Variable",
+     "file": "contracts/Token.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unused state variable, which does not correspond to any of the known findings about allowance bypass, approval invariants, or signature replay issues.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding about an unused state variable is unrelated to the known findings about fee allowance bypass, blacklist approval, signature replay, or missing deadline checks.",
+      "model": "deepseek-v4-flash"
+     }
+    }
+   ]
+  },
+  "2025-03-nudgexyz": {
+   "hypotheses": 11,
+   "bekend": 4,
+   "gevondenStreng": [],
+   "gevondenRuim": [],
+   "recallStreng": 0,
+   "recallRuim": 0,
+   "precisieStreng": 0,
+   "precisieRuim": 0,
+   "overeenstemming": 1,
+   "ongeldigeAntwoorden": 0,
+   "perNiveau": {
+    "makkelijk": {
+     "totaal": 2,
+     "streng": 0,
+     "ruim": 0
+    },
+    "midden": {
+     "totaal": 1,
+     "streng": 0,
+     "ruim": 0
+    },
+    "moeilijk": {
+     "totaal": 1,
+     "streng": 0,
+     "ruim": 0
+    }
+   },
+   "hypothesesLijst": [
+    {
+     "title": "`abi.encodePacked()` Hash Collision",
+     "file": "src/campaign/NudgeCampaignFactory.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an abi.encodePacked hash collision issue, which does not correspond to any of the listed reallocation or access‑control findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes an abi.encodePacked hash collision issue, which is unrelated to the known reallocation/access control findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Reentrancy: State change after external call",
+     "file": "src/campaign/NudgeCampaign.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a generic reentrancy pattern, which does not correspond to any specific known finding about handleReallocation or other issues.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a generic reentrancy pattern, not the same root cause as any specific known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Centralization Risk",
+     "file": "src/campaign/NudgeCampaign.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes generic admin centralization, which does not correspond to any specific known vulnerability about handleReallocation or related flaws.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is a general centralization risk remark, not a specific vulnerability matching any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Costly operations inside loop",
+     "file": "src/campaign/NudgeCampaign.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a gas‑inefficiency issue, not any of the reallocation or access‑control vulnerabilities listed in the known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a gas optimization issue, while all known findings are security vulnerabilities.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Large Numeric Literal",
+     "file": "src/campaign/NudgeCampaign.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a code style issue, not a security vulnerability matching any known finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a code style suggestion, not a security vulnerability.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Literal Instead of Constant",
+     "file": "src/campaign/NudgeCampaign.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a coding style issue, not the security vulnerabilities detailed in the known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a code style suggestion, not a security vulnerability, and does not match any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Modifier Invoked Only Once",
+     "file": "src/campaign/NudgeCampaign.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a modifier usage issue, which does not correspond to any of the known findings about reallocation, DOS, cross-chain loss, or initiator verification.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a code-style note about a modifier used once, not a vulnerability matching any known finding's root cause or impact.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Loop Contains `require`/`revert`",
+     "file": "src/campaign/NudgeCampaign.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a loop require/revert issue, which does not correspond to any of the known findings about reallocation, DOS, cross-chain token loss, or initiator verification.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about require/revert in loops, which is unrelated to the known findings about reallocation access control, DoS, cross-chain losses, or malicious participation.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "State Variable Could Be Immutable",
+     "file": "src/campaign/NudgeCampaign.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a gas‑optimization suggestion, which does not correspond to any of the listed security findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is a gas optimization, not a security vulnerability.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Unchecked Return",
+     "file": "src/campaign/NudgeCampaign.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The unchecked return issue does not correspond to any of the listed root causes",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about unchecked return values, which is not described in any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Unspecific Solidity Pragma",
+     "file": "src/campaign/NudgeCampaign.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate addresses pragma version specificity, which is unrelated to the listed findings about reallocation, DOS, cross-chain token loss, or initiator verification.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is a general best-practice remark about Solidity pragma versioning, not a security vulnerability matching any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    }
+   ]
+  },
+  "2025-04-kinetiq": {
+   "hypotheses": 22,
+   "bekend": 8,
+   "gevondenStreng": [],
+   "gevondenRuim": [],
+   "recallStreng": 0,
+   "recallRuim": 0,
+   "precisieStreng": 0,
+   "precisieRuim": 0,
+   "overeenstemming": 1,
+   "ongeldigeAntwoorden": 0,
+   "perNiveau": {
+    "makkelijk": {
+     "totaal": 7,
+     "streng": 0,
+     "ruim": 0
+    },
+    "midden": {
+     "totaal": 1,
+     "streng": 0,
+     "ruim": 0
+    },
+    "moeilijk": {
+     "totaal": 0,
+     "streng": 0,
+     "ruim": 0
+    }
+   },
+   "hypothesesLijst": [
+    {
+     "title": "ETH transferred without address checks",
+     "file": "src/StakingManager.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a missing address check for ETH transfers, which does not correspond to any specific root cause in the known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a generic best-practice recommendation about address checks, not a specific vulnerability matching any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Reentrancy: State change after external call",
+     "file": "src/OracleManager.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy issue in OracleManager.sol, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a reentrancy issue in OracleManager.sol, while all known findings concern StakingManager.sol and different vulnerabilities.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Unsafe Casting of integers",
+     "file": "src/StakingManager.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "Candidate describes unsafe integer casting, which is unrelated to any listed findings about staking logic.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding describes an unsafe integer casting issue, which is not related to any of the known findings that cover buffer, withdrawal, rebalancing, or DoS issues.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Centralization Risk",
+     "file": "src/KHYPE.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an ownership centralization issue, which does not correspond to any of the specific technical bugs listed in the known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a generic centralization risk note about owner privileges, not the specific technical root cause described in any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Costly operations inside loop",
+     "file": "src/PauserRegistry.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes gas‑inefficient SSTORE usage in loops, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes gas optimization issues (SSTORE in loops), not a functional or security bug matching any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Empty Block",
+     "file": "src/StakingManager.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a stylistic empty block issue, which does not correspond to any of the listed security findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a generic code style suggestion about empty blocks, not a security flaw described in any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Large Numeric Literal",
+     "file": "src/StakingManager.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a coding style issue, not a security flaw matching any known finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a code style suggestion about large numeric literals, not a security or functional bug found in the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Literal Instead of Constant",
+     "file": "src/StakingAccountant.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate finding addresses code style (use of literals vs constants) and does not correspond to any of the known security or logic bugs listed.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is a general code style suggestion, not a security vulnerability matching any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Modifier Invoked Only Once",
+     "file": "src/KHYPE.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a coding style issue about a rarely used modifier, which does not correspond to any of the listed security findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a code style/gas optimization suggestion, not a security-relevant bug matching any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "`nonReentrant` is Not the First Modifier",
+     "file": "src/ValidatorManager.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a modifier ordering issue, which is not covered by any known finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding concerns modifier ordering in ValidatorManager.sol, while all known findings are about different issues in StakingManager.sol.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "PUSH0 Opcode",
+     "file": "src/KHYPE.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a compiler/EVM version compatibility issue unrelated to any known staking or withdrawal bugs.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is a general compiler/EVM version deployment issue, not related to any of the listed staking logic vulnerabilities.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Loop Contains `require`/`revert`",
+     "file": "src/StakingManager.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a generic loop require/revert issue, which does not correspond to any specific root cause in the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a generic code style recommendation about require/revert in loops, not the root cause of any listed valid finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "State Change Without Event",
+     "file": "src/OracleManager.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a missing event emission in OracleManager, which does not correspond to any listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "Candidate is a generic missing-event remark for OracleManager.sol, unrelated to specific StakingManager bugs in known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Address State Variable Set Without Checks",
+     "file": "src/OracleManager.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a missing zero‑address check in OracleManager.sol, which does not correspond to any of the listed StakingManager‑related findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a generic address-zero check in OracleManager, unrelated to any known StakingManager finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "State Variable Could Be Immutable",
+     "file": "src/validators/ValidatorSanityChecker.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate is a gas‑optimization suggestion unrelated to any of the listed security findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a gas optimization suggestion, not a security finding, and does not match any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Contract has TODO Comments",
+     "file": "src/KHYPE.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a code comment issue, which does not correspond to any of the listed security findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a code quality issue about TODO comments, while all known findings describe functional bugs in StakingManager logic.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Unchecked Return",
+     "file": "src/KHYPE.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unchecked return value issue, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "Candidate is a generic unchecked-return issue in KHYPE.sol, not related to any known finding's root cause or impact.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Uninitialized Local Variable",
+     "file": "src/OracleManager.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an uninitialized local variable issue, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about uninitialized local variables, which is not the root cause in any of the known valid findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Unsafe ERC20 Operation",
+     "file": "src/StakingManager.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a generic ERC20 safety issue, which does not correspond to any specific known finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding addresses unsafe ERC20 operations or recommends SafeERC20 usage.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Unspecific Solidity Pragma",
+     "file": "src/KHYPE.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a pragma version issue, which does not correspond to any of the known findings focused on staking manager logic and withdrawal handling.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about unspecific Solidity pragma, which is a general best-practice remark, not a specific security vulnerability matching any of the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Unused Import",
+     "file": "src/OracleManager.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes an unused import issue, which does not correspond to any of the known findings about staking, withdrawal, or buffer logic.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about unused imports, which is unrelated to any of the known valid findings describing functional or security vulnerabilities.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Public Function Not Used Internally",
+     "file": "src/KHYPE.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a visibility issue unrelated to any known staking or withdrawal bugs.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a generic best-practice suggestion about function visibility, not a specific bug matching any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    }
+   ]
+  },
+  "2025-04-virtuals-protocol": {
+   "hypotheses": 33,
+   "bekend": 32,
+   "gevondenStreng": [],
+   "gevondenRuim": [],
+   "recallStreng": 0,
+   "recallRuim": 0,
+   "precisieStreng": 0,
+   "precisieRuim": 0,
+   "overeenstemming": 1,
+   "ongeldigeAntwoorden": 0,
+   "perNiveau": {
+    "makkelijk": {
+     "totaal": 13,
+     "streng": 0,
+     "ruim": 0
+    },
+    "midden": {
+     "totaal": 9,
+     "streng": 0,
+     "ruim": 0
+    },
+    "moeilijk": {
+     "totaal": 10,
+     "streng": 0,
+     "ruim": 0
+    }
+   },
+   "hypothesesLijst": [
+    {
+     "title": "`abi.encodePacked()` Hash Collision",
+     "file": "contracts/dev/ERC6551BytecodeLib.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a hash collision issue with abi.encodePacked, which does not correspond to any of the listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding about abi.encodePacked() hash collision is not among the known valid findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Contract locks Ether without a withdraw function",
+     "file": "contracts/dev/ProxyAdmin.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a missing withdraw function in ProxyAdmin.sol, which does not correspond to any known finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding describes a missing withdraw function in ProxyAdmin.sol or similar locked-Ether issue.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "ETH transferred without address checks",
+     "file": "contracts/AgentInference.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes missing address checks for ETH transfers in AgentInference.sol, which does not correspond to any listed known finding's root cause or code location.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding covers ETH transfer without address checks in AgentInference.sol or AgentRewardV2.sol.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Reentrancy: State change after external call",
+     "file": "contracts/AgentInference.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes a reentrancy state‑change‑after‑call issue in AgentInference.sol",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding mentions reentrancy in AgentInference.sol; all findings are about different contracts and issues.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Contract Name Reused in Different Files",
+     "file": "contracts/dev/ERC6551BytecodeLib.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a naming collision issue, which does not correspond to any listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding about contract name reuse is a compilation best practice, not a security vulnerability matching any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Storage Array Edited with Memory",
+     "file": "contracts/virtualPersona/AgentFactory.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a storage vs memory parameter issue, which does not correspond to any known finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding describes the storage array edited with memory issue in AgentFactory/AgentFactoryV3.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Unsafe Casting of integers",
+     "file": "contracts/virtualPersona/AgentToken.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes unsafe integer downcasting, which is not covered by any known finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding describes an unsafe downcasting issue in AgentToken.sol.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Centralization Risk",
+     "file": "contracts/AgentRewardV2.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a generic centralization/owner privilege risk, which does not correspond to any specific known finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a generic centralization/trust-in-admin remark, not a specific root-cause vulnerability matching any listed known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Costly operations inside loop",
+     "file": "contracts/AgentInference.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a gas inefficiency issue, which does not correspond to any listed known finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a gas optimization, not a security vulnerability, and does not match any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Dead Code",
+     "file": "contracts/fun/FERC20.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes unused functions (dead code) in FERC20.sol, which does not correspond to any listed known finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding about dead code is a general code quality issue, not a security vulnerability matching any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Empty Block",
+     "file": "contracts/genesis/MockAgentFactoryV3.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a style issue (empty code blocks) which does not correspond to any known security root cause.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding addresses empty blocks; candidate is a general code style issue.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Empty `require()` / `revert()` Statement",
+     "file": "contracts/fun/Bonding.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes an empty require/revert statement in Bonding.sol",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is a generic best-practice remark about missing reason strings, not a specific vulnerability matching any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Inconsistent uint256/uint (or) int256/int types",
+     "file": "contracts/AgentRewardV2.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a coding style inconsistency, not a security flaw matching any known finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a code style recommendation about uint/int consistency, not a security vulnerability matching any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Internal Function Used Only Once",
+     "file": "contracts/libs/Elo.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a code style issue, not a security vulnerability matching any known finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a code style suggestion, not a security vulnerability.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Large Numeric Literal",
+     "file": "contracts/AgentRewardV2.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a coding style issue, not a security flaw matching any known finding",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a code style suggestion about numeric literals, not a security vulnerability matching any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Literal Instead of Constant",
+     "file": "contracts/dev/ERC6551Registry.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a coding style issue, not a security flaw covered by any known finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a generic best-practice remark about using constants, not a specific vulnerability.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Local Variable Shadows State Variable",
+     "file": "contracts/genesis/Genesis.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes local variable shadowing in Genesis.sol; none of the listed findings match this root cause.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes a code style issue (variable shadowing) not present among the known findings, which cover distinct security vulnerabilities.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Modifier Invoked Only Once",
+     "file": "contracts/genesis/Genesis.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a modifier usage issue in Genesis.sol, which does not correspond to any listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a code style suggestion, not a security vulnerability matching any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "`nonReentrant` is Not the First Modifier",
+     "file": "contracts/fun/FFactory.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a modifier ordering issue, which does not correspond to any known finding in the list.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding about nonReentrant modifier ordering is not among the known valid findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "PUSH0 Opcode",
+     "file": "contracts/AgentInference.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a compiler/EVM version issue unrelated to any listed root causes.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is about compiler/EVM version compatibility (PUSH0 opcode) and does not correspond to any of the listed audit findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Loop Contains `require`/`revert`",
+     "file": "contracts/AgentInference.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes a loop containing require/revert statements in AgentInference.sol",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a generic best-practice warning about require/revert in loops, not the same root cause or impact as any specific known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "State Change Without Event",
+     "file": "contracts/AgentRewardV2.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes missing event emissions for state changes.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a general best-practice remark about missing events, not a specific security vulnerability matching any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Address State Variable Set Without Checks",
+     "file": "contracts/AgentInference.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes missing address(0) checks on state variable assignments",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a generic zero-address check issue and does not match any of the listed known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "State Variable Could Be Immutable",
+     "file": "contracts/fun/FERC20.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a gas‑optimization suggestion, not a security flaw matching any known finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is a gas optimization suggestion about immutable state variables, which is not among the known valid findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Unchecked Return",
+     "file": "contracts/AgentInference.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes an unchecked return value issue in the same code.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a generic unchecked-return-value recommendation, not the specific root cause of any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Uninitialized Local Variable",
+     "file": "contracts/fun/Bonding.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes an uninitialized local variable in Bonding.sol; the candidate is unrelated.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a generic code readability remark about uninitialized variables and does not describe a specific security vulnerability or root cause matching any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Unsafe ERC20 Operation",
+     "file": "contracts/fun/Bonding.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the same unsafe ERC20 usage issue in Bonding.sol",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a generic best-practice remark about using SafeERC20, not a specific vulnerability matching any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Unsafe `ERC721::_mint()`",
+     "file": "contracts/contribution/ContributionNft.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes the unsafe use of ERC721._mint() versus _safeMint()",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "No known finding describes unsafe _mint() usage; the candidate is a generic recommendation to use _safeMint, not matching any specific known root cause.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Unspecific Solidity Pragma",
+     "file": "contracts/AgentInference.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a pragma version issue, which does not correspond to any listed known findings.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is a generic best-practice recommendation about Solidity pragma versioning, not any of the known vulnerabilities.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Unused Error",
+     "file": "contracts/IAgentReward.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a code quality issue (unused error) which does not correspond to any known security finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate describes unused error declarations, which is a code-quality issue unrelated to the security vulnerabilities in the known findings.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Unused Import",
+     "file": "contracts/AgentRewardV3.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a redundant import, which does not correspond to any known security root cause.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding is a code quality issue about unused imports, not a security vulnerability matching any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Public Function Not Used Internally",
+     "file": "contracts/AgentInference.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "The candidate describes a generic best‑practice issue, not a specific root‑cause bug matching any known finding.",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate is a general best-practice suggestion about function visibility, not a security vulnerability matching any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    },
+    {
+     "title": "Unused State Variable",
+     "file": "contracts/contribution/ServiceNft.sol",
+     "function": "",
+     "a": {
+      "match": null,
+      "reden": "No known finding describes an unused state variable issue",
+      "model": "gpt-oss-120b"
+     },
+     "b": {
+      "match": null,
+      "reden": "The candidate finding about unused state variables is a code quality issue, not a vulnerability described in any known finding.",
+      "model": "deepseek-v4-flash"
+     }
+    }
+   ]
+  }
+ },
+ "totaal": {
+  "bekend": 55,
+  "hyps": 121,
+  "streng": 0,
+  "ruim": 0,
+  "strengHyp": 0,
+  "eens": 121,
+  "perNiveau": {
+   "makkelijk": {
+    "totaal": 30,
+    "streng": 0
+   },
+   "midden": {
+    "totaal": 12,
+    "streng": 0
+   },
+   "moeilijk": {
+    "totaal": 13,
+    "streng": 0
+   }
+  },
+  "recallStreng": 0,
+  "recallRuim": 0,
+  "precisieStreng": 0,
+  "overeenstemming": 1
+ },
+ "kosten": 0.032762804699999995
+}

@@ -1,0 +1,259 @@
+{
+ "contest": "2025-04-kinetiq",
+ "gereedschap": "Slither",
+ "totaalGevonden": 36,
+ "hypotheses": [
+  {
+   "title": "reentrancy-balance (High, confidence Medium)",
+   "severity": "High",
+   "file": "src/StakingManager.sol",
+   "function": "batchConfirmWithdrawals",
+   "description": "Reentrancy in StakingManager.batchConfirmWithdrawals(uint256[]) (src/StakingManager.sol#314-331): External call allowing reentrancy: - totalAmount += _processConfirmation(msg.sender,withdrawalIds[i]) (src/StakingManager.sol#318) - kHYPE.burn(address(this),kHYPEAmount) (src/StakingManager.sol#399) - kHYPE.transfer(treasury,kHYPEFee) (src/StakingManager.sol#402) Balance read before the call: - totalAmount += _processConfirmation(msg.sender,withdrawalIds[i]) (src/StakingManager.sol#318) Possible stale balance used after the call in a condition: - require(bool,string)(address(this).balance >= totalAmount,Insufficient contract balance) (src/StakingManager.sol#323) - stale variable `totalAmount` "
+  },
+  {
+   "title": "unchecked-transfer (High, confidence Medium)",
+   "severity": "High",
+   "file": "src/StakingManager.sol",
+   "function": "cancelWithdrawal",
+   "description": "StakingManager.cancelWithdrawal(address,uint256) (src/StakingManager.sol#919-941) ignores return value by kHYPE.transfer(user,kHYPEAmount + kHYPEFee) (src/StakingManager.sol#935) "
+  },
+  {
+   "title": "unchecked-transfer (High, confidence Medium)",
+   "severity": "High",
+   "file": "src/StakingManager.sol",
+   "function": "_processConfirmation",
+   "description": "StakingManager._processConfirmation(address,uint256) (src/StakingManager.sol#378-407) ignores return value by kHYPE.transfer(treasury,kHYPEFee) (src/StakingManager.sol#402) "
+  },
+  {
+   "title": "unchecked-transfer (High, confidence Medium)",
+   "severity": "High",
+   "file": "src/StakingManager.sol",
+   "function": "queueWithdrawal",
+   "description": "StakingManager.queueWithdrawal(uint256) (src/StakingManager.sol#256-296) ignores return value by kHYPE.transferFrom(msg.sender,address(this),kHYPEAmount) (src/StakingManager.sol#277) "
+  },
+  {
+   "title": "reentrancy-no-eth (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/OracleManager.sol",
+   "function": "generatePerformance",
+   "description": "Reentrancy in OracleManager.generatePerformance(address) (src/OracleManager.sol#142-286): External calls: - validatorManager.updateValidatorPerformance(validator,avgBalance,avgUptimeScore,avgSpeedScore,avgIntegrityScore,avgSelfStakeScore) (src/OracleManager.sol#262-269) - validatorManager.reportRewardEvent(validator,newRewardAmount) (src/OracleManager.sol#274) - validatorManager.reportSlashingEvent(validator,newSlashAmount) (src/OracleManager.sol#278) State variables written after the call(s): - lastValidatorUpdate[validator] = block.timestamp (src/OracleManager.sol#282) OracleManager.lastValidatorUpdate (src/OracleManager.sol#52) can be used in cross function reentrancies: - OracleManager.generatePerformance(address) (src/OracleManager.sol#142-286) - OracleManager.lastValidatorUpdate (src/OracleManager.sol#52) "
+  },
+  {
+   "title": "reentrancy-no-eth (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/StakingManager.sol",
+   "function": "processL1Operations",
+   "description": "Reentrancy in StakingManager.processL1Operations(uint256) (src/StakingManager.sol#627-666): External calls: - withdrawalsProcessed_scope_0 = _processL1Withdrawals(batchSize) (src/StakingManager.sol#650) - l1Write.sendTokenDelegate(op.validator,uint64(op.amount),true) (src/StakingManager.sol#693) - l1Write.sendCWithdrawal(uint64(op.amount)) (src/StakingManager.sol#697) - depositsProcessed_scope_1 = _processL1Deposits(depositBatchSize) (src/StakingManager.sol#656) - l1Write.sendTokenDelegate(op.validator,uint64(op.amount),false) (src/StakingManager.sol#741) State variables written after the call(s): - depositsProcessed_scope_1 = _processL1Deposits(depositBatchSize) (src/StakingManager.sol#656) - _depositProcessingIndex = endIndex (src/StakingManager.sol#748) - _depositProcessingIndex = 0 (src/StakingManager.sol#753) StakingManager._depositProcessingIndex (src/StakingManager.sol#103) can be"
+  },
+  {
+   "title": "reentrancy-no-eth (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/StakingManager.sol",
+   "function": "queueWithdrawal",
+   "description": "Reentrancy in StakingManager.queueWithdrawal(uint256) (src/StakingManager.sol#256-296): External calls: - kHYPE.transferFrom(msg.sender,address(this),kHYPEAmount) (src/StakingManager.sol#277) State variables written after the call(s): - nextWithdrawalId[msg.sender] ++ (src/StakingManager.sol#287) StakingManager.nextWithdrawalId (src/StakingManager.sol#90) can be used in cross function reentrancies: - StakingManager.nextWithdrawalId (src/StakingManager.sol#90) "
+  },
+  {
+   "title": "reentrancy-no-eth (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/StakingManager.sol",
+   "function": "processL1Operations",
+   "description": "Reentrancy in StakingManager.processL1Operations(uint256) (src/StakingManager.sol#627-666): External calls: - withdrawalsProcessed = _processL1Withdrawals(0) (src/StakingManager.sol#642) - l1Write.sendTokenDelegate(op.validator,uint64(op.amount),true) (src/StakingManager.sol#693) - l1Write.sendCWithdrawal(uint64(op.amount)) (src/StakingManager.sol#697) - depositsProcessed = _processL1Deposits(0) (src/StakingManager.sol#646) - l1Write.sendTokenDelegate(op.validator,uint64(op.amount),false) (src/StakingManager.sol#741) State variables written after the call(s): - depositsProcessed = _processL1Deposits(0) (src/StakingManager.sol#646) - _depositProcessingIndex = endIndex (src/StakingManager.sol#748) - _depositProcessingIndex = 0 (src/StakingManager.sol#753) StakingManager._depositProcessingIndex (src/StakingManager.sol#103) can be used in cross function reentrancies: - StakingManager._proces"
+  },
+  {
+   "title": "reentrancy-no-eth (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/StakingManager.sol",
+   "function": "_processL1Withdrawals",
+   "description": "Reentrancy in StakingManager._processL1Withdrawals(uint256) (src/StakingManager.sol#673-714): External calls: - l1Write.sendTokenDelegate(op.validator,uint64(op.amount),true) (src/StakingManager.sol#693) - l1Write.sendCWithdrawal(uint64(op.amount)) (src/StakingManager.sol#697) State variables written after the call(s): - delete _pendingWithdrawals (src/StakingManager.sol#709) StakingManager._pendingWithdrawals (src/StakingManager.sol#98) can be used in cross function reentrancies: - StakingManager._processL1Withdrawals(uint256) (src/StakingManager.sol#673-714) - StakingManager._queueL1Operation(address,uint256,IStakingManager.OperationType) (src/StakingManager.sol#601-620) - StakingManager.processL1Operations(uint256) (src/StakingManager.sol#627-666) - StakingManager.resetL1OperationsQueue() (src/StakingManager.sol#963-973) - _withdrawalProcessingIndex = endIndex (src/StakingManager.sol#"
+  },
+  {
+   "title": "reentrancy-no-eth (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/StakingManager.sol",
+   "function": "_processL1Deposits",
+   "description": "Reentrancy in StakingManager._processL1Deposits(uint256) (src/StakingManager.sol#721-757): External calls: - l1Write.sendTokenDelegate(op.validator,uint64(op.amount),false) (src/StakingManager.sol#741) State variables written after the call(s): - _depositProcessingIndex = endIndex (src/StakingManager.sol#748) StakingManager._depositProcessingIndex (src/StakingManager.sol#103) can be used in cross function reentrancies: - StakingManager._processL1Deposits(uint256) (src/StakingManager.sol#721-757) - StakingManager.processL1Operations(uint256) (src/StakingManager.sol#627-666) - StakingManager.resetL1OperationsQueue() (src/StakingManager.sol#963-973) - _depositProcessingIndex = 0 (src/StakingManager.sol#753) StakingManager._depositProcessingIndex (src/StakingManager.sol#103) can be used in cross function reentrancies: - StakingManager._processL1Deposits(uint256) (src/StakingManager.sol#721-7"
+  },
+  {
+   "title": "uninitialized-local (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/OracleManager.sol",
+   "function": "generatePerformance",
+   "description": "OracleManager.generatePerformance(address).totalRewardAmount (src/OracleManager.sol#162) is a local variable never initialized "
+  },
+  {
+   "title": "uninitialized-local (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/OracleManager.sol",
+   "function": "generatePerformance",
+   "description": "OracleManager.generatePerformance(address).totalSelfStakeScore (src/OracleManager.sol#161) is a local variable never initialized "
+  },
+  {
+   "title": "uninitialized-local (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/OracleManager.sol",
+   "function": "generatePerformance",
+   "description": "OracleManager.generatePerformance(address).totalBalance (src/OracleManager.sol#157) is a local variable never initialized "
+  },
+  {
+   "title": "uninitialized-local (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/ValidatorManager.sol",
+   "function": "activeValidatorsCount",
+   "description": "ValidatorManager.activeValidatorsCount().count (src/ValidatorManager.sol#374) is a local variable never initialized "
+  },
+  {
+   "title": "uninitialized-local (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/OracleManager.sol",
+   "function": "generatePerformance",
+   "description": "OracleManager.generatePerformance(address).totalSpeedScore (src/OracleManager.sol#159) is a local variable never initialized "
+  },
+  {
+   "title": "uninitialized-local (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/OracleManager.sol",
+   "function": "generatePerformance",
+   "description": "OracleManager.generatePerformance(address).validOracleCount (src/OracleManager.sol#164) is a local variable never initialized "
+  },
+  {
+   "title": "uninitialized-local (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/OracleManager.sol",
+   "function": "generatePerformance",
+   "description": "OracleManager.generatePerformance(address).totalIntegrityScore (src/OracleManager.sol#160) is a local variable never initialized "
+  },
+  {
+   "title": "uninitialized-local (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/OracleManager.sol",
+   "function": "generatePerformance",
+   "description": "OracleManager.generatePerformance(address).totalSlashAmount (src/OracleManager.sol#163) is a local variable never initialized "
+  },
+  {
+   "title": "uninitialized-local (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/OracleManager.sol",
+   "function": "generatePerformance",
+   "description": "OracleManager.generatePerformance(address).totalUptimeScore (src/OracleManager.sol#158) is a local variable never initialized "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/PauserRegistry.sol",
+   "function": "initialize",
+   "description": "PauserRegistry.initialize(address,address,address,address,address[]) (src/PauserRegistry.sol#49-80) ignores return value by _authorizedContracts.add(contracts[i]) (src/PauserRegistry.sol#78) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/ValidatorManager.sol",
+   "function": "_addRebalanceRequest",
+   "description": "ValidatorManager._addRebalanceRequest(address,address,uint256) (src/ValidatorManager.sol#227-242) ignores return value by _validatorsWithPendingRebalance.add(validator) (src/ValidatorManager.sol#239) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/ValidatorManager.sol",
+   "function": "_addRebalanceRequest",
+   "description": "ValidatorManager._addRebalanceRequest(address,address,uint256) (src/ValidatorManager.sol#227-242) ignores return value by (exists,None) = _validatorIndexes.tryGet(validator) (src/ValidatorManager.sol#231) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/StakingAccountant.sol",
+   "function": "deauthorizeStakingManager",
+   "description": "StakingAccountant.deauthorizeStakingManager(address) (src/StakingAccountant.sol#99-124) ignores return value by _uniqueTokens.remove(token) (src/StakingAccountant.sol#120) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/StakingAccountant.sol",
+   "function": "deauthorizeStakingManager",
+   "description": "StakingAccountant.deauthorizeStakingManager(address) (src/StakingAccountant.sol#99-124) ignores return value by _authorizedManagers.remove(manager) (src/StakingAccountant.sol#104) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/StakingManager.sol",
+   "function": "addToWhitelist",
+   "description": "StakingManager.addToWhitelist(address[]) (src/StakingManager.sol#839-845) ignores return value by _whitelist.add(accounts[i]) (src/StakingManager.sol#842) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/ValidatorManager.sol",
+   "function": "validatorAt",
+   "description": "ValidatorManager.validatorAt(uint256) (src/ValidatorManager.sol#391-398) ignores return value by (validator,None) = _validatorIndexes.at(index) (src/ValidatorManager.sol#395) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/PauserRegistry.sol",
+   "function": "deauthorizeContract",
+   "description": "PauserRegistry.deauthorizeContract(address) (src/PauserRegistry.sol#141-146) ignores return value by _authorizedContracts.remove(contractAddress) (src/PauserRegistry.sol#144) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/ValidatorManager.sol",
+   "function": "activateValidator",
+   "description": "ValidatorManager.activateValidator(address) (src/ValidatorManager.sol#131-149) ignores return value by _validatorIndexes.set(validator,_validators.length - 1) (src/ValidatorManager.sol#146) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/oracles/DefaultOracle.sol",
+   "function": "updateValidatorMetrics",
+   "description": "DefaultOracle.updateValidatorMetrics(address,uint256,uint256,uint256,uint256,uint256,uint256,uint256) (src/oracles/DefaultOracle.sol#81-114) ignores return value by _validators.add(validator) (src/oracles/DefaultOracle.sol#111) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/StakingAccountant.sol",
+   "function": "authorizeStakingManager",
+   "description": "StakingAccountant.authorizeStakingManager(address,address) (src/StakingAccountant.sol#82-93) ignores return value by _authorizedManagers.set(manager,kHYPEToken) (src/StakingAccountant.sol#87) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/ValidatorManager.sol",
+   "function": "closeRebalanceRequests",
+   "description": "ValidatorManager.closeRebalanceRequests(address,address[]) (src/ValidatorManager.sol#250-284) ignores return value by _validatorsWithPendingRebalance.remove(validator) (src/ValidatorManager.sol#271) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/StakingAccountant.sol",
+   "function": "authorizeStakingManager",
+   "description": "StakingAccountant.authorizeStakingManager(address,address) (src/StakingAccountant.sol#82-93) ignores return value by _uniqueTokens.add(kHYPEToken) (src/StakingAccountant.sol#90) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/OracleManager.sol",
+   "function": "authorizeOracleAdapter",
+   "description": "OracleManager.authorizeOracleAdapter(address) (src/OracleManager.sol#98-106) ignores return value by authorizedOracles.add(adapter) (src/OracleManager.sol#102) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/StakingAccountant.sol",
+   "function": "deauthorizeStakingManager",
+   "description": "StakingAccountant.deauthorizeStakingManager(address) (src/StakingAccountant.sol#99-124) ignores return value by (None,otherToken) = _authorizedManagers.at(i) (src/StakingAccountant.sol#111) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/OracleManager.sol",
+   "function": "deauthorizeOracle",
+   "description": "OracleManager.deauthorizeOracle(address) (src/OracleManager.sol#108-112) ignores return value by authorizedOracles.remove(adapter) (src/OracleManager.sol#109) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/PauserRegistry.sol",
+   "function": "authorizeContract",
+   "description": "PauserRegistry.authorizeContract(address) (src/PauserRegistry.sol#129-135) ignores return value by _authorizedContracts.add(contractAddress) (src/PauserRegistry.sol#133) "
+  }
+ ]
+}

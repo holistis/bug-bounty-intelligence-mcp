@@ -1,0 +1,210 @@
+{
+ "contest": "2025-11-sukukfi",
+ "gereedschap": "Slither",
+ "totaalGevonden": 29,
+ "hypotheses": [
+  {
+   "title": "arbitrary-send-erc20 (High, confidence High)",
+   "severity": "High",
+   "file": "src/ERC7575VaultUpgradeable.sol",
+   "function": "requestDeposit",
+   "description": "ERC7575VaultUpgradeable.requestDeposit(uint256,address,address) (src/ERC7575VaultUpgradeable.sol#341-371) uses arbitrary from in transferFrom: SafeTokenTransfers.safeTransferFrom($.asset,owner,address(this),assets) (src/ERC7575VaultUpgradeable.sol#361) "
+  },
+  {
+   "title": "arbitrary-send-erc20 (High, confidence High)",
+   "severity": "High",
+   "file": "src/SafeTokenTransfers.sol",
+   "function": "safeTransferFrom",
+   "description": "SafeTokenTransfers.safeTransferFrom(address,address,address,uint256) (src/SafeTokenTransfers.sol#63-68) uses arbitrary from in transferFrom: IERC20Metadata(token).safeTransferFrom(sender,recipient,amount) (src/SafeTokenTransfers.sol#65) "
+  },
+  {
+   "title": "shadowing-state (High, confidence High)",
+   "severity": "High",
+   "file": "src/WERC7575ShareToken.sol",
+   "function": "",
+   "description": "WERC7575ShareToken._totalSupply (src/WERC7575ShareToken.sol#128) shadows: - ERC20._totalSupply (lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol#34) "
+  },
+  {
+   "title": "shadowing-state (High, confidence High)",
+   "severity": "High",
+   "file": "src/WERC7575ShareToken.sol",
+   "function": "",
+   "description": "WERC7575ShareToken._balances (src/WERC7575ShareToken.sol#125) shadows: - ERC20._balances (lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol#30) "
+  },
+  {
+   "title": "incorrect-equality (Medium, confidence High)",
+   "severity": "Medium",
+   "file": "src/ERC7575VaultUpgradeable.sol",
+   "function": "withdrawFromInvestment",
+   "description": "ERC7575VaultUpgradeable.withdrawFromInvestment(uint256) (src/ERC7575VaultUpgradeable.sol#1477-1509) uses a dangerous strict equality: - minShares == 0 (src/ERC7575VaultUpgradeable.sol#1491) "
+  },
+  {
+   "title": "incorrect-equality (Medium, confidence High)",
+   "severity": "Medium",
+   "file": "src/WERC7575Vault.sol",
+   "function": "_withdraw",
+   "description": "WERC7575Vault._withdraw(uint256,uint256,address,address) (src/WERC7575Vault.sol#397-411) uses a dangerous strict equality: - assets == 0 (src/WERC7575Vault.sol#404) "
+  },
+  {
+   "title": "incorrect-equality (Medium, confidence High)",
+   "severity": "Medium",
+   "file": "src/WERC7575Vault.sol",
+   "function": "_deposit",
+   "description": "WERC7575Vault._deposit(uint256,uint256,address) (src/WERC7575Vault.sol#324-336) uses a dangerous strict equality: - assets == 0 (src/WERC7575Vault.sol#329) "
+  },
+  {
+   "title": "uninitialized-local (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/WERC7575Vault.sol",
+   "function": "constructor",
+   "description": "WERC7575Vault.constructor(address,WERC7575ShareToken).assetDecimals (src/WERC7575Vault.sol#90) is a local variable never initialized "
+  },
+  {
+   "title": "uninitialized-local (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/ERC7575VaultUpgradeable.sol",
+   "function": "initialize",
+   "description": "ERC7575VaultUpgradeable.initialize(IERC20Metadata,address,address).assetDecimals (src/ERC7575VaultUpgradeable.sol#159) is a local variable never initialized "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/ERC7575VaultUpgradeable.sol",
+   "function": "redeem",
+   "description": "ERC7575VaultUpgradeable.redeem(uint256,address,address) (src/ERC7575VaultUpgradeable.sol#885-918) ignores return value by $.activeRedeemRequesters.remove(controller) (src/ERC7575VaultUpgradeable.sol#901) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/WERC7575ShareToken.sol",
+   "function": "unregisterVault",
+   "description": "WERC7575ShareToken.unregisterVault(address) (src/WERC7575ShareToken.sol#256-285) ignores return value by _assetToVault.remove(asset) (src/WERC7575ShareToken.sol#281) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/ShareTokenUpgradeable.sol",
+   "function": "unregisterVault",
+   "description": "ShareTokenUpgradeable.unregisterVault(address) (src/ShareTokenUpgradeable.sol#282-327) ignores return value by $.assetToVault.remove(asset) (src/ShareTokenUpgradeable.sol#323) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/ERC7575VaultUpgradeable.sol",
+   "function": "cancelDepositRequest",
+   "description": "ERC7575VaultUpgradeable.cancelDepositRequest(uint256,address) (src/ERC7575VaultUpgradeable.sol#1574-1595) ignores return value by $.activeDepositRequesters.remove(controller) (src/ERC7575VaultUpgradeable.sol#1592) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/ERC7575VaultUpgradeable.sol",
+   "function": "cancelRedeemRequest",
+   "description": "ERC7575VaultUpgradeable.cancelRedeemRequest(uint256,address) (src/ERC7575VaultUpgradeable.sol#1745-1764) ignores return value by $.controllersWithPendingRedeemCancelations.add(controller) (src/ERC7575VaultUpgradeable.sol#1760) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/ERC7575VaultUpgradeable.sol",
+   "function": "claimCancelRedeemRequest",
+   "description": "ERC7575VaultUpgradeable.claimCancelRedeemRequest(uint256,address,address) (src/ERC7575VaultUpgradeable.sol#1866-1885) ignores return value by $.controllersWithPendingRedeemCancelations.remove(controller) (src/ERC7575VaultUpgradeable.sol#1878) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/ERC7575VaultUpgradeable.sol",
+   "function": "deposit",
+   "description": "ERC7575VaultUpgradeable.deposit(uint256,address,address) (src/ERC7575VaultUpgradeable.sol#557-589) ignores return value by $.activeDepositRequesters.remove(controller) (src/ERC7575VaultUpgradeable.sol#575) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/ERC7575VaultUpgradeable.sol",
+   "function": "claimCancelDepositRequest",
+   "description": "ERC7575VaultUpgradeable.claimCancelDepositRequest(uint256,address,address) (src/ERC7575VaultUpgradeable.sol#1691-1711) ignores return value by $.controllersWithPendingDepositCancelations.remove(controller) (src/ERC7575VaultUpgradeable.sol#1704) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/ERC7575VaultUpgradeable.sol",
+   "function": "requestRedeem",
+   "description": "ERC7575VaultUpgradeable.requestRedeem(uint256,address,address) (src/ERC7575VaultUpgradeable.sol#715-751) ignores return value by $.activeRedeemRequesters.add(controller) (src/ERC7575VaultUpgradeable.sol#746) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/ERC7575VaultUpgradeable.sol",
+   "function": "mint",
+   "description": "ERC7575VaultUpgradeable.mint(uint256,address,address) (src/ERC7575VaultUpgradeable.sol#633-665) ignores return value by $.activeDepositRequesters.remove(controller) (src/ERC7575VaultUpgradeable.sol#651) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/ShareTokenUpgradeable.sol",
+   "function": "getCirculatingSupplyAndAssets",
+   "description": "ShareTokenUpgradeable.getCirculatingSupplyAndAssets() (src/ShareTokenUpgradeable.sol#369-390) ignores return value by (None,vaultAddress) = $.assetToVault.at(i) (src/ShareTokenUpgradeable.sol#375) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/ERC7575VaultUpgradeable.sol",
+   "function": "cancelRedeemRequest",
+   "description": "ERC7575VaultUpgradeable.cancelRedeemRequest(uint256,address) (src/ERC7575VaultUpgradeable.sol#1745-1764) ignores return value by $.activeRedeemRequesters.remove(controller) (src/ERC7575VaultUpgradeable.sol#1761) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/ERC7575VaultUpgradeable.sol",
+   "function": "requestDeposit",
+   "description": "ERC7575VaultUpgradeable.requestDeposit(uint256,address,address) (src/ERC7575VaultUpgradeable.sol#341-371) ignores return value by $.activeDepositRequesters.add(controller) (src/ERC7575VaultUpgradeable.sol#366) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/ERC7575VaultUpgradeable.sol",
+   "function": "withdraw",
+   "description": "ERC7575VaultUpgradeable.withdraw(uint256,address,address) (src/ERC7575VaultUpgradeable.sol#927-962) ignores return value by $.activeRedeemRequesters.remove(controller) (src/ERC7575VaultUpgradeable.sol#943) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/WERC7575ShareToken.sol",
+   "function": "registerVault",
+   "description": "WERC7575ShareToken.registerVault(address,address) (src/WERC7575ShareToken.sol#218-241) ignores return value by _assetToVault.set(asset,vaultAddress) (src/WERC7575ShareToken.sol#237) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/ShareTokenUpgradeable.sol",
+   "function": "_configureVaultInvestmentSettings",
+   "description": "ShareTokenUpgradeable._configureVaultInvestmentSettings(address,address,address) (src/ShareTokenUpgradeable.sol#540-551) ignores return value by IERC20(investmentShareToken).approve(vaultAddress,type()(uint256).max) (src/ShareTokenUpgradeable.sol#549) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/ShareTokenUpgradeable.sol",
+   "function": "setInvestmentManager",
+   "description": "ShareTokenUpgradeable.setInvestmentManager(address) (src/ShareTokenUpgradeable.sol#659-676) ignores return value by (None,vaultAddress) = $.assetToVault.at(i) (src/ShareTokenUpgradeable.sol#669) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/ERC7575VaultUpgradeable.sol",
+   "function": "withdrawFromInvestment",
+   "description": "ERC7575VaultUpgradeable.withdrawFromInvestment(uint256) (src/ERC7575VaultUpgradeable.sol#1477-1509) ignores return value by IERC7575($.investmentVault).redeem(minShares,address(this),shareToken_) (src/ERC7575VaultUpgradeable.sol#1500) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/ERC7575VaultUpgradeable.sol",
+   "function": "cancelDepositRequest",
+   "description": "ERC7575VaultUpgradeable.cancelDepositRequest(uint256,address) (src/ERC7575VaultUpgradeable.sol#1574-1595) ignores return value by $.controllersWithPendingDepositCancelations.add(controller) (src/ERC7575VaultUpgradeable.sol#1591) "
+  },
+  {
+   "title": "unused-return (Medium, confidence Medium)",
+   "severity": "Medium",
+   "file": "src/ShareTokenUpgradeable.sol",
+   "function": "vault",
+   "description": "ShareTokenUpgradeable.vault(address) (src/ShareTokenUpgradeable.sol#143-146) ignores return value by (None,vaultAddress) = $.assetToVault.tryGet(asset) (src/ShareTokenUpgradeable.sol#145) "
+  }
+ ]
+}

@@ -1,0 +1,119 @@
+{
+ "contest": "2025-10-sequence",
+ "gereedschap": "Aderyn",
+ "totaalGevonden": 16,
+ "hypotheses": [
+  {
+   "title": "`abi.encodePacked()` Hash Collision",
+   "severity": "High",
+   "file": "src/extensions/sessions/explicit/Permission.sol",
+   "function": "",
+   "description": "abi.encodePacked() should not be used with dynamic types when passing the result to a hash function such as `keccak256()`. Use `abi.encode()` instead which will pad items to 32 bytes, preventing hash collisions: https://docs.soliditylang.org/en/v0.8.13/abi-spec.html#non-standard-packed-mode. (e.g. `abi.encodePacked(0x123,0x456)` => `0x123456` => `abi.encodePacked(0x1,0x23456)`, but `abi.encode(0x123,0x456)` => `0x0...1230...456`). Unless there is a compelling reason, `abi.encode` should be preferred. If there is only one argument to `abi.encodePacked()` it can often be cast to `bytes()` or `bytes32()` instead: https://ethereum.stackexchange.com/questions/30912/how-to-compare-strings-in-solidity#answer-82739. If all arguments are strings and or bytes, `bytes.concat()` should be used instead. Instances: src/extensions/sessions/explicit/Permission.sol:95, src/extensions/sessions/implicit/At"
+  },
+  {
+   "title": "Contract locks Ether without a withdraw function",
+   "severity": "High",
+   "file": "src/Estimator.sol",
+   "function": "",
+   "description": "It appears that the contract includes a payable function to accept Ether but lacks a corresponding function to withdraw it, which leads to the Ether being locked in the contract. To resolve this issue, please implement a public or external function that allows for the withdrawal of Ether from the contract. Instances: src/Estimator.sol:13, src/Factory.sol:9, src/Guest.sol:13"
+  },
+  {
+   "title": "Incorrect Assembly Shift Parameter Order",
+   "severity": "High",
+   "file": "src/utils/Base64.sol",
+   "function": "",
+   "description": "Example: `shl(shifted, 4)` will shift the right constant `4` by `a` bits. The correct order is `shl(4, shifted)`. Instances: src/utils/Base64.sol:63, src/utils/LibBytes.sol:76, src/utils/WebAuthn.sol:106"
+  },
+  {
+   "title": "Yul block contains `return`",
+   "severity": "High",
+   "file": "src/modules/Hooks.sol",
+   "function": "",
+   "description": "This causes the transaction execution to halt, and nothing after that call will execute including code following the assembly block. Instances: src/modules/Hooks.sol:115"
+  },
+  {
+   "title": "Costly operations inside loop",
+   "severity": "Low",
+   "file": "src/extensions/sessions/explicit/ExplicitSessionManager.sol",
+   "function": "",
+   "description": "Invoking `SSTORE` operations in loops may waste gas. Use a local variable to hold the loop computation result. Instances: src/extensions/sessions/explicit/ExplicitSessionManager.sol:24"
+  },
+  {
+   "title": "`delegatecall` in loop",
+   "severity": "Low",
+   "file": "src/Estimator.sol",
+   "function": "",
+   "description": "Using `delegatecall` in loop may consume excessive gas, or worse, lead to more severe issues. Instances: src/Estimator.sol:53, src/Simulator.sol:47, src/modules/Calls.sol:66"
+  },
+  {
+   "title": "`ecrecover` Signature Malleability",
+   "severity": "Low",
+   "file": "src/extensions/recovery/Recovery.sol",
+   "function": "",
+   "description": "The `ecrecover` function is susceptible to signature malleability. This means that the same message can be signed in multiple ways, allowing an attacker to change the message signature without invalidating it. This can lead to unexpected behavior in smart contracts, such as the loss of funds or the ability to bypass access control. Consider using OpenZeppelin's ECDSA library instead of the built-in function. Instances: src/extensions/recovery/Recovery.sol:203, src/extensions/sessions/SessionSig.sol:116, src/extensions/sessions/SessionSig.sol:170"
+  },
+  {
+   "title": "Empty Block",
+   "severity": "Low",
+   "file": "src/modules/Hooks.sol",
+   "function": "",
+   "description": "Consider removing empty blocks. Instances: src/modules/Hooks.sol:87"
+  },
+  {
+   "title": "Internal Function Used Only Once",
+   "severity": "Low",
+   "file": "src/extensions/recovery/Recovery.sol",
+   "function": "",
+   "description": "Instead of separating the logic into a separate function, consider inlining the logic into the calling function. This can reduce the number of function calls and improve readability. Instances: src/extensions/recovery/Recovery.sol:40, src/extensions/recovery/Recovery.sol:188, src/extensions/sessions/explicit/Permission.sol:102"
+  },
+  {
+   "title": "Literal Instead of Constant",
+   "severity": "Low",
+   "file": "src/extensions/sessions/SessionSig.sol",
+   "function": "",
+   "description": "Define and use `constant` variables instead of using literals. If the same constant literal value is used multiple times, create a constant state variable and reference it throughout the contract. Instances: src/extensions/sessions/SessionSig.sol:263, src/extensions/sessions/SessionSig.sol:311, src/extensions/sessions/SessionSig.sol:312"
+  },
+  {
+   "title": "Loop Contains `require`/`revert`",
+   "severity": "Low",
+   "file": "src/Estimator.sol",
+   "function": "",
+   "description": "Avoid `require` / `revert` statements in a loop because a single bad item can cause the whole transaction to fail. It's better to forgive on fail and return failed elements post processing of the loop Instances: src/Estimator.sol:53, src/Guest.sol:32, src/extensions/recovery/Recovery.sol:83"
+  },
+  {
+   "title": "Unchecked Return",
+   "severity": "Low",
+   "file": "src/Estimator.sol",
+   "function": "",
+   "description": "Function returns a value but it is ignored. Consider checking the return value. Instances: src/Estimator.sol:22"
+  },
+  {
+   "title": "Unspecific Solidity Pragma",
+   "severity": "Low",
+   "file": "src/Estimator.sol",
+   "function": "",
+   "description": "Consider using a specific version of Solidity in your contracts instead of a wide version. For example, instead of `pragma solidity ^0.8.0;`, use `pragma solidity 0.8.0;` Instances: src/Estimator.sol:2, src/Factory.sol:2, src/Guest.sol:2"
+  },
+  {
+   "title": "Unused Error",
+   "severity": "Low",
+   "file": "src/modules/auth/Stage1Auth.sol",
+   "function": "",
+   "description": "Consider using or removing the unused error. Instances: src/modules/auth/Stage1Auth.sol:17, src/utils/P256.sol:16"
+  },
+  {
+   "title": "Unused Import",
+   "severity": "Low",
+   "file": "src/modules/auth/Stage2Auth.sol",
+   "function": "",
+   "description": "Redundant import statement. Consider removing it. Instances: src/modules/auth/Stage2Auth.sol:4"
+  },
+  {
+   "title": "Public Function Not Used Internally",
+   "severity": "Low",
+   "file": "src/Factory.sol",
+   "function": "",
+   "description": "If a function is marked public but is not used internally, consider marking it as `external`. Instances: src/Factory.sol:18, src/extensions/recovery/Recovery.sol:64"
+  }
+ ]
+}
