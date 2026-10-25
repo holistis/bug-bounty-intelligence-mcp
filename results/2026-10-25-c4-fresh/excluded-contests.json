@@ -1,0 +1,62 @@
+[
+  {
+    "contest": "2025-08-gte-perps",
+    "reason": "geen rapport (status 404)"
+  },
+  {
+    "contest": "2025-09-monad",
+    "reason": "minder dan 3 Solidity-bestanden in scope (0)"
+  },
+  {
+    "contest": "2025-09-succinct",
+    "reason": "minder dan 3 Solidity-bestanden in scope (0)"
+  },
+  {
+    "contest": "2025-10-covenant",
+    "reason": "minder dan 2 bekende High of Medium (0)"
+  },
+  {
+    "contest": "2025-10-reflector",
+    "reason": "geen rapport (status 404)"
+  },
+  {
+    "contest": "2025-11-garden",
+    "reason": "minder dan 2 bekende High of Medium (1)"
+  },
+  {
+    "contest": "2025-11-sequence",
+    "reason": "geen rapport (status 404)"
+  },
+  {
+    "contest": "2025-11-swafe",
+    "reason": "minder dan 3 Solidity-bestanden in scope (0)"
+  },
+  {
+    "contest": "2025-12-panoptic",
+    "reason": "geen rapport (status 404)"
+  },
+  {
+    "contest": "2025-12-rujira",
+    "reason": "geen rapport (status 404)"
+  },
+  {
+    "contest": "2026-02-injective",
+    "reason": "geen rapport (status 404)"
+  },
+  {
+    "contest": "2026-02-jupiter-lend",
+    "reason": "minder dan 3 Solidity-bestanden in scope (0)"
+  },
+  {
+    "contest": "2026-03-chainlink",
+    "reason": "geen rapport (status 404)"
+  },
+  {
+    "contest": "2026-04-k2",
+    "reason": "minder dan 3 Solidity-bestanden in scope (0)"
+  },
+  {
+    "contest": "2026-04-monetrix",
+    "reason": "minder dan 2 bekende High of Medium (1)"
+  }
+]
