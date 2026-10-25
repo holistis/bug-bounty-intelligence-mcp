@@ -61,7 +61,6 @@
     "kopGelijkAanBody": true,
     "betalerKlopt": true,
     "bedragUsdc": 5.1,
-    "naarOntvangstadres": true,
-    "opmerking": "De eerste versie van de betalercontrole gaf false door een fout in het controlescript; opnieuw tegen de chain gelezen, hierboven de juiste waarden."
+    "naarOntvangstadres": true
   }
 }
