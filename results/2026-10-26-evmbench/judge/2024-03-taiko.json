@@ -1,0 +1,523 @@
+{
+ "audit": "2024-03-taiko",
+ "verdicts": [
+  {
+   "title": "ERC20Airdrop.claimAndDelegate allows anyone to claim for arbitrary user",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability in ERC20Airdrop.claimAndDelegate, which does not correspond to any listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an authorization flaw in ERC20Airdrop.claimAndDelegate, while the known findings cover different contracts and root causes (airdrop2 withdrawal timing, signature replay, gas, b",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ERC20Vault changeBridgedToken deletes wrong mapping entry",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a mapping deletion bug in ERC20Vault, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a mapping deletion bug in ERC20Vault.changeBridgedToken, which is not related to any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ERC20Airdrop2.withdraw lets anyone drain any user's claimed tokens",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unauthorized withdrawal issue in ERC20Airdrop2.withdraw, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing access control in ERC20Airdrop2.withdraw, which is not covered by any known finding; H-03 is about a different issue in the same contract (linear unlock timing), not ",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "TimelockTokenPool.withdraw signature replay / cross-recipient reuse",
+   "strict": "H-05",
+   "a": {
+    "match": "H-05",
+    "reden": "Both describe the same signature replay vulnerability in TimelockTokenPool.sol's withdraw function",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-05",
+    "reden": "Both findings describe the same signature replay vulnerability in TimelockTokenPool.withdraw due to missing recipient/chain/nonce in the signed hash.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "TimelockTokenPool.withdraw signature lacks nonce, chainId, and contract address",
+   "strict": "H-05",
+   "a": {
+    "match": "H-05",
+    "reden": "Both describe the same replayable signature flaw in TimelockTokenPool.withdraw due to missing nonce/chainId/address",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-05",
+    "reden": "Both describe the same signature replay vulnerability in TimelockTokenPool.withdraw due to missing nonce, chainId, and contract address.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "TimelockTokenPool costToWithdraw precision loss favors recipient",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a precision loss and underflow issue in getMyGrantSummary, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a precision loss/rounding issue in TimelockTokenPool's costToWithdraw calculation, which is not among the listed known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ERC20Airdrop.claimAndDelegate lets anyone consume a victim's delegateBySig",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a delegateBySig misuse in ERC20Airdrop.claimAndDelegate, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability in ERC20Airdrop.claimAndDelegate, not matching any known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ERC20Airdrop2 withdraw can be called repeatedly to drain vault",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue (unrestricted withdraw calls) than any listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes repeated withdrawal draining of ERC20Airdrop2; H-03 is about users being unable to withdraw fully, which is the opposite impact.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "TimelockTokenPool withdraw uses unchecked transferFrom on taikoToken",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unchecked ERC20 transferFrom bug, which does not correspond to any listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an unchecked transferFrom in _withdraw, which is a different issue from the known findings; none of the known findings cover this.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ERC20Airdrop claimAndDelegate ignores transferFrom return value",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing return value check in claimAndDelegate, which does not correspond to any listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes the ignored transferFrom return value in ERC20Airdrop.claimAndDelegate.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "TaikoL2.anchor callable by anyone via GOLDEN_TOUCH_ADDRESS spoofing on non-mainnet",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a vulnerability in TaikoL2.anchor related to GOLDEN_TOUCH_ADDRESS, which is not covered by any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability in TaikoL2.anchor() related to GOLDEN_TOUCH_ADDRESS spoofing, which is not covered by any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ERC20Vault sendToken uses balanceChange for bridged tokens without fee handling",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fee-on-transfer handling issue in ERC20Vault, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding about ERC20Vault's fee handling for bridged tokens is not related to any of the known findings, which cover gas inflation, bond burning, airdrop withdrawal, proposer fee, and sig",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "TimelockTokenPool costToWithdraw underflow reverts withdrawals",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an underflow bug in cost calculation, which does not correspond to any listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a precision underflow in costToWithdraw, which is not covered by any known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ERC20Airdrop.claimAndDelegate reentrancy via delegateBySig",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in ERC20Airdrop.claimAndDelegate, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a reentrancy issue in ERC20Airdrop.claimAndDelegate, which is not covered by any of the known findings (H-01 to H-05).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "TimelockTokenPool.withdraw reverts on zero transfer, blocking withdrawals",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a zero‑value transfer revert in TimelockTokenPool, which does not correspond to any listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate is about zero-value transfer reverts in TimelockTokenPool.withdraw, while known findings describe different issues (e.g., H-05 signature replay) in the same contract.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Bridge.suspendMessages can permanently freeze a message",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a freeze bug in Bridge.suspendMessages, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability in Bridge.suspendMessages, not among the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AssignmentHook.hashAssignment omits chainId of destination and nonce, enabling cross-chain replay",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a replay issue in hashAssignment, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a signature replay vulnerability in AssignmentHook.hashAssignment, which is a different root cause and code location from any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ERC20Airdrop claimAndDelegate allows front-running delegation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a front‑running delegation issue in claimAndDelegate, which does not correspond to any listed known finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes the front-running delegation issue in ERC20Airdrop.claimAndDelegate.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "USDCAdapter _burnToken uses transferFrom without checking return",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "None of the listed findings describe the unchecked return value issue in USDCAdapter._burnToken",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes an unchecked return of transferFrom in USDCAdapter, which is not related to any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "SgxVerifier.registerInstance allows anyone to register arbitrary SGX instances",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a permissionless SGX instance registration bug, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a lack of access control in SgxVerifier, whereas the known findings concern unrelated contracts and issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "TimelockTokenPool.withdraw reentrancy via costToken callback",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue, which does not correspond to any listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in TimelockTokenPool.withdraw, while known findings cover signature replay, gas inflation, bond burning, airdrop withdrawal, and proposer fee theft, none of ",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ERC721Airdrop.claim loop over user-supplied tokenIds can OOG",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unbounded loop gas issue in ERC721Airdrop.claim, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns an unbounded loop in ERC721Airdrop.claim, which none of the known findings describe; all known findings involve different contracts and root causes.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "SgxVerifier.getSignedHash omits chainId of the destination chain and nonce",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing chainId/nonce issue in SgxVerifier.getSignedHash, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns SgxVerifier.getSignedHash missing chainId and nonce, which is not mentioned in any of the known valid findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Bridge.processMessage refunds fee to msg.sender even when message fails",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fee refund issue in Bridge.processMessage, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a fee refund issue in Bridge.processMessage, which is not related to any of the known findings about gas inflation, bond burning, airdrop withdrawal, proposer fees, or signatur",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "SgxVerifier registerInstance allows front-running with same attestation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a front‑running issue in SgxVerifier.registerInstance, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes the SgxVerifier registerInstance front-running issue.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AssignmentHook ignores transferFrom return value for liveness bond",
+   "strict": null,
+   "a": {
+    "match": "H-04",
+    "reden": "Both describe the same flaw in AssignmentHook.sol's onBlockProposed where the transferFrom call for the liveness bond is not checked, allowing bond payment to be bypassed.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an unchecked transferFrom return value in AssignmentHook.onBlockProposed, which is a different root cause and impact than any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Bridge.processMessage allows anyone to process messages and steal refunds",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a permissionless refund fee theft in Bridge.processMessage, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a permissionless processMessage refund theft, which is not among the listed known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "TimelockTokenPool _calcAmount rounding favors recipient at cliff",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a rounding issue in TimelockTokenPool._calcAmount, which is not covered by any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a rounding issue in _calcAmount, which is not related to any of the known findings (H-01 to H-05).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "TaikoL2 anchor accepts stale L1 block id without lower bound",
+   "strict": null,
+   "a": {
+    "match": "H-01",
+    "reden": "Both describe the same missing lower‑bound check in TaikoL2.anchor allowing stale L1 block IDs, leading to incorrect base‑fee/gas issuance.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing lower bound check in TaikoL2.anchor, while known findings do not include this specific issue; H-01 is about gas issuance inflation, a different bug in the same contra",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AssignmentHook accepts expired or zero-expiry prover assignments",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an expiry check bug, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different root cause (expiry check and signature binding in AssignmentHook) than any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LibProving contest bond accounting can be gamed via same-transition re-proof",
+   "strict": null,
+   "a": {
+    "match": "H-02",
+    "reden": "Both describe a bond‑accounting flaw in LibProving.sol’s _overrideWithHigherProof that can misallocate or burn bonds, leading to protocol bond pool loss.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a specific gaming scenario in _overrideWithHigherProof regarding missing contest bond transfer, which is not described in any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ERC20Airdrop2.withdraw lacks nonReentrant and updates after transfer",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in ERC20Airdrop2.withdraw, which does not correspond to any listed known finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy/missing nonReentrant issue in ERC20Airdrop2.withdraw, while H-3 is about users being unable to fully withdraw due to the time-based allowance calculation, which is",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "TaikoL2.anchor can be permanently blocked by a single bad anchor",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a permanent freeze in the anchor function, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a permanent block of the anchor function due to a bad anchor, which is not covered by any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AssignmentHook.onBlockProposed reverts on zero-fee ERC20 transfer",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a zero-fee ERC20 transfer revert, which is a different root cause than any listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a revert on zero-fee ERC20 transfer in AssignmentHook, which is not covered by any known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "CrossChainOwned.onMessageInvocation relies on bridge context that can be spoofed via recall",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a cross‑chain message spoofing issue, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes spoofed bridge context in CrossChainOwned; the listed findings concern different contracts and root causes.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ERC20Airdrop2 withdraw has no access control, anyone can trigger for any user",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an access‑control issue, while the only ERC20Airdrop2 finding (H‑03) concerns withdrawal timing and unlock mechanics, not missing access control.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing access control in ERC20Airdrop2.withdraw(), which is not covered by any known finding; H-03 is about a different bug in the same contract.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Bridge.processMessage reentrancy via _invokeMessageCall",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in Bridge.sol's processMessage, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in Bridge.processMessage, which is not among the known findings (which concern gas issuance, proving bonds, airdrop withdrawal, proposer fee forcing, and sig",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

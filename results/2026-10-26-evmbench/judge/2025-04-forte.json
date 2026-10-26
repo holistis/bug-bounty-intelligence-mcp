@@ -1,0 +1,495 @@
+{
+ "audit": "2025-04-forte",
+ "verdicts": [
+  {
+   "title": "No signature verification or replay protection in codebase",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes absence of signature verification, which does not correspond to any of the listed numeric computation bugs.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a general lack of signature verification, which is not related to any of the specific math bugs in the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Unbounded recursion in ln() enables stack exhaustion DoS",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unbounded recursion DoS in ln_helper, which is not covered by any known finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes unbounded recursion in ln_helper causing stack exhaustion; H-03 is about accepting non-positive inputs, a different flaw.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "No staleness / zero / sequencer checks on any oracle-facing math",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes missing oracle freshness/zero checks in toPackedFloat, which differs from the precision‑loss issue of H‑05.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes missing input validation in toPackedFloat, which is not covered by any known finding that focuses on sqrt, ln, eq, or precision loss in the same function.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Division by zero in ln_helper when mantissa is zero",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a division‑by‑zero in ln_helper due to a zero mantissa, which is a different root cause than any listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a division-by-zero revert in ln_helper, while H-03 describes silent acceptance of invalid inputs without revert; the impacts differ.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Public ln() and calculateQ* helpers allow arbitrary external calls",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a visibility issue (public ln) whereas known findings address input validation and arithmetic bugs, not the same root cause.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a visibility/public exposure issue, while all known findings are about mathematical logic, input validation, or precision errors.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ln() returns wrong sign for inputs between 0 and 1",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a sign handling bug in ln() for inputs between 0 and 1, which is a different issue from the known findings (e.g., missing validation for non‑positive inputs in H‑03).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a sign error in ln() for inputs between 0 and 1, which is not covered by any known finding; H-03 is about missing input validation, not a computational sign bug.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Float128.mul truncates mantissa, losing precision on small products",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a precision loss bug in the mul() function, which is not covered by any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes precision loss in mul due to truncation in assembly and Uint512.div512x256, while none of the known findings address the mul function's mantissa truncation issue.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "`ln()` returns zero for log of 1.0 but breaks for small inputs",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different overflow bug in ln() for very small positive inputs, not the missing validation of non-positive inputs covered by H-03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a bug in ln() for small positive inputs producing incorrect results, while known H-03 is about missing validation for non-positive inputs, a different root cause.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "`toPackedFloat` mishandles mantissa/exponent overflow silently",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes exponent field overflow in toPackedFloat, which is a different issue from the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an overflow of the exponent field in toPackedFloat, which is not covered by any known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ln() recursion on attacker-controlled input enables unbounded gas griefing",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a recursion-based gas griefing issue, which does not correspond to any of the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a recursion/gas griefing issue in ln(), which is not among the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Float128.div() can return zero for very small numerators",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a division rounding-to-zero issue, which is unrelated to any listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a precision/zero-result issue in div(), which is not among the known findings (H-01 to H-05) that cover sqrt, ln, eq, and toPackedFloat.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Float128 library functions lack input validation on packedFloat encoding",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes missing validation in the decode() function, which is not covered by any of the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate is a generic lack of input validation on packedFloat encoding, not the specific root cause described in any known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Float128.div truncates toward zero, biasing protocol math",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a rounding issue in the div() function, which is not covered by any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes a rounding issue in div(), which is not among the known findings about sqrt, ln, eq, or toPackedFloat.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Float128.add subtraction path can lose low-order digits",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a loss of precision in the add() function, which is unrelated to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a precision loss in the add function's subtraction path, which is not covered by any of the known findings (H-01 to H-05).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Ln Taylor series uses fixed 15 terms, insufficient for large |z|",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fixed-term Taylor series truncation error, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes insufficient Taylor series terms in Ln, which is not among the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Float128.sqrt rounds down, biasing share math against protocol",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes rounding-down behavior of sqrt, which is a different root cause than any listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes sqrt rounding down behavior or its bias in share math; known findings cover different root causes in sqrt (exponent calculation, invalid inputs) or other functions.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "`mul()`/`div()` truncate toward zero without min-out guard, enabling value leak",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a truncation issue in Float128.div, which is unrelated to the known findings about sqrt, ln, eq, or toPackedFloat.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes rounding/truncation in mul/div, which is not the root cause of any known finding (H-01 to H-05 cover sqrt, ln, eq, and toPackedFloat).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "`sqrt()` uses decimal-square-root with silent mantissa reduction, no min-out",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a mantissa reduction to zero issue in sqrt, which is not covered by any of the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different root cause in sqrt (mantissa reduces to zero causing raw encoding mismatch) than any known finding, which cover exponent calculation, invalid inputs, ln validation,",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "`add`/`sub` partial normalization can imply wrong values for L-flagged results",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distinct issue in the add() function, not the same root cause or function as any known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes an L-flag precision issue in add() normalization, which is not among the listed known findings that concern sqrt, ln, eq, or toPackedFloat.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Float128.div reverts with malformed Error(string) payload",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a revert encoding issue in div(), which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a fragile revert encoding in div, which is unrelated to the known findings about sqrt, ln, eq, and toPackedFloat.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Ln.ln_helper recursion uses attacker-influenced exponent to force deep call stack",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a recursion depth attack in ln_helper, which is unrelated to the listed findings about sqrt exponent handling, input validation, equality, or precision loss.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a recursion depth issue in ln_helper, which is not among the listed known valid findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Float128.sqrt uses `stop()` instead of returning zero for zero input",
+   "strict": "H-02",
+   "a": {
+    "match": "H-02",
+    "reden": "Both findings describe the sqrt function’s improper handling of zero (non‑positive) input, leading to incorrect behavior instead of returning 0.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-02",
+    "reden": "The candidate describes the same root cause and impact as the known finding: sqrt(0) triggers stop() instead of returning zero, silently skipping caller logic.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Ln.ln() returns zero for exact 1.0 but not for equivalent representations",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distinct consistency bug in ln() handling of non‑canonical 1.0 representations, which does not correspond to any listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different issue in ln() regarding non-normalized representations of 1.0, not any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Unbounded Taylor loop in intermediateTermAddition is fixed but z computation can revert",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distinct underflow/revert issue in intermediateTermAddition, which does not correspond to any of the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes the same root cause in intermediateTermAddition; H-03 is about missing input validation for non-positive ln inputs, not a revert in the internal Taylor series computation.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "sqrt() reverts on negative input, blocking callers with user-supplied values",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a revert on negative inputs, which differs from the known findings about sqrt's digit adjustment or silent acceptance of invalid inputs.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes reverting on negative sqrt inputs, while known H-02 concerns silently accepting invalid non-positive inputs; no known finding matches this behavior.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "div() reverts on zero denominator, blocking callers with user-supplied divisors",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a division-by-zero revert in div(), which is unrelated to the known findings about sqrt, ln, eq, or precision loss.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "None of the known findings describe a division by zero revert in the div function.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ln() precision loss for large-mantissa inputs causes reward miscalculation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a precision loss bug in Ln.sol's ln_helper, which is not covered by any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a precision loss in ln_helper due to mantissa truncation, which is not covered by any of the known findings (H-01 to H-05).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Float128.add() can produce incorrect results for opposite-sign near-equal values",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an overflow bug in Float128.add(), which is not covered by any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an overflow in add() with opposite-sign values, which is not among the known findings about sqrt, ln, eq, or toPackedFloat.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Float128.mul() loses precision for L-operation with extra digit",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a precision loss bug in Float128.mul(), which is not covered by any of the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a precision loss in mul() L-operation branch, which is not covered by any known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Ln.ln() returns zero for input exactly 1.0 only in specific encoding",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different bug in ln() related to encoding handling, not the non-positive input acceptance covered by H-03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a precision issue in ln for alternative encodings of 1.0, which is not covered by any known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ln() special-case zero check uses wrong mantissa constant",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distinct bug in ln() handling of canonical vs non‑canonical representation of 1, which is not covered by any of the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a bug in the ln() early-return for 1 not handling non-canonical representations, which is not covered by any known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Float128.lt/le/gt/ge mishandle zero vs negative zero",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distinct bug in comparison functions, which is not covered by any listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes the comparison functions' handling of negative zero.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Float128.div Loperation flag can be cleared after being set, losing L precision",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a bug in the div() function, which is not covered by any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes a bug in the div function or the Loperation flag handling.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Float128.sqrt exponent parity adjustment can overflow mantissa",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a mantissa overflow due to parity adjustment, which is a different root cause than any listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an overflow in the else branch of sqrt for odd exponent, which is not covered by any known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Ln.ln_helper uses unchecked int cast of uint mantissa in Taylor term",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unchecked int cast in Ln.sol's intermediateTermAddition, which is a different root cause than any listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an unchecked int cast in Ln.ln_helper, which is not covered by any of the listed known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

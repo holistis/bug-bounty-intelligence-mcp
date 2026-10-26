@@ -1,0 +1,579 @@
+{
+ "audit": "2024-06-size",
+ "verdicts": [
+  {
+   "title": "LiquidateWithReplacement mints debt tokens without burning old borrower's debt",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distinct token-minting logic flaw in LiquidateWithReplacement, which does not correspond to any of the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different root cause (debt token minting without collateral in LiquidateWithReplacement) than any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LiquidateWithReplacement reuses stale debtPositionCopy after executeLiquidate",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a stale copy reuse bug within executeLiquidateWithReplacement, which does not correspond to any of the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a stale debtPositionCopy reuse bug in LiquidateWithReplacement, which is not the same root cause as any of the known findings (H-01 to H-04).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "SellCreditMarket creates credit position for lender but transfers cash from lender to msg.sender",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a lender/borrower field mismatch in executeSellCreditMarket, which does not correspond to any of the listed findings about fees, race conditions, or liquidation calculations.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a mismatch in lender assignment in SellCreditMarket, which is not related to any of the known findings about fee calculation, race conditions, or liquidation logic.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "BuyCreditMarket uses borrower's borrowOffer but transfers cash to borrower, not lender",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distinct issue in BuyCreditMarket execution, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing zero-check or pricing issue in BuyCreditMarket, which is unrelated to the known findings about sell fees, liquidation race, collateral cap, or liquidator profit.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "BuyCreditMarket lacks signature/nonce; anyone can consume a borrower's offer",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing signature/nonce issue in BuyCreditMarket, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a missing signature/nonce in BuyCreditMarket, which is not related to any of the known findings (H-01 to H-04) that concern fee calculation, race conditions, or liquida",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LiquidateWithReplacement can be called on liquidated loans causing double issuance",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a double issuance bug specific to LiquidateWithReplacement, which does not correspond to any of the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a double issuance bug in LiquidateWithReplacement, which is not described in any of the known findings (H-01 to H-04).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "executeInitialize is externally callable by anyone and reinitializes protocol state",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unprotected initialize function, which is unrelated to the listed findings about fee calculation, race conditions, or liquidation logic.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes an unprotected initialize function, which is not among the known findings (H-01 to H-04).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LiquidateWithReplacement has no borrower signature; keeper can force replacement",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing borrower signature issue, which does not correspond to any of the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing borrower signature/authorization in LiquidateWithReplacement, which is not the same root cause or impact as any of the known findings (H-01 to H-04).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Multicall bypasses borrowATokenCap check across batched deposits",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a multicall bypass in Deposit.sol, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "None of the known findings describe a multicall bypass of borrowATokenCap check.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Claim sends correct-claimant's payout to current lender after a credit position transfer",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a claim payout manipulation in Claim.sol, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability (claim diversion via lender change after credit transfer) not covered by any known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Claim uses current liquidityIndex causing over/under-claim drift",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a liquidity index drift issue in Claim.sol, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug in Claim.sol regarding liquidity index drift, which is not covered by any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Compensate fragmentation fee charged in collateral but computed from debtToken",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fee conversion issue in Compensate.sol, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding addresses the fragmentation fee computation in Compensate.sol; the known findings concern different issues in other functions.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Chainlink round completeness and answeredInRound not validated",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a Chainlink oracle validation issue, which is unrelated to any of the listed Size protocol findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns Chainlink oracle validation, which is unrelated to the listed known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Missing slippage protection on BuyCreditMarket exactAmountIn=false",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing slippage protection in BuyCreditMarket, which does not correspond to any of the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes missing slippage protection in BuyCreditMarket when exactAmountIn is false, which is a different root cause and code location than any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Liquidate transfers collateral before repaying debt, allowing reentrancy on borrower",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in executeLiquidate, which does not correspond to any of the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy vulnerability, while known findings cover different issues such as fee miscalculation, race condition, collateral cap, and profit calculation.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Multicall allows same-block manipulation of borrowAToken cap and debt supply",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a multicall batch manipulation bug, which is unrelated to the known findings about sellCreditMarket fees, repay/liquidate race, or liquidation calculations.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes a multicall bypass of borrowAToken cap and opening-limit checks, which is not among the known findings about fee calculations, liquidation race conditions, collateral caps, or liqu",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Multicall flag not reset on revert leaves protocol in stuck state",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a Multicall flag issue unrelated to the sellCreditMarket fee, race condition, collateral cap, or liquidator profit findings listed.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing cap check during multicall, which is a different root cause and impact than any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Multicall allows msg.value reuse across delegatecalls",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a Multicall payable delegatecall issue, which does not correspond to any of the listed known findings about sellCreditMarket, race conditions, or liquidation calculations.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability in Multicall's msg.value handling, which is not among the known findings about fees, liquidation, or collateral calculations.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Fragmentation fee charged in Compensate uses collateral equivalent, not borrow token; can be zero via price",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fee calculation issue in Compensate.sol, which does not correspond to any of the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a fragmentation fee bypass via zero collateral, which is not the same root cause as any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Compensate allows borrower to compensate with credit position not owned by them",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a flaw in Compensate.sol unrelated to the sellCreditMarket fee, race condition, collateral remainder cap, or liquidator profit calculations in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing ownership check in Compensate, which is unrelated to the known findings about fees, liquidation logic, or race conditions.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Anyone can trigger SellCreditMarket on a victim's listed credit position via msg.sender==lender check bypass",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a TOCTOU lender check bypass in SellCreditMarket, which is unrelated to the fee, repayment/liquidation race, collateral cap, or profit calculation issues listed in the known fi",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability in sellCreditMarket validation, not matching any known finding's root cause or impact.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "UpdateConfig validation is empty so admin value passed at execute can violate invariants",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing validation in UpdateConfig, which does not correspond to any of the listed known findings about fees, race conditions, or liquidation calculations.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes missing validation in UpdateConfig, which is a different root cause and code area than any of the known findings (which cover fee calculation, race conditions, liquidation math",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Sequencer uptime feed answer semantics inverted",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a Sequencer uptime feed logic error, which is unrelated to any of the known findings about credit selling, race conditions, or liquidation calculations.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing check in the sequencer uptime feed, which is not covered by any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "BuyCreditMarket/SellCreditMarket transfer tokens after state mutations enabling reentrancy",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy vulnerability due to token transfers after state mutations, which is not mentioned in any of the known findings (H-01 to H-04).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Claim uses liquidityIndexAtRepayment which can be zero for never-repaid loans",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a division‑by‑zero bug in Claim.sol, which is unrelated to the listed findings about sellCreditMarket fees, repay/liquidate race, collateral cap, or liquidator profit.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a division-by-zero bug in Claim.executeClaim due to unset liquidityIndexAtRepayment, which is not mentioned in any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Claim uses stale liquidityIndexAtRepayment after second repayment of same debt",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a stale liquidity index issue in Claim.sol, which does not correspond to any of the listed findings about fees, race conditions, collateral caps, or liquidator profit calculati",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a stale liquidity index issue in Claim.sol, which is not related to any of the known findings about fee calculation, race conditions, collateral caps, or liquidation pr",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Liquidate transfers collateral from borrower to liquidator without checking borrower's balance",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing balance check in executeLiquidate, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing balance check before transfer, which is not the same as any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LiquidateWithReplacement lets keeper replace any borrower's debt with arbitrary replacement",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing validation for replacement borrower in executeLiquidateWithReplacement, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a lack of validation for replacement borrower consent/collateral in LiquidateWithReplacement, which is not the root cause of any known finding; H-02 covers a race condition, no",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Compensation accepts attacker as lender when created via RESERVED_ID, allowing fee-free credit substitution",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fee‑avoidance bug in Compensate.sol, which is unrelated to the known findings about sellCreditMarket fees, race conditions in repay/liquidate, or liquidation fee calculations",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a fee avoidance in Compensate.sol via RESERVED_ID, which is not related to any of the known findings (H-01 to H-04) that cover different functions and issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "getCreditAmountIn inconsistent branch allows fee-free fractionalization",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distinct bug in getCreditAmountIn, not the sellCreditMarket fee issue of H-01, and no other known finding matches this specific function and impact.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-01",
+    "reden": "The candidate describes the same getCreditAmountIn calculation flaw causing the protocol to receive lower swap fees than expected in the fractionalization branch.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "BuyCreditMarket exactAmountIn maxCashAmountIn uses mulDivUp against credit",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a rounding issue in BuyCreditMarket's executeBuyCreditMarket, which is unrelated to the known findings about sellCreditMarket fees, race conditions, or liquidation calculations",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a rounding issue in BuyCreditMarket, which is not covered by any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Liquidate protocol profit uses mulDivDown on collateral remainder",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a rounding inconsistency in protocol profit calculation during liquidation, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a rounding direction issue in protocol profit calculation, which is not covered by any of the known findings (H-01 to H-04).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Price used before update in LiquidateWithReplacement issuance",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a price-feed and borrow-rate timing issue in executeLiquidateWithReplacement, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a rate/issuance value issue in LiquidateWithReplacement, not matching the root causes of any known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Stale variable pool borrow rate not checked when multiplier is zero",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different function and issue (YieldCurveLibrary.getAdjustedAPR) unrelated to any known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing staleness check when marketRateMultiplier is zero, which is a different root cause and code location than any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Claim transfers borrowAToken after reduceCredit but before event, no reentrancy guard",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in Claim.sol, which is unrelated to the known findings about fee calculation, race conditions in repay/liquidate, or liquidation profit/collateral calculatio",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in Claim.sol, which is not among the known findings that cover fee calculation, race condition, collateral cap, or liquidator profit.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Compensate charges fragmentation fee after credit emission, allowing fee evasion via reentrancy",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy fee evasion in Compensate.sol, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy fee evasion in Compensate.sol, which is not covered by any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "PriceFeed sequencer grace period blocks all protocol operations",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a sequencer grace period freeze in PriceFeed.getPrice, which is unrelated to the fee, race condition, or liquidation calculation issues of the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a sequencer grace period denial of service in PriceFeed.getPrice, which is unrelated to any of the listed findings about fees, race conditions, or liquidation math.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Compensate allows anyone to force a borrower into a new credit position",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a unique issue in Compensate.sol unrelated to the known findings about sellCreditMarket fees, race conditions, or liquidation calculations.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a vulnerability in Compensate.executeCompensate, which is not covered by any of the known findings (H-01 to H-04).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "NonTransferrableScaledToken.transferFrom uses stale liquidityIndex for scaling",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a rounding drift issue in NonTransferrableScaledToken.transferFrom, which is unrelated to the known findings about fee calculation, race conditions, or liquidation logic.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a rounding/accounting drift in NonTransferrableScaledToken.transferFrom, which is not covered by any of the known findings (H-01 to H-04).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Liquidator profit split ignores overdue vs underwater precedence but rewards same",
+   "strict": null,
+   "a": {
+    "match": "H-04",
+    "reden": "Both describe an incorrect liquidator profit calculation in executeLiquidate that removes incentive to liquidate",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate focuses on the lack of disincentive from identical rewards for overdue vs underwater cases, while H-04 describes a miscalculation in liquidator profit that likely has a different root ca",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "SellCreditMarket with exactAmountIn=false allows caller to specify cashAmountOut that ignores fee math",
+   "strict": null,
+   "a": {
+    "match": "H-01",
+    "reden": "Both describe the same fee‑calculation flaw in sellCreditMarket's exactAmountIn=false path that lets a caller obtain a lower fee than intended.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a fee avoidance via cashAmountOut boundary gaming in SellCreditMarket, which is not covered by any known finding that focuses on fee miscalculation, race conditions, liquidatio",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

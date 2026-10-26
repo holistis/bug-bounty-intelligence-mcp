@@ -1,0 +1,593 @@
+{
+ "audit": "2024-07-benddao",
+ "verdicts": [
+  {
+   "title": "Chainlink oracle missing staleness check in PriceOracle",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing staleness check in a Chainlink oracle, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "None of the known findings relate to a Chainlink oracle staleness check in PriceOracle.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "YieldSavingsDai protocolClaimWithdraw uses contract-wide DAI balance delta",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No known finding describes the contract-wide DAI balance delta issue in protocolClaimWithdraw",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a DAI balance accounting error in protocolClaimWithdraw, which is not mentioned in any known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "YieldAccount.initialize callable by anyone on clones",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unprotected initialize function on YieldAccount clones, which is unrelated to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a missing access control on initialize in YieldAccount, which is not covered by any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "protocolClaimWithdraw uses full account balance delta, allowing theft of pre-existing ETH",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a balance-delta misuse in protocolClaimWithdraw, which does not correspond to any listed known finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability in protocolClaimWithdraw regarding pre-existing ETH, which is not covered by any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "YieldAccount.rescue callable via any contract set as yieldRegistry",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "None of the known findings describe the mutable yieldRegistry issue and unauthorized rescue() call in YieldAccount.sol.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a vulnerability in YieldAccount.rescue() related to the onlyRegistry modifier and mutable yieldRegistry, which is not covered by any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Yield share conversion uses stale totalYield causing share inflation",
+   "strict": "H-01",
+   "a": {
+    "match": "H-01",
+    "reden": "Both describe the stake() function using outdated yield totals when converting to shares, leading to incorrect share amounts.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-01",
+    "reden": "The candidate describes the same root cause in YieldStakingBase._stake where yield shares are calculated using a pre-deposit yield balance, causing inflated shares, which matches H-01's share calculat",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "SDAIPriceAdapter returns 0 on invalid price instead of reverting",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a zero-price return bug in SDAIPriceAdapter, which is unrelated to any of the listed BendDAO findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different issue in SDAIPriceAdapter, not related to any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Yield share accounting ignores accrued yield when computing shares",
+   "strict": "H-01",
+   "a": {
+    "match": "H-01",
+    "reden": "Both describe a flaw in YieldStakingBase.sol's stake/_stake where share calculation uses an incorrect total yield, causing mismatched share amounts.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-01",
+    "reden": "The candidate describes the same root cause in YieldStakingBase::_stake where yield shares are computed using a stale pre-deposit total, matching H-01's mismatch between deposited amount and getAccoun",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Yield borrow cap check uses supply index instead of borrow index",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distinct bug about using the wrong index in a yield borrow cap check, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes a different bug (yield cap index mismatch) not present in any listed known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "YieldStakingBase._repay does not reset unstakeFine in totalUnstakeFine",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distinct bug in _repay related to totalUnstakeFine, which is not covered by any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes the missing reset of unstakeFine in _repay; they concern different root causes.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "NFT price used for borrow/liquidation without staleness or zero check",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Candidate describes a price oracle freshness/zero check issue, which is not covered by any listed known findings",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes a stale or zero NFT oracle price in calculateNftLoanData; all listed findings concern different code paths and root causes.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "convertToYieldAssets rounds down, under-reporting withdraw amount to protocol",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a rounding-down loss in _unstake(), which does not correspond to any listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a rounding-down loss in convertToYieldAssets during unstake, which is a different root cause and impact than any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Debt share conversion rounds down on borrow, favoring borrower over protocol",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a rounding issue in convertToDebtShares, which does not correspond to any listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a rounding issue in debt share conversion, which is not covered by any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Yield protocol token price uses spot oracle without sanity bounds",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an oracle price manipulation issue, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a spot oracle price manipulation risk, while all known findings cover different issues (share calculation mismatches, missing checks, underflow, NFT incompatibility, auction lo",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "FlashLoanERC20 lacks nonReentrant allowing cross-function state desync",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a flash loan reentrancy issue, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a reentrancy issue in flashLoanERC20, which is not covered by any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Unstake can be permanently blocked by griefing the yield account's eETH balance",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a unique griefing attack on protocolClaimWithdraw in YieldEthStakingEtherfi.sol, which does not correspond to any listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a griefing attack on the delta calculation in protocolClaimWithdraw, which is not covered by any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "protocolClaimWithdraw in Lido can be blocked by pre-existing ETH in yield account",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a unique balance‑delta claim issue in Lido not covered by any listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes the same root cause in Lido's protocolClaimWithdraw regarding pre-existing ETH blocking the claim.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "YieldAccount.execute allows arbitrary calls via compromised manager",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an arbitrary external call vulnerability in YieldAccount.execute, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an arbitrary call vulnerability in YieldAccount.execute() via the yieldManager, which is not covered by any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "YieldEthStakingEtherfi.protocolClaimWithdraw uses address(this).balance incorrectly",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a misuse of address(this).balance in protocolClaimWithdraw, which is a different root cause than any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a balance accounting issue in protocolClaimWithdraw, which is not covered by any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "YieldStakingBase.createYieldAccount lacks pool-admin restriction and binds any user",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing access control in YieldStakingBase.createYieldAccount, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing access control in createYieldAccount, which is not covered by any known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ACLManager role grant functions have no onlyRole guard",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an ACLManager access control issue, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes missing access control modifiers in ACLManager, which is not related to any of the known findings about yield calculations, liquidation logic, or staking issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "protocolClaimWithdraw measures balance delta but WETH deposit may mismatch claimed ETH",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a balance delta and WETH deposit mismatch in protocolClaimWithdraw, which does not correspond to any listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a balance delta and WETH deposit issue in protocolClaimWithdraw, which is not covered by any known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "totalUnstakeFine incremented but never decremented on repay",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fine accounting bug not covered by any listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a specific accounting bug with totalUnstakeFine that is not mentioned in any known valid finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Liquidation bonus math uses wrong sign in ERC721 collateral valuation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a wrong sign in liquidation bonus calculation in LiquidationLogic.sol, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes the wrong sign/unit mixing in LiquidationLogic._calculateDebtAmountFromERC721Collateral.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "YieldSavingsDai protocolClaimWithdraw uses stale withdrawAmount",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a stale withdrawAmount issue in YieldSavingsDai's protocolClaimWithdraw, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding is about YieldSavingsDai's protocolClaimWithdraw and sDAI rate changes, which is not related to any of the known findings from the BendDAO audit.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "YieldEthStakingEtherfi.repayETH transfer of WETH to msg.sender allows stranded funds",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a repayETH WETH transfer issue, which does not correspond to any listed finding's root cause or function.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different issue in repayETH regarding WETH transfer to msg.sender, not matching any listed known finding's root cause.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "protocolDeposit in YieldSavingsDai reads claimed balance across calls",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy balance snapshot issue in YieldSavingsDai, which does not correspond to any listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy/balance inflation issue in YieldSavingsDai's protocolClaimWithdraw, which is not among the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Unstake fine is added to totalUnstakeFine but never deducted from borrower",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing decrement of totalUnstakeFine, which is not covered by any listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an accounting flaw with unstakeFine in YieldStakingBase, which is not the same root cause as any listed finding; H-08 concerns wrong account address, not fine handling.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Cross-liquidation ERC721 debt calculation can over-liquidate collateral",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a miscalculation in ERC721 debt liquidation, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "None of the known findings describe the same root cause in the same function or contract.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "PoolManager.dispatch trusts trustedSenders mapping populated by _createProxy",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a delegatecall authorization issue in PoolManager.dispatch, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a vulnerability in PoolManager.dispatch and trustedSenders, which is unrelated to any of the known findings that focus on yield calculations, isolate logic, or unstakin",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "PriceOracle.setAssetChainlinkAggregators updates oracle without staleness checks",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an oracle admin update issue, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns PriceOracle.setAssetChainlinkAggregators and lack of staleness checks, which is not mentioned in any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "getProtocolTokenPriceInUnderlyingAsset divides by zero or mis-scales decimals",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a price division/scaling bug in getProtocolTokenPriceInUnderlyingAsset, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a division-by-zero or decimal-scaling issue in getProtocolTokenPriceInUnderlyingAsset, which is not mentioned in any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "YieldAccount.rescue allows manager to rescue registered yield account funds",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No known finding describes the rescue function vulnerability",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing access control in YieldAccount.rescue, which is not the root cause of any listed known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "protocolClaimWithdraw balance-delta assumption vulnerable to ERC777/hook reentrancy",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Candidate describes a reentrancy issue in _repay(), which is not covered by any listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy vulnerability in _repay, which is not covered by any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Yield Registry createYieldAccount lacks check when YieldStakingBase calls it",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No known finding describes the reentrancy issue in createYieldAccount",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy vulnerability in createYieldAccount, which is not covered by any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "batchUnstake/batchRepay loops over user arrays can be griefed to exceed block gas limit",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unbounded loop gas-griefing issue, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "None of the known findings describe the batch array gas griefing or batch liveness issue presented in the candidate.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "YieldSavingsDai.getAccountTotalUnstakedYield reverts if balance < inWithdraw",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a revert in YieldSavingsDai due to balance check, which does not correspond to any listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a revert in getAccountTotalUnstakedYield due to balance < inWithdraw, which is a different root cause and code location than any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "YieldAccount.rescue allows registry to execute arbitrary calls, potentially draining funds",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a rescue function issue in YieldAccount.sol, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a centralization risk in YieldAccount.rescue, which is not among the known findings that cover different root causes and impacts.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "IsolateLogic.executeIsolateAuction allows outbidding with same bidder, locking funds",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes auction extension by same bidder, which is not covered by any known finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different issue (self-outbidding/auction extension) than any of the known findings, which cover underflow, missing msg.sender checks, and other distinct bugs.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "YieldRegistry.rescue allows pool admin to execute arbitrary calls on any yield account",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an arbitrary call issue in YieldRegistry.rescue, which is not covered by any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a centralization risk in YieldRegistry.rescue() allowing arbitrary calls, which is not among the known findings that cover different bugs in yield accounting, liquidation, or s",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "YieldStakingBase._unstake allows botAdmin to unstake any NFT without owner consent",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No known finding describes the same botAdmin unchecked unstake logic in YieldStakingBase._unstake",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a centralization risk with botAdmin's unstake ability, which is not the same root cause as any listed finding; H-08 is about the bot being unable to unstake, the opposite direc",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "YieldStakingBase._repay allows botAdmin to repay on behalf of owner and seize remainAmount",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distinct issue in _repay allowing botAdmin to repay, which does not correspond to any listed known finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different issue (botAdmin can force repayments) than any of the known findings, which cover share calculation mismatches, missing checks, underflow errors, and compatibility ",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

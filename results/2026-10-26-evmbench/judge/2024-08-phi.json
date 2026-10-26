@@ -1,0 +1,537 @@
+{
+ "audit": "2024-08-phi",
+ "verdicts": [
+  {
+   "title": "_addCredIdPerAddress and _removeCredIdPerAddress are public and unauthenticated",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unauthenticated public helper function in Cred.sol, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing access control on internal helper functions, which is a different root cause and impact than any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "RewardControl.withdrawFor lets anyone drain another account's balance",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No known finding describes an unauthorized withdrawFor function lacking access control",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an unauthorized withdrawal in RewardControl.withdrawFor, which is not covered by any of the listed known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "getPositionsForCurator writes to wrong array indices",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an out‑of‑bounds array write in getPositionsForCurator, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an array index bug in getPositionsForCurator, which is not among the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Anyone can call distribute() to drain curator rewards to themselves",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unrestricted access control issue in CuratorRewardsDistributor.distribute, which does not correspond to any listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing access control in distribute() that allows draining curator rewards, which is not the same root cause as any of the listed known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "CuratorRewardsDistributor.distribute sends royalty to _msgSender",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a permissionless royalty payout bug in CuratorRewardsDistributor, which is unrelated to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes the CuratorRewardsDistributor.distribute royalty-to-caller issue.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "CuratorRewardsDistributor.distribute() sends refund to msg.sender, not protocol",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a refund-to-caller issue in CuratorRewardsDistributor, which does not correspond to any listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug (refund sent to msg.sender instead of protocol) than any known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_processClaim refunds to _msgSender which is factory in self-call",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a refund misdirection in _processClaim, which does not correspond to any listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a refund destination bug in _processClaim due to _msgSender() being the factory, which is not covered by any known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "PhiFactory.claim lacks nonReentrant allowing reentrancy via external claim",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in PhiFactory.claim, which is not covered by any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy in PhiFactory.claim(), while H-06 is a reentrancy in cred creation/share purchase; different root cause and code path.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "PhiNFT1155.createArtFromFactory refunds to msg.sender not payer",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a refund misdirection bug, which does not correspond to any listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a refund address mismatch in createArtFromFactory, which is not covered by any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "signatureClaim in PhiFactory does not bind signature to msg.sender",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing sender binding in signatureClaim, which is a different root cause than the known signature replay issue (H-01) that lacks chain-id validation.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing check of msg.sender in signatureClaim, which is a different root cause from any known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "CuratorRewardsDistributor dust refund goes to untrusted caller",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a dust refund misdirection in CuratorRewardsDistributor, which does not correspond to any listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a dust refund going to the caller in CuratorRewardsDistributor.distribute, which is a different root cause and code location than any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "batchClaim forwards msg.value incorrectly to self.claim",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a msg.value forwarding and refund issue in batchClaim, which is not covered by any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a msg.value forwarding issue in batchClaim, which is not covered by any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "PhiNFT1155.initialize can be front-run to hijack ownership",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a front‑run ownership takeover via the initialize function, which is not covered by any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a front-running vulnerability in PhiNFT1155.initialize, which is not covered by any of the known findings that focus on signature replay, share balance bloating, endTime extens",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "CuratorRewardsDistributor.distribute reverts on zero-amount recipients",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a DoS/fee-grabbing issue in CuratorRewardsDistributor.distribute, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a DoS due to zero-amount entries in distribute(), which is not the same root cause as any known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Merkle claim leaf does not bind artId, enabling cross-art proof reuse",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a Merkle proof replay issue in merkleClaim, which is not covered by any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing binding of artId in merkleClaim leaf, which is not covered by any known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_validateAndUpdateClaimState allows msg.sender == artAddress bypass",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a bypass in _validateAndUpdateClaimState, which is unrelated to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a bypass in _validateAndUpdateClaimState regarding msg.sender == artAddress, which is not covered by any of the known findings (H-01 to H-07).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "PhiFactory._processClaim refunds excess ETH to msg.sender (caller) instead of original payer in batchClaim",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a refund misdirection bug in _processClaim, which does not correspond to any listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a refund misdirection in batchClaim, which is not covered by any of the known findings about signature replay, share balance bloating, endTime extension, reentrancy, or unrestr",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Cred._handleTrade sell path can be permanently blocked by share lock",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a share lock timing issue in _handleTrade, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a share lock timing issue in Cred._handleTrade, which is not covered by any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "createArt signature does not bind chainId or contract address",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing chainId check in createArt, while known findings cover signatureClaim (H-01) and other issues; different function and impact, so not a match.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-02",
+    "reden": "Both findings describe a signature replay vulnerability in the createArt function due to missing chainId and contract address binding, allowing unauthorized art creation.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "claim() and batchClaim() bypass whenNotPaused via self-call",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a pause guard bypass in claim functions, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a missing whenNotPaused modifier on claim/batchClaim, which is not among the known findings (which cover signature replay, share balance bloating, endTime extension, re",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "CuratorRewardsDistributor.distribute uses stale share snapshot allowing reward dilution via front-run",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a stale snapshot/front‑run reward distribution issue, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes reward dilution via front-running due to lack of snapshot in distribute(), which is not the same root cause as any known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Cred._handleTrade sends ETH before updating lastTradeTimestamp on sell",
+   "strict": "H-06",
+   "a": {
+    "match": "H-06",
+    "reden": "Both findings identify a reentrancy flaw in the Cred contract that lets an attacker bypass the share lock/cooldown period.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-06",
+    "reden": "Both describe a reentrancy vulnerability where ETH is sent before updating state, allowing bypass of a cooldown/lock period.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "PhiNFT1155.claimFromFactory mints before reward handling enabling reentrancy",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in PhiNFT1155.claimFromFactory, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy in PhiNFT1155.claimFromFactory, while known findings cover different root causes in other functions (signature replay, share balance, art settings, and a different",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "PhiFactory.batchClaim loops over user array with external self-calls",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a batchClaim loop denial-of-service issue, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes the batchClaim external self-call gas/revert issue.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "PhiRewards.depositRewards sends curator reward to distributor without refund path",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing fallback in PhiRewards.depositRewards, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes a missing refund path in PhiRewards.depositRewards when curatorRewardsDistributor reverts; the candidate is a distinct issue.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "distribute() reverts when rounding produces zero per-user payout but keeps full balance",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a rounding/zero-payout loss in CuratorRewardsDistributor.distribute(), which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a rounding issue in distribute() that locks funds, which is not the same root cause as any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "merkleClaim accepts arbitrary quantity without per-cred quantity binding",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a quantity binding issue in merkleClaim, which is not covered by any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing per-cred quantity check in merkleClaim, which is not covered by any known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_getCuratorData pagination uses wrong stop bound",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an off‑by‑one pagination bug, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an off-by-one bug in _getCuratorData pagination, which is not the same root cause as any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "PhiFactory.initialize lacks nonZeroAddress checks on critical addresses",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing zero-address validation in initialize, which is not covered by any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes missing zero-address checks in initialize, while known findings cover different vulnerabilities such as signature replay, share balance bloat, forced extension, reentrancy, and unr",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Cred.getCredSellPrice underflows for amount > currentSupply",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a pricing underflow bug in Cred.getCredSellPrice, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a calculation issue in getCredSellPrice, which is not covered by any of the known findings about signature replay, share balance bloating, endTime extension, reentrancy, or unr",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "PhiFactory.getArtMintFee uses mintProtocolFee as flat per-quantity fee, not percentage",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fee calculation error in getArtMintFee, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a miscalculation in getArtMintFee, which is not covered by any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "CuratorRewardsDistributor.distribute reentrancy via ETH transfer before depositBatch",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in CuratorRewardsDistributor.distribute, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate's reentrancy is in CuratorRewardsDistributor.distribute, not the share purchase refund reentrancy described in H-06.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "PhiFactory._processClaim refunds excess ETH before external call",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No known finding describes the same reentrancy issue in PhiFactory._processClaim",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy in PhiFactory._processClaim, while the known findings cover different root causes (signature replay, share balance bloating, forced endTime extension, and a reentr",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Signature claim lacks chainId binding in Claimable.signatureClaim",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Describes a missing chainId check in Claimable.signatureClaim, not the same function/contract as the known PhiFactory.signatureClaim issue",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-01",
+    "reden": "Both findings describe the same root cause: signature replay across chains due to missing chainId binding in signatureClaim.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Cred creation self-buys first share with protocol/creator fees ignored",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fee omission during cred creation, which does not correspond to any of the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a self-buy of the first share with zero msg.value leading to free minting, which is not mentioned in any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "batchClaim loops external self-calls allowing partial-fee griefing",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a batchClaim self-call griefing issue, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a griefing attack via batchClaim and refunds to the factory, which is not covered by any of the known findings about signature replay, share balance bloating, endTime extension",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Cred.batchBuyShareCred refund after batch execution enables reentrancy",
+   "strict": "H-06",
+   "a": {
+    "match": "H-06",
+    "reden": "Both describe a reentrancy via ETH refund after a nonReentrant guard in Cred.sol share‑buy functions",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-06",
+    "reden": "Both describe a reentrancy vulnerability via ETH refund after the nonReentrant guard is released during share purchases, allowing manipulation.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Mint rewards can be overpaid into PhiRewards and silently kept",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an overpayment issue in _processClaim, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a potential overpayment due to fee calculation mismatch, which is not the same root cause as any of the listed known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

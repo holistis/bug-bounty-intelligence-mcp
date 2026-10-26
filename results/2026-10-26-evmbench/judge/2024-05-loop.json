@@ -1,0 +1,565 @@
+{
+ "audit": "2024-05-loop",
+ "verdicts": [
+  {
+   "title": "Missing minimum-out / slippage check on 0x swap in _fillQuote",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing slippage check in a swap function, which is unrelated to the deposit invariant bypass described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding about missing slippage check in _fillQuote is unrelated to the known finding about deposit invariant bypass.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Token claim uses contract-wide ETH balance, allowing cross-user ETH theft",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a contract-wide ETH balance misuse in _claim, which is a different root cause than the deposit invariant bypass described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different root cause (using contract-wide ETH balance instead of swap-specific amount) in the _claim function, while the known finding is about bypassing deposit invariants v",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_validateData does not verify minBuyAmount in UniswapV3 path",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing minBuyAmount validation in UniswapV3 path, which is unrelated to the deposit invariant bypass finding H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes missing validation of minBuyAmount in UniswapV3 data decoding, which is a different root cause and impact than the known finding about deposit invariant bypass.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "claimedAmount uses full contract ETH balance, not swap delta",
+   "strict": null,
+   "a": {
+    "match": "H-01",
+    "reden": "Both describe that using the contract's full ETH balance (instead of the swap delta) lets attackers donate ETH directly and claim lpETH, bypassing the deposit invariant.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug (using full contract balance instead of swap delta) than the known finding about bypassing deposit invariant.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_fillQuote uses entire contract ETH balance as claimedAmount, allowing theft of stray ETH",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different bug (using full contract ETH balance in _claim) not the deposit invariant bypass described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different root cause (using entire contract balance instead of swap output) and impact (stealing stray ETH) than the known finding H-01 which relates to bypassing deposit inv",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ETH claim ignores per-user accounting, drains pool via totalSupply mismatch",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a totalSupply accounting bug in _claim, which is unrelated to the deposit invariant bypass described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug (inflated totalSupply in ETH claims) than the known finding (bypassing deposit invariant via front-running or bundling).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_claim uses address(this).balance as claimedAmount, sweeping stray ETH",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue (using contract balance in _claim) not the deposit invariant bypass described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different root cause (sweeping stray ETH) than the known finding (bypassing deposit invariant).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "lockETHFor with _for = address(0) locks ETH permanently",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different root cause and function; does not correspond to H-01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing zero-address check in lockETHFor, which is a different root cause and impact than the known finding about bypassing deposit invariants.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Percentage claim allows repeated partial claims with no total cap",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a repeated claim logic flaw in _claim, which is unrelated to the deposit invariant bypass described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability (repeated partial claims with no cap) than the known finding H-01 (bypassing deposit invariant).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_fillQuote uses entire contract ETH balance as swap output delta",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a balance‑delta miscalculation in _fillQuote, which is unrelated to the deposit invariant bypass described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug (incorrect ETH balance accounting in _fillQuote) than any known finding, which focus on deposit invariant bypasses.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Reentrancy in _claim() via lpETH.deposit and _fillQuote external calls",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in _claim, which is unrelated to the deposit invariant bypass described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy vulnerability in _claim() via external calls, which is a different root cause and impact than the known finding about bypassing deposit invariants.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "totalSupply not decremented on non-ETH withdraw, breaking ETH share math",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a totalSupply decrement issue in withdraw, unrelated to the deposit invariant bypass finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug in the withdraw function regarding totalSupply and WETH, while the known finding is about bypassing deposit invariant before contracts are set.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Reentrancy in withdraw() via ETH transfer before totalSupply update",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in withdraw, which is unrelated to the deposit invariant bypass described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy vulnerability in withdraw() due to ETH transfer before totalSupply update, which is a different root cause and impact than the known finding about bypassing deposi",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_fillQuote trusts arbitrary exchangeProxy calldata allowing ETH theft via reentrancy",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy/ETH theft issue in _fillQuote, which is unrelated to the deposit invariant bypass described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy/arbitrary-call flaw in _fillQuote, while H-01 is about bypassing the deposit invariant via ETH donation and claiming, a different root cause.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ETH locked via lockETHFor can be permanently stuck if receiver is a contract that rejects ETH",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different root cause and function; not the deposit invariant bypass issue",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different issue about ETH stuck in withdraw, while the known finding is about bypassing deposit invariant.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_validateData allows recipient=address(0) causing swap output loss",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different validation flaw in _validateData, not the deposit invariant bypass described in H-01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing zero-address check in _validateData, while the known finding is about bypassing deposit invariants via front-running or bundling.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "convertAllETH uses full contract balance, allowing front-run ETH injection",
+   "strict": "H-01",
+   "a": {
+    "match": "H-01",
+    "reden": "Both describe front‑running ETH injection into convertAllETH that inflates lpETH balance and breaks the deposit invariant.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-01",
+    "reden": "The candidate describes the same front-run ETH injection into convertAllETH to inflate totalLpETH and claim extra value, which is the root cause in known finding H-01.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_fillQuote trusts arbitrary calldata to exchangeProxy without output verification",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different root cause (unverified swap calldata) in a different function, not the deposit invariant bypass described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an unverified swap output in _fillQuote, which is unrelated to the known H-01 invariant bypass via front-running/donation.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Percentage claim allows zero-amount swap and dust griefing",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different function and bug (zero-amount swap in _claim) unrelated to the deposit invariant bypass described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a zero-amount swap and dust griefing in _claim, while the known finding H-01 is about bypassing the deposit invariant via front-running or bundling; they are different ",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Fee-on-transfer / rebasing tokens break balance accounting",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fee-on-transfer token accounting issue, which does not correspond to the deposit invariant bypass finding H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a different vulnerability (fee-on-transfer token balance accounting) than the known finding H-01, which is about bypassing deposit invariants via front-running or bundl",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_decodeUniswapV3Data trusts attacker-controlled encodedPath length",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an out-of-bounds calldata read in _decodeUniswapV3Data, which is unrelated to the deposit invariant bypass described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an out-of-bounds read in _decodeUniswapV3Data, while the known finding H-01 is about bypassing deposit invariants via sandwich attacks.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "claimAndStake reentrancy via lpETHVault.stake callback",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in claimAndStake, which is unrelated to the deposit invariant bypass described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy vulnerability in claimAndStake, while the known finding H-01 is about bypassing the deposit invariant via donation and front-running, which is a different root cau",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Emergency mode allows ETH withdrawal after startClaimDate, bypassing claim conversion",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an emergency mode bypass affecting withdrawals, which is unrelated to the deposit invariant bypass described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug (emergency mode bypassing claim conversion) than the known finding (bypassing deposit invariant via front-running convertAllETH).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "claimAndStake approves vault but _claim sends lpETH to contract, not user",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue unrelated to the deposit invariant bypass in H-01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different issue (signature/replay and data validation) than the known finding about deposit invariant bypass.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_fillQuote approves exchangeProxy without resetting, enabling allowance abuse",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an allowance reset issue, which does not correspond to the deposit invariant bypass finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an allowance reset issue in _fillQuote, which is not the same root cause as the known invariant bypass finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_fillQuote leaves residual approval to exchangeProxy after swap",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an allowance residual issue, unrelated to the deposit invariant bypass finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a residual approval issue in _fillQuote, which is not mentioned in the known finding about deposit invariant bypass.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "lockETHFor/lockFor allow locking on behalf of arbitrary addresses",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unrestricted _for parameter allowing arbitrary address locking, which is unrelated to the deposit invariant bypass described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different issue (locking on behalf of arbitrary addresses) than the known finding about deposit invariant bypass.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "claimAndStake approves vault without resetting; stale allowance on failure",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a stale allowance issue in claimAndStake, which is unrelated to the deposit invariant bypass described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an allowance not cleared after claimAndStake, which is a separate issue from the deposit invariant bypass in H-01.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_fillQuote approves arbitrary exchangeProxy with no allowance reset",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an allowance misuse in _fillQuote, unrelated to the deposit invariant bypass described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an allowance reset issue in _fillQuote, while the known finding is about bypassing deposit invariants in a different part of the system.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_decodeUniswapV3Data outputToken offset can be manipulated",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability in a different contract and function, not the deposit invariant issue.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a different vulnerability in _decodeUniswapV3Data, while the known finding H-01 is about bypassing deposit invariants.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ETH claim uses stale totalSupply after partial token withdrawals",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a stale totalSupply issue in _claim, which is unrelated to the deposit invariant bypass described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different root cause (totalSupply not updated on token withdrawals) than the known finding (bypassing deposit invariant).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_decodeTransformERC20Data reads fixed offsets without length check",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a calldata length check issue, unrelated to the deposit invariant bypass finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a missing length check in _decodeTransformERC20Data, while the known finding H-01 is about bypassing deposit invariants via front-running or bundling; they are unrelate",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "lock() with WETH unwraps to ETH but does not update totalSupply correctly on reentrancy",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy and totalSupply update issue in _processLock, which is unrelated to the deposit invariant bypass described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy/state update order bug in _processLock, while the known finding H-01 is about bypassing deposit invariant via sandwich attacks and donation.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "convertAllETH can be front-run by withdraw to drain ETH before conversion",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a withdraw front‑run draining ETH, not the deposit invariant bypass via donation and claim described in H‑01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a front-running withdrawal attack on convertAllETH, while the known finding H-01 is about bypassing deposit invariant via donation and claiming, which is a different root cause",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Emergency mode lets users withdraw tokens after conversion, double-dipping",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an emergencyMode withdraw double‑dip bug, which is a different root cause and function than the deposit invariant bypass described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an emergency-mode withdrawal double-dip, while the known finding is about bypassing the deposit invariant via donation and claiming lpETH.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_decodeUniswapV3Data outputToken offset assumes fixed layout; wrong token accepted",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a calldata offset parsing bug in PrelaunchPoints.sol, unrelated to the deposit invariant bypass described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a different vulnerability in _decodeUniswapV3Data, while the known finding H-01 concerns a deposit invariant bypass unrelated to Uniswap V3 data decoding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "recoverERC20 can be used to drain allowed tokens if isTokenAllowed is later set false",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different function and issue; candidate does not describe the deposit invariant bypass described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a liveness issue in recoverERC20, unrelated to the known invariant bypass finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "First-depositor / donation attack on lpETH share via convertAllETH",
+   "strict": "H-01",
+   "a": {
+    "match": "H-01",
+    "reden": "Both describe the same donation/front‑run attack on convertAllETH that inflates lpETH shares and bypasses the deposit invariant.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-01",
+    "reden": "Both describe donating ETH before convertAllETH to inflate lpETH share price and gain unfair lpETH.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "No replay protection across chains/contracts for swap calldata",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different function and root cause; does not correspond to H-01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a lack of replay protection in swap calldata, which is unrelated to the known finding about bypassing deposit invariants.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "lockETHFor/lockFor allow locking for arbitrary _for with no msg.sender binding; referral spoofing",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue in lockETHFor, not the deposit invariant bypass described in H-01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different issue (referral spoofing in lockETHFor/lockFor) than the known finding (bypassing deposit invariant via sandwiching convertAllETH).",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

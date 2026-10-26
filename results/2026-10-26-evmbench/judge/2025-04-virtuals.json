@@ -1,0 +1,509 @@
+{
+ "audit": "2025-04-virtuals",
+ "verdicts": [
+  {
+   "title": "FxERC20RootTunnel.syncWithdraw allows anyone to drain all bridged tokens",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an access control issue in FxERC20RootTunnel.syncWithdraw, which does not correspond to any of the listed findings that involve different contracts and functions.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The known findings describe different contracts and root causes; none concern FxERC20RootTunnel.syncWithdraw.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "FxERC20ChildTunnel.syncDeposit mints unlimited tokens to any caller",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an access control issue in FxERC20ChildTunnel.syncDeposit, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different contract and function (FxERC20ChildTunnel.syncDeposit) than any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AgentToken.initialize callable by anyone to seize ownership of clone",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and function (AgentToken.initialize) than any of the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes an unprotected AgentToken.initialize front-run, which is not among the known findings (addValidator, ServiceNft, ContributionNft, validator score).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AgentVeToken.initialize callable by anyone on fresh clone",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unprotected initialize function in AgentVeToken, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing access control on AgentVeToken.initialize, while all known findings concern different contracts (AgentNftV2, ServiceNft, ContributionNft, ValidatorRegistry) and diffe",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AgentTax dcaSell minOutput computed on taxToken amount not asset output",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a bug in AgentTax.sol dcaSell, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns a token swap slippage calculation in AgentTax.sol, which is not mentioned in any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AgentToken tax auto-swap uses amountOutMin=0, enabling sandwich drain",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and issue (AgentToken.sol _swapTax amountOutMin=0) not covered by any known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns AgentToken.sol _swapTax() with amountOutMin=0, which is not among the known findings that address different contracts and issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Genesis.onGenesisFailed can be permanently bricked by a single participant",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a unique logic flaw in Genesis.sol's onGenesisFailed function, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug in Genesis.sol's onGenesisFailed, not covered by any known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "FxERC20ChildTunnel.withdraw burns tokens from arbitrary user without allowance",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing access control in FxERC20ChildTunnel.withdraw, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a different contract and vulnerability not listed among the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AgentFactoryV4.initialize callable by anyone to seize admin",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unprotected initialize function in AgentFactoryV4, which is not covered by any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an unprotected initialize function in AgentFactoryV4, while the known findings cover different functions and contracts (AgentNftV2, ServiceNft, ContributionNft, ValidatorRegist",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "dcaSell computes minOutput from amountToSwap instead of expected asset output",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a bug in AgentTax.sol's dcaSell function, which is unrelated to the known findings about different contracts and issues.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns a different function (dcaSell in AgentTax.sol) and a different issue (incorrect minOutput calculation) not covered by any known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AgentRewardV2._prepareAgentsRewards loops over all agents, DoS on distribution",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a gas limit DoS in AgentRewardV2._prepareAgentsRewards, which is unrelated to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a DoS via unbounded loop in AgentRewardV2, which is not among the listed known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AgentRewardV3.getClaimableStakerRewards division by zero freezes claims",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a division‑by‑zero bug in AgentRewardV3.getClaimableStakerRewards, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "None of the known findings describe a division-by-zero in AgentRewardV3.getClaimableStakerRewards.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AgentRewardV2._distributeValidatorRewards loops over unbounded validator set",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unbounded loop causing OOG, which is a different impact than the accounting inconsistency noted in H-01 despite sharing the same root cause.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an unbounded loop causing out-of-gas, while known findings focus on access control, score manipulation, or minting issues, not the same root cause.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AgentRewardV3 staker/validator rewards can be claimed twice via rewardCount reset",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reward claim issue in AgentRewardV3.sol, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a rewards claim accounting issue in AgentRewardV3, which is not among the listed known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AgentRewardV2 staker rewards double-counted via validator claim path",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a double-counting bug in AgentRewardV2.sol, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a double-counting bug in AgentRewardV2 reward distribution, which is not mentioned in any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Staker rewards double-counted via validator delegation in AgentRewardV2",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a double-counting reward bug in AgentRewardV2, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a double-counting bug in AgentRewardV2, which is not covered by any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AgentRewardV2 _distributeAgentRewards rounding leaves dust unclaimable",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a rounding dust issue in AgentRewardV2, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes rounding dust loss in AgentRewardV2._distributeAgentRewards.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AgentTax.handleAgentTaxes uses getAmountsOut spot price with minOutput supplied by executor",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a slippage/oracle issue in AgentTax.handleAgentTaxes, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes a slippage/spot price issue in AgentTax.sol, which none of the known findings address.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AgentRewardV2._distributeContributorRewards loops over unbounded services",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unbounded loop in AgentRewardV2, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an unbounded loop over service NFTs causing out-of-gas, which is a different root cause and impact than any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AgentTax.handleAgentTaxes accepts arbitrary txhashes without on-chain verification",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a flaw in AgentTax.handleAgentTaxes, which is unrelated to the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns AgentTax.handleAgentTaxes and missing txhash verification, which is not related to any of the known findings about AgentNftV2, ServiceNft, ContributionNft, or ValidatorR",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LPRefund.refund accepts arbitrary txhashes without chain/contract binding",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a replay issue in LPRefund.refund, which does not correspond to any of the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns LPRefund.refund and txhash replay, while all known findings involve different contracts and issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Genesis onGenesisSuccess allows repeated refunds via mapAddrToVirtuals underflow",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a refund logic issue in Genesis.sol, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding concerns onGenesisSuccess repeated refunds in Genesis.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AgentToken tax pending counter drifts from actual contract balance",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a tax accounting bug in AgentToken.sol, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an accounting mismatch in AgentToken.sol's _swapTax and tax distribution, which is not mentioned in any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Genesis.onGenesisSuccess double-counts refunds against reserve on repeat calls",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a bug in Genesis.sol's onGenesisSuccess function, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding is about Genesis.sol's onGenesisSuccess function, which is not related to any of the known findings that involve AgentNftV2, ServiceNft, ContributionNft, or ValidatorRegistry.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AgentToken token-approval to router set before liquidity, price set by contract's own balance",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a liquidity initialization issue in AgentToken.sol, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a liquidity/price sanity issue in AgentToken.sol, which is unrelated to the known findings about access control in AgentNftV2, ServiceNft, ContributionNft, or ValidatorRegistry",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "FRouter.getAmountsOut can return inflated output due to constant-k recomputation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a pricing bug in FRouter.getAmountsOut, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a stale-k pricing bug in FRouter.getAmountsOut, which is unrelated to any of the known findings about access control, public functions, or reward accounting in AgentNftV2, Serv",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AeroAdaptor ignores `path` and always routes tokenIn->tokenOut, mispricing arbitrary callers",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a path‑ignoring bug in AeroAdaptor, which is unrelated to the listed findings about AgentNftV2, ServiceNft, ContributionNft, or ValidatorRegistry.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns AeroAdaptor's swap path logic, which is unrelated to any of the known findings about access control, public mint functions, or validator scoring.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AgentInference.promptMulti reuses stale agentTba when agentId repeats non-consecutively",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different function and issue (AgentInference.promptMulti cache misuse) that does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a bug in AgentInference.promptMulti, which is not covered by any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AgentRewardV2 distributeRewardsForAgents can be called repeatedly for same reward",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different bug in AgentRewardV2 unrelated to the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug in AgentRewardV2, not matching any of the known findings which are about AgentNftV2, ServiceNft, ContributionNft, and ValidatorRegistry.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AgentRewardV2 _distributeAgentRewards can be re-run for same mainRewardIndex",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a re‑entrancy/duplicate execution issue in AgentRewardV2, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a re-entrancy/guard bypass in AgentRewardV2, while all known findings concern other contracts and root causes.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AgentTax handleAgentTaxes swaps full balance ignoring per-agent accounting",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a per-agent accounting bug in AgentTax.sol, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a per-agent accounting issue in AgentTax's _swapForAsset, which is not mentioned in any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Genesis onGenesisSuccess can be re-entered to double-distribute agent tokens",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in Genesis.sol, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy/distribution bug in Genesis.sol, which is not among the known valid findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AgentToken _autoSwap can be triggered by attacker to drain tax tokens",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a swap manipulation issue in AgentToken._autoSwap, which does not correspond to any of the listed known findings that involve different contracts and vulnerabilities.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns AgentToken _autoSwap tax token manipulation, which is unrelated to the known findings about AgentNftV2, ServiceNft, ContributionNft, and ValidatorRegistry.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AgentRewardV3 claim functions transfer 0 and can be griefed via LOOP_LIMIT",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a bug in AgentRewardV3's claim logic, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug in AgentRewardV3's claim logic, not matching any of the known findings which involve access control, public mint functions, or validator scoring.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AgentRewardV3 staker+validator rewards exceed deposited amount due to independent rounding",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a rounding/snapshot issue in AgentRewardV3, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes a rounding/accounting issue in AgentRewardV3, not matching any listed known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Bonding._openTradingOnUniswap reads pair reserves after graduation, enables stale reserve usage in same-block",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a stale reserve issue in Bonding.sol, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a stale reserve issue in Bonding.sol's buy and _openTradingOnUniswap functions, which is not related to any of the known findings about access control, public minting, or valid",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

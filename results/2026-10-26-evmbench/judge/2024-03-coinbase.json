@@ -1,0 +1,355 @@
+{
+ "audit": "2024-03-coinbase",
+ "verdicts": [
+  {
+   "title": "CoinbaseSmartWallet executeWithoutChainIdValidation allows cross-chain replay of owner changes",
+   "strict": "H-01",
+   "a": {
+    "match": "H-01",
+    "reden": "Both findings describe the cross‑chain replay bug in executeWithoutChainIdValidation caused by omitting the chain ID, affecting owner‑related operations such as removeOwnerAtIndex.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-01",
+    "reden": "The candidate describes the same root cause in executeWithoutChainIdValidation allowing cross-chain replay of signed owner changes, including removeOwnerAtIndex, which matches the known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "MagicSpend nonce marked used before signature validation allows griefing",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a nonce handling bug in MagicSpend.sol, which is unrelated to the owner removal replay issue in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Different vulnerability in different contract and function.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "CoinbaseSmartWallet.initialize() callable by anyone on uninitialized proxy",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an uninitialized proxy initialization issue, which is unrelated to the known owner removal replay bug.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an unprotected initialize() call, while the known finding concerns cross-chain replay of removeOwnerAtIndex calls.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "MagicSpend postOp assert can permanently lock withdrawable ETH",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different bug in MagicSpend.sol unrelated to the owner removal issue in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug in MagicSpend's postOp function, while the known finding is about replayable removeOwner calls in a different contract.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "MagicSpend postOp uses assert, bricking UserOps on insufficient balance",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an assert failure in MagicSpend.postOp due to balance issues, which is unrelated to the owner removal replay issue in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability (assert in postOp causing bricked user ops) unrelated to the known finding about replayable owner removal.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "WebAuthn.verify does not validate authenticatorData length before indexing",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an out-of-bounds indexing bug in WebAuthn.verify, which is unrelated to the owner removal replay issue in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding is about WebAuthn.verify and authenticatorData length, while the known finding is about replay of remove owner calls in a different contract.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "MagicSpend withdraw() does not reserve gas, allows draining contract",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a gas reservation and withdrawal issue, which is unrelated to the owner removal replay bug in H-01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a different vulnerability in a different function (withdraw vs removeOwnerAtIndex) with a different root cause and impact.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "MagicSpend nonce consumed before signature verification enables griefing",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a nonce consumption issue in MagicSpend.sol, which is unrelated to the owner removal replay issue in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a nonce griefing issue in MagicSpend.sol, which is unrelated to the known finding about replayable remove owner calls.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "MagicSpend validatePaymasterUserOp consumes nonce before signature validation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a nonce consumption issue in MagicSpend.validatePaymasterUserOp, which is unrelated to the known owner removal replay issue.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a nonce consumption issue in MagicSpend, while the known finding is about replayable remove owner calls in a different contract.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "MultiOwnable removeOwnerAtIndex allows removing owner at index 0, bricking account",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different root cause; known finding concerns cross-chain replay of removeOwnerAtIndex, not the sole lack of a guard against removing the last owner.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes removal of the last owner causing permanent bricking, while the known finding is about replay attacks across chains due to index differences.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "MagicSpend postOp double-counts maxGasCost refund on postOpReverted",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a gas accounting underflow in MagicSpend.sol, which is unrelated to the owner removal replay issue in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a different bug in MagicSpend's postOp function, unrelated to the known finding about owner removal replayability.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "MagicSpend withdraw() does not check contract balance before transfer",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing balance check in withdraw(), unrelated to the owner removal replay issue in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing balance check in MagicSpend.withdraw(), which is unrelated to the known finding about replayable remove owner calls.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "MagicSpend postOp asserts mode != postOpReverted causing DoS on revert",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and bug (assert in MagicSpend postOp) unrelated to the owner removal replay issue in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a different vulnerability (assert in postOp causing DoS) than the known finding about remove owner replay attacks.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "withdrawGasExcess reverts on zero causing unrecoverable zero-value cleanup",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a revert in withdrawGasExcess, unrelated to the owner removal replay issue in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a revert in withdrawGasExcess, which is unrelated to the replay attack on removeOwnerAtIndex described in the known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Owner removal does not recompact indices, leaving ownerIndex validation gaps",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing index compaction issue, whereas the known finding concerns replayable removal across chains, so they differ in root cause.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different root cause (missing recompaction of indices after removal) than the known finding (replay of removeOwnerAtIndex across chains due to index mismatch).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "WebAuthn verify partially slices clientDataJSON enabling OOB revert",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an out-of-bounds slice revert in WebAuthn.verify, unrelated to the owner removal replay issue in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a different vulnerability (OOB revert in WebAuthn verify) unrelated to the known finding about replayable remove owner calls.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "MultiOwnable._checkOwner allows address(this) as owner, enabling self-call privilege escalation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a self-call privilege escalation in _checkOwner, which is unrelated to the known finding about replayable removeOwnerAtIndex across chains.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a self-call privilege escalation via _checkOwner, while the known finding is about replay attacks on removeOwnerAtIndex.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "MagicSpend validatePaymasterUserOp allows withdrawAmount == maxCost leaving zero withdrawable",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different contract and root cause; does not correspond to H-01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns a different function and root cause (MagicSpend validatePaymasterUserOp) than the known finding about remove owner calls.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "CoinbaseSmartWallet executeWithoutChainIdValidation lacks bounds check on data",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a bounds‑check/reentrancy issue enabling attacker‑added owners, whereas the known H-01 finding concerns replayed removeOwnerAtIndex calls removing different owners; they are di",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate focuses on missing bounds check and adding an attacker-controlled owner, while the known finding is about replay of removeOwnerAtIndex to remove a different owner at the same index.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "MagicSpend validatePaymasterUserOp does not enforce expiry as revert",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and flaw (expiry enforcement in MagicSpend) than the known owner removal replay issue.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding about expiry enforcement in MagicSpend's paymaster is unrelated to the known finding about owner removal replay across chains.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "MagicSpend.withdrawGasExcess reentrancy via forceSafeTransferETH",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in MagicSpend.withdrawGasExcess, which is unrelated to the owner removal replay bug in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy concern in MagicSpend.withdrawGasExcess, while the known finding concerns replayable removeOwnerAtIndex calls.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "CoinbaseSmartWalletFactory.createAccount front-runnable to initialize with attacker owners",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a front‑run deterministic deployment issue in createAccount, which is unrelated to the removeOwnerAtIndex replay issue of H‑01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate is about factory createAccount front-running/deployment issues, while the known finding concerns cross-chain owner index replay in removeOwnerAtIndex.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "executeWithoutChainIdValidation reverts on short calldata",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a short calldata revert issue, not the replayable removeOwnerAtIndex bug described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing length check in executeWithoutChainIdValidation causing a revert on short calldata, which is a different bug from the known finding about replayable removeOwner calls",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "MagicSpend withdraw() lacks expiry check ordering, allowing replay after expiry via nonce reuse pattern",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and flaw (expiry check ordering and nonce consumption) unrelated to the known owner removal replay issue.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns MagicSpend.withdraw() and nonce/expiry ordering, while the known finding H-01 is about removeOwnerAtIndex replay in a different contract.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "CoinbaseSmartWalletFactory createAccount does not verify implementation is a contract",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and flaw (unverified implementation in createAccount) than the known finding about owner removal replay attacks.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in createAccount, while the known finding is about removeOwnerAtIndex replay attacks.",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

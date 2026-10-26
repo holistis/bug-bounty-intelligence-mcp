@@ -1,0 +1,537 @@
+{
+ "audit": "2024-01-canto",
+ "verdicts": [
+  {
+   "title": "update_market loop over epochs can be griefed to block sync_ledger and claim",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unbounded loop causing gas limit exhaustion, which is a different root cause than the weight or epoch calculation issues in H-01 and H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a gas-limit griefing from unbounded loop, which is a different root cause than the known weight/epoch calculation bugs.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LendingLedger update_market uses stale marketSupply for whole loop",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a stale marketSupply usage bug, which differs from the known findings about market weight and epoch calculation.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes using a stale marketSupply for all epochs, which is not the same root cause as the weight percentage bug (H-01) or the epoch boundary calculation bug (H-02).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "GaugeController.vote_for_gauge_weights uses stale user slope from last checkpoint",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different function and issue unrelated to the update_market() weight calculations in H-01 and H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a stale checkpoint issue in GaugeController.vote_for_gauge_weights, while known findings concern update_market() weight/epoch calculation bugs.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LendingLedger.claim() sends CANTO before updating rewardDebt",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in claim(), which is unrelated to the update_market() weight or epoch calculation findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes a reentrancy issue in claim(), while known findings concern update_market() weight and epoch calculations.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Double-counting of delegated voting power in increaseAmount",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a double-counting bug in VotingEscrow.sol's increaseAmount, which is unrelated to the update_market issues in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a double-counting bug in VotingEscrow's increaseAmount function, which is unrelated to the known findings about update_market() in a lending market contract.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LendingLedger.sync_ledger trusts caller-supplied delta without market validation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a flaw in sync_ledger, while known findings address update_market logic, so they are unrelated.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an issue in sync_ledger() regarding arbitrary delta, while the known findings concern update_market() reward calculation bugs.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "secRewardsPerShare accrues without any reward token backing",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing funding source for secRewardsPerShare, which is a different root cause than the weight or epoch calculation issues in H-01 and H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an unbounded accrual of secRewardsPerShare without token backing, which is a different root cause than the known findings about market weight or epoch calculation errors.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "sync_ledger callable by anyone, spoofing lending market balances",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing access control in sync_ledger(), which is unrelated to the update_market() logic errors in H-01 and H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a vulnerability in sync_ledger() while the known findings are about update_market() with different root causes.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "GaugeController.vote_for_gauge_weights allows voting with expired lock",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different function and issue (GaugeController.vote_for_gauge_weights) unrelated to the known findings about update_market().",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns GaugeController voting with expired lock, while known findings are about update_market() weight and epoch calculations in a different contract.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "secRewardsPerShare accrues per-block with no reward rate",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different bug about secRewardsPerShare scaling, which does not correspond to the known findings about market weight or epoch reward calculations.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue (secRewardsPerShare accrual) not related to the known findings about market weight or epoch calculation.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LendingLedger.update_market uses gauge_relative_weight_write with past epoch, allowing weight manipulation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distinct gauge weight manipulation issue not covered by H-01 or H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a vulnerability related to gauge_relative_weight_write with past epochs, while the known findings address different issues in update_market (incorrect weight and nextEpoch calc",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "GaugeController vote_for_gauge_weights can be griefed via _get_sum/_get_weight loops",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a gas griefing issue in GaugeController.vote_for_gauge_weights, which is unrelated to the update_market() weight or epoch calculation findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns GaugeController's vote_for_gauge_weights, while known findings are about update_market in a different contract.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "withdraw() reverts on failed native transfer, trapping user funds",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a withdraw reentrancy/transfer failure issue in VotingEscrow.sol, which is unrelated to the update_market() logic of the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding is about withdraw() in VotingEscrow.sol, while the known findings are about update_market() in a different contract.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LendingLedger.sync_ledger trusts msg.sender as market without signature",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a flaw in sync_ledger, while known findings address update_market logic errors.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing authorization in sync_ledger, unrelated to the update_market reward calculation errors in H-01 and H-02.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "update_market loop can be griefed to run out of gas / skip rewards",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an out‑of‑gas loop exhaustion issue, which is unrelated to the weight or epoch‑calculation bugs in H‑01 and H‑02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate is about gas griefing from a long loop, while the known findings are about incorrect weight and epoch calculations in the same function.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LendingLedger.update_market uses wrong epoch for cantoPerBlock lookup",
+   "strict": "H-02",
+   "a": {
+    "match": "H-02",
+    "reden": "Both describe the incorrect nextEpoch calculation causing misaligned cantoPerBlock epoch lookups in update_market()",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-02",
+    "reden": "Both describe the same root cause: incorrect nextEpoch calculation leading to wrong epoch lookup for cantoPerBlock in update_market().",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "claim() can be called by anyone for any market, draining rewards",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an access control issue in claim(), which is unrelated to the update_market() logic described in H-01 and H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing access control on claim(), while the known findings are about incorrect reward calculations in update_market().",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LendingLedger.update_market loop can be griefed via unbounded iterations",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a gas‑limit griefing issue due to an unbounded loop, which is unrelated to the weight calculation (H-01) or epoch calculation (H-02) described in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a griefing attack via unbounded loop iterations, which is not the same root cause as the known findings about incorrect weight or epoch calculation.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "VotingEscrow.withdraw() external call after state update but no reentrancy on checkpoint",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy-like issue in VotingEscrow.withdraw(), which is unrelated to the update_market() weight calculation bugs in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns VotingEscrow.withdraw() and reentrancy, while the known findings are about update_market() in a different contract.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "remove_gauge_weight loop over 263 weeks can revert on large slope changes",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an underflow in _remove_gauge_weight of GaugeController.sol, which is unrelated to the update_market weight calculations in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an underflow in GaugeController's _remove_gauge_weight, while known findings are about update_market in a different contract.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "claim() reverts on failed native transfer, blocking reward claims",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a revert issue in claim() unrelated to the update_market() logic of the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns a revert in claim() due to failed native transfer, while the known findings are about incorrect market weight and epoch calculations in update_market().",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LendingLedger.claim lacks reentrancy guard allowing reward double-claim",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in claim(), which is unrelated to the update_market() logic of the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy vulnerability in claim(), while known findings H-01 and H-02 are about incorrect weight and epoch calculations in update_market().",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "VotingEscrow.increaseAmount delegatee path can be griefed via delegatee lock expiry",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and issue unrelated to the update_market() findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a VotingEscrow delegatee griefing bug, while known findings concern LendingLedger update_market calculation errors.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "claim() can be front-run by deposit to dilute or by withdraw to escape debt",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a front‑running issue in claim() unrelated to the update_market() weight or epoch calculation bugs listed in H‑01 and H‑02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a front-running vulnerability in claim() allowing dilution or debt escape, which is unrelated to the known findings about incorrect market weight or epoch calculation in update",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LendingLedger.claim lacks reentrancy protection on CANTO transfer",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in claim(), unrelated to the update_market() weight or epoch calculation findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in claim(), while the known findings are about update_market() weight and epoch calculations.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "VotingEscrow.increaseAmount resets lock end but not delegated amount for delegatee",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different function and issue (VotingEscrow.increaseAmount) unrelated to the update_market() findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug in VotingEscrow.increaseAmount, while the known findings are about update_market() in a different contract.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "update_market() callable by anyone, allowing reward manipulation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an access control/permission issue, while the known findings address weight calculation and epoch handling bugs, not the same root cause.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a permissionless call/reward manipulation issue, while H-01 and H-02 are about incorrect weight and epoch calculations in update_market(), not the same root cause.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "checkpoint() and checkpoint_gauge() callable by anyone, allowing state manipulation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a permissionless checkpoint issue, which does not correspond to the update_market weight calculation bugs in H-01 or H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability in GaugeController, while known findings are about update_market in a different contract.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "increaseAmount allows delegation to a delegatee with expired lock",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a delegation lock expiration issue in VotingEscrow.sol, which is unrelated to the update_market() weight/epoch calculations in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns VotingEscrow.sol increaseAmount and delegation, while known findings are about update_market in a different contract.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "VotingEscrow balanceOfAt blockTime estimation can underflow bias",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and bug (VotingEscrow balanceOfAt underflow) than the known findings about update_market() logic.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns VotingEscrow balanceOfAt underflow, while the known findings are about update_market epoch/weight logic in a lending contract.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "GaugeController._get_sum and _get_weight can be griefed with 500-iteration loops",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and issue (GaugeController loops) unrelated to the update_market() findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns GaugeController loops, while known findings are about update_market in a different contract.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "VotingEscrow.balanceOfAt uses block number estimation that can be manipulated",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different contract and root cause; does not correspond to H-01 or H-02",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a block timestamp manipulation vulnerability in VotingEscrow.balanceOfAt, which is unrelated to the known findings about market weight and epoch calculation in update_market().",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "VotingEscrow.increaseAmount updates delegatee lock without reentrancy guard on cross-contract reads",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and issue (VotingEscrow increaseAmount reentrancy) unrelated to the update_market weight or epoch calculation findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different root cause in a different contract (VotingEscrow.increaseAmount) than the known findings, which are about update_market() in a lending market contract.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "VotingEscrow.withdraw lacks reentrancy guard on native CANTO send",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in VotingEscrow.withdraw, which is unrelated to the update_market() weight or epoch calculation findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in VotingEscrow.withdraw, while the known findings are about update_market() in a different contract.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "GaugeController.vote_for_gauge_weights missing nonce/deadline allows replay of votes",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and issue unrelated to the update_market() findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate concerns GaugeController vote replay/state consistency, while known findings concern update_market weight calculation issues in a different contract.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "GaugeController._remove_gauge_weight loop bound may miss slope changes",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a loop bound issue in GaugeController._remove_gauge_weight, which does not correspond to the update_market() issues listed in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns GaugeController loop bound for slope changes, while known findings are about update_market() reward calculation in a different contract.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "setRewards can overwrite past epochs and retroactively change rewards",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a flaw in setRewards() allowing retroactive reward changes, which does not correspond to the update_market weight or epoch calculation issues in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a governance/trusted setRewards issue, while known findings are about incorrect weight or epoch boundary calculations in update_market.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "VotingEscrow.withdraw does not reset delegated for delegatee",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and issue (VotingEscrow.withdraw underflow) unrelated to the update_market() findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a VotingEscrow.withdraw issue, while the known findings concern update_market() in a lending market contract.",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

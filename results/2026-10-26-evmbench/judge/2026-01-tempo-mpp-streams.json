@@ -1,0 +1,383 @@
+{
+ "audit": "2026-01-tempo-mpp-streams",
+ "verdicts": [
+  {
+   "title": "initiateClose callable by anyone, enabling griefing of active channels",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an access control issue in initiateClose(), which is unrelated to the zero-address authorizedSigner validation bug in openChannel()",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing access control on initiateClose, while the known finding concerns zero-address signer validation in voucher settlement.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "close() lacks expiry check allowing stale voucher settlement",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different root cause and function; candidate concerns missing expiry check in close(), not zero address signer validation.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing expiry check in close(), while the known finding is about zero-address signer validation bypass, a different root cause.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "initiateClose permissionless allows griefing payee out of settlement window",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a permissionless initiateClose/griefing issue, which is unrelated to the zero-address authorized signer bypass in H-03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a permissionless griefing attack via initiateClose, while the known finding is about signature validation bypass via zero address.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "finalize() callable by anyone locks out payee without honoring unsettled vouchers",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different function and root cause; candidate describes finalize() access control issue, not authorized signer bypass.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing access control on finalize(), unrelated to the known zero-address signer validation bypass.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "addDeposit accepts deposits from anyone, does not credit depositor",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different function and root cause; does not correspond to the authorized signer bypass finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing access control in addDeposit, while the known finding is about signature validation bypass via zero address.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "openChannel deadline parameter is never enforced",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing deadline check, while the known finding concerns missing authorizedSigner validation, a different root cause.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing deadline check, while the known finding H-03 is about zero address signer validation.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "addDeposit allows anyone to fund any channel and grief payer",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing payer check in addDeposit, which is unrelated to the authorizedSigner zero address validation bypass in the known H-03 finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability (unrestricted deposit) unrelated to the known finding about signature validation bypass.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "finalize() callable by anyone after grace period, forcing premature closure",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an access control issue in finalize(), which is unrelated to the zero‑address authorized signer bypass in openChannel() described by H‑03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing access control in finalize(), which is unrelated to the known finding about zero-address signer validation bypass.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "close() allows voucher.cumulativeAmount > deposit causing zero payee payment",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different bug in close() unrelated to authorized signer validation in openChannel.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability (underflow/zero payment due to cumulativeAmount > deposit) than the known finding (authorized signer validation bypass via zero address).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Cooperative close double-charges settled amount to payer refund",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a refund calculation/underflow issue in close(), unrelated to the zero-address authorizedSigner bypass in openChannel().",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes a different bug in close() refund logic, not the authorized signer zero-address signature bypass.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "close() CLOSE signature lacks nonce, expiry, and domain binding",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a replayable signature issue, not the zero-address authorized signer bypass described in H-03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes missing replay protection in the CLOSE signature, while the known finding is about zero address signer validation bypass.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "addDeposit() allows anyone to deposit, but refund goes to payer",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing payer check in addDeposit, unrelated to the zero-address authorizedSigner issue in openChannel.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes a missing payer check in addDeposit, unrelated to the zero-address signer validation bypass.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "close() allows underflow revert and inconsistent refund when cumulativeAmount > deposit",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an underflow issue in close() unrelated to the authorized signer zero address validation described in H-03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes arithmetic underflow and refund logic in close(), which is unrelated to the known zero-address signature validation bypass.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "close() does not update settledNonces, allowing replay via settle()",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing settledNonces update in close(), unrelated to the zero-address authorized signer issue.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing settledNonces update in close(), which is a different root cause and impact from the known zero-address signature validation bypass.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "settle() allows payee to grief payer by settling after close initiated",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different bug (grace period and replay in settle/close) not related to authorized signer zero address validation.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a nonce replay and underflow issue in settle/close, while the known finding is about zero address signer bypass.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "close() trusts payerSignature without binding to expiry or nonce, enabling replay",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a replayable signature issue in close(), not the zero-address authorized signer bypass described in H-03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes signature replay/nonce binding issue, while known finding is about zero-address authorizedSigner validation bypass.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "close() payerSignature uses non-EIP-712 scheme, enabling cross-context replay",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a replay issue due to non-EIP-712 signature scheme, which is unrelated to the zero-address authorizedSigner bypass in H-03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a signature replay vulnerability due to missing domain separator, while the known finding is about zero address signature recovery bypass.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "settle() allows delta beyond available deposit via unchecked subtraction path",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different root cause and function; candidate describes underflow in settle, not zero address signer bypass",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an arithmetic/validation flaw in settle(), while the known finding H-03 is about zero-address authorizedSigner validation bypass, a different root cause.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "settle() allows cumulativeAmount to decrease, enabling negative delta underflow",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an underflow issue in settle(), which is unrelated to the zero-address authorized signer validation bypass in H-03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an underflow in settle() due to unchecked cumulativeAmount, while the known finding is about zero address signer validation bypass.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "finalize() callable by anyone, allowing premature refund to payer",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unrestricted finalize() call, which is unrelated to the zero-address authorizedSigner validation issue in H-03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an unrestricted finalize() function, while the known finding is about zero-address signer validation bypass.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "close() lacks expiry check enabling stale voucher replay within cooperative close",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing expiry check in close(), which is unrelated to the zero-address authorizedSigner bypass in H-03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns missing expiry check in close(), while the known finding H-03 is about zero address signature recovery, a different root cause.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "settle() does not verify caller is payee, allowing anyone to force settlement",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing payee check in settle(), which is a different root cause than the zero-address authorizedSigner issue in H-03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing caller check in settle(), while the known finding is about zero-address authorizedSigner validation bypass via ecrecover.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "close() does not update channel.settled or settledNonces, breaking state consistency",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing state update in close(), unrelated to the authorized signer zero address issue in H-03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a state consistency bug in close(), unrelated to the authorized signer zero address signature bypass in H-03.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "settle() allows cumulativeAmount below channel.settled causing underflow revert / griefing",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an underflow/revert issue in settle(), which is unrelated to the authorized signer zero address bypass finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an underflow in settle() due to missing cumulativeAmount check, which is unrelated to the known finding about zero address signer bypass.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "First-depositor/donation attack via direct token transfer to contract",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a token balance accounting issue, not the zero-address signer validation bypass of H-03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a donation/locked tokens issue in TempoStreamChannel, while the only known finding is about signature validation bypass in a different contract.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "settle() retains over-signed voucher allowing payee underpayment path in close()",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a voucher settlement logic flaw in close(), unrelated to the zero-address authorized signer bypass.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes a different bug in close()/settle() logic, not the zero-address signature recovery issue.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "close() uses cumulativeAmount directly without clamping, delta only guarded by `<= deposit`",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different overflow/underflow issue in close() unrelated to the authorized signer validation bypass in H-03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability in close() regarding delta clamping, while the known finding is about authorized signer validation in openChannel().",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

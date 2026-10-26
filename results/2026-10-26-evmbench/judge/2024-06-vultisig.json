@@ -1,0 +1,537 @@
+{
+ "audit": "2024-06-vultisig",
+ "verdicts": [
+  {
+   "title": "Multicall delegatecall enables cross-function reentrancy and state manipulation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a delegatecall reentrancy issue in Multicall.sol, which does not correspond to the Uniswap fee claim or ILO pool launch denial findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a generic Multicall reentrancy issue, not the same root cause as the known findings about fee claims or ILO pool launch prevention.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "UniswapV3Oracle.peek can revert on zero period",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a zero-period revert in UniswapV3Oracle.peek, which is unrelated to the fee-claiming issue (H-01) or the ILO pool launch denial (H-03).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a revert in UniswapV3Oracle.peek due to zero period, which is unrelated to the known findings about fee claiming or ILO pool launch.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Whitelist check can be bypassed by transferring tokens to a whitelisted address",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a whitelist bypass in VultisigWhitelisted.sol, which does not correspond to the known findings about Uniswap fee claims or ILO pool launch denial.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a whitelist bypass in VultisigWhitelisted.sol, which is unrelated to the known Uniswap fee and ILO pool launch issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "approveAndCall allows arbitrary external call before state finalization",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in approveAndCall, which does not correspond to the known findings about Uniswap fee claims (H-01) or ILO pool launch denial (H-03).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy/state-finalization issue in approveAndCall, which is unrelated to the known Uniswap fee claim or single-sided liquidity denial-of-service findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Initializable.whenNotInitialized can be front-run by anyone on uninitialized proxy",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a front‑run initializer issue in Initializable.sol, which does not correspond to the unrelated Uniswap fee claim or ILO pool liquidity denial findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an access-control/front-running on Initializable, which is not the same root cause or code as either known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "peek() applies 5% discount to ETH amount, not a slippage buffer",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a discount calculation bug in UniswapV3Oracle.peek(), which does not correspond to the claim() fee collection issue (H-01) or the single-sided liquidity denial of service (H-03",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a bug in the oracle's peek() function, while the known findings are about fee claiming and ILO pool launch prevention, which are unrelated.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "checkWhitelist oracle call can revert and block all transfers",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a denial-of-service via oracle revert in Whitelist.sol, which does not correspond to the known findings about Uniswap fee claims or single-sided liquidity attacks.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a DoS via oracle revert in checkWhitelist, which is a different root cause and code location than the known findings about Uniswap fee claims or ILO pool launch prevention.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Whitelist receive() allows unlimited self-whitelisting bypassing owner control",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a self-whitelisting issue in Whitelist.sol, which does not correspond to the Uniswap fee claim or ILO pool launch denial findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding is about a whitelist contract's receive() function allowing self-whitelisting, which is unrelated to the known findings about Uniswap fee claims and ILO pool launch prevention.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Oracle peek() truncates to zero for small baseAmount causing free whitelist",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different bug in UniswapV3Oracle.peek() unrelated to the known findings about claim() fees or ILO pool launch.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a truncation issue in UniswapV3Oracle.peek(), while the known findings are about Uniswap fee claiming and ILO pool launch prevention, which are unrelated.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "OracleLibrary.consult() has no check for manipulated observations",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a price manipulation issue in OracleLibrary.consult(), which is unrelated to the known findings about fee claiming (H-01) or ILO pool launch denial (H-03).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes TWAP observation manipulation in OracleLibrary, which is unrelated to the known findings about fee claims or ILO launch prevention.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Self-whitelist ETH refund uses transfer() and can be griefed",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a refund-griefing issue in Whitelist.sol, which does not correspond to the unrelated Uniswap fee claim or ILO pool launch denial findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a gas griefing risk in Whitelist.sol, which is not the same root cause as the known findings about Uniswap fee claims or ILO pool launch prevention.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Whitelist cap bypass via repeated self-whitelist ETH transfers",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a whitelist self-registration bypass, which does not correspond to the Uniswap fee claim issue (H-01) or the ILO pool launch denial (H-03).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns a whitelist bypass in Whitelist.sol, while the known findings are about Uniswap fee claims and ILO pool DOS, unrelated to whitelist logic.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Whitelist self-whitelist via receive() bypasses blacklist and cap checks",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a whitelist bypass in Whitelist.sol, which is unrelated to the Uniswap fee claim or ILO pool launch issues in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns a whitelist self-whitelist bypass in Whitelist.sol, while the known findings are about Uniswap fee claims and ILO pool launch DOS, which are unrelated.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Whitelist.checkWhitelist does not verify oracle return value or pool address",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different oracle validation issue unrelated to the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding is about missing oracle verification in Whitelist.checkWhitelist, which is unrelated to the known Uniswap fee claim or ILO pool launch DOS issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LiquidityManagement.addLiquidity ignores amount0Desired/amount1Desired",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different bug in LiquidityManagement.addLiquidity, which does not correspond to the fee-claiming issue (H-01) or the single-sided liquidity DOS (H-03).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate is about addLiquidity ignoring desired amounts, which is unrelated to the known findings about fee claiming and ILO pool launch prevention.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Whitelist checkWhitelist updates _contributed after oracle external call",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in Whitelist.sol, which does not correspond to the unrelated Uniswap fee claim or ILO pool launch denial findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in Whitelist.checkWhitelist, which is unrelated to the known findings about Uniswap fee claims and single-sided liquidity in ILOPool.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "UniswapV3Oracle.peek uses manipulable TWAP period and no staleness check",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a TWAP manipulation issue in UniswapV3Oracle.peek, which does not correspond to the root causes of H-01 or H-03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a TWAP manipulation and missing staleness check in UniswapV3Oracle.peek, which is a different root cause and code location than the known findings about fee claiming and ILO po",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "UniswapV3Oracle.peek uses stale/zero period when pool has no observations",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a bug in UniswapV3Oracle.peek unrelated to the fee-claim issue (H-01) or single-sided liquidity DOS (H-03).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a bug in UniswapV3Oracle.peek related to stale observations, which is not mentioned in any of the known findings (H-01 and H-03).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "UniswapV3MintCallback trusts cached pool address without validation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a cached address validation issue in uniswapV3MintCallback, which does not correspond to the root causes or impacts of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability in uniswapV3MintCallback, while the known findings are about fee claiming and ILO pool launch.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Whitelist contribution cap bypass via repeated small buys",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a whitelist cap bypass bug, which does not correspond to the unrelated fee-claim or single-sided liquidity DOS findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a whitelist contribution cap bypass in Whitelist.sol, which is unrelated to the Uniswap fee claim issue (H-01) or the ILO pool launch prevention (H-03).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Whitelist receive() refunds ETH via transfer, enabling forced-ETH griefing and reentrancy",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and issue (receive() refund via transfer) unrelated to the known findings about Uniswap fee claims or ILO pool liquidity.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy/griefing issue in Whitelist.receive() via ETH transfer, while known findings are about Uniswap fee claims and ILO pool launch prevention, which are unrelated.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Whitelist cap check uses stale oracle price allowing cap bypass",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a stale oracle price issue in Whitelist.sol, which does not correspond to the known findings about fee claiming or single-sided liquidity attacks.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an oracle price manipulation in the whitelist cap check, which is not related to the known findings about Uniswap fee claims or ILO pool launch prevention.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Oracle period fallback to oldest observation can be manipulated",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a TWAP manipulation issue in UniswapV3Oracle, which does not correspond to the fee-claiming bug (H-01) or the ILO pool launch denial (H-03).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a different vulnerability in UniswapV3Oracle.sol related to TWAP period manipulation, which does not match the known findings about fee claiming or ILO pool launch prev",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Whitelist.checkWhitelist uses `>` instead of `>=` for allowed index",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an off‑by‑one whitelist check in Whitelist.sol, which is unrelated to the Uniswap fee claim issue or the single‑sided liquidity denial‑of‑service described in the known finding",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a boundary off-by-one in Whitelist.checkWhitelist, which is unrelated to the claimed Uniswap fee or DOS findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Vultisig.approveAndCall leaves approval open if receiver reverts",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an approval race issue in Vultisig.approveAndCall, which does not correspond to the known findings about Uniswap fee claims or ILO pool launch denial.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an approval reset issue in Vultisig.sol's approveAndCall, which is not covered by any of the known findings (H-01 and H-03 are about different contracts and issues).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Whitelist.checkWhitelist trusts caller-supplied from/to without verifying token transfer",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a whitelist manipulation issue unrelated to the Uniswap fee claim or ILO pool DOS findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a trust/access control issue in Whitelist.checkWhitelist, while the known findings are about Uniswap fee claims and ILO pool launch prevention, which are different root causes ",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "PeripheryPayments.pay uses contract balance for WETH without accounting",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and issue unrelated to the known findings",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug in PeripheryPayments.pay, unrelated to the known findings about Uniswap fee claims or ILO pool launch prevention.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "UniswapV3Oracle has no check that pool corresponds to baseToken/WETH",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing pool verification in UniswapV3Oracle, which does not correspond to the root causes of H-01 or H-03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing pool validation in UniswapV3Oracle, which is unrelated to the known fee claim or single-sided liquidity launch issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "PeripheryPayments.pay uses WETH9 deposit before transfer, enabling reentrancy",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in PeripheryPayments.pay, which is unrelated to the known findings about Uniswap fee claims (H-01) or ILO pool launch denial (H-03).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy/ETH-stuck issue in PeripheryPayments.pay, which is unrelated to the known findings about Uniswap fee claims or ILO pool launch prevention.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Whitelist.receive() uses transfer() which can revert for contracts",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a transfer gas stipend issue in Whitelist.sol, which does not correspond to the root causes of H-01 or H-03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate is about Whitelist.receive() transfer gas limit, unrelated to the Uniswap fee claim or ILO pool launch findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "PeripheryPayments.receive() only checks WETH9 but pay() can be abused via callback",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a callback abuse in PeripheryPayments/pay(), which is unrelated to the fee-claiming bug (H-01) or the ILO pool liquidity DOS (H-03).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a callback abuse in PeripheryPayments, which is not related to the known findings about fee claiming or ILO pool launch prevention.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Whitelist index 0 sentinel allows re-whitelisting and count drift",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a whitelist indexing bug, which does not correspond to the Uniswap fee claim issue (H-01) or the ILO pool liquidity DOS (H-03).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a latent accounting issue in Whitelist.sol, while the known findings concern Uniswap fee claims and ILO pool launch denial, unrelated root causes.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Blacklisted address can still self-whitelist via receive() race",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a whitelist race condition, which is unrelated to the Uniswap fee claim or ILO pool DOS findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate concerns Whitelist blacklist race, while known findings are about Uniswap fee claims and ILO pool DoS.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "VultisigWhitelisted._beforeTokenTransfer can be bricked by setting whitelist to reverting contract",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and root cause than the known findings",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability in VultisigWhitelisted, while known findings are about Uniswap fee claiming and ILO pool launch.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Multicall delegatecall allows arbitrary self-calls and state manipulation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a delegatecall multicall issue, which does not correspond to the fee-claim bug (H-01) or the ILO pool liquidity DOS (H-03).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a generic Multicall delegatecall issue, which does not match the root cause of H-01 or H-03.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Whitelist index 0 reserved for non-whitelisted, causing off-by-one",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an off‑by‑one whitelist indexing issue, which is unrelated to the Uniswap fee claim bug (H‑01) or the single‑sided liquidity denial‑of‑service bug (H‑03).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a whitelist off-by-one issue in Whitelist.sol, which is unrelated to the known findings about Uniswap fee claims or ILO pool launch prevention.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Contributed amount not reset after whitelist period, allowing double counting",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a whitelist contribution cap issue, which does not correspond to the Uniswap fee claim or single-sided liquidity DOS findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns Whitelist.sol and contributed amounts not reset, while known findings are about ILOPool.sol and Uniswap fees or ILO pool launch, with no overlap in root cause or code.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "addBatchWhitelist unbounded loop can exceed block gas limit",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unbounded loop in Whitelist.sol, which is unrelated to the known findings about claim() fees or ILO pool liquidity.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an unbounded loop in an owner-only function, which is a trusted-role issue, while the known findings are about different vulnerabilities in other contracts.",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

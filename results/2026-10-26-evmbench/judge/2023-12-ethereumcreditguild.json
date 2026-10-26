@@ -1,0 +1,593 @@
+{
+ "audit": "2023-12-ethereumcreditguild",
+ "verdicts": [
+  {
+   "title": "SurplusGuildMinter.getRewards reads userStake before assignment",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different bug in SurplusGuildMinter unrelated to the userGaugeProfitIndex issue or reward stealing in other contracts.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a read-before-assignment bug in SurplusGuildMinter.getRewards, which is not mentioned in any known valid finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LendingTerm.initialize uses assert instead of require, bricking proxy",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue (assert misuse in initialize) unrelated to the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug in LendingTerm.sol, not related to the known findings about ProfitManager or ERC20RebaseDistributor.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LendingTerm.onBid allows bidder to receive collateral without full debt repayment",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and flaw (auction bid handling) unrelated to the known findings about gauge rewards or ERC20 rebase distribution.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a vulnerability in LendingTerm.onBid related to auction mechanics, while the known findings are about reward distribution issues in ProfitManager and ERC20RebaseDistributor.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AuctionHouse forgive() can be called by anyone, forcing bad debt on protocol",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distinct vulnerability in AuctionHouse.sol's forgive() function, unrelated to the gauge profit index or reward distribution issues of H-01 and H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability in AuctionHouse.forgive() not present in the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "SurplusGuildMinter.unstake can be front-run by loss to avoid slashing",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a front‑run timing issue in SurplusGuildMinter.unstake, which is unrelated to the profit index bug (H‑01) or the reward‑stealing bug (H‑02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a front-running attack on SurplusGuildMinter.unstake, which is not covered by any of the known valid findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Offboarding cleanup can be permanently blocked by re-onboarding term",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distinct offboarding cleanup issue in LendingTermOffboarding.sol, unrelated to the reward index or distribution bugs in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug in LendingTermOffboarding and LendingTermOnboarding, unrelated to the reward manipulation issues in ProfitManager or ERC20RebaseDistributor.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ProfitManager gauge profit index not updated on loss, allowing stale reward claims",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing gaugeProfitIndex update on loss, which is a different root cause than the userGaugeProfitIndex issue in H-01 or the ERC20RebaseDistributor issue in H-02",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different root cause (gaugeProfitIndex not updated on loss) than the known findings (H-01: userGaugeProfitIndex not set on first claim; H-02: reward theft in ERC20RebaseDistr",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LendingTerm.initialize can be front-run on cloned terms",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a front‑run issue in LendingTerm.initialize, which is unrelated to the reward index or distribution bugs in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a front-running vulnerability in LendingTerm.initialize, while the known findings are about different contracts and issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Partial repay lets borrower shrink principal without paying accrued interest",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distinct partial repayment miscalculation in LendingTerm.sol, unrelated to the gauge profit index or reward stealing issues of H-01 and H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different root cause in _partialRepay() related to principal reduction calculation, while known findings cover reward distribution issues in other contracts.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AuctionHouse bid uses stale callDebt allowing underpayment after creditMultiplier drop",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a stale callDebt issue in AuctionHouse, which is unrelated to the known findings about gauge profit index or reward stealing.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns stale callDebt in AuctionHouse, while known findings are about reward distribution in ProfitManager and ERC20RebaseDistributor.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Reentrancy in LendingTerm.onBid via malicious collateral token",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in LendingTerm.onBid, which is unrelated to the gauge profit index or reward distribution bugs in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in LendingTerm.onBid, while the known findings are unrelated reward/profit index and rebase reward theft bugs.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Reverting collateral token blocks repay and traps borrower collateral",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a collateral transfer revert issue in LendingTerm.sol, which is unrelated to the reward index or distribution bugs in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a collateral transfer revert blocking repayment, which is a different bug from the reward/profit index issues in the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LendingTermOffboarding supportOffboard uses getPastVotes at snapshotBlock — vote replay across polls",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a double-voting issue in LendingTermOffboarding, which does not correspond to the reward-index or token distribution bugs in H-01 or H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a double-voting issue in LendingTermOffboarding, which is unrelated to the reward distribution flaws in ProfitManager and ERC20RebaseDistributor covered by the known fi",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Partial repay allows interest-only repayment to reset partial-repay timer",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a partial repayment timer issue in LendingTerm.sol, which is unrelated to the known findings about gauge profit index or reward stealing in different contracts.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a partial repay timer reset issue in LendingTerm._partialRepay, which is unrelated to the known findings about reward index misconfiguration or reward theft in ProfitManager an",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "SurplusGuildMinter.stake can be used to inflate gauge weight and borrow against it",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a self-referential inflation attack in SurplusGuildMinter.stake, which does not correspond to the reward-index or reward-stealing issues in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a self-referential attack via SurplusGuildMinter.stake, which is unrelated to the known findings about reward index misconfiguration or reward theft in ERC20RebaseDistributor.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ERC20RebaseDistributor distribute() can be front-run to dilute new rebasers",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a front‑running rebase timing issue, which is a different root cause than the known findings about gauge profit index mis‑initialisation (H‑01) or reward stealing in ERC20Rebas",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-02",
+    "reden": "Both describe front-running distribute() to capture rewards by entering rebase before distribution.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AuctionHouse phase-1 collateral offer can be zero at start, allowing free collateral via rounding",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a rounding issue in AuctionHouse.sol, unrelated to the gauge profit index or reward distribution bugs in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a rounding issue in AuctionHouse's getBidDetail() allowing free collateral, which is unrelated to the known findings about reward distribution in ProfitManager and ERC20RebaseD",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "SurplusGuildMinter.getRewards reentrancy via CreditToken transfer",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in SurplusGuildMinter.getRewards, which does not correspond to the known findings H-01 or H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy in SurplusGuildMinter.getRewards, which is not covered by the known findings H-01 or H-02.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LendingTermOffboarding poll can be griefed to block offboarding",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a poll griefing issue in LendingTermOffboarding, which is unrelated to the known findings about gauge profit index or reward stealing.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a griefing attack on LendingTermOffboarding, which is unrelated to the known findings about ProfitManager and ERC20RebaseDistributor.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LendingTermOffboarding.offboard and cleanup are permissionless",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a permissionless offboard/cleanup issue in LendingTermOffboarding.sol, which does not correspond to the root causes of H-01 or H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns permissionless offboard/cleanup in LendingTermOffboarding, which is unrelated to the reward-stealing bugs in ProfitManager/ERC20RebaseDistributor described in H-01 and H-02.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "SurplusGuildMinter.updateMintRatio is permissionless and can grief users",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different function and issue not covered by H-01 or H-02",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a permissionless call that forces reward updates and potential slashing, which is a different root cause and impact than the known findings about incorrect profit index setting",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "onBid uses stale creditMultiplier for principal, mis-accounting PnL",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a stale creditMultiplier bug in LendingTerm.sol, which is unrelated to the gauge profit index or reward distribution issues in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns LendingTerm.onBid and creditMultiplier accounting, while known findings are about ProfitManager gauge rewards and ERC20RebaseDistributor reward theft.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LendingTerm._borrow uses creditMultiplier before it can change, but maxBorrow ignores interest/openingFee",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a borrowing limit miscalculation in LendingTerm.sol, which is unrelated to the reward index or distribution bugs in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different root cause (maxBorrow not including openingFee/interest) in LendingTerm._borrow, while known findings are about ProfitManager and ERC20RebaseDistributor.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Reentrancy in LendingTerm._partialRepay via CreditToken hooks",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in LendingTerm._partialRepay, which does not correspond to the reward-index or ERC20RebaseDistributor reward theft findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy vulnerability in LendingTerm._partialRepay, which is unrelated to the known findings about reward distribution or profit index issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "callMany can be griefed to exceed block gas limit",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a gas limit grief issue in LendingTerm.sol, which is unrelated to the reward index or distribution bugs in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a gas griefing issue in LendingTerm.callMany, while the known findings concern reward distribution logic in ProfitManager and ERC20RebaseDistributor.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LendingTerm loanId collision allows overwriting loan state",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a loanId collision in LendingTerm.sol, which is unrelated to the gauge profit index or reward distribution issues in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a loan ID collision in LendingTerm, while the known findings are about reward distribution issues in ProfitManager and ERC20RebaseDistributor.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "SimplePSM.mintAndEnterRebase can be used to capture rebase rewards unfairly",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different function (mintAndEnterRebase in SimplePSM) and a distinct flaw, not matching H-01 or H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different root cause in SimplePSM.mintAndEnterRebase, not the same as the ProfitManager index bug (H-01) or the ERC20RebaseDistributor reward-stealing bug (H-02).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LendingTerm._partialRepay uses unchecked transferFrom return",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unchecked transferFrom in LendingTerm, which does not correspond to the gauge profit index issue (H-01) or the reward distribution exploit (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes an unchecked return value in transferFrom in LendingTerm, while known findings are about reward distribution logic in ProfitManager and ERC20RebaseDistributor.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "SurplusGuildMinter.unstake uses stale mintRatio for partial unstake",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a stale mintRatio issue in SurplusGuildMinter.unstake, which is unrelated to the known findings about userGaugeProfitIndex or reward stealing.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug in SurplusGuildMinter.unstake, while known findings are about ProfitManager and ERC20RebaseDistributor.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "SimplePSM.getMintAmountOut uses live creditMultiplier, enabling PSM arbitrage on multiplier drops",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an arbitrage issue in SimplePSM.getMintAmountOut, which is unrelated to the known findings about gauge reward indexing or ERC20RebaseDistributor reward theft.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Known findings concern gauge profit index and rebase reward stealing, not SimplePSM minting arbitrage on creditMultiplier changes.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ProfitManager.notifyPnL creditMultiplier update uses totalSupply including unminted rebase rewards",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distinct bug in notifyPnL's creditMultiplier calculation, which does not correspond to the userGaugeProfitIndex issue (H-01) or the reward stealing issue (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different root cause (creditMultiplier calculation using totalSupply including unminted rebase rewards) than the known findings, which cover gauge profit index and reward dis",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Read-only reentrancy in ProfitManager.notifyPnL via CreditToken.distribute",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in notifyPnL, which is unrelated to the userGaugeProfitIndex initialization (H-01) or the reward stealing bug (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a read-only reentrancy via CreditToken.distribute, while known findings H-01 and H-02 are about incorrect profit index initialization and reward theft via rebase mechanics, not",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "SurplusGuildMinter unstake blocked by withdrawFromTermSurplusBuffer role",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a role‑based withdrawal blockage in SurplusGuildMinter.unstake, which is unrelated to the reward index bug (H‑01) or the reward stealing issue (H‑02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a role-based access control issue in SurplusGuildMinter.unstake, while known findings H-01 and H-02 are about reward index misconfiguration and reward theft in different contra",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LendingTermOffboarding.cleanup can be called before offboard",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an underflow issue in LendingTermOffboarding.cleanup, which is unrelated to the known findings about gauge profit index or reward stealing.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability in LendingTermOffboarding, not related to the known findings about ProfitManager or ERC20RebaseDistributor.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LendingTerm.forgive sets hardCap to 0 but does not revoke roles",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a role revocation issue in LendingTerm.forgive, which does not correspond to the gauge profit index or reward distribution bugs listed in H-01 or H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing role revocation in LendingTerm.forgive, which is not the same root cause as any known H-01 or H-02 findings about reward index or rebasing theft.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ProfitManager.claimGaugeRewards is permissionless and can be used to grief",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a permissionless griefing issue, which is unrelated to the index initialization bug (H-01) or the reward stealing bug (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a permissionless griefing issue with claimGaugeRewards, while the known findings are about incorrect profit index setting and reward theft in a different contract.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "SimplePSM.redeemableCredit uses current multiplier, enabling PSM arbitrage on multiplier drop",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an arbitrage issue in SimplePSM.redeemableCredit, which is unrelated to the known findings about gauge profit index or reward stealing.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns SimplePSM arbitrage via creditMultiplier changes, which is unrelated to the known findings about gauge profit index and rebase reward theft.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AuctionHouse.getBidDetail first-phase collateral rounds down to zero early",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a rounding error in AuctionHouse.getBidDetail, which is unrelated to the reward index or distribution bugs in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns AuctionHouse.getBidDetail() rounding down collateral to zero, while known findings are about ProfitManager and ERC20RebaseDistributor, unrelated contracts and issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LendingTerm.getLoanDebt interest accrual uses block.timestamp without cap, allowing interest overflow on long-lived loans",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an interest overflow issue in LendingTerm.getLoanDebt, which is unrelated to the gauge reward indexing or reward stealing findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns LendingTerm.getLoanDebt() interest accrual, while the known findings are about ProfitManager and ERC20RebaseDistributor, with no overlap in root cause or code location.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LendingTerm._borrow loanId collision within same block",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a loan ID collision in LendingTerm._borrow, which is unrelated to the known findings about gauge profit index or reward stealing.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding is about a loanId collision in LendingTerm._borrow, which is unrelated to the known findings about reward distribution index and rebase rewards.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AuctionHouse.bid allows bidder to be the LendingTerm itself",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and issue unrelated to the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing check in AuctionHouse.bid, while the known findings are about different contracts and issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "delegateBySig allows signature replay via missing signer-zero check ordering",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a delegateBySig nonce/replay issue in ERC20MultiVotes.sol, which is unrelated to the gauge profit index or reward stealing findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns delegateBySig in ERC20MultiVotes.sol, while the known findings are in ProfitManager.sol and ERC20RebaseDistributor.sol, with different root causes.",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

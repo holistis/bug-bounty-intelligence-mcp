@@ -1,0 +1,580 @@
+{
+ "audit": "2024-02-althea-liquid-infrastructure",
+ "verdicts": [
+  {
+   "title": "releaseManagedNFT require(true) never reverts on missing NFT",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a no-op require in releaseManagedNFT, which is unrelated to the holders array manipulation in _beforeTokenTransfer described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a no-op require statement in releaseManagedNFT, which is a different bug from the known finding about holder array manipulation in _beforeTokenTransfer.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_beforeTokenTransfer pushes address(0) into holders on burn",
+   "strict": "H-01",
+   "a": {
+    "match": "H-01",
+    "reden": "Both describe the same flaw in _beforeTokenTransfer where a zero‑address is added to the holders array, allowing manipulation of the holders list.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-01",
+    "reden": "The candidate describes the same root cause in _beforeTokenTransfer where zero-address entries are pushed into the holders array during burns, matching the known finding about holders array manipulati",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Missing chain ID and contract address in signed data (no signatures present)",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes absence of signature functionality, which does not correspond to the known holder array manipulation finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes absence of signature-based operations, which is unrelated to the known finding about holders array manipulation via zero transfers.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Anyone can trigger distribution and lock all token transfers",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unrestricted distribute() function, which is unrelated to the known H-01 holder array manipulation issue.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability (unrestricted distribute() locking transfers) than the known finding about holders array manipulation.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Entitlement rounding leaves dust stranded in contract",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a rounding/dust issue in _beginDistribution, which is unrelated to the holder array manipulation in H-01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a rounding/truncation issue in entitlement calculation, while the known finding is about holders array manipulation via zero-amount transfers.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "distribute() ignores failed transfers and still marks recipient as paid",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different bug in distribute() unrelated to the holders array manipulation of H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The known finding concerns holders array manipulation via zero transfers, not failed transfer handling in distribute().",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Anyone can trigger withdrawal from managed NFTs, griefing distribution",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unrestricted withdrawal function, which is unrelated to the known holder array manipulation issue (H-01).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability (unrestricted withdrawal triggering) than the known finding (holders array manipulation via zero-amount transfers).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "First-depositor / donation attack inflates entitlement per unit",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a donation attack on entitlement calculation in _beginDistribution(), which is unrelated to the holders array manipulation described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a first-depositor donation attack inflating entitlement per unit, while the known finding is about holders array manipulation via zero-amount transfers.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Holder list grows unboundedly via zero-balance re-adds",
+   "strict": "H-01",
+   "a": {
+    "match": "H-01",
+    "reden": "Both describe the same flaw in _beforeTokenTransfer where holders are added on zero balance, allowing the holders array to be inflated and cause OOG",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-01",
+    "reden": "Both describe the same root cause in _beforeTokenTransfer: adding addresses to the holders array when balance is zero, allowing list manipulation that can brick distribution functions.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Distribution entitlement computed from live balance, allowing dilution via transfer",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different flaw (entitlement calculation and transfer during distribution) not the holders array manipulation of H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different root cause (live balance multiplication in distribute) than H-01 (holders array manipulation via zero-amount transfers/burns).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_afterTokenTransfer removes wrong holder due to missing break",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing break in _afterTokenTransfer, which is a different issue than the known H-01 finding about zero-amount transfers in _beforeTokenTransfer.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing break in the removal loop, while the known finding is about manipulation via zero-amount transfers.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Fee-on-transfer / rebasing tokens break entitlement accounting",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fee-on-transfer/rebasing token accounting issue in _beginDistribution(), which is unrelated to the holders array manipulation described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability related to fee-on-transfer/rebasing tokens, while the known finding is about holders array manipulation via zero transfers.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Distribution can be permanently bricked by a disapproved holder",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distribution revert/bricking issue, not the holders array manipulation via zero‑value transfers described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a bricking vector due to a revert in ERC20 transfer from distributableERC20s, while the known finding H-01 is about manipulating holders array via zero transfers.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Silent failure of ERC20 transfer in distribute() loses holder rewards",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a silent ERC20 transfer failure in distribute(), which is a different root cause and function than the zero‑amount transfer manipulation in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing revert on failed ERC20 transfer in distribute(), while H-01 is about holders array manipulation via zero-amount transfers.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Entitlement rounding leaves dust that later holders can drain",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an integer division rounding issue in _beginDistribution, which is unrelated to the holders array manipulation described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes rounding/dust in distribution, not the holders array zero-transfer manipulation.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "burnFromAndDistribute allows burning others' tokens without allowance check bypass",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue (allowance bypass via burnFromAndDistribute) not covered by the known H-01 finding about zero‑amount transfers affecting the holders array.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different issue (allowance bypass via distribution side effect) than the known finding about holders array manipulation with zero transfers.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "`_afterTokenTransfer` removal loop can leave duplicate holders",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a removal loop bug in _afterTokenTransfer, which is a different root cause than the known H-01 issue about zero‑amount transfers adding duplicate holders.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing break in the removal loop causing duplicate holders, while the known finding is about zero-amount transfers manipulating the holders array to steal rewards or brick f",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Entitlement truncation leaves dust and can be gamed via supply changes",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an integer division truncation bug, which is unrelated to the known H-01 holder array manipulation issue.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different root cause (division truncation in distribution) from the known finding about holders array manipulation.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Disapproved holder with balance blocks distribution completion",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a disapproved holder being stuck due to approval checks, which is a different root cause than the zero‑amount transfer manipulation described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a DoS due to disapproved holders being stuck, while the known finding H-01 is about manipulating the holders array via zero-amount transfers, which is a different root cause.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "releaseManagedNFT silently fails to remove NFT from array",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a bug in releaseManagedNFT array handling, which is unrelated to the holders array manipulation described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug in releaseManagedNFT regarding ManagedNFTs array removal, while the known finding H-01 is about holders array manipulation via zero-amount transfers.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Distribution entitlement uses stale balance causing over/under payment",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a stale balance snapshot issue in distribute(), which is unrelated to the H-01 holders array manipulation finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a distribution entitlement/stale balance issue, which is unrelated to the known finding about holders array manipulation via zero transfers.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "withdrawBalancesTo allows approved spender to redirect funds",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different function and root cause than the known H-01 finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns a different contract and function (LiquidInfrastructureNFT.withdrawBalancesTo) while the known finding is about LiquidInfrastructureERC20._beforeTokenTransfer.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Holder can be paid twice via duplicate entries in holders array",
+   "strict": null,
+   "a": {
+    "match": "H-01",
+    "reden": "Both describe the same _beforeTokenTransfer logic that adds an address to the holders array before balance updates, allowing duplicate entries that can be exploited to receive rewards multiple times.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes duplicate holders entries from full-balance transfers, a different flaw than H-01's zero-amount transfer manipulation.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Entitlement computed on full balance but transfers can fail silently",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a silent transfer failure in distribute(), which is unrelated to the H-01 holder array manipulation issue.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a silent transfer failure in distribute(), while the known finding H-01 is about holders array manipulation via zero-amount transfers.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_afterTokenTransfer removes only first matching holder, leaving duplicates",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a removal bug in _afterTokenTransfer, while the known finding H-01 concerns an addition/manipulation issue in _beforeTokenTransfer, so they are different root causes.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "ongeldig": "onbekend-id",
+    "reden": "The candidate describes the same holders array duplicate vulnerability exploited via zero-balance transfers, leading to multiple reward payments.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "`distribute` skips unapproved holders but still advances index, losing their share",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distribution skip bug, which is unrelated to the known H-01 holders array manipulation issue.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug (skipping unapproved holders in distribute) than the known finding about holder array manipulation via zero-amount transfers.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "burnAndDistribute/burnFromAndDistribute allow burning before distribution completes",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a burn/distribution lock issue, not the holders array manipulation described in H-01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different issue about burn before distribution completion, not the holders array manipulation via zero-amount transfers.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Reentrancy in distribute() via malicious ERC20 transfer callback",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in distribute(), which is unrelated to the known H-01 holder array manipulation bug.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in distribute(), while the known finding is about holders array manipulation via zero-value transfers.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Reentrancy in withdrawFromManagedNFTs via malicious NFT contract",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in withdrawFromManagedNFTs, which is unrelated to the known H-01 holders array manipulation finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in withdrawFromManagedNFTs, which is not the same root cause as the known finding about holders array manipulation.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Zero-amount transfer reverts block distribution",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a zero‑amount transfer causing a revert in distribute(), which is a different root cause and impact than the known H‑01 finding about holder array manipulation in _beforeTokenT",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a revert on zero-value transfer in distribute(), while the known finding is about holder array manipulation via zero-amount transfers in _beforeTokenTransfer().",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "withdrawFromManagedNFTs reverts on any single NFT failure",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a loop revert issue in withdrawFromManagedNFTs, which is unrelated to the holders array manipulation described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different root cause (single NFT failure reverting the whole withdrawal loop) than the known finding about holders array manipulation.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Withdrawal from ManagedNFTs can be front-run to dilute distribution",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different function and root cause; does not match H-01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes front-running of withdrawFromManagedNFTs, while H-01 is about manipulating the holders array via zero transfers, a different root cause and code path.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "withdrawFromManagedNFTs uses stale thresholds and can revert on empty list",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue in withdrawFromManagedNFTs, not the holders array manipulation of H-01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different issue in withdrawFromManagedNFTs unrelated to the known holders array manipulation finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "withdrawFromManagedNFTs uses NFT thresholds as token list, ignoring actual balances",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different root cause in a different function (withdrawFromManagedNFTs) than the known H-01 finding about holders array manipulation.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability in withdrawFromManagedNFTs, not related to holders array manipulation.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "No slippage/minimum-out protection on distribution transfers",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing slippage check in distribute(), which is unrelated to the holders array manipulation described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing slippage check in distribute(), which is a different root cause and impact than the known finding about holders array manipulation via zero transfers.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Read-only reentrancy via balanceOf during distribution entitlement calc",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in _beginDistribution, which is unrelated to the holders array manipulation described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a read-only reentrancy via balanceOf during distribution, while the known finding is about holders array manipulation via zero-amount transfers.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "burnAndDistribute / burnFromAndDistribute reentrancy via distributeToAllHolders",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in burnAndDistribute, which is unrelated to the holders array manipulation described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in distribution/burn functions, while the known finding is about holders array manipulation via zero transfers.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_beforeTokenTransfer holder push allows duplicate entries via reentrancy",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy-based duplicate entry issue, which differs from the known finding about zero‑amount transfers/burns manipulating the holders array.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy bug causing duplicate holder entries via zero balance during distribution, while the known finding H-01 is about manipulating the holders array via zero-value tran",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "releaseManagedNFT external call before state update enables reentrancy",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in releaseManagedNFT, which is unrelated to the holders array manipulation described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes a reentrancy issue in releaseManagedNFT, not the holders array manipulation by zero-amount transfers of H-01.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "recoverAccount() emits event without on-chain verification of recovery",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an off-chain event replay issue in recoverAccount(), which is unrelated to the holders array manipulation described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing on-chain verification in recoverAccount(), which is a different root cause and code location than the known finding about holder array manipulation via zero-amount tr",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Minting after distribution period can dilute pending rewards",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a minting dilution issue, not the holders array manipulation described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different root cause (minting dilution of rewards) than the known finding (holders array manipulation via zero transfers).",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

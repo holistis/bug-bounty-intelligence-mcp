@@ -1,0 +1,621 @@
+{
+ "audit": "2024-12-secondswap",
+ "verdicts": [
+  {
+   "title": "Referral fee is computed but never paid to referrer",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing referral payment in _handleTransfers, which is unrelated to the vesting-related findings H-01, H-02, and H-03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns referral fee not paid in marketplace, while known findings are about vesting logic errors.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Anyone can re-initialize Marketplace and VestingManager via proxy",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an uninitialized proxy vulnerability, which is unrelated to the vesting listing or transferVesting issues in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a re-initialization vulnerability in the proxy pattern, which is not mentioned in any of the known findings that focus on vesting calculation and transfer issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "VestingManager.initialize callable by anyone on implementation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unprotected initialize function, which is unrelated to the listed findings about vesting listing order, transferVesting vesting creation, or releaseRate calculation.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an unprotected initialize function in VestingManager, which is a different vulnerability from the known findings that involve vesting listing order, incorrect stepsClaimed, or ",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "transferVesting reduces releaseRate causing under-claim for grantor",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Although both involve releaseRate miscalculation in transferVesting, the candidate describes an under‑claim loss for the grantor, while the known finding describes an over‑claim gain for the sender, s",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes under-claim for grantor due to incorrect releaseRate calculation, while known finding H-03 describes over-claim for sender; impacts are opposite and not the same kind.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "available() returns unvested total, allowing over-listing",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a bug in the available() function causing over-listing, which is not covered by any of the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different flaw in available()/listVesting, not the stepsClaimed/inheritance or releaseRate issues covered by known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "completePurchase transfers vesting with stepsClaimed=0, resetting buyer's schedule",
+   "strict": "H-02",
+   "a": {
+    "match": "H-02",
+    "reden": "Both describe transferVesting using the same stepsClaimed (0) for purchases, creating an incorrect vesting that lets buyers claim already‑vested tokens.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-02",
+    "reden": "The candidate describes the same root cause: transferVesting uses the marketplace's stepsClaimed (0) for the buyer, allowing premature claiming, which matches H-02.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "transferVesting recomputes releaseRate ignoring already-claimed steps",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Although it concerns the same function, the described impact (under‑paying the grantor) differs from the known finding’s impact (over‑paying the sender).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes the grantor's releaseRate being too low, while H-03 describes the opposite (too high), and H-01/H-02 concern different root causes in listing/beneficiary vesting.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "referralFeeCost can exceed buyerFeeTotal causing feeCollector underpayment",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fee calculation issue in _handleTransfers, unrelated to the vesting-related bugs in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns referral fee calculation in _handleTransfers, while all known findings are about vesting logic in other contracts.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "unlistVesting subtracts full listing.balance even after partial sales",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a bug in unlistVesting logic, which is unrelated to the known findings about vesting listing order, transferVesting stepsClaimed, or releaseRate miscalculation.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a bug in unlistVesting regarding listing.balance and sold counter, which is not covered by any of the known findings (H-01, H-02, H-03).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "unlistVesting refunds full balance without checking buyer purchases",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a bug in unlistVesting unrelated to the listed findings about vesting listing order or transferVesting calculations.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug in unlistVesting (balance zeroed before refund, sold counter not decremented), not the vesting claim/transfer issues in the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "available() returns total minus claimed, ignoring step schedule",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a bug in the available() function ignoring step schedule, which is not covered by any of the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different root cause (available() ignoring step schedule) than any known finding, which focus on transferVesting and listing order issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LINEAR discount uses current balance, enabling self-referential price manipulation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a discount calculation issue in _getDiscountedPrice, which is unrelated to the vesting-related bugs in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a price manipulation in the LINEAR discount calculation, which is not related to any of the known vesting-related findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Reentrancy in spotPurchase via malicious payment token",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in spotPurchase, which is unrelated to the vesting-related findings H-01, H-02, and H-03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in spotPurchase, while all known findings concern vesting logic and calculations, not reentrancy in marketplace purchase.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Referral fee paid from buyer fee without reducing feeCollector share",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fee handling issue in _handleTransfers, unrelated to the vesting-related bugs of the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a referral fee accounting issue in SecondSwap_Marketplace, not any of the vesting-related vulnerabilities listed.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LINEAR discount can be gamed by splitting purchases",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a discount calculation issue in _getDiscountedPrice, which is unrelated to the vesting-related findings H-01, H-02, and H-03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns the LINEAR discount in the marketplace, while all known findings are about vesting contract issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_getDiscountedPrice LINEAR discount can exceed 100% for large amounts",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a discount calculation overflow in _getDiscountedPrice, which is unrelated to the vesting-related findings H-01, H-02, and H-03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug in _getDiscountedPrice, while known findings concern vesting listing and transfer mechanisms.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LINEAR discount uses full listing total, not remaining balance",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a discount calculation bug in _getDiscountedPrice, which is unrelated to the vesting-related findings H-01, H-02, and H-03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in _getDiscountedPrice, not related to the vesting issues in the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_createVesting addition path ignores stepsClaimed in releaseRate",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distinct issue in _createVesting unrelated to the listed findings about vesting listing order or transferVesting releaseRate calculations.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug in _createVesting related to adding to an existing vesting when stepsClaimed equals numOfSteps, which is not covered by any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Missing slippage/min-out protection in spotPurchase allows price manipulation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a slippage protection issue in spotPurchase, which is unrelated to the vesting-related findings H-01, H-02, and H-03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing slippage protection in spotPurchase, which is unrelated to the vesting/step-claiming bugs in the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Rounding in baseAmount lets buyer pay zero for small purchases",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a rounding/truncation issue in _handleTransfers(), which is unrelated to the vesting listing or transferVesting bugs listed in H-01, H-02, and H-03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a rounding issue in baseAmount calculation in _handleTransfers, which is not related to any of the known findings about vesting listing order, stepsClaimed, or releaseRate.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Cross-function reentrancy between spotPurchase and unlistVesting",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a cross-function reentrancy issue, which is unrelated to the vesting order or transferVesting bugs listed in H-01, H-02, and H-03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a cross-function reentrancy issue in SecondSwap_Marketplace, which is not among the known vesting calculation findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "transferVesting allows replay of vesting claims via stepsClaimed copy",
+   "strict": null,
+   "a": {
+    "match": "H-03",
+    "reden": "Both describe transferVesting miscalculating releaseRate after copying stepsClaimed, enabling double‑claim of tokens.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-02",
+    "reden": "Both findings identify that transferVesting incorrectly copies stepsClaimed from the grantor to the beneficiary, allowing the grantor to continue claiming already-claimed steps.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "unlistVesting penalty uses USDT balance check but transfers from seller without approval",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a USDT approval issue in unlistVesting, which is unrelated to the known findings about vesting listing order and transferVesting logic.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a USDT approval and balance check issue in unlistVesting, which is unrelated to the known findings about vesting listing order, stepsClaimed, or releaseRate calculations.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Marketplace listing transfers vesting to manager but unlist uses wrong seller",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different unlisting amount mismatch issue not covered by H-01, H-02, or H-03",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug (incorrect seller/balance handling in unlistVesting) than any of the known findings, which focus on vesting transfer and step calculation issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "setTokenOwner mapping keyed by owner allows overwriting token ownership",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a mapping direction bug in setTokenOwner, which is unrelated to the listed vesting or transferVesting issues in H-01, H-02, or H-03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a mapping direction issue in setTokenOwner of VestingDeployer, which is a different root cause and code location than any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "transferVesting in StepVesting callable by vestingDeployer set at construction",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an access‑control issue and token‑owner check in StepVesting.transferVesting, which differs from the known findings that focus on stepsClaimed inheritance (H‑01, H‑02) or relea",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate focuses on access control by vestingDeployer, while known findings concern step claiming calculations and incorrect vesting parameters.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "No oracle/price feed validation; pricePerUnit is fully seller-controlled",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing price validation issue, which does not correspond to any of the listed findings about vesting stepsClaimed or releaseRate calculations.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns lack of price validation in listVesting, which is not addressed in any of the known findings (H-01, H-02, H-03).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Discount applied before fee, but fee base uses discounted amount — fee manipulation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fee calculation issue in _handleTransfers, which is unrelated to the vesting-related findings listed.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a fee manipulation via discount in _handleTransfers, which is unrelated to the vesting logic flaws in the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Reentrancy in unlistVesting via penalty token transfer",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in unlistVesting, which is unrelated to the listed findings about vesting listing order, transferVesting creation, or releaseRate calculation.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in unlistVesting, while all known findings concern vesting calculation errors.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Early-unlist penalty blocks admin from unlisting but also blocks seller when out of USDT",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a penalty/approval issue in unlistVesting, which is unrelated to the known findings about vesting listing order or transferVesting calculations.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a penalty fee issue in unlistVesting, which is unrelated to the known findings about vesting listing order, transferVesting, or releaseRate calculation.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "listVesting sellLimit uses stale bought/sold causing over-sell",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a sell limit miscalculation in listVesting, which is unrelated to the known findings about vesting listing order or transferVesting logic.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug in listVesting regarding sellLimit and stale bought/sold, which is not covered by any of the known findings (H-01, H-02, H-03).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "setMaxSellPercent callable by any tokenIssuer of a vesting plan",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue (setMaxSellPercent access) not covered by H-01, H-02, or H-03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an access control issue in setMaxSellPercent, which is unrelated to the known findings about vesting listing order, transferVesting stepsClaimed, or releaseRate calculation.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Stale/zero price not checked when listing is created or purchased",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a price freshness/zero-price issue in spotPurchase, which is unrelated to the vesting-related findings H-01, H-02, and H-03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns stale/zero price checks in spotPurchase, while all known findings are about vesting-related issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Read-only reentrancy in claimable/available during claim",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in claim(), which is unrelated to the listed findings about vesting listing order or transferVesting logic.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a read-only reentrancy issue in claim()/available()/transferVesting, which is a different root cause from the known findings about incorrect stepsClaimed, vesting transfer calc",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Freeze prevents sellers from unlisting and buyers from purchasing",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a freeze-related access control issue, which does not correspond to any of the listed vesting-related findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a freeze-related denial-of-service, which is not covered by any of the known findings about vesting calculation errors.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Unlist reverts after partial sale due to balance mismatch",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a revert in unlistVesting due to balance accounting, which does not correspond to any of the listed findings about stepsClaimed inheritance, transferVesting steps, or releaseRa",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a balance mismatch in unlistVesting due to partial sales, which is a different root cause and impact than the known findings about vesting stepsClaimed or releaseRate calculati",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "transferVesting in StepVesting can brick on rounding when transfer amount large",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different impact; candidate describes rounding causing lock, while known finding describes over-unlock",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes rounding down of releaseRate to zero causing unclaimable tokens, while known H-03 describes releaseRate miscalculation causing over-unlocking; different root cause and impact.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Marketplace purchase has no deadline/nonce; signed intent replayable",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a replayable purchase issue in spotPurchase, which is unrelated to the vesting-related findings H-01, H-02, and H-03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a replayable signed intent issue in spotPurchase, which is not the same root cause as any of the known vesting calculation findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "unlistVesting lets admin bypass penalty and drain seller vesting",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an admin bypass in unlistVesting, which is unrelated to the known findings about stepsClaimed inheritance or transferVesting logic.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an admin bypass of penalty in unlistVesting, which is a different root cause and impact than the known findings about vesting listing order, transferVesting stepsClaimed, or re",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Reentrancy in _createVesting via token transferFrom",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in _createVesting, which is unrelated to the listed findings about vesting listing order, stepsClaimed inheritance, or releaseRate miscalculations.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy via token transfer callback, which is a different root cause and impact than the known findings about incorrect vesting calculations or stepsClaimed handling.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Front-running listVesting to manipulate listing price",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a front‑running/sandwich attack on listVesting, which is unrelated to the vesting claim or transfer bugs covered by H‑01, H‑02, and H‑03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a front-running attack on listing price, which is not covered by any of the known findings about vesting order, transferVesting, or releaseRate calculation.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Griefing via SINGLE-listing front-run blocks any other buyer forever",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a referral underflow griefing in spotPurchase, which is unrelated to the vesting-related findings H-01, H-02, or H-03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a griefing attack via referral accounting underflow in spotPurchase, which is unrelated to the known findings about vesting listing order, transferVesting stepsClaimed, or rele",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "createVestings array loop unbounded — admin griefing/OOG lockout",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unbounded loop in createVestings, which is unrelated to the listed findings about vesting listing order or transferVesting calculations.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an unbounded loop/gas griefing issue in createVestings, while all known findings concern incorrect vesting calculations/transfers.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "completePurchase trusts marketplace caller without verifying payment",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing payment verification in completePurchase, which is unrelated to the listed findings about vesting listing order or transferVesting logic.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing payment verification in completePurchase, which is a different root cause and impact than the known findings about vesting listing order, transferVesting stepsClaimed",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}
