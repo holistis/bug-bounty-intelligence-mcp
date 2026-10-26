@@ -2,6 +2,14 @@
 
 Every public statement of ours that turned out to be wrong or too strong, with the date, where it was said, what was wrong, how it was found, and what we did. Newest first. We keep the wrong wording quoted here instead of deleting it. If you find something that belongs on this list, open an issue on this repository and we add it with your name.
 
+## 26 October 2026, who had recomputed our totals
+
+Where: the results README for the EVMbench run, for about an hour on the evening of 26 October.
+What we said: that AgenticFinanceGraph and smartflowproai-lang had asked and not yet answered.
+What was wrong: both had answered already, at 16:08 and 16:30 UTC, with the same numbers and extra checks. We had read only one comment of the issue and not the whole list.
+How found: smartflowproai-lang pointed out that the README still listed them as not answered (issue 41, comment 6424373805).
+What we did: the README now lists all three, with what each of them checked and what they did not check.
+
 ## 26 October 2026, a query rule we pinned without measuring
 
 Where: the known-answer vectors for section 5.5 of the x402 specification in agent-receipt-verify (0.2.19 to 0.2.21), and our checker.
