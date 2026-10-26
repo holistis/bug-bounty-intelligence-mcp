@@ -36,6 +36,12 @@ The 4 overlapping audits are `2025-01-liquid-ron`, `2025-01-next-generation`, `2
 
 The rules for reading the result were written in a working note before the first scan. We anchored that note on Bitcoin only after the run, so the anchor proves the note existed by then and does not prove it came first. Treat the order as something you have to take on our word for this measurement. From now on we anchor the rules before the run.
 
+## Recomputed by someone else
+
+ruiruii ran check.mjs from a fetch of commit 07e6f90 on 26 October 2026 at 16:56 UTC, after reading the script and confirming that it reads local files only. The output matched this README: 40 audits, 117 known findings, strict 23 in the top 15, 29 in the top 30 and 29 in all, one judge 41 in the top 30 and 49 in all, and every audit matches the table (issue 41, comment 6422210780).
+
+Asked and not yet answered: AgenticFinanceGraph and smartflowproai-lang. Anyone can add a line the same way, see issue 41.
+
 ## Time and cost
 
 Scan: 2.79 dollars for the 40 audits (0.01 to 0.21 dollar each). Judges: 0.31 dollar for the final judging run.
