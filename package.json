@@ -32,8 +32,7 @@
   "author": "holistis",
   "license": "MIT",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.29.0",
-    "ethers": "^6.17.0"
+    "@modelcontextprotocol/sdk": "^1.29.0"
   },
   "engines": {
     "node": ">=20.0.0"
