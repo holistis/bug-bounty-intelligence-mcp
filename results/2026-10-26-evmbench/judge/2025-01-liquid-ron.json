@@ -1,0 +1,551 @@
+{
+ "audit": "2025-01-liquid-ron",
+ "verdicts": [
+  {
+   "title": "onlyOperator modifier uses OR instead of AND, allowing any operator to bypass owner check",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a logic error in the onlyOperator modifier, which is unrelated to the known finding about totalAssets calculation and operatorFeeAmount.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a logical error in the onlyOperator modifier, while the known finding concerns a calculation error in totalAssets() due to operatorFeeAmount.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "onlyOperator modifier logic is inverted, allowing any non-owner to operate",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an inverted access control bug, which does not correspond to the known totalAssets calculation issue (H-01).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an inverted onlyOperator modifier access control bug, which is unrelated to the known H-01 finding about totalAssets calculation and operator fee accounting.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "redeem(uint256) uses current withdrawalEpoch in event instead of requested epoch",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an event epoch mismatch, which does not correspond to the known finding about totalAssets calculation and operator fee handling.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an incorrect epoch emitted in a WithdrawalClaimed event, which is unrelated to the known finding about totalAssets() miscalculation due to operatorFeeAmount.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "First-depositor inflation attack via direct WRON donation to vault",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a direct token donation inflation attack, whereas the known finding concerns miscalculation of totalAssets due to operatorFeeAmount, a different root cause.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a classic inflation attack via direct token donation, while the known finding concerns incorrect totalAssets() calculation due to operatorFeeAmount being included in the balanc",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Pause traps users' pending withdrawal requests indefinitely",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a pause-related withdrawal lock, which is unrelated to the totalAssets calculation issue in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a pausing mechanism blocking withdrawals, which is a different issue from the known finding about incorrect totalAssets() calculation due to operator fees.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "finaliseRonRewardsForEpoch can be called repeatedly, re-locking shares and draining escrow",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distinct issue in finaliseRonRewardsForEpoch, not the totalAssets calculation problem of H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy/repeated-call bug in finaliseRonRewardsForEpoch, while known H-01 concerns totalAssets() misaccounting operator fees.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "pruneValidatorList is permissionless and can be used to grief validator tracking",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different function and root cause; candidate concerns permissionless pruning, known finding concerns totalAssets fee calculation.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing access control in pruneValidatorList, while the known finding is about incorrect totalAssets calculation due to operatorFeeAmount.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "operatorFeeAmount not deducted from totalAssets, causing share price overstatement",
+   "strict": "H-01",
+   "a": {
+    "match": "H-01",
+    "reden": "Both describe the same root cause: operatorFeeAmount is not subtracted from totalAssets, leading to an overstatement of vault holdings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-01",
+    "reden": "Both findings describe the same root cause: operatorFeeAmount is not deducted from totalAssets, causing share price overstatement.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Reentrancy in withdraw/redeem via native RON callback after share burn",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue, while the known finding concerns incorrect totalAssets calculation due to operator fees, which are unrelated.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy vulnerability, not the totalAssets() fee accounting issue of H-01.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "finaliseRonRewardsForEpoch can be called with zero locked shares, locking epoch",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different bug in a different function than the known finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug in finaliseRonRewardsForEpoch, while the known finding H-01 is about totalAssets() calculation with operatorFeeAmount.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Withdrawal requests can be redeemed in later epochs at inflated share price",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different bug in redeem() unrelated to the totalAssets() fee calculation issue in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate addresses a redemption timing/share price inflation issue, while the known finding [H-01] concerns totalAssets calculations with operator fees.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "requestWithdrawal lacks check that _shares > 0, allowing zero-share spam and event pollution",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing zero-share check in requestWithdrawal, unrelated to the operator fee calculation issue in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing zero-share validation in requestWithdrawal, which is unrelated to the known H-01 totalAssets calculation flaw.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "requestWithdrawal shares not burned, allowing double-spend via redeem",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a share burning/accounting issue in requestWithdrawal, which is unrelated to the operatorFeeAmount totalAssets miscalculation described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability (shares not burned on withdrawal request) than the known finding (incorrect totalAssets due to operator fee).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "totalAssets() uses manipulable spot rewards from validator contract",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reward-manipulation issue, whereas the known finding concerns operatorFeeAmount affecting totalAssets, so they are different root causes.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes manipulation of spot rewards, while the known finding is about operator fee inclusion.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "finaliseRonRewardsForEpoch uses live previewRedeem for locked price",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a manipulation of locked price via previewRedeem in finaliseRonRewardsForEpoch, which is a different root cause than the totalAssets miscalculation due to operatorFeeAmount in ",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a price manipulation via live previewRedeem, while the known finding concerns incorrect totalAssets due to operatorFeeAmount accounting.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Reentrancy in redeem(epoch) via native RON callback before state finalization",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in redeem(), which is unrelated to the totalAssets calculation error in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in redeem(), while the known finding H-01 is about an accounting error in totalAssets() due to operatorFeeAmount.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Reentrancy in requestWithdrawal via _checkUserCanReceiveRon callback",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in requestWithdrawal, which is unrelated to the known fee calculation issue (H-01).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy vulnerability in requestWithdrawal, while the known finding H-01 is about incorrect totalAssets calculation due to operatorFeeAmount, which is a different root cau",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "pruneValidatorList unbounded loop over validators and proxies",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unbounded loop in pruneValidatorList, which is unrelated to the totalAssets/operatorFeeAmount issue in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an unbounded loop causing out-of-gas, while the known finding is about incorrect totalAssets calculation due to operator fee.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "redeem(epoch) does not verify caller has a request; zero-share claim drains escrow",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing share check in redeem(), which is unrelated to the totalAssets/operatorFeeAmount issue in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing check in redeem() for zero shares, while the known finding H-01 is about incorrect totalAssets() calculation due to operator fees.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Front-running finaliseRonRewardsForEpoch to manipulate locked price per share",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different root cause; candidate describes front‑running manipulation, not the operatorFeeAmount miscalculation in H‑01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a front-running attack to manipulate price per share, while the known finding is about incorrect totalAssets() calculation due to operatorFeeAmount.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Escrow.deposit is callable by vault only, but vault's deposit() is payable and re-entrant via Escrow",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in Escrow/Vault, which is unrelated to the known totalAssets/operatorFeeAmount bug.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy loop in Escrow.deposit and vault.deposit, while the known finding is about incorrect totalAssets() calculation due to operatorFeeAmount.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "finaliseRonRewardsForEpoch uses previewRedeem which can revert or misprice on empty epoch",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different bug in a different function, not the totalAssets calculation issue of H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a bug in finaliseRonRewardsForEpoch regarding previewRedeem and empty epochs, while the known finding H-01 concerns totalAssets calculation with operatorFeeAmount; they are dif",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "redeem(epoch) uses stale locked price without freshness check",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a stale price issue in redeem(), which is unrelated to the totalAssets() miscalculation due to operatorFeeAmount in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a stale price check issue in redeem, while the known finding H-01 is about incorrect totalAssets calculation due to operator fee handling; they are different root causes and im",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "requestWithdrawal accepts shares without minimum-out or price check",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing price check in requestWithdrawal, which is unrelated to the known finding about totalAssets() miscalculation due to operatorFeeAmount.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing minimum-out/price check in requestWithdrawal, while the known finding concerns an incorrect totalAssets() calculation due to operator fees.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Read-only reentrancy in totalAssets via staking proxy callbacks",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue, while the known finding concerns operator fee miscalculation, different root cause",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a read-only reentrancy via staking proxy callbacks, while the known finding is about incorrect totalAssets calculation due to operatorFeeAmount not being accounted for in share",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_checkUserCanReceiveRon griefable via reverting receiver",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different root cause and function; does not correspond to H-01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding relates to the receiver revert in requestWithdrawal or redeem; the only listed finding concerns totalAssets/operator fee calculation.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "requestWithdrawal lacks per-epoch nonce/deadline; replay of stale requests across epochs",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a replay issue in requestWithdrawal, which is unrelated to the totalAssets/operatorFeeAmount calculation described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a replay/reuse vulnerability in requestWithdrawal, while the known finding concerns incorrect totalAssets() calculation due to operatorFeeAmount.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "`finaliseRonRewardsForEpoch` locks price-per-share while rewards remain uncollected, enabling dilution/skew",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue (price-per-share snapshot dilution) than the known finding about operatorFeeAmount affecting totalAssets calculation.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability related to snapshot timing and share dilution, while the known finding concerns operator fee accounting in totalAssets().",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "fetchOperatorFee can be called by feeRecipient even when paused, and feeRecipient can be set to any address by owner",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing pause check in fetchOperatorFee, which is unrelated to the totalAssets calculation issue in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing pause check on fetchOperatorFee, while the known finding is about an incorrect totalAssets calculation due to operatorFeeAmount.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_convertToAssets rounding favors vault, but redeem(epoch) can underpay users",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a rounding issue in _convertToAssets, which is unrelated to the totalAssets/operatorFeeAmount bug in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a rounding issue in _convertToAssets, while the known finding concerns operatorFeeAmount affecting totalAssets() and new depositors.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "operatorFee change retroactively alters getTotalRewards and share price",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a mutable operatorFee causing share price manipulation, whereas the known finding concerns incorrect totalAssets calculation due to operatorFeeAmount storage.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate addresses mutable operatorFee affecting share price via getTotalRewards, while H-01 is about accumulated operatorFeeAmount being included in totalAssets causing loss; different root causes.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_convertToAssets uses +1/+10**decimalsOffset virtual offset inconsistently with ERC4626",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different bug in _convertToAssets, not the totalAssets/operatorFeeAmount issue of H-01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a double-counting of the virtual offset in _convertToAssets, which is a different root cause and impact than the known finding about operatorFeeAmount causing incorrect totalAs",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Reentrancy in deposit() via Escrow callback before share minting",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue, which is unrelated to the totalAssets calculation and operator fee bug in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in deposit/Escrow callback, while the known finding concerns totalAssets calculation with operatorFeeAmount.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "requestWithdrawal accepts zero shares and blocks nothing but wastes epoch",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a zero-share withdrawal request issue, unrelated to the totalAssets calculation error in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a zero-shares validation issue in requestWithdrawal, which is unrelated to the known fee/totalAssets calculation bug.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Escrow.deposit is callable by vault with arbitrary receiver, enabling share minting to attacker",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an arbitrary receiver issue in Escrow.deposit, unrelated to the totalAssets calculation error in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a vulnerability in Escrow.deposit and vault's receive() allowing arbitrary share minting, while the known finding H-01 is about incorrect totalAssets() calculation due to opera",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Undelegate deposits asset to vault then operator can re-delegate without share adjustment",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different bug in undelegateAmount related to share adjustments, not the operatorFeeAmount totalAssets miscalculation of H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an undelegate/re-delegate accounting drift, not the operatorFeeAmount totalAssets miscalculation in LiquidRon.sol.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Overridden `withdraw`/`redeem` bypass ERC4626 allowance semantics on native path",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an allowance bypass in withdraw/redeem, which is unrelated to the known finding about totalAssets calculation and operator fees.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The known finding concerns totalAssets/operatorFeeAmount calculation, not ERC4626 allowance semantics on withdraw/redeem.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LiquidProxy.undelegateAmount deposits totalUndelegated but bulkUndelegate may return less",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different function and root cause than the known H-01 finding",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a mismatch between deposited and undelegated amounts in LiquidProxy, while the known finding concerns fee accounting in LiquidRon's totalAssets().",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "requestWithdrawal does not verify user has enough shares or allowance",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue in requestWithdrawal, not the totalAssets/operatorFeeAmount bug of H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a griefing issue in requestWithdrawal, while the known finding concerns totalAssets() miscalculation due to operatorFeeAmount.",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

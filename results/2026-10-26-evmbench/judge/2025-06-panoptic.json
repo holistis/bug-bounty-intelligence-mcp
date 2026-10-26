@@ -1,0 +1,663 @@
+{
+ "audit": "2025-06-panoptic",
+ "verdicts": [
+  {
+   "title": "executeDeposit/executeWithdrawal lack onlyManager modifier",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different contract and issue; candidate concerns missing access control in HypoVault.sol, not the calculation bugs in PanopticVaultAccountant.sol.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing onlyManager modifier in HypoVault.sol, unrelated to the known findings about token exposure and NAV calculation.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Manager-supplied prices bypass oracle validation via maxPriceDeviation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a manager price manipulation via maxPriceDeviation, which is unrelated to the poolExposure miscalculation (H-01) or underlying token handling inconsistency (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a price manipulation vulnerability via manager-controlled maxPriceDeviation, which is a different root cause than the known findings about exposure calculation errors and NAV i",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "executeDeposit/executeWithdrawal lack access control, anyone can trigger",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an access control issue in HypoVault.sol, unrelated to the calculation bugs in PanopticVaultAccountant.sol.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing access control in HypoVault, while known findings concern NAV calculation errors in PanopticVaultAccountant.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "PoolInfo struct supplied by manager allows oracle address substitution",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes oracle address substitution, which is unrelated to the poolExposure miscalculation (H-01) or NAV inconsistency (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability (oracle address substitution via manager input) not covered by the known findings about premium calculation or NAV inconsistency.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "fulfillWithdrawals subtracts sharesToFulfill from totalSupply but not from balances",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a share accounting bug unrelated to the pool exposure or NAV calculation issues in the known findings",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a share accounting bug in HypoVault.sol, while known findings concern NAV/poolExposure calculations in PanopticVaultAccountant.sol; different code and root cause.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "No slippage protection on fulfillWithdrawals asset amount",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a slippage guard issue in fulfillWithdrawals of HypoVault, which is unrelated to the poolExposure or NAV calculation bugs in PanopticVaultAccountant.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate concerns HypoVault slippage, known findings are NAV/exposure calculation bugs in PanopticVaultAccountant.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "executeDeposit double-clears queuedDeposit and can lose remainder",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a double-clear bug in executeDeposit, unrelated to poolExposure or NAV calculation issues in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a deposit queue accounting desynchronization in HypoVault.sol, while known findings H-01 and H-02 are about NAV and pool exposure calculations in a different contract (Panoptic",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "executeWithdrawal moves remainder without updating next epoch aggregate",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a withdrawal aggregation bug, which does not correspond to the pool exposure or NAV calculation issues in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a bug in HypoVault.sol's executeWithdrawal, while known findings are in PanopticVaultAccountant.sol and concern different issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "fulfillDeposits adds sharesReceived to totalSupply but shares already minted virtually",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a double-counting of shares in HypoVault.sol, unrelated to the poolExposure or NAV calculation issues in PanopticVaultAccountant.sol.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a totalSupply double-counting bug in HypoVault fulfillDeposits, while the known findings concern NAV/poolExposure calculation errors in PanopticVaultAccountant.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "requestWithdrawal divides by zero when user has no shares",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a division-by-zero bug in HypoVault.sol, unrelated to the pool exposure or NAV calculation issues in PanopticVaultAccountant.sol.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding is about a division-by-zero in HypoVault.sol's requestWithdrawal, while the known findings are about NAV calculation errors in PanopticVaultAccountant.sol.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "fulfillDeposits/fulfillWithdrawals lack validation on assetsToFulfill/sharesToFulfill",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing bounds check in HypoVault.sol, unrelated to the pool exposure or NAV calculation issues of H-01 and H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes missing input validation in HypoVault's fulfill functions, while known findings concern NAV/exposure calculation flaws in PanopticVaultAccountant.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "First depositor / donation attack via virtual share inflation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a share inflation issue in HypoVault.sol, which does not correspond to the pool exposure or NAV calculation bugs in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a first depositor attack in HypoVault.sol, while the known findings are about NAV calculation errors in PanopticVaultAccountant.sol, which are different contracts and different",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Missing sequencer uptime / staleness check on TWAP oracles",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing oracle freshness check, which is unrelated to the poolExposure miscalculation (H-01) or NAV inconsistency (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing sequencer/staleness check on TWAP oracles, which is not the root cause of either known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "fulfillDeposits/fulfillWithdrawals trust manager-supplied NAV with no signature",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a manager‑controlled price manipulation in computeNAV, which is unrelated to the poolExposure miscalculation (H‑01) or underlying token handling inconsistency (H‑02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes price manipulation via manager-supplied prices within TWAP deviation, which is a different root cause than the known findings about miscalculation of token1 exposure or inconsi",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Performance fee can be avoided by transferring shares to a new address before withdrawal",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a basis manipulation fee evasion in HypoVault.sol, unrelated to the poolExposure or NAV calculation issues in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a basis manipulation attack in HypoVault.sol, while known findings are about NAV and exposure calculation errors in PanopticVaultAccountant.sol.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "fulfillDeposits/fulfillWithdrawals use stale totalSupply for share math",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a stale totalSupply share calculation bug in HypoVault.sol, which is unrelated to the poolExposure or computeNAV issues in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding is about a different contract (HypoVault.sol) and a different root cause (stale totalSupply in share math) than the known findings, which are about PanopticVaultAccountant.sol an",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "cancelDeposit/cancelWithdrawal allow manager to grief users by moving funds",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a manager-griefing issue in cancelDeposit/cancelWithdrawal, which does not correspond to the pool exposure or NAV calculation bugs in H-01 or H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a griefing risk in HypoVault's manager-controlled cancel functions, while the known findings concern NAV calculation flaws in PanopticVaultAccountant.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "executeWithdrawal division by zero when sharesWithdrawn is zero",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a division-by-zero bug in executeWithdrawal, which is unrelated to the poolExposure or NAV calculation issues in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding is about a division by zero in HypoVault.sol, while the known findings are about NAV and poolExposure calculations in PanopticVaultAccountant.sol, which are unrelated.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "fulfillDeposits/fulfillWithdrawals trust manager-supplied accountant input",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a manager-controlled input vulnerability, which differs from the poolExposure miscalculation (H-01) and the underlying token NAV inconsistency (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes manager-supplied input trust in fulfillDeposits/fulfillWithdrawals, not the poolExposure token1 calculation (H-01) or NAV inconsistency due to underlying token placement (H-02)",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Fee-on-transfer / rebasing tokens break deposit and NAV accounting",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fee-on-transfer/rebasing token accounting issue in requestDeposit, which differs from the known findings about pool exposure calculation and NAV inconsistencies.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a fee-on-transfer/rebasing token issue in HypoVault.sol, unrelated to the known NAV calculation flaws in PanopticVaultAccountant.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "fulfillDeposits/fulfillWithdrawals use NAV before accounting for pending flows",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a NAV miscalculation in HypoVault.sol, which is unrelated to the poolExposure or computeNAV issues in PanopticVaultAccountant.sol.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes a different bug in HypoVault's fulfillDeposits, none of the known findings concern that function or root cause.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "requestDeposit state updated before transferFrom enables reentrant double-count",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy state update issue in HypoVault.sol, unrelated to the pool exposure or NAV calculation bugs in PanopticVaultAccountant.sol.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in HypoVault.sol, while known findings are about NAV calculation errors in PanopticVaultAccountant.sol.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "fulfillWithdrawals maxAssetsReceived check is bypassable via NAV manipulation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a price manipulation bypass of a withdrawal check, which differs from the known NAV calculation inconsistencies and pool exposure errors.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate is about HypoVault's fulfillWithdrawals check bypass, not the PanopticVaultAccountant NAV calculation bugs described in known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Performance fee basis manipulation via share transfer to fresh address",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fee manipulation via share basis accounting in HypoVault.sol, which is unrelated to the poolExposure or NAV calculation issues in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns basis manipulation in HypoVault.sol, while known findings are about NAV calculation errors in PanopticVaultAccountant.sol, with no overlap in root cause or code.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "requestWithdrawal divides by userBalance allowing zero-balance revert or basis theft",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a division-by-balance issue in HypoVault.sol, unrelated to the pool exposure or NAV calculation flaws in PanopticVaultAccountant.sol.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns HypoVault.sol requestWithdrawal division by userBalance, which is unrelated to the known findings in PanopticVaultAccountant.sol.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "PanopticVaultAccountant.updatePoolsHash can be front-run before lock",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an owner front‑run issue in updatePoolsHash, which is unrelated to the poolExposure calculation (H‑01) or NAV inconsistency (H‑02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a front-running/owner privilege issue in updatePoolsHash, while both known findings are NAV calculation logic errors in getAccumulatedFeesAndPositionsData and computeNAV.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Rounding in fulfillWithdrawals favors withdrawer over remaining holders",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a rounding issue in HypoVault.sol, unrelated to the poolExposure or NAV calculation flaws in PanopticVaultAccountant.sol.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate concerns rounding in HypoVault.fulfillWithdrawals, while known findings are about PanopticVaultAccountant poolExposure and NAV calculation.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "executeWithdrawal transfers fee before user, but reads then mutates reservedWithdrawalAssets across calls",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in executeWithdrawal, which does not correspond to the pool exposure or NAV calculation bugs listed in H-01 or H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy vulnerability in executeWithdrawal, while the known findings are about poolExposure calculation and NAV inconsistency, which are different root causes.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "cancelDeposit state-update-after-transfer allows reentrant double-refund on callback tokens",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in cancelDeposit, which is unrelated to the pool exposure or NAV calculation flaws of H-01 and H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate is about reentrancy in HypoVault.sol's cancelDeposit, while the known findings concern accounting errors in PanopticVaultAccountant.sol.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "fulfillDeposits/fulfillWithdrawals can be frozen by manager, trapping user funds",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a manager-controlled liveness issue, which does not correspond to the calculation errors in H-01 or H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a manager-controlled liveness issue in HypoVault, unrelated to the known NAV/exposure calculation bugs.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "fulfillDeposits/fulfillWithdrawals lack deadline and nonce; replayable across epochs",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a replay issue in fulfillDeposits/fulfillWithdrawals, which is unrelated to the poolExposure or NAV calculation bugs in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing deadline/nonce/replay protection in HypoVault.sol, which is unrelated to the known findings about NAV calculation errors in PanopticVaultAccountant.sol.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Performance fee basis uses stale userBasis after partial fulfillment",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fee basis miscalculation in HypoVault.sol, unrelated to the poolExposure or NAV issues in PanopticVaultAccountant.sol.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns performance fee basis in HypoVault.sol, while known findings are NAV calculation issues in PanopticVaultAccountant.sol.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "uint128 truncation in deposit/withdrawal epoch state can silently lose funds",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different contract and bug type; does not correspond to H-01 or H-02",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a uint128 truncation bug in HypoVault.sol, while the known findings are about different issues in PanopticVaultAccountant.sol.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Zero-amount deposit/withdrawal and dust edge cases corrupt basis",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different file, function, and root cause; does not match known findings",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns zero-amount/dust edge cases in HypoVault.sol's requestWithdrawal, while known findings are about poolExposure and NAV calculations in PanopticVaultAccountant.sol, with n",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Accountant computeNAV is read-only but manager controls managerInput, enabling same-block NAV manipulation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a manager‑price manipulation issue, which differs from the pool exposure mis‑calculation (H‑01) and the underlying‑token handling inconsistency (H‑02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different root cause (manager-supplied prices and TWAP manipulation) than the known findings, which are about NAV calculation errors.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "fulfillWithdrawals cross-function reentrancy via accountant.computeNAV managerInput callback",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue, while the known findings address accounting calculation errors, not reentrancy.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy vulnerability in fulfillWithdrawals via computeNAV callbacks, whereas the known findings concern NAV calculation logic errors (premium sign, underlying token handl",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "requestWithdrawal division by zero when userBalance is zero (reentrancy or direct)",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a division‑by‑zero/reentrancy issue in HypoVault.sol, which is unrelated to the pool exposure or NAV calculation bugs in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate is about division by zero/reentrancy in HypoVault.requestWithdrawal, unrelated to the PanopticVaultAccountant NAV/exposure calculation flaws in the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "executeWithdrawal can underflow reservedWithdrawalAssets if assetsToWithdraw > reserved",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different contract and bug; does not correspond to H-01 or H-02",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes a rounding underflow in HypoVault.executeWithdrawal, unrelated to the known NAV/poolExposure bugs in PanopticVaultAccountant.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "executeWithdrawal casts sharesRemaining and basisRemaining to uint128 without check",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an overflow in executeWithdrawal casting to uint128, which does not correspond to the poolExposure or NAV calculation issues in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding is about a different contract (HypoVault.sol) and a different issue (uint128 overflow in executeWithdrawal), while the known findings are about PanopticVaultAccountant.sol and NA",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Withdrawal epoch basis proration ignores unfulfilled shares leading to fee miscalculation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a withdrawal basis proration issue, which is unrelated to the poolExposure or NAV calculation flaws in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a fee miscalculation in HypoVault.sol's executeWithdrawal, while the known findings are about poolExposure and NAV calculations in PanopticVaultAccountant.sol, with no shared r",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Reserved withdrawal assets can be double-counted in NAV calculation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a double-counting issue with reserved withdrawal assets, which does not correspond to the pool exposure or underlying token NAV inconsistencies of H-01 or H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a double-counting issue with reserved withdrawal assets in HypoVault.sol, which is unrelated to the known findings about poolExposure calculation and NAV inconsistency in Panop",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "setManager to address(0) bricks vault, trapping all funds",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different contract and root cause; does not match H-01 or H-02",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability in a different contract (HypoVault.sol) related to setManager, while known findings are in PanopticVaultAccountant.sol about NAV calculation.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "executeDeposit division by zero when assetsDeposited is zero",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different contract and root cause; no overlap with known findings",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding is about a division by zero in HypoVault.sol's executeDeposit, while known findings H-01 and H-02 are in PanopticVaultAccountant.sol regarding NAV and pool exposure calculations.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "queuedDeposit and queuedWithdrawal use uint128, can overflow with many small deposits",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a uint128 overflow in HypoVault.sol, which is unrelated to the poolExposure or NAV calculation issues in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a uint128 overflow in queuedDeposit/queuedWithdrawal in HypoVault.sol, which is unrelated to the known findings about poolExposure and NAV calculation in PanopticVaultA",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "queuedWithdrawal amount and basis use uint128, can overflow",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a uint128 overflow in HypoVault.sol, which does not correspond to the pool exposure or NAV calculation issues in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a uint128 overflow in HypoVault requestWithdrawal, unrelated to the NAV poolExposure calculation flaws in the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Deposit epoch share calculation uses totalSupply that excludes pending deposits, allowing dilution",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and flaw (share dilution in HypoVault.sol) not covered by H-01 or H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns deposit share dilution in HypoVault.fulfillDeposits, while known findings concern exposure/NAV calculation errors in PanopticVaultAccountant.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Withdrawal fulfillment can be front-run to manipulate NAV and steal funds",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a front‑run/NAV manipulation issue in fulfillWithdrawals, which is unrelated to the poolExposure or computeNAV bugs listed in H‑01 and H‑02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a front-running attack on withdrawal fulfillment in HypoVault.sol, while the known findings are about NAV calculation errors in PanopticVaultAccountant.sol, which are different",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

@@ -1,0 +1,551 @@
+{
+ "audit": "2024-06-thorchain",
+ "verdicts": [
+  {
+   "title": "SushiRouterSmol hardcodes 1e18 output, ignoring real swap amounts",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a hardcoded swap amount bug in SushiRouterSmol, which does not correspond to the rebasing token vault issue (H-01) or the ThorChain event emission issue (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a hardcoded swap amount bug in SushiRouterSmol, which is unrelated to the known findings about vault theft or incorrect event emissions in ThorChain.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ETH_RUNE.transferTo uses tx.origin enabling phishing theft",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a tx.origin phishing issue in ETH_RUNE.transferTo, which does not correspond to the listed findings about rebasing token balance manipulation or incorrect event emissions.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a tx.origin phishing vector in transferTo(), while known findings cover different bugs in rebasing tokens and incorrect event emissions.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "SushiRouterSmol uses hardcoded \"one\" instead of actual amountIn",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a hardcoded amount bug in SushiRouterSmol, which does not correspond to the rebasing token issue (H-01) or the event emission issue (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate is about a hardcoded amount in SushiRouterSmol, while known findings concern entirely different ThorChain rebasing and event issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Anyone can drain vault allowances via transferOut with zero allowance",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unrestricted transferOut function, which does not correspond to the rebasing token issue (H-01) or the event emission problem (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes an allowance/access-control bug in AvaxRouter.sol, while known findings concern THORChain_Router.sol rebasing token theft and event emissions; not the same root cause or code.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "THORChain_Router._transferOutAndCallV5 ignores swapOutV5 failure for ERC20",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unchecked ERC20 swapOutV5 call in _transferOutAndCallV5, which does not correspond to the rebasing token issue (H-01) or the ETH transfer event emission problem (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes a different bug: ignored aggregator swapOutV5 failure for ERC20, while known findings cover rebasing token theft and incorrect ETH event emissions.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "transferAllowance lets anyone move allowances between arbitrary vaults",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an allowance transfer issue, which does not correspond to the rebasing token theft or event emission problems listed in H-01 and H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an access-control issue in transferAllowance, but the known findings concern rebasing token theft and incorrect event emissions, unrelated to this flaw.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "returnVaultAssets callable by anyone to redirect vault assets",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unrestricted returnVaultAssets function, which does not correspond to the rebasing token issue (H-01) or the event emission problem (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing access control in returnVaultAssets, while the known findings concern rebasing token exploits and incorrect event emission.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "THORChain_Router._transferOutAndCallV5 sends ETH to target on swap failure",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a wrong ETH recipient on swap failure, which does not correspond to the rebasing token issue (H-01) nor the incorrect event emission issue (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug (ETH sent to aggregator target on swap failure) from the known findings about rebasing token theft and incorrect event emissions.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "transferOutAndCallV5 ERC20 path ignores swap failure and leaves tokens stuck",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an ERC20 swap failure being ignored, which differs from the rebasing token issue (H-01) and the ETH transfer event problem (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different root cause (ignored swap failure in ERC20 path) than any known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "THORChain_Aggregator.swapIn approves swapRouter with `amount` not `_safeAmount`",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an over‑approval issue with fee‑on‑transfer tokens, which does not correspond to the rebasing token theft (H-01) or incorrect event emissions (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an incorrect approval amount in swapIn, while the known findings cover a rebasing token theft and incorrect event emissions, which are different root causes and impacts.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "transferOutAndCallV5 forwards arbitrary payload to untrusted target without validation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unchecked low‑level call in _transferOutAndCallV5, which is unrelated to the rebasing‑token vault issue (H‑01) or the incorrect ETH transfer event emissions (H‑02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an arbitrary call vulnerability in transferOutAndCallV5, while the known findings cover rebasing token theft and incorrect event emissions, which are different root causes.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AvaxAggregator.swapIn approves swapRouter with `amount` not `safeAmount`",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an over-approval issue for fee-on-transfer tokens, which does not correspond to the rebasing token theft (H-01) or incorrect event emissions (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an approval amount mismatch in AvaxAggregator.swapIn for fee-on-transfer tokens, which is a different root cause and code location than the known findings about rebasing token ",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Fee-on-transfer tokens credited at full amount in AvaxRouter deposit",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fee‑on‑transfer token accounting issue, which does not correspond to the rebasing token theft (H‑01) or incorrect event emission (H‑02) findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a fee-on-transfer token accounting mismatch in AvaxRouter, which is a different root cause and code path than the known findings about rebasing tokens (H-01) or incorrect event",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "swapIn uses full contract balance as swap input, sweeping pre-existing funds",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue (swapping full contract balance) not covered by H-01 or H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different root cause (swap using contract balance instead of delta) than the known findings, which cover rebasing token theft and incorrect event emissions.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AvaxRouter transferOutAndCall silently falls back on swap failure",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distinct issue in AvaxRouter's transferOutAndCall, unrelated to the rebasing token vault issue (H-01) or the incorrect event emissions in ThorChain_Router (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a swap failure fallback in AvaxRouter, which is unrelated to the rebasing token issue (H-01) or incorrect event emissions (H-02).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Reverting recipient bricks transferOut and traps vault funds",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a vault fund lock due to revert handling, which does not correspond to the rebasing token theft (H-01) or incorrect event emissions for failed ETH transfers (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes ETH transfer revert/blocking due to recipient reverting, while the known findings cover rebasing token theft and incorrect event emissions, not this root cause.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "depositWithExpiry lacks nonce/deadline binding to signer, enabling replay",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a replay issue in depositWithExpiry, which does not correspond to the rebasing token theft (H-01) or incorrect event emissions (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a cross-chain replay issue in depositWithExpiry, while both known findings concern different root causes (rebasing token manipulation and incorrect event emissions).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AvaxRouter.depositWithExpiry has no chainId binding, replayable across forks",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a replay attack due to missing chainId binding, which does not correspond to the rebasing token issue (H-01) or the event emission issue (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a replay attack due to missing chainId binding, which is not covered by the known findings about rebasing tokens or event emissions.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "transferOutAndCall ignores ERC20 allowance debit, drains router balance",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different bug (ERC20 allowance handling in _transferOutAndCallV5) than the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug (failure handling in aggregator call) not covered by the known findings about rebasing tokens or event emissions.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AvaxRouter.transferOutAndCall sends AVAX to target without checking swap success",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different function and issue than the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing swap success check in AvaxRouter.transferOutAndCall, while the known findings cover a rebasing token theft and incorrect event emissions in different contracts.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_routerDeposit uses type(uint).max expiration, defeating expiry protection",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue (expiry bypass in _routerDeposit) not covered by H-01 or H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing expiry protection in _routerDeposit, which is unrelated to the rebasing token theft or event emission bugs in the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "depositWithExpiry has no access control and can be used to grief vaults",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an access‑control issue in depositWithExpiry, which does not correspond to the rebasing token issue (H‑01) or the event‑emission bug (H‑02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability (unrestricted deposit) in a different function, not related to rebasing tokens or event emissions.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AvaxRouter transferOutAndCall forwards msg.value but ignores ERC20 allowance",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and issue (ignoring ERC20 allowance and event amount overstatement) than the known findings, which focus on rebasing token theft and ThorChain ETH event mi",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a bug in AvaxRouter's transferOutAndCall, whereas the known findings concern the ETH router's event emissions and a rebasing-token theft, neither of which is the same contract ",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AvaxAggregator swapIn uses amountOutMin but ignores returned amount rounding",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different accounting issue in AvaxAggregator.swapIn, unrelated to rebasing token theft (H-01) or incorrect event emissions (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug (balance accounting in AvaxAggregator) than the known findings, which involve rebasing token theft and incorrect event emissions.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Reentrancy in THORChain_Router.safeTransferFrom via token callback",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in safeTransferFrom, which does not correspond to the rebasing token manipulation (H-01) or incorrect ETH transfer events (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in safeTransferFrom, while the known findings are about rebasing tokens and event emissions, not reentrancy.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Unbounded user-supplied coin array in returnVaultAssets causes DoS",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a DoS via unbounded array loop, which does not correspond to the known findings about token rebase theft (H-01) or incorrect event emissions (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes an unbounded loop causing DoS, which is not related to the known findings about rebasing tokens or incorrect event emissions.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Reverting recipient in AvaxRouter.transferOut traps AVAX",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a revert issue in AvaxRouter.transferOut, which does not correspond to the rebasing token theft (H-01) or incorrect event emissions for ETH transfers (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an AVAX transfer revert issue in AvaxRouter, while known findings concern ETH router rebasing token theft and incorrect event emissions.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AvaxAggregator.swapIn forwards user funds to arbitrary tcRouter/tcVault",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability in AvaxAggregator.swapIn, not the rebasing token issue (H-01) nor the event emission issue (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes an arbitrary-router issue in AvaxAggregator, but known findings concern rebasing token balance manipulation and incorrect event emissions in THORChain_Router.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Fee-on-transfer tokens enable under-capitalized vault allowance credits",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fee‑on‑transfer token accounting mismatch, which is unrelated to the rebasing token issue (H‑01) or the event emission problem (H‑02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes fee-on-transfer accounting mismatch, which is a different root cause from the known findings about rebasing tokens and event emissions.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AvaxRouter._routerDeposit leaves open approval to external router",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an approval handling issue in AvaxRouter, which does not correspond to the rebasing token theft (H-01) or incorrect event emissions (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an unchecked token approval to an external router, while the known findings concern rebasing token theft and incorrect event emissions.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "THORChain_Aggregator.swapIn is permissionless and can be abused to drain approvals",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a permissionless swapIn abuse, which does not correspond to the rebasing token issue (H-01) or the event emission problem (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a permissionless swapIn approval drain, while the known findings cover rebasing token theft and incorrect event emissions.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "returnVaultAssets credits allowances for coins never transferred",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an allowance accounting bug unrelated to the rebasing token issue (H-01) or incorrect event emissions (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an allowance/accounting bug in returnVaultAssets, which is unrelated to the rebasing token theft (H-01) or incorrect ETH transfer event emission (H-02).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Reverting aggregator target bricks transferOutAndCall for vaults",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a revert handling flaw in transferOutAndCall, which differs from the rebasing token theft (H-01) and incorrect event emission issue (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a revert in transferOutAndCall due to a malicious aggregator, which is a different root cause and impact than the known findings about rebasing tokens or incorrect event emissi",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_adjustAllowances allows unauthorized debit against victim vault",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an allowance manipulation bug in AvaxRouter, which does not correspond to the rebasing token issue (H-01) or the ETH transfer event issue (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an allowance manipulation bug in _adjustAllowances, while the known findings cover a rebasing token theft and incorrect event emissions, which are different root causes and imp",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Aggregator swapOutV5 lets attacker redirect swap output via arbitrary path",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue (untrusted swap output in swapOutV5) that does not correspond to the rebasing token vault theft or incorrect event emission findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes an aggregator swap output/amountOutMin issue, not the rebasing token theft or event emission bugs in the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "THORChain_Aggregator.swapOutV5 swaps to recipient ignoring amountOutMin enforcement",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing verification of swap execution in swapOutV5, which does not correspond to the rebasing token issue (H-01) or the event emission problem (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing amountOutMin enforcement in swapOutV5, which is unrelated to the rebasing token vulnerability (H-01) or event emission issue (H-02).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Reverting aggregator in AvaxAggregator.swapOut blocks swaps",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a revert issue in AvaxAggregator.swapOut and safeApprove usage, which does not correspond to the rebasing token theft (H-01) or incorrect event emissions (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes issues in AvaxAggregator (swapOut reverting and safeApprove without zero reset), which are unrelated to the known findings about AMPL rebasing or event emissions.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "batchTransferOutV5 permits repeated debit against same allowance",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a batch allowance debit issue in batchTransferOutV5, which does not correspond to the rebasing token balance manipulation (H-01) or incorrect ETH transfer event emissions (H-02",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different issue in batchTransferOutV5 (allowance debit and ETH msg.value reuse), not the rebasing token vulnerability or event emission bug from known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Fee-charging USDT silently shortchanges the router allowance credit",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fee‑charging token allowance miscalculation, which is a different root cause than the rebasing token issue (H-01) or event emission problem (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The known findings concern rebasing token manipulation and event emission, not fee-on-transfer token allowance accounting.",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

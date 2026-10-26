@@ -1,0 +1,537 @@
+{
+ "audit": "2024-03-neobase",
+ "verdicts": [
+  {
+   "title": "sync_ledger callable by anyone to inflate/deflate arbitrary user balances",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unrestricted sync_ledger function in LendingLedger.sol, which is unrelated to the gauge removal voting power issue of H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns LendingLedger.sync_ledger() access control and arbitrary balance manipulation, while the known finding is about GaugeController voting power loss after gauge removal.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "GaugeController.vote_for_gauge_weights uses stale user slope",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a stale slope over‑voting issue, which is unrelated to the known finding about gauge removal causing loss of voting power.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a stale slope vulnerability in vote_for_gauge_weights, while the known finding concerns loss of voting power when a gauge is removed.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "VotingEscrow.withdraw underflows delegated when lock was delegated",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an underflow bug in VotingEscrow.withdraw, which is unrelated to the gauge removal voting power loss described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes an underflow in VotingEscrow.withdraw related to delegation, while the known finding H-01 concerns lost voting power due to gauge removal in GaugeController.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LendingLedger.claim sends CANTO before updating reward state via callback",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in LendingLedger.claim, which is unrelated to the gauge voting power loss described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in LendingLedger.claim, while the known finding concerns voting power loss in GaugeController, which is a different root cause and code.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LendingLedger.sync_ledger trusts caller-supplied delta without market validation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and flaw unrelated to gauge removal voting power.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability in LendingLedger.sync_ledger, while the known finding concerns voting power loss in GaugeController.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "sync_ledger uses gauge address as market key, breaking reward accounting",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reward accounting key mismatch, not the gauge removal voting power loss described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reward accounting mismatch in sync_ledger, while the known finding concerns voting power loss from gauge removal; they are unrelated.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LiquidityGauge._afterTokenTransfer double-counts on transfer",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a ledger accounting bug in LiquidityGauge._afterTokenTransfer, which is unrelated to gauge removal and voting power loss described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a different vulnerability in LiquidityGauge._afterTokenTransfer, while the known finding is about voting power loss in GaugeController.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "claim() can be called by anyone for any market, draining rewards to caller",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unauthenticated claim function, unrelated to gauge removal voting power loss described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns LendingLedger.claim() with no access control, while the known finding is about GaugeController and voting power loss from gauge removal; they are unrelated.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LiquidityGauge._afterTokenTransfer trusts arbitrary lendingLedger caller",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different root cause and function; candidate describes token transfer ledger manipulation, not gauge removal voting power loss.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns trust in arbitrary callers of sync_ledger in LiquidityGauge, not the gauge removal voting power loss described in the known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LendingLedger.claim uses stale accCantoPerShare for non-updated markets",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reward calculation bug in LendingLedger, not the gauge removal voting power loss described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug in LendingLedger.claim, unrelated to the known finding about gauge removal and voting power loss.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LendingLedger uses manipulable averageBlockTime for epoch time",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different root cause and contract; does not correspond to gauge removal voting power loss described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different root cause (manipulable averageBlockTime) in a different function (update_market) than the known finding about gauge removal causing loss of voting power.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LendingLedger.claim lacks nonReentrant, allowing reentrancy via CANTO callback",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in LendingLedger.claim, which is unrelated to the gauge voting power loss described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a reentrancy vulnerability in LendingLedger.claim, while the known finding H-01 is about gauge removal causing loss of voting power in GaugeController, which is unrelat",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LiquidityGauge Gauge token transfer hooks trigger sync_ledger after burn/mint",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in LiquidityGauge.withdrawUnderlying, which is unrelated to the known H-01 voting power loss bug.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in LiquidityGauge withdrawUnderlying, while the known finding is about voting power loss when a gauge is removed.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LendingLedger.update_market unbounded while loop over blocks",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unbounded loop in update_market, unrelated to gauge removal and voting power loss described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an unbounded loop in LendingLedger.update_market, while the known finding is about gauge removal and voting power loss.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Double-counting of delegated voting power via increaseAmount on delegated lock",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a double-counting bug in VotingEscrow.increaseAmount, which does not correspond to the known gauge removal voting power loss (H-01).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a voting power double-counting issue in VotingEscrow.increaseAmount, which is unrelated to the known finding about lost voting power when a gauge is removed.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LendingLedger.update_market uses current block.number for epochTime",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an epoch time calculation bug in LendingLedger, unrelated to gauge removal and voting power loss described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug in LendingLedger.update_market using block.number incorrectly, while the known finding is about gauge removal in GaugeController.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LendingLedger.sync_ledger trusts msg.sender as lending market",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and flaw (msg.sender trust in sync_ledger) unrelated to gauge removal voting power loss.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a trust issue in LendingLedger.sync_ledger, while the known finding H-01 is about voting power loss when a gauge is removed.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LendingLedger.sync_ledger allows negative user.amount via unchecked cast",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an underflow/unchecked cast issue in LendingLedger.sync_ledger, which is unrelated to the gauge removal voting power loss described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns LendingLedger.sync_ledger, while the known finding is about GaugeController, a different contract and root cause.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "update_market loop reads mutable gaugeController weight but writes accCantoPerShare; no reentrancy in gauge_relative_weight_write path",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in update_market, while the known finding concerns loss of voting power when a gauge is removed.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in LendingLedger.update_market, while the known finding H-01 is about loss of voting power when a gauge is removed, which is a different root cause and code ",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LendingLedger.whiteListLendingMarket creates gauge without access control on gauge",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unauthenticated gauge creation issue, which is unrelated to the known finding about loss of voting power when a gauge is removed.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a lack of access control on gauge functions, while the known finding concerns loss of voting power when a gauge is removed; they are different root causes and impacts.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "GaugeController._gauge_relative_weight reads uninitialized points_total",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different bug (reading uninitialized points_total causing zero weight) than the known finding about gauge removal causing loss of voting power.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an uninitialized points_total issue in _gauge_relative_weight, while the known finding concerns voting power loss from gauge removal.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LiquidityGauge.withdrawUnderlying can be blocked by LendingLedger sync revert",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different bug (withdrawal blocking due to sync revert) unrelated to gauge removal voting power loss.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a DoS in withdrawUnderlying due to sync_ledger revert, which is a different root cause and impact than the known finding about lost voting power from gauge removal.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LiquidityGauge._afterTokenTransfer calls sync_ledger on every transfer, enabling griefing",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a griefing issue in LiquidityGauge._afterTokenTransfer, which is unrelated to gauge removal and voting power loss described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a griefing attack via sync_ledger in LiquidityGauge, while the known finding is about voting power loss in GaugeController.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "VotingEscrow.increaseAmount resets lock end without extending delegatee lock",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a delegate lock end issue in VotingEscrow, which is unrelated to the gauge removal voting power loss described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability in VotingEscrow.increaseAmount regarding delegatee lock extension, while the known finding concerns gauge removal in GaugeController.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LiquidityGauge double-counts deposits via sync_ledger on mint and transfer",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a double-counting ledger bug in LiquidityGauge, which is unrelated to the gauge removal voting power issue in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a double-counting issue in LiquidityGauge's sync_ledger calls, while the known finding is about lost voting power when a gauge is removed in GaugeController.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "VotingEscrow.withdraw sends CANTO before state is fully settled",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a re‑entrancy issue in VotingEscrow.withdraw, which is unrelated to the gauge‑removal voting‑power loss described in H‑01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a re-entrancy issue in VotingEscrow.withdraw, while the known finding is about voting power loss when a gauge is removed; different root causes and impacts.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LendingLedger.update_market uses stale gauge_relative_weight_write",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a stale weight issue in update_market, which is unrelated to gauge removal and voting power loss described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns stale gauge weight usage in LendingLedger.update_market, while the known finding is about loss of voting power when a gauge is removed, which is a different root cause a",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "withdraw() external call to msg.sender after state update is safe, but unlockOverride allows non-expired drainage",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a lock bypass in VotingEscrow.withdraw, which differs from the gauge removal voting power loss in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an early withdrawal vulnerability via unlockOverride, while the known finding concerns loss of voting power when a gauge is removed.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "GaugeController vote_for_gauge_weights can be griefed via unbounded slope changes",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a gas‑griefing loop issue, whereas H‑01 concerns loss of voting power when a gauge is removed",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a gas griefing issue in vote_for_gauge_weights, whereas the known finding is about voting power loss when a gauge is removed.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "VotingEscrow.withdraw lacks nonReentrant protection on CANTO send",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy/state inconsistency issue in VotingEscrow.withdraw, which is unrelated to the gauge removal voting power loss described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy/accounting inconsistency in VotingEscrow.withdraw, not the gauge removal voting power loss in GaugeController.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "secRewardsPerShare accrues without any secondary reward funding",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unbacked reward accumulator in a different contract, unrelated to gauge removal voting power loss.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an unfunded secondary rewards accumulator in LendingLedger, while the known finding concerns loss of voting power in GaugeController upon gauge removal; different root cause an",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LendingLedger.claim does not update secRewardDebt",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reward accounting bug in LendingLedger, unrelated to the gauge removal voting power issue in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns LendingLedger.claim and secRewardDebt, while the known finding is about GaugeController and voting power loss; they are unrelated.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "VotingEscrow.withdraw allows withdrawal when unlockOverride is true by governance",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different root cause (global unlock flag in VotingEscrow.withdraw) than the known gauge removal issue.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a governance-controlled early withdrawal feature in VotingEscrow.withdraw, which is unrelated to the known H-01 about voting power loss on gauge removal.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "VotingEscrow._checkpoint slopeChanges overwrite loses prior scheduled changes",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a slopeChanges overwrite bug in VotingEscrow, unrelated to gauge removal voting power loss.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a bug in VotingEscrow._checkpoint regarding slopeChanges overwrite, while the known finding H-01 is about gauge removal in GaugeController.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "sync_ledger trusts arbitrary caller address; no whitelist of caller even though comment implies gauge",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a caller whitelist issue in LendingLedger.sol, unrelated to the gauge removal voting power loss described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a trust/whitelist issue in sync_ledger, while the known finding is about loss of voting power when a gauge is removed.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "votingEscrow.balanceOfAt block estimate can be gamed by sandwich around checkpoint",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and flaw (balance interpolation manipulation) unrelated to gauge removal voting power loss.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns VotingEscrow's balanceOfAt function, while the known finding is about GaugeController and voting power loss from gauge removal; they are unrelated.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "VotingEscrow.createLock and increaseAmount lack deadline/nonce, but no signature scheme exists",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing signature replay check in VotingEscrow, which is unrelated to the gauge removal voting power loss described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a non-issue about missing signature features, which is unrelated to the known finding about lost voting power from removed gauges.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LendingLedger.claim uses call and can be griefed by reverting receiver",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a call-griefing issue in LendingLedger.claim, which does not correspond to the gauge removal voting power loss finding H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns a potential griefing in LendingLedger.claim, while the known finding H-01 is about loss of voting power due to gauge removal in GaugeController; they are unrelated.",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

@@ -1,0 +1,565 @@
+{
+ "audit": "2025-01-next-generation",
+ "verdicts": [
+  {
+   "title": "Anyone can grant/revoke CONTROLLER role via unprotected addController/removeController",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unprotected role-granting function, which does not correspond to the cross-chain signature replay issue in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate is a different vulnerability in ERC20ControlerMinterUpgradeable.sol, while the known finding H-01 concerns signature replay in Forwarder.sol.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Anyone can add/remove minters and set arbitrary mint allowances",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unrestricted minter role issue, which does not correspond to the cross-chain signature replay finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes missing access control in addMinter/removeMinter, while the known finding is about cross-chain signature replay in Forwarder.sol.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Anyone can replace the MASTER_MINTER role",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unrestricted access control bug, which does not correspond to the cross-chain signature replay issue in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an access-control flaw in setMasterMinter, which is unrelated to the known cross-chain signature replay finding in Forwarder.sol.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ERC20ControlerMinterUpgradeable.mint allows MASTER_MINTER unlimited minting bypassing allowance",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unlimited minting role bypass in ERC20ControlerMinterUpgradeable, which does not correspond to the cross-chain signature replay issue of H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns ERC20ControlerMinterUpgradeable.sol and role-based minting, while the only known finding is about a cross-chain signature replay in Forwarder.sol.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Anyone can set the trusted forwarder on the token",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unrestricted setTrustedForwarder function in ERC20MetaTxUpgradeable, which is unrelated to the cross-chain signature replay issue in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns missing access control in setTrustedForwarder, while the known finding H-01 is about cross-chain signature replay in Forwarder.sol.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Forwarder.initialize can be front-run to hijack ownership and token binding",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an uninitialized contract ownership takeover, which differs from the known cross-chain signature replay issue.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a front-running vulnerability in the initialize function, while the known finding is about cross-chain signature replay attacks, which are different root causes and cod",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "calculateTxFee rounds down, allowing zero-fee dust transfers",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a rounding-down fee calculation issue, which is unrelated to the cross-chain signature replay vulnerability of H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns a rounding issue in FeesHandlerUpgradeable.sol, while the only known finding is about a signature replay attack in Forwarder.sol.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Forwarder signature not bound to contract address or chain id, enabling cross-deployment replay",
+   "strict": "H-01",
+   "a": {
+    "match": "H-01",
+    "reden": "Both describe the same signature replay due to user‑supplied domainSeparator in Forwarder._verifySig",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-01",
+    "reden": "Both findings describe the same root cause: user-supplied domainSeparator in Forwarder._verifySig enables cross-deployment signature replay.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ERC20MetaTxUpgradeable.transferWithAuthorization uses non-standard TWA typehash and no chain binding",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue (non-standard typehash and nonce consumption) in a different contract, not the cross-chain replay bug of H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a non-standard typehash and semantic in ERC20MetaTxUpgradeable, while the known finding is about cross-chain replay in Forwarder due to user-supplied domainSeparator.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Forwarder signed request has no deadline, so signed meta-transactions live forever",
+   "strict": null,
+   "a": {
+    "match": "H-01",
+    "reden": "Both describe the missing deadline check in Forwarder.sol leading to indefinite replay of signed requests",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing deadline allowing delayed execution, while the known finding focuses on cross-chain replay due to user-supplied domainSeparator and missing deadline; they are differe",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "payGaslessBasefee can be replayed to drain payer via repeated forwarder calls",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different root cause; candidate describes a paymaster replay issue, not the domainSeparator/deadline replay described in H-01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a front-running attack on gasless basefee payment, while the known finding is about cross-chain signature replay due to user-supplied domainSeparator and missing deadline.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Forwarder.execute forwards arbitrary calldata via abi.encodePacked allowing selector bypass",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a calldata encoding bypass in Forwarder.execute, which is unrelated to the known H-01 signature replay issue.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a calldata manipulation via abi.encodePacked in execute(), while the known finding is about cross-chain signature replay due to user-supplied domainSeparator.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "payGaslessBasefee can be replayed to drain payer via forwarder",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a replay issue in payGaslessBasefee, which differs from the known domainSeparator and deadline replay vulnerability.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a replay of payGaslessBasefee due to missing signer verification in forwarder, while the known finding is about cross-chain signature replay via user-supplied domainSeparator.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Forwarder._verifySig lacks EIP-712 domain separator binding to contract address and chainid",
+   "strict": "H-01",
+   "a": {
+    "match": "H-01",
+    "reden": "Both describe the same flaw: _verifySig accepts a user‑supplied domainSeparator without enforcing the correct contract address/chainId, enabling signature replay across Forwarder deployments.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-01",
+    "reden": "Both findings describe the same root cause: user-supplied domainSeparator enabling cross-chain signature replay across Forwarder deployments.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Fee-on-transfer double-charges sender via transferWithAuthorization path",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fee double‑charge issue in Token.sol, unrelated to the signature replay problem in Forwarder.sol (H‑01).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a fee-on-transfer double-charge in Token.sol's transferWithAuthorization, while the only known finding is about cross-chain signature replay in Forwarder.sol, which is a differ",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Gasless basefee paid even when transfer amount is zero or fails silently",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a gasless basefee payment issue, which is unrelated to the cross-chain signature replay vulnerability described in H-01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a gasless basefee being paid for a zero-value transfer, which is a different root cause and impact than the known cross-chain signature replay attack.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Fee-on-transfer double-charges sender, breaking balance accounting",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fee double-charge issue in Token.sol, unrelated to the cross-chain signature replay vulnerability in Forwarder.sol (H-01).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a fee-on-transfer double-charge in Token.sol transfer(), which is unrelated to the known cross-chain signature replay attack in Forwarder.sol.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Forwarder.execute lacks replay protection across chains/domains and nonce is per-from only",
+   "strict": "H-01",
+   "a": {
+    "match": "H-01",
+    "reden": "Both describe the same flaw where Forwarder’s _verifySig accepts a user‑supplied domainSeparator, enabling cross‑chain replay attacks.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-01",
+    "reden": "The candidate describes the same root cause of accepting an attacker-controlled domainSeparator enabling cross-chain signature replay in Forwarder.execute.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "EURFToken.payGaslessBasefee charges fixed basefee regardless of actual gas, enabling griefing",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fixed basefee griefing issue in Token.sol, unrelated to the cross-chain signature replay finding H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a fixed basefee griefing attack in EURFToken.payGaslessBasefee, which is a different root cause and code location than the known cross-chain signature replay attack in Forwarde",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "EURFToken.transferWithAuthorization lacks nonce binding to spender allowing replay",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a nonce handling issue in transferWithAuthorization, which differs from the known cross-chain signature replay issue in Forwarder.sol.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns EURFToken.transferWithAuthorization in ERC20MetaTxUpgradeable.sol, while the known finding H-01 is about Forwarder.sol and cross-chain signature replay; they are differe",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Blacklisted recipient permanently blocks all transfers to that address",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a blacklist check in ERC20AdminUpgradeable.sol, which is unrelated to the cross-chain signature replay issue in Forwarder.sol (H-01).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a blacklist denial-of-service in ERC20AdminUpgradeable, while the known finding is about signature replay in Forwarder.sol, with no common root cause or code.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Forwarder.execute appends req.from to calldata, corrupting transfer args",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a calldata appending issue, not the domainSeparator replay vulnerability of H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a calldata appending issue in execute, while the known finding is about signature replay with user-supplied domainSeparator and missing deadline.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Fee charged on transferFrom even when allowance insufficient causes revert after fee",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fee handling issue in Token.sol's transferFrom, which is unrelated to the cross-chain signature replay issue in Forwarder.sol (H-01).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns fee charging in transferFrom, which is unrelated to the cross-chain signature replay attack described in the known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ERC20AdminUpgradeable.setAdministrator revokes ADMIN from index 0 without checking caller",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an admin role revocation issue in ERC20AdminUpgradeable, which is unrelated to the cross-chain signature replay vulnerability of H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding is about ERC20AdminUpgradeable.setAdministrator, while the only known finding is about Forwarder.sol cross-chain signature replay.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Forwarder.execute allows arbitrary calldata appended with attacker-controlled `from`",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a calldata‑appending bug in execute(), not the domainSeparator/replay issue of H‑01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability (appending req.from to calldata bypassing signature) than the known H-01 cross-chain replay via domainSeparator/deadline.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Pause blocks all non-admin transfers including withdrawals",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a pause-related transfer restriction in ERC20AdminUpgradeable.sol, which does not correspond to the cross-chain signature replay issue in Forwarder.sol (H-01).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a pause mechanism blocking transfers in ERC20AdminUpgradeable, while the known finding is about a signature replay attack in Forwarder.sol.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Forwarder execute reverts on zero-value transfer blocking meta-tx",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue (payGaslessBasefee revert) than the known cross-chain signature replay attack.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a revert due to insufficient balance in payGaslessBasefee during forwarder execution, while the known finding concerns signature replay via user-supplied domainSeparator and mi",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Forwarder.execute does not verify req.to equals token before signature check",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue (missing req.to check in verify) not covered by H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different issue (missing req.to check in verify()) than the known cross-chain signature replay attack.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Forwarder.execute pays gasless basefee after external call enabling reentrancy drain",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy/basefee ordering issue, not the cross-chain signature replay described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in execute() due to ordering, while the known finding is about cross-chain signature replay.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "EURFToken.transferSanity pays tx fee before transfer enabling balance check bypass",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy/balance check bypass in Token.sol, which is unrelated to the cross-chain signature replay issue of H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy/balance check issue in EURFToken.transferSanity, while the only known finding is about cross-chain signature replay in Forwarder.sol.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Forwarder.verify is view but nonce check can be bypassed via execute ordering",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a nonce front‑run issue, not the domainSeparator/replay bug of H‑01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a front-running/nonce consumption issue in verify/execute, which is not the same root cause as the known cross-chain signature replay due to user-supplied domainSeparator and m",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "transferSanity double-charges fee check causing revert on exact-balance transfers",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fee handling bug in Token.sol, unrelated to the cross-chain signature replay issue in Forwarder.sol (H-01).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns fee double-charging in Token.sol, while the known finding is about signature replay in Forwarder.sol.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "setMasterMinter revokes role from index 0 which may not be the current master",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a role‑revocation logic flaw in a different contract, unrelated to the cross‑chain signature replay issue of H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a role revocation issue in setMasterMinter, unrelated to the cross-chain signature replay attack in Forwarder.sol.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "safetySwitch can be permanently locked off by controller",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a controller lockout issue in a different contract, unrelated to the cross-chain signature replay finding H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug in ERC20ControlerMinterUpgradeable.sol's safetySwitch, while the known finding concerns a signature replay attack in Forwarder.sol.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ERC20ControlerMinterUpgradeable.addController/removeController lack access control",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes missing access control in ERC20ControlerMinterUpgradeable, which does not correspond to the cross-chain signature replay issue described in H-01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes missing access control in ERC20ControlerMinterUpgradeable, which is not among the listed known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ERC20MetaTxUpgradeable.transferWithAuthorization uses _update instead of _transfer",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different function and issue unrelated to the cross-chain signature replay finding H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a non-issue in ERC20MetaTxUpgradeable, while known findings are about cross-chain signature replay in Forwarder.sol.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "EURFToken.payGaslessBasefee trusts msg.sender not _msgSender",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue in a different contract/function, not the cross-chain signature replay described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate discusses a different function and code path in Token.sol with no identified exploit, not the cross-chain signature replay vulnerability in Forwarder.sol.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "EURFToken.initialize does not call __ERC20ControlerMinter_init or __ERC20Admin_init",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an initialization role‑setup issue in EURFToken, which is unrelated to the cross‑chain signature replay finding H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns EURFToken.initialize initializer calls in Token.sol, while the known finding is a signature replay vulnerability in Forwarder.sol.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "forceTransfer bypasses fee accounting, enabling fee-free transfers by admin",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different contract, function, and root cause; does not correspond to the known cross-chain signature replay finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding about fee bypass in forceTransfer is unrelated to the known finding about cross-chain signature replay.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "setMasterMinter grants unlimited allowance without resetting previous minter allowance",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an allowance handling issue in ERC20ControlerMinterUpgradeable.sol, which does not correspond to the cross-chain signature replay vulnerability in Forwarder.sol (H-01).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing allowance reset in setMasterMinter, which is not related to the cross-chain signature replay attack in Forwarder.sol.",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

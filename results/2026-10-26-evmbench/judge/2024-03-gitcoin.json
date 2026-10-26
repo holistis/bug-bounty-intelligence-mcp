@@ -1,0 +1,523 @@
+{
+ "audit": "2024-03-gitcoin",
+ "verdicts": [
+  {
+   "title": "GTC transferFrom bypasses allowance check enabling arbitrary token theft in tests",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an allowance bypass in GTC.transferFrom, unrelated to the userTotalStaked invariant issue in release()",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes an allowance bypass in GTC.sol's transferFrom, while known findings concern userTotalStaked invariant in release() in a different contract.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "transferFrom in GTC mock has allowance check removed",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing allowance check in transferFrom, which is unrelated to the userTotalStaked invariant issue in release() described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a removed allowance check in GTC.sol's transferFrom, unrelated to the release() vulnerability in the known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "release() can restore slashed funds without re-crediting userTotalStaked",
+   "strict": "H-01",
+   "a": {
+    "match": "H-01",
+    "reden": "Both describe the same release() bug where userTotalStaked is not updated after restoring slashed funds, breaking the invariant.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-01",
+    "reden": "Both findings describe the same root cause: release() fails to update userTotalStaked when restoring slashed funds, breaking the invariant.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "IdentityStaking relies solely on AccessControl roles for slash and release; no attack surface from signatures",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate addresses lack of signature checks, while the known finding concerns an invariant break in release() due to incorrect state updates.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding discusses the absence of signature replay in IdentityStaking, while the known finding [H-01] is about a broken invariant in release() due to incorrect state updates.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "initialize() can be front-run to seize DEFAULT_ADMIN_ROLE",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an uninitialized proxy front‑run issue in initialize(), which is unrelated to the userTotalStaked invariant bug in release() described in H‑01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a front-running vulnerability in initialize() to seize admin roles, while the known finding is about a broken userTotalStaked invariant in release().",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Slash rounding truncation lets staker avoid full slashing liability",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a rounding issue in slash(), unrelated to the userTotalStaked invariant problem in release()",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a rounding truncation issue in slash(), while the known finding concerns an invariant break in release().",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Slash percent applied to already-slashed amount compounds unfairly",
+   "strict": "H-01",
+   "a": {
+    "match": "H-01",
+    "reden": "Both findings identify that release() fails to update userTotalStaked, breaking its invariant.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-01",
+    "reden": "Both findings identify that userTotalStaked is not updated when release() restores selfStakes amount, breaking the invariant.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "release() allows releasing from a round that was already burned",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distinct bug about releasing from a burned round, not the invariant break described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability (releasing from burned round) than the known finding (broken userTotalStaked invariant).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "withdrawSelfStake allows zero-amount withdrawal causing revert on zero transfer",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different function and root cause; does not correspond to H-01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a zero-amount withdrawal revert, which is a different issue from the known finding about broken userTotalStaked invariant in release().",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "lockAndBurn burns wrong round's slashed amount due to off-by-one",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an off‑by‑one bug in lockAndBurn, which is unrelated to the userTotalStaked invariant issue in release() described by H‑01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an off-by-one and double-spend issue in lockAndBurn, while the known finding H-01 is about userTotalStaked invariant broken in release().",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "lockAndBurn() callable by anyone enables griefing of slash releases",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue in lockAndBurn, not the userTotalStaked invariant problem in release()",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a lack of access control in lockAndBurn() causing griefing, while the known finding concerns an invariant break in release() due to missing state updates.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Slash of previous-round stake double-counts into totalSlashed",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a double-counting slash bug in IdentityStaking.sol, which is unrelated to the userTotalStaked invariant issue in release().",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a slash accounting issue in IdentityStaking.sol, while the known finding concerns userTotalStaked invariant in release() in a different contract.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "lockAndBurn can be front-run to burn a round before releases",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a front-running issue in lockAndBurn, which is unrelated to the userTotalStaked invariant issue in release() described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a front-running vulnerability in lockAndBurn, while the known finding is about an invariant break in release().",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "State updated before token transferFrom in selfStake/communityStake",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in selfStake, which differs from the known invariant break in release()",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy/state-update-before-transfer issue in selfStake/communityStake, while the known finding is about an invariant break in release() with userTotalStaked.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "lockAndBurn can be permanently bricked by burnAddress rejecting transfers",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different function and root cause; candidate describes burnAddress transfer failure, not the userTotalStaked invariant issue in release()",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability in lockAndBurn() related to transfer failure, while the known finding concerns userTotalStaked invariant in release().",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "lockAndBurn does not zero totalSlashed[roundToBurn], enabling stale accounting",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a stale accounting issue in lockAndBurn, which is unrelated to the userTotalStaked invariant problem in release() described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a different root cause (stale totalSlashed in lockAndBurn) than the known finding (userTotalStaked invariant broken in release).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "lockAndBurn burns from contract balance, not tracked slashed funds",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a burn logic error in lockAndBurn, while the known finding concerns invariant breakage in release(), a different function and root cause.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug in lockAndBurn regarding slashed funds, while the known finding H-01 is about userTotalStaked invariant broken in release().",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "totalSlashed underflow in release after burn",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a totalSlashed underflow, which differs from the userTotalStaked invariant issue in H-01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate focuses on totalSlashed underflow, while the known finding is about userTotalStaked invariant, different root cause.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "State updated before token transfer in withdrawSelfStake/withdrawCommunityStake",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in withdraw functions, not the invariant break in release() described by H-01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue due to state updates before token transfer, while the known finding H-01 is about an invariant break in userTotalStaked due to missing updates in release(), ",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "release() can be blocked by slasher re-slashing to reset slashedInRound",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a slashing‑reset bug, while the known finding concerns an invariant violation due to missing userTotalStaked updates; they are different root causes.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a re-slashing attack that blocks release by resetting slashedInRound, while the known finding is about userTotalStaked invariant being broken due to missing updates in release(",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Pause traps users' funds indefinitely if admin never unpauses",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different root cause and function; candidate concerns indefinite pause, known finding concerns invariant break in release()",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an issue with pause() locking funds, while the known finding is about a broken userTotalStaked invariant in release(), a different root cause and impact.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Slash accounting double-counts when re-slashing in same round",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a slash double-counting bug in slash(), unrelated to the release() invariant issue in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a slash accounting double-counting bug in slash(), while the known finding is about userTotalStaked invariant broken in release().",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "release() can be called for future slash rounds, corrupting totalSlashed accounting",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a round‑number validation issue affecting totalSlashed accounting, not the userTotalStaked invariant problem described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different root cause (future slash rounds and double-counting) than the known finding H-01 (userTotalStaked invariant broken due to missing updates).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "delegateOnDist trusts GTCDist without validation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue (unvalidated GTCDist in delegateOnDist) unrelated to the userTotalStaked invariant problem in release()",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a trust issue in GTC.sol's delegateOnDist function, which is not related to the known finding about userTotalStaked invariant in release().",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "uint88 amount overflow in selfStake/communityStake via repeated deposits",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an overflow/DoS issue in selfStake, while H-01 concerns invariant breakage in release() due to missing updates, which are different root causes.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a uint88 overflow via repeated deposits, while the known finding is about userTotalStaked invariant being broken due to release() not updating the variable.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "lockAndBurn transfers tokens after incrementing round and updating timestamp",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in lockAndBurn, which is unrelated to the userTotalStaked invariant break in release() described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy vulnerability in lockAndBurn, while the known finding H-01 concerns an invariant break in release().",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "slash() loop over unbounded user-supplied arrays can exceed block gas limit",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different function and root cause; does not describe the userTotalStaked invariant issue in release()",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a gas limit issue in slash(), while the known finding is about an invariant breakage in release(), which are different root causes and code locations.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "GTC permit is replayable across chains due to missing chainId validation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a replayable permit issue in GTC.sol, unrelated to the userTotalStaked invariant problem in release()",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate concerns GTC permit cross-chain replayability, while the known finding is about userTotalStaked invariant breakage in release().",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "slash() migration underflows totalSlashed when previous round already burned",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different function and bug (slash() underflow) unrelated to the H-01 release() invariant issue.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes an underflow in slash() related to totalSlashed, while the known finding is about userTotalStaked invariant in release().",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "release() allows releasing from current round, enabling slash-then-release-then-slash double count",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different root cause in release() function; candidate describes double‑count slash/release issue, not the userTotalStaked invariant bug.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an accounting drift in totalSlashed due to releasing from the current round, while the known finding focuses on userTotalStaked invariant broken in release(); these are differe",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "permit() uses non-standard nonce increment ordering",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a nonce handling issue in permit(), unrelated to the userTotalStaked invariant bug in release().",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a nonce ordering issue in GTC.sol's permit(), while known findings relate to userTotalStaked invariant in release() in a different contract.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "release() mutates stake state before totalSlashed decrement, no reentrancy guard",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy and ordering issue with totalSlashed, while the known finding concerns a missing userTotalStaked update; they are different root causes.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy/state-ordering issue with totalSlashed, while the known H-01 is about userTotalStaked invariant not being updated in release(). Different root cause and impact.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "slash() reads and writes totalSlashed across rounds without reentrancy protection",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in slash() affecting totalSlashed, which is unrelated to the userTotalStaked invariant bug in release()",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in slash(), while the known finding is about an invariant break in release() with a different root cause.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "delegateBySig has no chainId binding outside domain separator; replayable cross-chain tests",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a signature replay issue in delegateBySig, unrelated to the userTotalStaked invariant bug in release()",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a cross-chain replay and signature malleability issue in delegateBySig, which is unrelated to the known finding about userTotalStaked invariant breakage in release().",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "permit deadline check occurs after nonce increment and ecrecover",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a nonce handling issue in permit(), unrelated to the userTotalStaked invariant bug in release().",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns a permit function in GTC.sol, while the known finding is about userTotalStaked invariant in release() in a different contract.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "GTC permit accepts any nonce provided it matches; digest was signed without domain binding to a specific permit invocation nonce",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a permit nonce/domain issue in GTC.sol, unrelated to the userTotalStaked invariant bug in release() described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns GTC permit nonce and domain binding, while the known finding H-01 is about userTotalStaked invariant in release(), with no overlap in root cause or code.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Community stake slash does not verify stakee relationship",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing stake verification in slash(), unrelated to the userTotalStaked invariant issue in release() described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a state pollution issue in slash() due to missing stakee relationship verification, while the known finding is about an invariant break in release() due to missing user",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

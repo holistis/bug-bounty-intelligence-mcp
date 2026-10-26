@@ -1,0 +1,621 @@
+{
+ "audit": "2025-10-sequence",
+ "verdicts": [
+  {
+   "title": "Static signature bypasses image hash validation entirely",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a static signature bypass in BaseAuth.sol using the high bit flag, which differs from the known findings' root causes and code locations.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a static signature bypass in BaseAuth.sol, which is not related to the known findings about chained signatures or session calls.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Static signature expiry check inverted allows expired signatures",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an inverted expiry check in BaseAuth.sol, which is unrelated to the known findings about checkpoint flag bypass or session call replay.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an inverted expiry check in BaseAuth.sol, while known findings H-01 and H-02 are about different issues in BaseSig.sol and Calls.sol.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Cumulative usage limit double-counts within same payload",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a cumulative usage limit bug in PermissionValidator.sol, which does not correspond to the signature or replay issues of H-01 or H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug in PermissionValidator.sol, while known findings concern BaseSig.sol and Calls.sol.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Session signature replay across wallets via missing wallet binding in call hash",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing wallet binding in SessionSig.sol, which is a different contract and root cause than the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing wallet address in the call hash for session signatures, which is not the same root cause as either known finding (H-01 about checkpoint flag, H-02 about partial signa",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "SessionManager bans self-calls but ExplicitSessionManager allows incrementUsageLimit self-call",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a self-call validation inconsistency in SessionManager, which does not correspond to the checkpoint usage bypass (H-01) or session call replay/frontrunning (H-02) findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a contradiction between SessionManager and ExplicitSessionManager regarding self-calls, which is not related to the known findings about chained signature bypass or partial sig",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Session usage limits bypassed via incrementUsageLimit self-call",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distinct bug in ExplicitSessionManager.incrementUsageLimit, which does not correspond to the root causes of H-01 or H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability in ExplicitSessionManager.incrementUsageLimit, not matching the known findings about signature checkpoint or replay attacks.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Session signature replay across chains when noChainId flag is set",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distinct replay issue via the noChainId flag in SessionSig.sol, which differs from the known findings' root causes.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes a missing chain ID in session hashes (noChainId flag), while known findings cover different root causes: checkpointer flag bypass and partial signature replay/frontrunning.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Cross-function reentrancy via selfExecute during execute() callbacks",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a cross-function reentrancy bug in selfExecute, which is unrelated to the known signature or replay issues.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy vulnerability in selfExecute, while the known findings are about signature validation and replay attacks, not reentrancy.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "session callHash uses block.chainid but noChainId flag can be set to 0 by attacker",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a chain‑id omission flaw in SessionSig.sol, which does not correspond to the listed findings that involve different contracts and root causes.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a chainId bypass via noChainId flag in SessionSig.sol, not the checkpointer bypass in BaseSig.sol or the partial signature replay in Calls.sol.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Static signature path accepts caller-independent authorization with expired/zero semantics",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No known finding describes the static signature address(0) bypass in BaseAuth.sol",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a separate bug in BaseAuth.sol's static signature path (caller-independent authorization via zero address and expiry semantics), not the chained signature/checkpointer bypass o",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Simulator.simulate has no access control and can trigger arbitrary delegatecalls",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unrestricted delegatecall in Simulator.simulate, which does not correspond to the signature or replay issues of H-01 or H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes an access control issue in Simulator.simulate, which is unrelated to the known findings about signature validation and replay in BaseSig and Calls.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Guest fallback decodes arbitrary calldata and executes calls unconditionally",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unrestricted fallback execution in Guest.sol, which is unrelated to the signature or session call issues of H-01 and H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an unauthenticated fallback in Guest.sol, which is unrelated to the chained signature or partial signature replay findings in the known list.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Nonce consumption in Estimator allows replay of estimate",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a nonce consumption issue in Estimator.sol, which does not correspond to the root causes of the known findings H-01 or H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The known findings concern signature validation and session call replay, not the Estimator's nonce consumption issue.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Reentrancy via ERC-1155/777/721 hooks during execute() callbacks",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue via token hooks, which does not correspond to the signature or replay vulnerabilities of H-01 or H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue via token hooks in Calls.sol, which is not the same root cause or impact as H-01 (chained signature bypass) or H-02 (partial signature replay/frontrunning).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ERC-4337 executeUserOp reentrancy via selfExecute bypasses nonReentrant",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in ERC-4337 executeUserOp, which does not correspond to the signature or replay vulnerabilities of H-01 or H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a reentrancy issue in ERC4337v07.sol, while the known findings are about signature validation and session call replay, which are unrelated.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Unbounded loop in Recovery.queuePayload allows griefing of queued payloads",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unbounded array growth issue in Recovery.queuePayload, which does not correspond to the signature‑related or replay vulnerabilities of the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an unbounded array in Recovery.queuePayload, which is unrelated to the chained signature and partial signature replay issues in the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Static signature replay without nonce/expiry window, callable by any caller",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a static signature replay in BaseAuth.sol, which differs in root cause and location from the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a static signature replay vulnerability in BaseAuth.sol, which is not covered by the known findings about chained signatures or session call replay.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Recovery queue timestamp can be reset by re-queueing after expiry",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distinct issue in Recovery.sol unrelated to the known findings about BaseSig or Calls modules.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes a recovery queue timestamp/lifetime issue in Recovery.sol, which is unrelated to the known findings about chained signature checkpoint bypass or session call partial replay.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Estimator.estimate consumes nonce via readNonce instead of actual nonce",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a nonce consumption bug in Estimator.sol, which does not correspond to the signature or checkpoint issues of H-01 or H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes a nonce mutation in Estimator.estimate, not related to the BaseSig checkpointer bypass or Calls replay issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Estimator.estimate consumes nonce logic incorrectly and re-enables replay in shared flow",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a nonce consumption bug in Estimator.estimate, which is unrelated to the signature flag or session call replay issues of H-01 and H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a nonce advancement bug in Estimator.estimate, which is distinct from the known findings about signature replay and session-call replay in BaseSig and Calls.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Recovery.queuePayload caller-controlled _wallet allows squatting and DoS on queue",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distinct issue in Recovery.queuePayload, unrelated to the BaseSig or Calls modules covered by H-01 and H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a different vulnerability in Recovery.sol, not matching the known findings in BaseSig.sol or Calls.sol.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "totalValueUsed not persisted across calls in same payload",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distinct session value tracking bug, not the signature or replay issues of H-01 or H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a potential persistence issue in ExplicitSessionManager.sol, while known findings are about chained signature bypass and partial signature replay in other contracts.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Session permission index not bound to call index allows permission reuse",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a permission index binding issue in SessionSig.sol, which does not correspond to the root causes of the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different root cause (permission index reuse) in SessionSig.sol, not matching either known finding's described flaw.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Read-only reentrancy in SessionManager.recoverSapientSignature via getLimitUsage",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a read‑only reentrancy issue in SessionManager.recoverSapientSignature, which is a different root cause from the known findings H‑01 and H‑02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a read-only reentrancy via stale state in getLimitUsage, which is not the same root cause as the known findings (chained signature bypass or partial signature replay).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "SessionManager.recoverSapientSignature O(n^2) scan over sessionUsageLimits",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a gas‑exhaustion issue due to O(n^2) scans, which does not correspond to the bypass or replay vulnerabilities of H-01 or H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an O(n^2) gas inefficiency in SessionManager, which is not the same root cause or impact as any of the listed known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Hooks fallback delegatecalls arbitrary hook without reentrancy guard",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a delegatecall hook vulnerability, which does not correspond to the signature or replay issues in H-01 or H-02",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a reentrancy and delegatecall issue in Hooks.sol, while known findings H-01 and H-02 are about signature validation and session call replay, unrelated to hooks.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Recovery.queuePayload allows anyone to queue payloads for any wallet/signer",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a permissionless queuePayload issue, which does not correspond to the known findings about chained signatures or replay attacks.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate's issue is a permissionless queuePayload griefing in Recovery.sol, which is unrelated to the known BaseSig chained signature bypass or Calls.sol partial signature replay findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Recover: same signature replayable on every wallet sharing imageHash (domain may omit wallet)",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a replay issue in Payload.hashFor() involving parentWallets, which does not correspond to the root causes or code locations of the known findings H-01 or H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes signature replay via attacker-controlled parentWallets and noChainId, which is not the same root cause as H-01 (checkpoint flag bypass) or H-02 (session call replay).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Static signature can be set with arbitrary future timestamp by wallet itself",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a static signature timestamp issue in BaseAuth.sol, which does not correspond to the chained signature checkpoint bypass (H-01) or session replay attack (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a different vulnerability in BaseAuth.sol regarding static signature pre-authorization, while the known findings are about chained signature bypass and partial signatur",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "SessionManager.recoverSapientSignature trusts msg.sender as wallet",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue (trusting msg.sender in SessionManager) not covered by H-01 or H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different issue in SessionManager wallet derivation, not the checkpoint bypass or partial signature replay/frontrunning described in the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Simulator.simulate reads uninitialized behaviorOnError and can revert whole simulation for any caller",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an uninitialized variable and missing access control in Simulator.simulate, which does not correspond to the signature or replay issues in the known findings",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a bug in Simulator.simulate, while known findings are about signature validation and replay in other modules.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "First-depositor / donation attack on wallet via create2 salt",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a create2 pre-funding issue, which does not correspond to the signature or replay attacks in H-01 or H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a create2 donation attack on wallet deployment, which is unrelated to the known findings about signature validation and replay attacks.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Rounding in Base64 encoding may cause signature verification mismatch",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a Base64 encoding rounding issue, which does not correspond to the known findings about signature flag handling or replay attacks.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns Base64 encoding in src/utils/Base64.sol, while known findings are about signature validation in BaseSig.sol and Calls.sol, with no overlap in code or root cause.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Cumulative usage limit can be reset by omitting prior calls in payload",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a cumulative usage limit bypass in PermissionValidator.sol, which is unrelated to the known findings about signature/checkpointer logic or session call replay.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a cumulative limit reset in PermissionValidator.sol, which is unrelated to the chained signature or partial replay issues in the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Front-running queuePayload to grief recovery via AlreadyQueued",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a front‑running griefing issue in Recovery.sol's queuePayload, which is unrelated to the signature/checkpointer or session call bugs in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes a griefing front-run on Recovery.queuePayload, which differs from the known findings about BaseSig chained signature validation and Calls partial signature replay.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Static signature replay across chains via noChainId flag",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a static‑signature replay across chains, which does not correspond to the chained‑signature checkpoint bypass (H‑01) or the session‑call partial replay (H‑02) findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a static signature replay across chains via noChainId flag, which is not covered by H-01 or H-02.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Calls._execute reverts on NotEnoughGas, blocking remaining calls",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a gas limit revert issue, which does not correspond to the root causes of H-01 or H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a gas limit revert issue in Calls._execute, which is not related to the known findings about signature validation or replay attacks.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "WebAuthn challenge comparison permits unbounded trailing challenge data",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a WebAuthn challenge comparison issue in a different file and function, which does not correspond to the known findings about signature checkpoint bypass or session call replay",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns WebAuthn challenge comparison in WebAuthn.sol, while known findings are about signature validation in BaseSig.sol and Calls.sol, with different root causes and impacts.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "SessionSig identity signature does not bind to session config / blacklist",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distinct issue in SessionSig.sol unrelated to the known findings' root causes and code locations.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing binding of session config in the identity signature, which is not covered by any of the known findings (H-01 and H-02 address different issues).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "onlyFallback error flag reset allows skipping fallback calls",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an errorFlag reset issue in _execute(), which does not correspond to the known findings about checkpointer flag bypass or partial signature replay.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an onlyFallback error flag behavior in Calls.sol, which is not the root cause of either known finding (H-01 is about BaseSig checkpoint bypass, H-02 is about partial signature ",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Cumulative usage limit can be bypassed by splitting across multiple calls",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a cumulative usage limit bypass in PermissionValidator.sol, which does not correspond to the root causes of H-01 or H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes a cumulative usage limit bypass in PermissionValidator, which is unrelated to the checkpointer bypass or session call replay/frontrunning issues in the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "SessionManager MAX_SPACE off-by-one allows space == type(uint80).max",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an off‑by‑one boundary check in SessionManager.recoverSapientSignature, which is unrelated to the known findings about chained signatures or session call replay.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes an off-by-one in MAX_SPACE in SessionManager, which is unrelated to the known findings about chained signature bypass or partial signature replay.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Calls._execute delegatecall passes _startingGas from outer frame, enabling gas griefing",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a gas forwarding issue in Calls._execute, which does not correspond to the signature or replay vulnerabilities of H-01 or H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a gas griefing issue in Calls._execute, unrelated to the chained signature bypass (H-01) or partial signature replay (H-02).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "BaseAuth.signatureValidation static signature check uses msg.sender without binding to wallet",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a static signature validation issue unrelated to the chained signature checkpoint bypass (H-01) or session call replay (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability in BaseAuth.sol regarding static signature caller validation, which is not covered by the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

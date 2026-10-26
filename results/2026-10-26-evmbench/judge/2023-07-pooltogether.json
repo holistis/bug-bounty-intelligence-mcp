@@ -1,0 +1,607 @@
+{
+ "audit": "2023-07-pooltogether",
+ "verdicts": [
+  {
+   "title": "mintYieldFee callable by anyone to mint shares to arbitrary recipient",
+   "strict": "H-04",
+   "a": {
+    "match": "H-04",
+    "reden": "Both describe the same issue: the mintYieldFee function lacks access control, allowing anyone to mint shares to an arbitrary recipient.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-04",
+    "reden": "Both describe the same missing access control in Vault.mintYieldFee allowing anyone to mint shares to any recipient.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Yield fee shares minted without backing assets, diluting depositors",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fee‑share minting issue in liquidate(), which differs from the known findings about withdraw() and mintYieldFee().",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a dilution issue in liquidate() due to yield fee calculation, while the known findings are about a withdrawal exploit (H-02) and an access control issue in mintYieldFee (H-04),",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_deposit under-transfers assets when vault holds partial balance",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distinct under-transfer bug in _deposit, which is not covered by the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug in _deposit, not covered by the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Deposit function can be exploited to avoid transferring assets",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a flaw in the _deposit() function, which is not covered by the known findings H-02 (withdraw issue) or H-04 (mintYieldFee issue).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing transfer check in _deposit(), which is not the same as the known findings about withdraw() or mintYieldFee().",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "First depositor / donation attack via exchange rate manipulation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an exchange rate manipulation in _deposit, which does not correspond to the known findings about withdraw share burning (H-02) or unrestricted mintYieldFee (H-04).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a first-depositor donation attack, which is not covered by the known findings H-02 or H-04.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Exchange rate manipulation via direct asset donation to vault",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a new exchange‑rate manipulation issue, which does not correspond to the known withdraw‑steal or mintYieldFee findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes exchange rate manipulation via direct asset donation, which is a different root cause and impact than the known findings H-02 (withdraw share burning) and H-04 (unrestricted mi",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "depositWithPermit/mintWithPermit/sponsorWithPermit permit front-running griefing",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a permit front‑running issue, which is not covered by the listed findings H-02 or H-04.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes permit front-running griefing in the permit-based deposit functions.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Exchange rate uses yieldVault.maxWithdraw which can be manipulated via donation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distinct exchange rate manipulation issue, not covered by H-02 or H-04.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a donation attack on exchange rate calculation via maxWithdraw, while the known findings cover a withdrawal exploit and a mintYieldFee access control issue, none of which addre",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "claimPrizes loop over user-supplied arrays can be griefed to block claims",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a griefing issue in claimPrizes with user‑controlled hooks, which is unrelated to the known findings H‑02 (withdraw exploit) or H‑04 (mintYieldFee access control).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a griefing attack via hooks in claimPrizes, which is not related to the known findings about deposit theft or unauthorized mintYieldFee.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Yield fee can be minted to recipient even when vault is undercollateralized",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different flaw in mintYieldFee related to fee share accounting undercollateralization, not the access control issue of H-04 or the deposit theft of H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different issue (fee shares diluting exchange rate and being minted after re-collateralization) than the known H-04 which is about lack of access control allowing arbitrary r",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_deposit uses stale _vaultAssets causing incorrect transfer amount",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a flaw in the _deposit() function, whereas the known findings address different functions (withdraw and mintYieldFee) and distinct root causes.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a bug in _deposit related to stale _vaultAssets and incorrect transfer amount, which is not covered by the known findings H-02 (withdraw) or H-04 (mintYieldFee).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "liquidate() trusts caller-supplied _amountOut without slippage check",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a slippage check issue in liquidate(), which is unrelated to the known findings about withdraw and mintYieldFee.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing slippage check in liquidate(), which is a different root cause and impact than the known findings about deposit theft or unauthorized mintYieldFee.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Liquidation can be front-run to capture yield at depositor expense",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a front‑running issue in liquidate(), which is unrelated to the known findings about withdraw stealing (H‑02) or unrestricted mintYieldFee (H‑04).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a front-running attack on liquidation to capture yield, which is a different root cause and impact than the known findings about deposit theft and unauthorized minting of yield",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "setHooks allows arbitrary hook implementation to be invoked during claims",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability in setHooks, not covered by H-02 or H-04.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy/arbitrary hook issue in setHooks, which is not the same root cause as the known findings about share burning in withdraw or unrestricted mintYieldFee.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "liquidate() mints shares without pulling assets, diluting existing holders",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a dilution issue in liquidate(), a different function and root cause than the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability in the liquidate function, while the known findings are about withdraw and mintYieldFee.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "availableYieldBalance uses maxWithdraw which may include unrealized/illiquid assets",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue (overstated yield due to maxWithdraw) not covered by H-02 or H-04.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different root cause (maxWithdraw overstating yield) in a different function than the known findings about deposit theft or unrestricted yield fee minting.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "liquidate() mints shares without depositing assets into yield vault",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distinct issue in liquidate() unrelated to the withdraw or mintYieldFee bugs listed.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different root cause (missing deposit of yield fee assets into yield vault) than either known finding (share burning exploit or unauthorized mintYieldFee).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "liquidate() reverts when vault is undercollateralized, freezing liquidation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue (liquidate() revert due to undercollateralization) not covered by H-02 or H-04.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a liquidation freeze due to undercollateralization, which is not covered by the known findings about deposit theft or unauthorized yield fee minting.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "withdraw/redeem revert when vault undercollateralized, trapping user funds",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a vault undercollateralization lockout in withdraw/redeem, which differs from the known findings about share burning theft (H-02) and unrestricted mintYieldFee (H-04).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different issue (withdraw/redeem revert when undercollateralized) not present in the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "depositWithPermit/mintWithPermit/sponsorWithPermit lack nonce binding to vault",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a permit replay issue, which does not correspond to the known findings H-02 or H-04.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a permit nonce/domain binding issue, while the known findings are about a withdrawal share burn bug and an unauthorized mintYieldFee call, which are different root causes.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Liquidation amount out can exceed available yield due to fee calculation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a double-counting fee bug in _liquidatableBalanceOf(), which is unrelated to the known findings about withdraw stealing (H-02) or unrestricted mintYieldFee (H-04).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a double-counting fee issue in _liquidatableBalanceOf(), which is not related to the known findings H-02 (withdraw exploit) or H-04 (unrestricted mintYieldFee).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_currentExchangeRate ignores yield fee supply when collateralized",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a miscalculation in _currentExchangeRate, which is unrelated to the known findings about withdraw share burning (H-02) or unrestricted mintYieldFee (H-04).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an exchange rate inflation bug in _currentExchangeRate, which is not the same root cause as either H-02 (withdraw burning max shares) or H-04 (unrestricted mintYieldFee).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "availableYieldBalance uses _totalShares but exchange rate uses _totalSupply",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a miscalculation in availableYieldBalance, which is unrelated to the withdraw share‑burn issue (H-02) or the unrestricted mintYieldFee function (H-04).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different issue (yield fee double-counting) not covered by the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_lastRecordedExchangeRate can be stale and used for conversions",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a stale exchange rate issue in _convertToAssets, which is unrelated to the known findings about withdraw stealing (H-02) or unrestricted mintYieldFee (H-04).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a stale exchange rate issue in _convertToAssets, which is a different root cause and code location than the known findings about share burning in withdraw or unauthorized mintY",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_deposit uses yieldVault.deposit without checking returned shares or slippage",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing check of returned shares in _deposit, which is a different issue than the known findings H-02 and H-04.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a different vulnerability in _deposit regarding unchecked return value, while known findings cover other issues in withdraw and mintYieldFee.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Reentrancy via ERC777/hook token in _deposit before shares minted",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in _deposit, which is unrelated to the known findings about withdraw share burning (H-02) or unrestricted mintYieldFee (H-04).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy vulnerability in _deposit, while the known findings are about a withdraw/share burning issue and an access control issue in mintYieldFee.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "claimPrizes hook callbacks allow reentrancy into vault state",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in claimPrizes via hooks, which is a different function and root cause than the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in claimPrizes hooks, while the known findings are about a withdrawal share burn bug and an unauthorized mintYieldFee call, which are different root causes.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "deposit/mint revert when vault undercollateralized, trapping new deposits",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a deposit/mint blocking issue due to under-collateralization, which is unrelated to the known findings about deposit theft (H-02) or unrestricted mintYieldFee (H-04).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a deposit/mint blocking issue due to undercollateralization, which is not the root cause of either known finding (stealing deposits or unrestricted mintYieldFee).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_claimPrize uses hooks.implementation without checking code existence",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing contract existence check in _claimPrize, which does not correspond to the known findings about deposit theft or mintYieldFee access control.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes missing contract existence check in hook calls, which is not the same vulnerability as any listed known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "liquidate() mints shares to _account without verifying _account is the LP's designated receiver",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distinct issue in liquidate() rather than the mintYieldFee or withdraw functions referenced in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing check in liquidate(), while known findings H-02 and H-04 are about different functions and root causes.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "VaultFactory.deployVault is permissionless and can deploy vaults with arbitrary parameters",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a permissionless deployVault issue, which is unrelated to the known findings about withdraw stealing or mintYieldFee misuse.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding is about permissionless vault deployment in VaultFactory, while known findings concern access control issues in Vault.sol functions (withdraw and mintYieldFee).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "liquidate fee accrual uses wrong formula, over-crediting yield fee",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fee calculation error in the liquidate function, which is unrelated to the known findings about withdraw stealing (H-02) or unrestricted mintYieldFee (H-04).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a fee calculation error in liquidate, while the known findings are about unauthorized withdrawals and unrestricted mintYieldFee calls.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Reentrancy via ERC777 token in _withdraw after burn but before yieldVault.withdraw",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in _withdraw, which is not covered by the known findings H-02 or H-04.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-02",
+    "reden": "Both findings describe a reentrancy attack in Vault._withdraw after burning shares but before withdrawing from yield vault, allowing inflated exchange rate and theft.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "liquidate() mints shares after external contributePrizeTokens and yieldVault.deposit",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in liquidate(), which is not covered by H-02 or H-04.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes reentrancy in liquidate() due to external calls before minting; H-02 and H-04 are different root causes.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "mintYieldFee lacks reentrancy guard and updates state before mint",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue, while the known findings address access control and deposit theft, not the same root cause.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in mintYieldFee, while the known findings H-02 and H-04 address different root causes (withdraw vulnerability and lack of access control with wrong recipient",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "setLiquidationPair approves new LP before updating state, enabling front-run drain",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different function (setLiquidationPair) and a distinct approval ordering issue, which does not correspond to the known findings H-02 or H-04.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a front-run vulnerability in setLiquidationPair due to approval before state update, which is not related to the known findings about withdraw or mintYieldFee.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_deposit calls yieldVault.deposit with full _assets even when vault already holds assets",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue in _deposit unrelated to the known findings H-02 or H-04.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a potential deposit revert due to yield vault capacity, which is unrelated to the theft in H-02 or the access control issue in H-04.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "setLiquidationPair resets approval but old pair may still pull assets",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a liveness issue with setLiquidationPair, which does not correspond to the known findings about deposit theft (H-02) or unrestricted mintYieldFee (H-04).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a liveness issue with setLiquidationPair resetting allowances, which is a different root cause and impact than the known findings about deposit theft or unauthorized minting.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "liquidate() trusts LiquidationPair caller without verifying tokenIn/tokenOut pairing",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a flaw in liquidate() related to unverified LiquidationPair pairing, which does not correspond to the listed findings about withdraw overburn (H-02) or unrestricted mintYieldFe",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a trust issue in liquidate() regarding tokenIn/tokenOut verification, which is not covered by the known findings about withdraw() or mintYieldFee().",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "claimPrizes() does not validate _feeRecipient or _feePerClaim against prize pool",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a flaw in claimPrizes, which is unrelated to the known findings about withdraw or mintYieldFee functions.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns claimPrizes() fee validation, not the withdrawal share burn (H-02) or unauthorized mintYieldFee (H-04).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "VaultFactory.deployVault allows arbitrary owner and no salt/nonce binding",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a factory deployment issue, which does not correspond to the known findings about Vault.withdraw or Vault.mintYieldFee.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding is about VaultFactory.deployVault, while the known findings are about Vault.sol functions (withdraw and mintYieldFee), with no overlap in root cause or code location.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "setLiquidationPair leaves stale approval on old pair if asset changes",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an approval reset issue in setLiquidationPair, which is unrelated to the withdrawal share burn bug (H-02) or the unrestricted mintYieldFee function (H-04).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an approval reset issue in setLiquidationPair, which is unrelated to the known findings about withdraw theft (H-02) or mintYieldFee access control (H-04).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "mintYieldFee does not update exchange rate before minting",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an exchange‑rate miscalculation in mintYieldFee, which is a different root cause than the known findings about unauthorized minting or withdrawal exploits.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an exchange rate calculation issue in mintYieldFee, while the known findings cover a withdrawal exploit and a missing access control issue, none of which match the described ro",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

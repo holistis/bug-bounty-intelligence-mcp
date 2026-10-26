@@ -1,0 +1,495 @@
+{
+ "audit": "2024-05-munchables",
+ "verdicts": [
+  {
+   "title": "SignatureVerifier v-check always reverts (v != 27 || v != 28)",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a logical error in SignatureVerifier.sol, which is unrelated to the lockOnBehalf or setLockDuration issues in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a bug in SignatureVerifier.sol, while the known findings are about LockManager.sol and unrelated issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "RewardsManager claims WETH yield but passes USDB address",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a token address mix‑up in RewardsManager, which is unrelated to the lock time manipulation findings H-01 and H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a token address mismatch in RewardsManager._claimYieldForContract, which is a different root cause and code location than the known findings about lock duration manipulation in",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Silently typo claims WETH yield as USDB, funds sent to wrong token",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a typo in token claim logic in RewardsManager.sol, unrelated to the lockOnBehalf or setLockDuration issues in LockManager.sol.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a typo in RewardsManager.sol, while known findings are about lock timing issues in LockManager.sol.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "MigrationManager.migrateAllNFTs lets arbitrary caller migrate another user's NFTs",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing access control in migrateAllNFTs, not the lockOnBehalf validation issue described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing access control in migrateAllNFTs, while known findings H-01 and H-02 are about lockOnBehalf abuse and unlock time manipulation, not the same root cause.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "BonusManager._calculateMigrationBonus divides by (migrateHighestAmount - weightedValue)",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a division-by-zero bug in BonusManager, which is unrelated to the lock time manipulation findings H-01 and H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a division-by-zero bug in BonusManager._calculateMigrationBonus, which is unrelated to any known finding about lock durations or unlock logic.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "RewardsManager.claimGasFeeForContracts callable by anyone drains gas yield",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unrestricted function in RewardsManager.sol, which is unrelated to the lockOnBehalf or setLockDuration issues in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an access control issue in RewardsManager.claimGasFeeForContracts, which is unrelated to the known findings about LockManager lock durations.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "SnuggeryManager.pet multiplies schnibbles by 1e18 after division",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a scaling error in SnuggeryManager.pet, unrelated to the lockOnBehalf or setLockDuration issues in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a precision/unit error in SnuggeryManager.pet, while the known findings are about lock/unlock logic in LockManager.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "SignatureVerifier accepts malleable signatures and wrong v check",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a signature verification bug in SignatureVerifier.sol, which is unrelated to the lockOnBehalf or setLockDuration issues in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns SignatureVerifier.sol with signature malleability and v check issues, while known findings are about LockManager.sol and lock duration manipulation.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "MigrationManager lockFundsForAllMigration ignores ERC20 transfer return",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing ERC20 return check in MigrationManager, which is unrelated to the lockOnBehalf time reset (H-01) or unlock validation (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing return-value check in MigrationManager, while the known findings concern lock duration manipulation in LockManager.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LockManager._lock ignores ERC20 transferFrom return value",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing check of ERC20 transferFrom return value, which is unrelated to the known findings about lockOnBehalf time extension or invalid validation for early unlock.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing return value check for transferFrom, which is not mentioned in any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "getLockedWeightedValue underflows for tokens with decimals > 18",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an underflow bug in getLockedWeightedValue, which is unrelated to the lockOnBehalf or setLockDuration issues in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an underflow in getLockedWeightedValue due to token decimals > 18, which is not related to the known findings about lockOnBehalf or setLockDuration.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "RNGProxy request index collision allows overwriting pending requests",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an index collision in RNGProxy, unrelated to the lockOnBehalf or validation issues of the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns RNGProxy request index collision in BaseRNGProxy.sol, while the known findings are about lock duration manipulation in LockManager.sol, which are unrelated.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ClaimManager._claimPoints referral bonus not deducted from claimAmount",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an over‑minting issue in ClaimManager.sol, which is unrelated to the lock manipulation findings H-01 and H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a referral bonus accounting bug in ClaimManager, which is unrelated to the lock/unlock timing issues in the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Migration bonus uses stale usdPrice and can divide by zero",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different bug in BonusManager.sol unrelated to the lockOnBehalf or setLockDuration issues in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a stale price and division by zero in BonusManager._calculateMigrationBonus, which is a different root cause and code location than the known findings about lockOnBehalf and se",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LockManager.lockOnBehalf allows locking on behalf of any registered account without consent",
+   "strict": "H-01",
+   "a": {
+    "match": "H-01",
+    "reden": "Both describe the lockOnBehalf function allowing unauthorized extension of a victim's unlockTime",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-01",
+    "reden": "The candidate describes the same root cause in lockOnBehalf: an unpermissioned attacker can reset the victim's unlockTime by locking on their behalf, matching H-01.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "USD price update can be executed with stale/zero price and no sanity bounds",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a price feed approval issue, which is unrelated to the lockOnBehalf or setLockDuration validation bugs in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a price oracle manipulation risk via multisig, which is a different root cause and impact than the known findings about lock duration manipulation.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LockManager.unlock reverts on zero-value ETH transfer to contract recipient",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a revert on ETH transfer in unlock, which is unrelated to the lockOnBehalf time extension or invalid validation findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a revert in unlock due to ETH transfer to a contract that cannot receive ETH, which is a different issue from the known findings about lockOnBehalf and setLockDuration.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "claimPoints can be re-triggered each period with same chonk, referral double-dip",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and flaw unrelated to the lockOnBehalf or validation issues in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding is about ClaimManager.sol and chonk ratio manipulation, while known findings are about LockManager.sol and unlock time manipulation.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "BaseRNGProxy.requestRandom selector stored unverified enables arbitrary callback target",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unverified callback selector issue in BaseRNGProxy, which is unrelated to the lockOnBehalf or unlock validation bugs in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns BaseRNGProxy's requestRandom and callback mechanism, while the known findings are about lock/unlock functionality in a different protocol (Munchables).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "RNGProxyAPI3 requestRandom can be front-run to overwrite request mapping",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a front‑run mapping overwrite in RNGProxyAPI3, which is unrelated to the lock/unlock issues of the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a front-running/overwrite issue in RNGProxyAPI3.sol, while the known findings concern lock duration manipulation in LockManager.sol.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "NFTOverlord.startReveal can be permanently blocked by MAX_REVEAL_QUEUE",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a queue blockage in NFTOverlord.startReveal, which is unrelated to the lockOnBehalf or setLockDuration issues in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different issue in NFTOverlord.sol, unrelated to the LockManager lock duration findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "SnuggeryManager.getSnuggery returns wrong slice when _start > 0",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an out-of-bounds array access in SnuggeryManager, which is unrelated to the lockOnBehalf or setLockDuration issues in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an out-of-bounds array access in SnuggeryManager.getSnuggery, which is unrelated to the known findings about lock duration manipulation in LockManager.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "MigrationManager.migratePurchasedNFTs lacks nonReentrant and reuses stale snapshot",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy and stale snapshot issue in MigrationManager, which does not correspond to the lockOnBehalf unlock-time extension (H-01) or setLockDuration validation bug (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a reentrancy and duplicate tokenId issue in MigrationManager, which is unrelated to the known findings about lockOnBehalf unlockTime reset or setLockDuration validation",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "referralBonus units mismatch inflates referrer rewards arbitrarily",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a units mismatch in referral bonus calculation, which is unrelated to the lock time manipulation findings H-01 and H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a units mismatch in referral bonus calculation in ClaimManager.sol, which is a different root cause and code location than the known findings about lock duration manipulation i",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "MigrationManager._migrateNFTs leaves open ERC20 approvals to LockManager",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes residual ERC20 approvals after migration, which is unrelated to the unlock time manipulation or validation bugs in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes leftover approvals in MigrationManager, while known findings are about lockOnBehalf unlock time extension and setLockDuration validation.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LockManager.setLockDuration can extend lock on behalf of others via self-service",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a flaw in setLockDuration allowing unauthorized extension of locks, which differs from the known findings about lockOnBehalf misuse (H-01) and early unlock validation (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a self-service lock duration extension and missing registration checks, which is a different root cause and impact from the known findings about malicious lockOnBehalf extensio",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "MigrationManager double-counts purchased NFT price in migratePurchasedNFTs",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a double-counting issue in MigrationManager, which does not correspond to the lockOnBehalf or setLockDuration bugs listed in H-01 or H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a double-counting bug in migratePurchasedNFTs, which is unrelated to the known findings about lockOnBehalf unlock time extension or setLockDuration validation.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LockManager.setLockDuration iterates all configured tokens, can be griefed\nSEVERITY Medium",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a gas‑limit DoS due to an unbounded loop in setLockDuration, which is unrelated to the known findings about lockOnBehalf extending unlock times (H-01) or invalid validation all",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a denial-of-service via unbounded loop in setLockDuration, which is not the same as the known findings about lockOnBehalf or validation issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "MigrationManager.migrateAllNFTs can be griefed by skipping claimed snapshots",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a griefing issue in MigrationManager.migrateAllNFTs, which is unrelated to the lockOnBehalf or setLockDuration validation bugs in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a griefing attack on migrateAllNFTs due to skipped claimed snapshots, which is unrelated to the lockOnBehalf or setLockDuration issues in the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "NFTOverlord.reveal trusts RNG proxy signature without verifying player binding",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an RNG proxy signature binding issue in NFTOverlord, which does not correspond to the lockOnBehalf or unlock validation findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a signature verification issue in NFTOverlord.reveal, while the known findings are about lock/unlock logic in LockManager.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "burnNFTs skips unclaimed snapshot entries but marks action LOCKED_BURN",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different bug in MigrationManager.sol unrelated to the lockOnBehalf or setLockDuration issues in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug in MigrationManager.burnNFTs, while known findings concern LockManager's lockOnBehalf and setLockDuration functions.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "MigrationManager.migratePurchasedNFTs lets caller migrate another user's purchased NFT ids without paying",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and issue unrelated to the lockOnBehalf or early unlock bugs in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability in MigrationManager.migratePurchasedNFTs, while the known findings are about LockManager's lockOnBehalf and setLockDuration.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "MigrationManager.migratePurchasedNFTs msg.value check uses wrong quantity",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a mismatch in ETH payment calculation in MigrationManager, which does not correspond to the lockOnBehalf unlock time extension (H-01) or setLockDuration validation issue (H-02)",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns a different function and root cause (msg.value calculation in MigrationManager) than the known findings about LockManager lockOnBehalf and setLockDuration.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ClaimManager._claimPoints can be griefed via referral bonus to zero-address",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a referral bonus minting issue in ClaimManager, which is unrelated to the lockOnBehalf or setLockDuration bugs in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a ClaimManager referral bonus issue, which is unrelated to the known LockManager findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "setLockDurationReset does not update playerSettings consistency — referral & bonus reuse",
+   "strict": null,
+   "a": {
+    "match": "H-02",
+    "reden": "Both describe the same invalid validation in setLockDuration that lets users reduce lock time after increasing it, enabling early unlock/bonus abuse.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a bonus/referral reuse issue via setLockDuration, while the known findings cover lockOnBehalf unlockTime extension and early unlock validation, which are different root causes.",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

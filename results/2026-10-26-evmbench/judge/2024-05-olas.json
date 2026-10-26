@@ -1,0 +1,593 @@
+{
+ "audit": "2024-05-olas",
+ "verdicts": [
+  {
+   "title": "StakingBase.initialize() callable by anyone, no access control",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unprotected initialize function, which is unrelated to the known findings about vote weighting or token bridging.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing access control in StakingNativeToken.initialize(), which is a different contract and root cause than the known findings about VoteWeighting and GnosisTargetDispenserL",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ServiceRegistryProxyGeneric.changeOwner() has no access control",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unrestricted ownership change in a proxy contract, which does not correspond to the known findings about vote weighting or token bridging.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes missing access control in ServiceRegistryProxyGeneric.changeOwner(), which is unrelated to the known VoteWeighting or GnosisTargetDispenserL2 vulnerability findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ServiceRegistryProxyGeneric.changeManager() and changeDrainer() unguarded",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unguarded external function in ServiceRegistryProxyGeneric, which does not correspond to the root causes of H-01 or H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns ServiceRegistryProxyGeneric, while the known findings are about VoteWeighting and GnosisTargetDispenserL2, with different root causes.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ServiceRegistryProxy.changeOwner() unguarded, forwards to owned registry",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unguarded proxy function, which does not correspond to the known findings about vote weighting or token bridging.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an access-control flaw in ServiceRegistryProxy, which is unrelated to the known VoteWeighting and GnosisTargetDispenserL2 findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "GuardCM.checkTransaction() callable by anyone to bypass guard",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unrestricted guard function, which is unrelated to the known findings about vote weighting or token bridging.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns GuardCM.checkTransaction() access control, while the known findings are about VoteWeighting and GnosisTargetDispenserL2, which are unrelated contracts and issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ServiceRegistry.terminate refunds ETH before resetting safeTransferFrom path; reentrancy via serviceOwner",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in ServiceRegistry.sol, which is unrelated to the known findings about VoteWeighting slope updates or GnosisTargetDispenserL2 bridging.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes reentrancy in ServiceRegistry.terminate, while known findings are about VoteWeighting and GnosisTargetDispenserL2, unrelated.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "unbondWithSignature nonce/replay protection broken by sender-agnostic nonce",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a replay issue in unbondWithSignature, which does not correspond to the known findings about vote weighting or token bridging.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns replay protection in unbondWithSignature in ServiceManagerToken.sol, which is unrelated to the known findings about VoteWeighting and GnosisTargetDispenserL2.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "StakingBase.stake records staking before safeTransferFrom enables cross-contract hook reentrancy",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in StakingBase.sol, which does not correspond to the unrelated known findings H-01 or H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy/state-update issue in StakingBase, while the known findings concern VoteWeighting slope updates and GnosisTargetDispenserL2 bridging.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "registerAgentsWithSignature lacks deadline and chainId in signed payload",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing deadline/chainId in a signature payload, which does not correspond to the known findings about vote weighting or token bridging.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns a different contract and issue (missing chainId/deadline in signature) than the known findings about VoteWeighting and GnosisTargetDispenserL2.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Treasury ETHFromServices/ETHOwned conservation breaks on forced ETH",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a Treasury ETH conservation invariant issue, which is unrelated to the known findings about vote weighting or token bridging.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a Treasury invariant issue with forced ETH, which is unrelated to the VoteWeighting or GnosisTargetDispenserL2 findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "DefaultTargetDispenserL2.redeem() callable by anyone to drain queued OLAS",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unrestricted redeem function in DefaultTargetDispenserL2, which does not correspond to the root causes of H-01 or H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing access control in DefaultTargetDispenserL2.redeem(), while the known findings cover different issues in VoteWeighting.sol and GnosisTargetDispenserL2.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Treasury ETHFromServices/ETHOwned accounting drift via forced ETH",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an ETH accounting drift in Treasury.sol, which is unrelated to the governance voting weight issue (H-01) or the token bridging issue (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes a different vulnerability in Treasury.sol unrelated to the known findings about VoteWeighting and GnosisTargetDispenserL2.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "StakingBase reward uses stale nonces when activity checker reverts",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and issue than the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns StakingBase.sol and nonce handling, while known findings are about VoteWeighting and GnosisTargetDispenserL2.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ServiceRegistryL2 accepts arbitrary agentIds without L1 validation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing L1 validation in ServiceRegistryL2, which is unrelated to the known findings about VoteWeighting slope updates or token bridging validation.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns ServiceRegistryL2 and agentIds, while the known findings are about VoteWeighting.sol and GnosisTargetDispenserL2, which are different contracts and issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Treasury withdrawToAccount ignores failed ETH reward silently",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a silent ETH reward loss in Treasury.withdrawToAccount, which is unrelated to the known findings about VoteWeighting or GnosisTargetDispenserL2.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a silent ETH reward failure in Treasury.withdrawToAccount, which is a different bug and code location than the known findings about VoteWeighting or GnosisTargetDispenserL2.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Staking rewards can be claimed twice via unstake after claim",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a double-claim reward issue in StakingBase.sol, which does not correspond to the governance vote weighting or token bridging findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a staking reward double-claim issue in StakingBase.sol, which is unrelated to the known VoteWeighting or GnosisTargetDispenserL2 findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "DefaultTargetDispenserL2 redeem can be front-run to block staking",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a front‑run/authorization issue in DefaultTargetDispenserL2.redeem, which differs from the known findings about vote weighting updates (H‑01) and bridge sender verification in ",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a front-running vulnerability in DefaultTargetDispenserL2.redeem, which is a different contract and root cause than the known findings (H-01 and H-02).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ServiceRegistry.slash() can over-slash slashedFunds vs operator balance",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an overflow in ServiceRegistry.slash(), which is unrelated to the known findings about VoteWeighting or GnosisTargetDispenserL2.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a potential overflow in slashedFunds in ServiceRegistry.slash(), which is a different code and root cause from the known findings about VoteWeighting and GnosisTargetDispenserL",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "DefaultTargetDispenserL2 withheldAmount double-counted on repeated processData",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a double-counting bug in DefaultTargetDispenserL2, which is unrelated to the known findings about VoteWeighting or GnosisTargetDispenserL2 bridging checks.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a double-counting issue in DefaultTargetDispenserL2._processData(), which is a different contract and root cause than the known findings H-01 (VoteWeighting) and H-02 (",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Treasury depositTokenForOLAS trusts depository-supplied olasMintAmount",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a minting trust issue in Treasury.sol, which does not correspond to the known findings about VoteWeighting or GnosisTargetDispenserL2.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a trust/validation issue in Treasury.depositTokenForOLAS, while the known findings concern VoteWeighting nomination/voting power and GnosisTargetDispenserL2 bridging, with no c",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "StakingBase checkpoint reward uses block.timestamp without upper bound",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unbounded timestamp reward calculation in StakingBase, which is unrelated to the slope update issue (H-01) or the bridging validation issue (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate concerns StakingBase reward timestamp capping, while both known findings are in VoteWeighting and GnosisTargetDispenserL2 with different root causes.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Treasury.withdrawToAccount sends ETH before OLAS mint, blocking reentrancy via state order",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in Treasury.withdrawToAccount, which is unrelated to the known findings about VoteWeighting or GnosisTargetDispenserL2.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy/ordering issue in Treasury.withdrawToAccount, which is unrelated to the VoteWeighting or GnosisTargetDispenserL2 findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "DefaultTargetDispenserL2 redeem lacks binding to source message/chain validation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a hash-collision replay issue in DefaultTargetDispenserL2.redeem, which differs from the known findings' root causes and contracts.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a hash collision in DefaultTargetDispenserL2, while known findings are about VoteWeighting and GnosisTargetDispenserL2 with different root causes.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Staking rewards can be claimed after service eviction without unstaking",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and flaw unrelated to the known findings H-01 or H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different issue in StakingBase.sol regarding reward claims after eviction, while known findings concern VoteWeighting and GnosisTargetDispenserL2.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "DefaultTargetDispenserL2.redeem leaves approve() result unchecked",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unchecked approve return value in DefaultTargetDispenserL2.redeem, which does not correspond to either known finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate's unchecked approve issue in DefaultTargetDispenserL2.redeem is not described in either known finding, which cover different contracts and root causes.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "StakingBase reward rounding leaves dust in availableRewards",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a rounding fairness issue in StakingBase.sol, which does not correspond to the known findings about vote weighting or token bridging.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a rounding/fairness issue in StakingBase.checkpoint, which is unrelated to the governance or bridging vulnerabilities in the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ServiceRegistry.unbond() refund capped by balance but balance not zeroed on partial",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a refund handling bug in ServiceRegistry.unbond(), which is unrelated to the known findings about VoteWeighting or GnosisTargetDispenserL2.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a stranded funds issue in ServiceRegistry.unbond(), which is unrelated to the known findings about VoteWeighting or GnosisTargetDispenserL2.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "StakingBase.stake() does not verify service deposit against actual token balance",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing balance verification in StakingBase.stake(), which is unrelated to the known findings about VoteWeighting or GnosisTargetDispenserL2.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns StakingBase.sol and stake() function, while the known findings are about VoteWeighting.sol and GnosisTargetDispenserL2, with different root causes.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "GuardCM pause() relies on governor state that can be manipulated",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue in GuardCM.sol unrelated to the known findings about VoteWeighting or GnosisTargetDispenserL2.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns GuardCM.sol's pause() function, while the known findings are about VoteWeighting.sol and GnosisTargetDispenserL2, with no overlap in contract or root cause.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Treasury.depositTokenForOLAS reads allowance after reserves update; transferFrom may return false",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a Treasury deposit token issue, which is unrelated to the known findings about VoteWeighting or GnosisTargetDispenserL2.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a potential issue in Treasury.depositTokenForOLAS, which is unrelated to the two known findings about VoteWeighting and GnosisTargetDispenserL2.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ServiceRegistry.unbond refunds ETH before full state cleanup of operator mappings",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy-like refund issue in ServiceRegistry.unbond, which is unrelated to the known findings about VoteWeighting slope updates or GnosisTargetDispenserL2 bridging.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns ServiceRegistry.unbond, while the known findings are in VoteWeighting.sol and GnosisTargetDispenserL2.sol with different root causes.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Treasury.withdrawToAccount silently skips ETH payout when ETHFromServices insufficient",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a silent ETH payout skip in Treasury.withdrawToAccount, which does not correspond to either known finding about vote weighting or token bridging.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding is about a silent ETH payout skip in Treasury.withdrawToAccount, which is unrelated to the known findings about VoteWeighting and GnosisTargetDispenserL2.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "DefaultTargetDispenserL2._processData loop over unbounded targets can OOG",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unbounded loop OOG issue in DefaultTargetDispenserL2, which does not correspond to the root causes of the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an unbounded loop causing OOG in DefaultTargetDispenserL2._processData, while known findings cover different root causes (governance vote weight update issues and arbitrary tok",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ServiceRegistry.terminate refunds securityDeposit but leaves operator bonds locked if service was never deployed",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a bug in ServiceRegistry.sol unrelated to the VoteWeighting or GnosisTargetDispenserL2 findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug in ServiceRegistry.terminate, not related to the known findings in VoteWeighting or GnosisTargetDispenserL2.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "GuardCM bridge verifier trusts unvalidated relayer-supplied address in scheduled data",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and flaw (unvalidated relayer address in GuardCM.sol) than the known findings, which involve vote weighting and token bridging in unrelated contracts.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing validation in GuardCM's _verifySchedule, while known findings concern VoteWeighting and GnosisTargetDispenserL2, which are different contracts and bugs.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "StakingBase checkpoint uses stored tsStart permitting reward double-counting through unstake path",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reward double-counting issue in StakingBase.sol, which is unrelated to the known findings about VoteWeighting slope updates or GnosisTargetDispenserL2 bridging.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns StakingBase reward double-counting, which is unrelated to the known findings about VoteWeighting and GnosisTargetDispenserL2.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Treasury depositServiceDonationsETH allows donation replay by reusing same serviceIds across distinct txs but with no per-donation binding",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a replay issue in Treasury.depositServiceDonationsETH, which is unrelated to the known findings about VoteWeighting slope updates or GnosisTargetDispenserL2 bridging.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing per-donation binding in Treasury.depositServiceDonationsETH, which is unrelated to the known findings about VoteWeighting slope updates or GnosisTargetDispenserL2 bri",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Treasury ETHFromServices can be drained via rebalanceTreasury manipulation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a Treasury.sol rebalanceTreasury flaw, which is unrelated to the known findings about VoteWeighting or GnosisTargetDispenserL2.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a Treasury.rebalanceTreasury issue, which is unrelated to the VoteWeighting or GnosisTargetDispenserL2 findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ServiceRegistry slash can be called with zero-amount to grief operators",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and issue (zero-amount slash griefing) unrelated to the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns ServiceRegistry.slash() with zero amounts, while known findings are about VoteWeighting.sol and GnosisTargetDispenserL2, unrelated contracts and issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "DefaultTargetDispenserL2.redeem re-entered via staking target deposit with stale queue state",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in DefaultTargetDispenserL2.redeem, which is unrelated to the known findings about VoteWeighting or GnosisTargetDispenserL2 bridging.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy concern in DefaultTargetDispenserL2.redeem, which is not related to the known findings about VoteWeighting or GnosisTargetDispenserL2.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "StakingBase.unstake reverts when service was evicted, trapping rewards",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and bug (unstake handling of evicted services) than the known findings, which concern vote weighting and token bridging.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes a bug in StakingBase.unstake, while known findings concern VoteWeighting and GnosisTargetDispenserL2.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "GuardCM.pause can be triggered by multisig when governor proposal is Defeated, disabling guard",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a pause logic issue in GuardCM.sol, which is unrelated to the listed findings about VoteWeighting.sol and GnosisTargetDispenserL2.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns GuardCM.sol and a pause function triggered by a defeated proposal, which is unrelated to the known findings about VoteWeighting.slope updates or GnosisTargetDispenserL2 ",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

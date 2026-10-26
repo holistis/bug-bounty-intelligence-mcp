@@ -1,0 +1,649 @@
+{
+ "audit": "2024-07-munchables",
+ "verdicts": [
+  {
+   "title": "Snuggery pet() multiplies schnibbles by 1e18 causing massive inflation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and function (SnuggeryManager.sol pet()) unrelated to the known findings which focus on LandManager and its farming/plot logic.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns schnibbles inflation in SnuggeryManager.pet(), which is not addressed by any known finding in LandManager.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "MigrationManager.rescue uses transferFrom instead of transfer",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a token rescue bug in MigrationManager, which is unrelated to the LandManager plot and farming issues in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The known findings concern LandManager plot/farming issues, not MigrationManager's rescue function.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LockManager.unlock() zeroes remainder, losing dust on partial unlock",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a bug in LockManager.unlock unrelated to any listed LandManager findings",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a bug in LockManager.unlock() while all known findings concern LandManager functions.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "SnuggeryManager.pet() schnibble math multiplies by 1e18 after division",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a miscalculation in SnuggeryManager.pet(), which is unrelated to any of the listed LandManager findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding is about SnuggeryManager.pet() with a multiplication error, while all known findings are about LandManager and unrelated functions.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ClaimManager._claimPoints referral bonus not deducted from claimAmount",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a referral bonus miscalculation in ClaimManager._claimPoints, which does not correspond to any of the listed LandManager-related findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a referral bonus accounting bug in ClaimManager, which is unrelated to the known LandManager findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LockManager.unlock uses unchecked ERC20 transfer, can silently fail",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unchecked ERC20 transfer in LockManager.sol, which is unrelated to the LandManager plot/farming issues in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an unchecked ERC20 transfer in LockManager.unlock, which is a different contract and root cause than any of the known findings, which all relate to LandManager.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "unlock() leaves open ERC20 approval path and uses unsafe transfer return",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an ERC20 transfer issue in LockManager.sol, which does not correspond to any of the listed LandManager.sol findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding is about unsafe ERC20 transfer in LockManager.unlock, while all known findings are in LandManager and unrelated.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Missing notPaused on RewardsManager claim functions",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing pause/role check in RewardsManager, which is unrelated to the LandManager-related findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing access control/pause issue in RewardsManager, which is unrelated to the known LandManager plot/farming vulnerabilities.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "MigrationManager allows anyone to burn anyone's NFTs",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a vulnerability in MigrationManager.burnNFTs, which is unrelated to the listed LandManager findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns MigrationManager.burnNFTs, while all known valid findings concern LandManager functions.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "MigrationManager discountFactor division by 10e12 truncates to zero",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a division truncation bug in MigrationManager, unrelated to the LandManager plot or farming issues in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns MigrationManager discountFactor math, while all known findings concern LandManager plot/reward bugs.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "USD price proposal can be executed with stale/zero price and no freshness check",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a price update issue in LockManager.sol, which does not correspond to any of the listed LandManager.sol findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate concerns USD price proposal freshness in LockManager, unrelated to known LandManager findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AccountManager.spraySchnibblesPropose leaves stale _tempSprayPlayerCheck",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a stale mapping issue in AccountManager.spraySchnibblesPropose, which does not correspond to any of the listed LandManager-related findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a stale boolean flag in AccountManager.spraySchnibblesPropose, which is unrelated to any of the known findings that concern LandManager plot staking, farming, or reward logic.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AccountManager._harvest uses stale lastHarvestDate after registration",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reward calculation issue in AccountManager._harvest, which is unrelated to the LandManager plot or farming bugs listed in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug in AccountManager._harvest, while all known findings concern LandManager plot farming issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "MigrationManager rescue() uses transferFrom from self, likely reverts/fails",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a bug in MigrationManager.sol rescue() unrelated to any LandManager plot or farming issues listed in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes a bug in MigrationManager.rescue(), while all known findings concern LandManager and different functions.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "getLockedWeightedValue underflows for tokens with decimals > 18",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an underflow in LockManager.getLockedWeightedValue due to token decimals, which is unrelated to any of the known findings about LandManager plot handling or farmPlots.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an underflow in LockManager's getLockedWeightedValue due to token decimals > 18, which is unrelated to the LandManager plot and farming issues in the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "getLockedWeightedValue uses usdPrice without zero/freshness guard",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing usdPrice check in LockManager.sol, which does not correspond to any of the listed LandManager-related findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Known findings are in LandManager.sol about plot mechanics; candidate is a distinct LockManager.sol usdPrice zero-check issue.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "MunchNFT._update calls external munchadexManager before state changes",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in MunchNFT._update, which does not correspond to any of the listed LandManager-related findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate concerns MunchNFT._update external-call-before-state-change in NFT transfer, while all known findings are about LandManager plot/farming logic.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "NFTOverlord.startReveal can be griefed via MAX_REVEAL_QUEUE",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and issue (NFTOverlord startReveal queue) not covered by any known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a griefing issue in NFTOverlord.startReveal, while all known findings concern LandManager plot/farming bugs.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "SnuggeryManager.exportMunchable reverts if NFT was transferred out",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distinct bug in SnuggeryManager.exportMunchable, which does not correspond to any of the listed LandManager-related findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns SnuggeryManager.exportMunchable and NFT transfer-out causing a revert, whereas all known findings are LandManager plot staking/reward issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "RNG reveal callback lacks requestId binding, allowing replay of entropy",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an RNG replay issue in NFTOverlord.sol, which is unrelated to the LandManager plot/farming bugs listed in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an RNG replay vulnerability in NFTOverlord.sol, while all known valid findings concern LandManager plot and staking logic.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ClaimManager._claimPoints lets late claimers drain excess from prior periods",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a flaw in ClaimManager._claimPoints, which is unrelated to the LandManager-related findings listed.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a vulnerability in ClaimManager._claimPoints, while all known findings concern LandManager and unrelated plot/farming issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "MigrationManager.migratePurchasedNFTs charges msg.value but ignores per-token discount",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a bug in MigrationManager.migratePurchasedNFTs unrelated to the LandManager plot or farming issues in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns MigrationManager.migratePurchasedNFTs with discount and duplicate tokenId issues, while all known findings are about LandManager and unrelated functions.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "PrimordialManager.feedPrimordial level loop can read unset primordialLevels",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a bug in PrimordialManager.feedPrimordial, which is unrelated to the known findings about LandManager functions and different root causes.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes a bug in PrimordialManager.feedPrimordial, while all known findings concern LandManager.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Primordial feedPrimordial underflows schnibbles deduction",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an underflow in PrimordialManager.feedPrimordial, which is unrelated to the LandManager issues listed in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate is about PrimordialManager.feedPrimordial, while all known findings are about LandManager.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "BaseRNGProxy.requestRandom lacks notPaused and re-request protection",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a request index collision issue in BaseRNGProxy, which is unrelated to the LandManager plot or farming bugs listed in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns BaseRNGProxy and NFTOverlord, while all known findings are about LandManager and unrelated issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "addReveal lets LockManager create unbounded unrevealed NFTs",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract (NFTOverlord.sol) and a distinct issue unrelated to the LandManager plot/farming bugs.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a forced state alteration via addReveal in NFTOverlord, which is unrelated to the LandManager plot/farming bugs in the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LockManager._lock uses msg.sender for migration check instead of tokenOwner",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a bug in LockManager related to migration checks, which does not correspond to any of the listed LandManager-related findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns LockManager._lock migration check, while all known findings are about LandManager plot/farming bugs.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Migration lock amount uses stale snapshot price with no slippage/min-out",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a price snapshot issue in MigrationManager.sol, which does not correspond to any of the listed LandManager.sol findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different contract (MigrationManager.sol) and a different root cause than any known finding about LandManager.sol farming/plot issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "BonusManager migration bonus uses stale usdPrice with no freshness check",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a stale price issue in BonusManager.sol, which does not correspond to any of the listed LandManager-related findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns BonusManager and stale usdPrice, while all known findings are about LandManager and plot-related issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "MigrationManager.migrateAllNFTs can be permanently bricked by skip",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a bug in MigrationManager.migrateAllNFTs, which is unrelated to the known findings that all involve LandManager functions.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug in MigrationManager.migrateAllNFTs, while all known findings are in LandManager.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Level-up RNG request keyed only by hash, allowing overwrite and replay",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an RNG request overwrite issue in NFTOverlord.sol, which does not correspond to any of the listed LandManager-related findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes an RNG replay/overwrite issue in NFTOverlord.sol, which shares no root cause or code location with any listed LandManager finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "BaseRNGProxy._callback allows arbitrary target call with attacker-controlled selector",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and vulnerability (arbitrary call in BaseRNGProxy) unrelated to the LandManager plot/farming issues in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns a different contract (BaseRNGProxy) and a different vulnerability (arbitrary callback call), while all known findings are about LandManager and plot farming issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LockManager.unlock() does not reset lastLockTime, allowing schnibble double-count",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a bug in LockManager.unlock() unrelated to the LandManager/plot issues of the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a bug in LockManager.unlock(), while all known findings are about LandManager and related functions.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LockManager._lock lets migrationManager bypass remainder/NFT accounting",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a bug in LockManager._lock unrelated to the LandManager-related findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns LockManager._lock, while all known findings are about LandManager, so they are unrelated.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Migration lockFundsForAllMigration allows double-lock via discriminator bypass",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a bug in MigrationManager.sol unrelated to the LandManager.sol issues listed in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate concerns MigrationManager lock/claim logic, while all known findings are about LandManager farming/plot vulnerabilities.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "migratePurchasedNFTs charges user before reentry check on _userPurchasedAction",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy/charging issue in MigrationManager.sol, which does not correspond to any of the listed LandManager.sol findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding is in MigrationManager.sol about migratePurchasedNFTs, while all known findings are in LandManager.sol about different functions.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LandManager._farmPlots landlord schnibbles not deducted from renter total",
+   "strict": null,
+   "a": {
+    "match": "H-04",
+    "reden": "Both describe an underflow in _farmPlots that can freeze/revert user funds",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a potential underflow in schnibbles calculation due to negative finalBonus, which is not the root cause of any listed known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Migration discountFactor applied without bounds allows zero or inflated lock",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unbounded discountFactor in MigrationManager.sol, which does not correspond to any of the listed LandManager.sol findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate concerns MigrationManager discountFactor bounds; known findings all concern LandManager plot staking and farming issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "MigrationManager._migrateNFTs calls lockOnBehalf during iteration",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a migration function and lock manager interaction, which does not correspond to any of the listed LandManager-related findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns MigrationManager and lockOnBehalf, while all known findings are about LandManager and plot farming issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "MigrationManager.migratePurchasedNFTs allows re-migration via duplicate tokenIds",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a duplicate tokenId accounting issue in MigrationManager, which does not correspond to any of the listed LandManager findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate concerns MigrationManager duplicate tokenIds; known findings are unrelated LandManager issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "burnNFTs / burnRemainingPurchasedNFTs re-process already claimed snapshots",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a flaw in MigrationManager.sol burnNFTs logic, which does not correspond to any of the listed LandManager-related findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding is about MigrationManager.sol's burn functions, while all known findings are in LandManager.sol and concern farming/plot mechanics.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LandManager.farmPlots writing landlord metadata during renter loop",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a stale metadata update issue in _farmPlots, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different issue about metadata updates in the loop, not matching any known finding's root cause.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "fundTreasuryDistributor trusts caller's token bag contents",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding concerns FundTreasuryDistributor token transfer logic, which is unrelated to the LandManager plot and farming issues described in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a trust/access control issue in FundTreasuryDistributor.receiveTokens, while all known findings are about plot/farming logic in LandManager.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LockManager.unlock reentrancy via forceHarvest and token callback",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in LockManager.unlock, which is unrelated to the LandManager-related findings listed.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy concern in LockManager.unlock, which is not the root cause of any listed known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "PrimordialManager.hatchPrimordialToMunchable state updated before external mint",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a potential reentrancy issue in PrimordialManager.hatchPrimordialToMunchable, which is unrelated to any of the listed LandManager findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns PrimordialManager.hatchPrimordialToMunchable, while all known findings relate to LandManager plot mechanics, not the same contract or root cause.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "SnuggeryManager.exportMunchable transfers NFT before state cleanup",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy/state cleanup issue in SnuggeryManager.exportMunchable, which does not correspond to any of the listed LandManager-related findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding is about SnuggeryManager.exportMunchable, while all known findings are about LandManager and different functions.",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

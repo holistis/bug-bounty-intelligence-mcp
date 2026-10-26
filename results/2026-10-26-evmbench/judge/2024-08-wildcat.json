@@ -1,0 +1,579 @@
+{
+ "audit": "2024-08-wildcat",
+ "verdicts": [
+  {
+   "title": "Anyone can call nukeFromOrbit to force-block a sanctioned account",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unrestricted nukeFromOrbit call, not the withdraw batching overflow described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate is about unauthorized access to nukeFromOrbit, while the known finding is about a withdrawal calculation bug.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Missing minimum-out / slippage on deposit and withdrawal amounts",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes missing slippage checks, not the over‑withdrawal batch issue of H‑01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes missing slippage/minimum output checks, while the known finding [H-01] is about a calculation error in withdrawal distribution leading to over-withdrawal.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Griefing executeWithdrawal via queued dust from sanctioned account",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a denial‑of‑service via zero‑amount entries, while H‑01 concerns over‑withdrawal causing later withdrawals to fail, which are different root causes.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a griefing attack via revert on zero withdrawal amount, while the known finding H-01 is about incorrect proportional withdrawal calculation causing last user to fail.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "WildcatSanctionsEscrow.releaseEscrow is permanently frozen for sanctioned account",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a sanction‑list freeze in releaseEscrow, which is unrelated to the withdraw‑over‑allocation issue of H‑01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a permanent freeze of escrow due to sanctions, while the known finding is about withdraw batch accounting overflow.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "WildcatMarketBase._getMarketParameters trusts caller() without validation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a trust issue in _getMarketParameters, which is unrelated to the withdraw batch overflow finding H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability in market parameter initialization, not the withdrawal batch calculation issue in H-01.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "grantRole allows any approved provider to overwrite credentials of accounts from other providers",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a role credential overwrite issue, which does not correspond to the known withdraw overpayment finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a grantRole privilege/credential overwrite issue, unrelated to the withdraw batch accounting flaw of H-01.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Fee-on-transfer / rebasing asset breaks totalAssets accounting",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fee-on-transfer/rebasing token accounting issue in _depositUpTo, which is unrelated to the withdraw batching overflow described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes a fee-on-transfer/rebasing accounting issue, which is unrelated to the known finding about withdraw batch proportional underpayment.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Read-only reentrancy via hooks in _getUpdatedState / view functions",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a read‑only reentrancy issue in AccessControlHooks, which is unrelated to the withdraw‑batch over‑withdrawal finding H‑01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a read-only reentrancy via hooks, which is a different root cause and impact compared to the known finding about excessive withdrawals causing failures.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "pushProtocolFeeBipsUpdates stops whole batch on a single misbehaving market",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a loop revert issue in HooksFactory, unrelated to the withdraw batch overflow described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different issue in HooksFactory.pushProtocolFeeBipsUpdates, while the known finding is about withdrawal logic in Wildcat.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Role provider credential timestamp is not bound to chain or contract",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a credential timestamp binding issue, which is unrelated to the withdraw overdraw bug in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns credential timestamp binding in AccessControlHooks, while the known finding H-01 is a withdrawal accounting bug.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Temporary reserve ratio can be gamed to avoid reserve requirements",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different contract and issue; candidate describes a reserve ratio manipulation, not the withdraw over‑allocation bug.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns a different function and root cause (reserve ratio gaming) than the known finding about withdrawal batching.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "WildcatMarketBase._isSanctioned ignores return value of sentinel call",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a sentinel call validation issue in _isSanctioned, which is unrelated to the withdraw batching logic of H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in _isSanctioned, while the known finding H-01 is about withdrawal batch calculation.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "executeWithdrawal allows anyone to trigger withdrawal for any account",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unrestricted caller issue, while H-01 concerns over‑withdrawal due to batch amount calculations, which are different root causes.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an unauthorized execution of withdrawals, while the known finding is about a calculation error allowing over-withdrawal.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Rounding in _applyWithdrawalBatchPayment can leave dust that blocks closeMarket",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes rounding dust causing closeMarket to revert, not the over‑withdraw issue described in H‑01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a rounding dust issue in _applyWithdrawalBatchPayment that could block closeMarket, while the known finding H-01 is about users withdrawing more than supposed to, forcing the l",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "`getAvailableWithdrawalAmount` uses stale batch when expiry equals pending batch",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a stale batch underestimation issue, not the over‑withdrawal bug described in H‑01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a stale batch causing understated withdrawal amounts, while the known finding is about over-withdrawal causing failure; they are different root causes and impacts.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Reentrancy into market from untrusted role provider during deposit hook",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in _depositUpTo, which does not correspond to the known withdraw overdraw finding H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in deposit hooks, unrelated to the known H-01 withdrawal batch calculation bug.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Reentrancy from executeWithdrawal hook (onExecuteWithdrawal) before state write",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in _executeWithdrawal, which is a different root cause than the batch withdrawal over‑withdrawal described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy vulnerability in _executeWithdrawal, while the known finding H-01 is about proportional withdrawal distribution in batches causing last-user failure.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "repayAndProcessUnpaidWithdrawalBatches can be DoS'd via satSub mismatch",
+   "strict": null,
+   "a": {
+    "match": "H-01",
+    "reden": "Both describe a rounding‑error in batch withdrawal processing that can cause normalized withdrawals to exceed assets, leading to a failed/DoS withdrawal.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes a DoS in repayAndProcessUnpaidWithdrawalBatches due to satSub rounding, while known finding H-01 is about users withdrawing more than allowed causing last user's withdrawal to fail",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Borrower can permanently block last lender via reserveRatio/debt mismatch + close",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a closeMarket loop issue, not the over‑withdraw bug described in H‑01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug in closeMarket() while the known finding is about withdrawal batch processing.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Pull provider credential refresh lacks chain/contract binding",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a credential binding issue unrelated to the withdraw overdraw bug in H-01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a credential binding issue in FixedTermLoanHooks, while the only known finding is about withdrawal accounting in a different contract.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Withdrawal batch payment uses stale scaleFactor, overpaying early withdrawers",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a stale scaleFactor causing overpayment, which is a different root cause than the known finding about batch.normalizedAmountPaid miscalculation.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a stale scaleFactor issue in _applyWithdrawalBatchPayment, while the known finding concerns proportional withdrawal distribution exceeding totals.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "HooksFactory.getMarketParameters is callable by anyone, leaking params",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unauthorized read of transient storage in HooksFactory, which is unrelated to the withdraw overdraw issue in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns unauthorized access to market parameters in HooksFactory, unrelated to the withdraw batching vulnerability in H-01.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "repayAndProcessUnpaidWithdrawalBatches is permissionless and can be used to grief",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a permissionless function misuse, while the known finding concerns an over-withdraw calculation error; they are different root causes.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a permissionless griefing/ordering issue in repayAndProcessUnpaidWithdrawalBatches, while known H-01 is a different bug about excessive withdrawals in batch processing.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "collectFees is permissionless and can be front-run to deny fee recipient",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a permissionless fee collection issue, which is unrelated to the withdraw overflow bug in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a permissionless collectFees front-running issue, which is not the same root cause as the known finding about withdraw batch accounting.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "updateState is permissionless and can be used to force interest accrual timing",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unrestricted updateState function, which is a different root cause than the withdraw amount misallocation described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a permissionless updateState timing issue, which is not the same root cause as the known finding about withdrawal overpayment causing last user withdrawal failure.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "getAvailableWithdrawalAmount rounds down per-account, allowing dust griefing of batch",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a rounding-down dust lock issue, while the known finding concerns over-withdrawal causing a later failure, so they are different root causes.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes rounding down causing dust and revert for small accounts, while the known finding H-01 is about over-withdrawal forcing last user to fail; different root cause and impact.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "First depositor can inflate scaleFactor via donation to grief subsequent depositors",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a deposit scaling issue, not the withdraw batch overdraw described in H-01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a deposit/scaleFactor inflation attack via donation, while the known finding H-01 is about withdrawal batch calculation errors.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "applyProtocolFee uses scaledTotalSupply * scaleFactor * feeRay, overcharging on pending withdrawals",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fee calculation rounding issue in applyProtocolFee, which is unrelated to the withdraw batch over‑withdraw vulnerability of H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes rounding drift in protocol fee calculation, while the known finding is about batch withdrawal division rounding allowing excess withdrawals.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "queueWithdrawal uses scaleAmount(amount) rounding up, letting users withdraw more than deposited",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different function and root cause; candidate describes rounding penalty, not over-withdraw bug described in H-01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes rounding in scaleAmount as non-exploitable, while the known finding is about a different rounding/distribution issue that lets users withdraw more and breaks the last withdrawa",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "`_getUpdatedState` uses `totalAssets()` mid-function allowing donation-based manipulation",
+   "strict": null,
+   "a": {
+    "match": "H-01",
+    "reden": "Both describe the same over‑withdraw bug in WildcatMarketBase where the batch withdrawal calculation can be inflated, allowing a user to receive more than entitled.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes donation-based manipulation of totalAssets() to inflate availableLiquidity, while H-01 is about a different root cause in withdrawal batch accounting.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "`_tryGetCredential` accepts future-dated credential timestamps from providers",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a timestamp validation issue in AccessControlHooks, which is unrelated to the withdraw over‑allocation bug described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a timestamp validation issue in credential expiry, which is unrelated to the known finding about withdrawal accounting in Wildcat.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "`onSetAnnualInterestAndReserveRatioBips` reads `intermediateState.reserveRatioBips` as original, ignoring hook-provided value",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a hook ignoring a parameter, unrelated to the withdraw batch over‑withdrawal issue in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns the hook ignoring the reserveRatioBips parameter, which is unrelated to the known H-01 withdraw batching vulnerability.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Stale view of pending withdrawal batch during hook callback",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a stale view issue due to hook ordering, which is a different root cause than the over‑withdraw bug described in H‑01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a stale view during hook callback, while the known finding is about a different arithmetic vulnerability in withdrawal amount calculation.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Read-only reentrancy in balanceOf/totalSupply during repay hook",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a read-only reentrancy issue in repay hooks, which is a different root cause than the batch withdrawal over‑withdraw bug described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a read-only reentrancy issue in repayAndProcessUnpaidWithdrawalBatches, while the known finding H-01 is about a withdrawal calculation error.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Hooks data suffix is not bound to the market or function selector",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a hook calldata binding issue, unrelated to the withdraw batch overflow described in H-01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a hooks data reuse vulnerability across different market functions, which is not the same root cause as the known finding about withdrawal accounting errors.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Escrow release does not verify caller or re-check sanction status atomically",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a sanction check and access control issue in releaseEscrow, which is unrelated to the batch withdrawal overflow described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing access control and non-atomic sanction check in releaseEscrow, which is unrelated to the known finding about withdraw batch accounting.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Sanction override is per-borrower and can be set by any caller",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a sanction override issue in a different function, unrelated to the withdraw overdraw bug in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing access control in overrideSanction, while the known finding is about a different arithmetic issue in withdrawal processing.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Protocol fees accrue on scaledTotalSupply including pending withdrawals",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fee calculation issue in applyProtocolFee, while the known finding concerns withdraw amount calculation in batch processing; they are different root causes.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes protocol fees being charged on pending withdrawals, which is a different issue from the known finding about users withdrawing more than their share.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Delinquency fee accrues on full supply including pending withdrawals",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fee accrual issue, not the withdraw over‑allocation bug of H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different root cause (delinquency fee on pending withdrawals) than the known finding (withdrawal amount calculation error).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "closeMarket can leave unpaid batches with no mechanism to pay them",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a closeMarket unpaid batch handling issue, which is unrelated to the withdraw overpayment bug described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in closeMarket regarding unpaid batches, while the known finding [H-01] is about withdrawal amount calculation errors in batch processing.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Sanctioned account's queued withdrawal can be executed by anyone, bypassing block",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unauthorized execution of sanctioned withdrawals, while H-01 concerns over‑withdrawal due to batch accounting, so they are different root causes.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes a different issue (public executeWithdrawal for sanctioned accounts) than the known finding about over-withdrawal and last-user failure.",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

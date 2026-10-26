@@ -1,0 +1,579 @@
+{
+ "audit": "2024-04-noya",
+ "verdicts": [
+  {
+   "title": "Registry onlyVaultMaintainer modifier uses AND instead of OR",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No known finding describes the same access‑control logic bug in Registry.sol's onlyVaultMaintainer modifier.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes the onlyVaultMaintainer modifier logic error in Registry.sol; H-12 is about updateHoldingPosition, a different bug.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Morpho TVL double-counts borrow amount in position value",
+   "strict": "H-19",
+   "a": {
+    "match": "H-19",
+    "reden": "Both describe the same TVL mis‑calculation in MorphoBlueConnector._getPositionTVL where borrowAmount is added instead of subtracted",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-19",
+    "reden": "The candidate describes the same root cause as H-19: borrowAmount is added instead of subtracted in MorphoBlue TVL calculation.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AccountingManager.burnShares is callable by anyone to burn their own shares",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No known finding describes the unrestricted burnShares function in AccountingManager",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a missing access control on burnShares, which is not among the known valid findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "First-depositor share inflation via direct baseToken donation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No known finding describes the same share inflation via direct baseToken donation in AccountingManager.sol",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a first-depositor share inflation attack via direct donation, which is not present in any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Chainlink oracle missing round completeness and sequencer checks",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing round completeness and sequencer check in ChainlinkOracleConnector, which does not correspond to any listed known finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes missing Chainlink oracle checks (round completeness and sequencer) in ChainlinkOracleConnector, which is not covered by any known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Pendle LP/PT oracle uses short TWAP duration of 10 seconds",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No known finding describes the short TWAP duration manipulation issue in PendleConnector._getPositionTVL",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding about short TWAP duration is not described in any of the known valid findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "BalancerFlashLoan.makeFlashLoan is callable by anyone and sets caller to msg.sender",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an access control issue in BalancerFlashLoan.makeFlashLoan, which does not correspond to any listed known finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing access control on makeFlashLoan, while known findings focus on different issues such as TVL miscalculations, oracle errors, or the sendTokensToTrustedAddress vulnerab",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "LifiImplementation.performSwapAction trusts caller-supplied `from` for token pull",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a trust issue in LifiImplementation.performSwapAction, which is unrelated to any known finding's specific contract or function.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a vulnerability in LifiImplementation.performSwapAction, which is not present in any of the known findings from the 2024-04-noya audit.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Withdraw fee taken from user but not accounted in totalWithdrawnAmount",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No known finding describes the same fee double-counting bug in AccountingManager.executeWithdraw",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a unique fee accounting issue in executeWithdraw, not covered by any listed known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "UniswapValueOracle uses spot slot0-derived TWAP with no cardinality check",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing observation cardinality check in UniswapValueOracle, which is unrelated to any listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing cardinality check in UniswapValueOracle, which is not among the listed known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "executeWithdraw reads totalCBAmountFullfilled after it is zeroed",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distinct issue in executeWithdraw related to totalCBAmountFullfilled, which does not correspond to any listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a calculation issue in executeWithdraw when availableAssets < totalCBAmount, which is not covered by any known finding; H-04 is about blacklist blocking and H-10 is about reset",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Anyone can freeze the withdraw group by calling checkIfTVLHasDroped",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No known finding describes the same public checkIfTVLHasDroped() flaw in AccountingManager.sol.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes the missing access control on checkIfTVLHasDroped() or its ability to prevent performance fee collection.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Performance fee shares minted without burning on TVL drop",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a unique performance fee share accounting issue not covered by any listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a double-counting profit issue in AccountingManager's checkIfTVLHasDroped and recordProfitForFee, which is not among the known findings that focus on oracle pricing, TVL miscal",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "PendleConnector.isMarketEmpty ignores Penpie deposits",
+   "strict": "H-21",
+   "a": {
+    "match": "H-21",
+    "reden": "Both describe isMarketEmpty ignoring Penpie deposits causing decreasePosition to incorrectly remove the holding position",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-21",
+    "reden": "Both findings describe that isMarketEmpty does not account for Penpie deposits, causing decreasePosition to incorrectly remove the holding position.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Pendle getYTValue uses static router spot quote for TVL",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No known finding describes the staticRouter spot quote misuse in PendleConnector.getYTValue",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a spot quote manipulation in PendleConnector.getYTValue, which is not covered by any listed known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "BalancerFlashLoan.receiveFlashLoan trusts userData for vaultId and receiver without binding to caller",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different flaw (trusting userData in receiveFlashLoan) than the known finding H-08 (insufficient access control in sendTokensToTrustedAddress), so it does not match.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a distinct root cause in BalancerFlashLoan's userData handling/keeper binding, not the insufficient access control in Connector.sendTokensToTrustedAddress described in H-08.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Deposit limit check uses TVL before pending deposits are counted",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No known finding describes the deposit limit check flaw in AccountingManager.deposit()",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a deposit limit check issue in AccountingManager.deposit(), which is not among the listed known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "NoyaFeeReceiver.withdrawShares and burnShares are onlyOwner but owner can be any address",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an owner access control issue in NoyaFeeReceiver, which is not covered by any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an access control issue in NoyaFeeReceiver, which is not covered by any of the known findings that focus on TVL calculations, oracles, or connector-specific bugs.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "SwapAndBridgeHandler.executeSwap minAmount can be zero when checkForSlippage is false",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No known finding describes the same root cause of missing slippage validation in executeSwap",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing slippage check in SwapAndBridgeHandler, which is not among the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "recordProfitForFee mints shares based on stale totalProfitCalculated",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fee share calculation issue in AccountingManager.recordProfitForFee, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a fee calculation issue in AccountingManager.recordProfitForFee, which is not mentioned in any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ChainlinkOracleConnector inverse price uses wrong decimals source",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distinct bug in ChainlinkOracleConnector's decimal handling, which does not correspond to any listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes the ChainlinkOracleConnector inverse decimals root cause.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "SwapHandler slippage check uses oracle value, not actual swap output",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a slippage check issue in SwapHandler using an oracle value, which does not correspond to any listed known finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding addresses the slippage check in SwapHandler using oracle value instead of actual swap output; the listed findings concern oracle price calculation errors, TVL calculations, or other c",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "deposit() checks TVL limit after transferring tokens in",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No known finding describes the same deposit() ordering issue in AccountingManager.sol",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different issue (TVL limit check ordering and griefing) than any known finding, which focus on oracle pricing, connector TVL calculations, or access control.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "BalancerFlashLoan caller reset allows reentrant misuse",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No known finding describes the same caller reset reentrancy issue in BalancerFlashLoan.makeFlashLoan",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in BalancerFlashLoan, which is not among the listed known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Unbounded withdraw queue growth blocks executeWithdraw via gas",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No known finding describes the unbounded withdraw queue growth issue in AccountingManager.withdraw",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an unbounded withdraw queue growth in AccountingManager, which is not covered by any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Withdraw fee taken from pro-rata amount can leave group underfunded",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No known finding describes the same fee calculation underfunding issue in executeWithdraw",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes the fee calculation issue in executeWithdraw.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Silo TVL uses raw token balances ignoring debt sign",
+   "strict": "H-15",
+   "a": {
+    "match": "H-15",
+    "reden": "Both describe a TVL miscalculation in SiloConnector's _getPositionTVL function",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-15",
+    "reden": "Both describe the same root cause: _getPositionTVL in SiloConnector uses debt token balance (a share) instead of the underlying borrowed amount, leading to incorrect TVL.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "executeWithdraw divides by totalCBAmountFullfilled which can be zero",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a division‑by‑zero risk in executeWithdraw, which is not covered by any listed finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a division by zero in executeWithdraw due to totalCBAmountFullfilled being zero, which is not the root cause of any known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "fulfillCurrentWithdrawGroup uses stale totalCBAmount after reset",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No known finding describes the same root cause in fulfillCurrentWithdrawGroup of AccountingManager.sol",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes the same root cause in fulfillCurrentWithdrawGroup; the listed findings cover different functions and issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "collectManagementFees mints shares diluting existing holders without asset backing",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No known finding describes the management fee share minting dilution issue in collectManagementFees",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes the management fee share minting logic in collectManagementFees; they concern oracles, connectors, TVL, or other AccountingManager functions.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "retrieveTokensForWithdraw trusts connector-reported amount",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No known finding describes the same root cause of trusting connector-reported amount and reentrancy in AccountingManager.retrieveTokensForWithdraw",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy/trusting-connector issue in AccountingManager.retrieveTokensForWithdraw, which is not the same root cause as any known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "deposit() reverts after transferFrom when amount exceeds per-tx limit",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a deposit ordering and limit check issue in AccountingManager.deposit, which does not correspond to any listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes issues in AccountingManager.deposit() regarding order of checks and TVL calculation, which are not covered by any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "BalancerFlashLoan.receiveFlashLoan trusts caller set by anyone",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a unique caller‑trust issue in BalancerFlashLoan, which is not covered by any listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a griefing/access-control flaw in BalancerFlashLoan.receiveFlashLoan, which is a different root cause than the known H-08 issue in Connector.sendTokensToTrustedAddress.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "NoyaValueOracle.getValue follows arbitrary priceRoutes without validating sources",
+   "strict": null,
+   "a": {
+    "match": "H-03",
+    "reden": "Both describe NoyaValueOracle.getValue using price routes that can be misconfigured/malicious, leading to incorrect prices",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a lack of validation of price route sources, which is not the same root cause as any known finding; H-01 and H-03 address different issues in the same contract.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Management fee minted on stale share count ignoring pending deposits",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No known finding describes the same root cause in AccountingManager.collectManagementFees regarding stale share count and pending deposits",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes a management fee being calculated on a stale share count ignoring pending deposits in AccountingManager.collectManagementFees().",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "retrieveTokensForWithdraw allows over-retrieval beyond needed assets",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No known finding describes the same retrieveTokensForWithdraw over-retrieval bug in AccountingManager.sol",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a bug in retrieveTokensForWithdraw using requested amount instead of actual amount, which is not covered by any known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "executeDeposit mints shares before addLiquidity external call",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No known finding describes the same reentrancy issue in AccountingManager.executeDeposit",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in executeDeposit due to minting shares before the external call, which is not covered by any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Keepers.execute nonce incremented before external call",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No known finding describes the same nonce increment and reentrancy issue in Keepers.sol's execute() function",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding is about Keepers.sol's execute function, which is not covered in any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "retrieveTokensForWithdraw can be griefed to revert via amountAskedForWithdraw",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a unique denial‑of‑service via amountAskedForWithdraw in retrieveTokensForWithdraw, which does not correspond to any listed known finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes the same root cause in retrieveTokensForWithdraw in AccountingManager.sol.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Keepers.execute allows any owner to grief via gasLimit and nonce consumption",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a denial‑of‑service issue in Keepers.execute, which is unrelated to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a griefing attack on a multisig execute function, which is not related to any of the known findings about oracle pricing, TVL calculation, or connector-specific issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ChainlinkOracleConnector.getValue uses stale/inverse price without validating round completeness",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing validation in ChainlinkOracleConnector.getValueFromChainlinkFeed, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing round completeness check in ChainlinkOracleConnector, which is not covered by any of the known findings that focus on different issues in other contracts or different",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

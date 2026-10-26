@@ -1,0 +1,48 @@
+{
+ "totals": {
+  "alle": {
+   "known_findings": 117,
+   "hypotheses": 1537,
+   "strict_top15": 23,
+   "strict_top30": 29,
+   "strict_all": 29,
+   "one_judge_top30": 41,
+   "one_judge_all": 49,
+   "audits": 40
+  },
+  "zonderOverlap": {
+   "known_findings": 110,
+   "hypotheses": 1384,
+   "strict_top15": 21,
+   "strict_top30": 27,
+   "strict_all": 27,
+   "one_judge_top30": 39,
+   "one_judge_all": 47,
+   "audits": 36
+  },
+  "vers": {
+   "known_findings": 14,
+   "hypotheses": 255,
+   "strict_top15": 3,
+   "strict_top30": 4,
+   "strict_all": 4,
+   "one_judge_top30": 4,
+   "one_judge_all": 4,
+   "audits": 7
+  },
+  "oud": {
+   "known_findings": 96,
+   "hypotheses": 1129,
+   "strict_top15": 18,
+   "strict_top30": 23,
+   "strict_all": 23,
+   "one_judge_top30": 35,
+   "one_judge_all": 43,
+   "audits": 29
+  }
+ },
+ "audits_without_strict_hit": 18,
+ "judge_answers": 3074,
+ "unreadable_judge_answers": 3,
+ "judge_cost_usd": 0.313
+}

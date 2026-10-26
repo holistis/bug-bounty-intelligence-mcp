@@ -1,0 +1,537 @@
+{
+ "audit": "2026-01-tempo-stablecoin-dex",
+ "verdicts": [
+  {
+   "title": "cancel() lacks maker authorization check",
+   "strict": "H-02",
+   "a": {
+    "match": "H-02",
+    "reden": "Both describe missing maker authorization in StablecoinDEX.sol's cancel() function",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-02",
+    "reden": "Both describe the missing maker authorization check in cancel() allowing anyone to cancel any order.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "emergencyWithdraw() bypasses balance check and underflows",
+   "strict": "H-04",
+   "a": {
+    "match": "H-04",
+    "reden": "Both describe the unchecked balance subtraction in _processWithdrawal leading to integer underflow and liquidity drain",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-04",
+    "reden": "Both describe the same unchecked subtraction vulnerability in _processWithdrawal() without balance validation, leading to underflow and draining of liquidity.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "fillOrder() allows maker to self-fill and inflate balances",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a self-fill issue in fillOrder, which does not correspond to the missing authorization in cancel() (H-02) or the integer underflow in _processWithdrawal (H-04).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a self-fill vulnerability in fillOrder, which is not covered by the known findings about cancel authorization or withdrawal underflow.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "cancel() allows anyone to cancel any order and steal refund",
+   "strict": "H-02",
+   "a": {
+    "match": "H-02",
+    "reden": "Both describe missing authorization in the cancel() function allowing anyone to cancel any order",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-02",
+    "reden": "The candidate describes the same missing authorization in cancel() allowing anyone to cancel any order, matching the known H-02 finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "emergencyWithdraw lacks balance check, allows draining other users' funds",
+   "strict": "H-04",
+   "a": {
+    "match": "H-04",
+    "reden": "Both describe unchecked balance subtraction in _processWithdrawal causing an integer underflow that lets users withdraw more than their balance",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-04",
+    "reden": "Candidate describes the same underflow vulnerability in _processWithdrawal's unchecked balance subtraction, allowing users to drain liquidity.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "cancel() has no maker authorization, anyone can cancel any order",
+   "strict": "H-02",
+   "a": {
+    "match": "H-02",
+    "reden": "Identical missing maker authorization in the cancel() function of StablecoinDEX.sol",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-02",
+    "reden": "Both describe missing authorization in cancel() allowing anyone to cancel any order.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "fillOrder has no minimum-out / slippage parameter for taker",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing slippage check in fillOrder, which is unrelated to the authorization issue in cancel() (H-02) or the integer underflow in _processWithdrawal() (H-04).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing slippage parameter in fillOrder, which is unrelated to the known findings about cancel authorization and integer underflow.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "emergencyWithdraw() decrements before transfer but lacks balance check",
+   "strict": "H-04",
+   "a": {
+    "match": "H-04",
+    "reden": "Both describe the unchecked subtraction in _processWithdrawal() causing an integer underflow due to missing balance validation",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-04",
+    "reden": "Both describe the same unchecked subtraction in _processWithdrawal() without balance validation, leading to underflow and draining of DEX liquidity.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "totalDeposits underflow in emergencyWithdraw corrupts liquidity accounting",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an underflow of totalDeposits in emergencyWithdraw, which differs from the known balance subtraction underflow in _processWithdrawal.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-04",
+    "reden": "Both describe the same unchecked balance underflow in _processWithdrawal without sufficient balance validation, allowing users to drain DEX liquidity.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "fillOrder() does not verify quoteToken matches order pair",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing token pair validation in fillOrder, which differs from the authorization issue (H-02) and integer underflow issue (H-04).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a self-referential token pair issue in fillOrder, which is not related to the known findings about cancel authorization or withdrawal underflow.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "fillOrder ignores maker's price sanity and allows arbitrary price orders",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing price sanity check in placeOrder, which does not correspond to the authorization issue in H-02 or the integer underflow in H-04.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing price sanity check in placeOrder, while known findings cover authorization and underflow issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "withdraw() transfers tokens before decrementing balances (reentrancy)",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in withdraw(), which does not correspond to the missing authorization in cancel() (H-02) or the integer underflow in _processWithdrawal (H-04).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy vulnerability in withdraw() due to order of operations, while known findings cover missing authorization in cancel() and integer underflow in _processWithdrawal(),",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "fillOrder ignores price deviation cap, allowing arbitrary exchange rates",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing price deviation check, which does not correspond to the known findings about missing authorization or integer underflow.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing price deviation cap in fillOrder, which is unrelated to the known findings about cancel authorization or integer underflow.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "No reentrancy guard on deposit/withdraw/fillOrder",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue, which does not correspond to the missing authorization (H-02) or integer underflow (H-04) findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy vulnerability in withdraw/fillOrder, while the known findings cover missing authorization and integer underflow, which are different root causes.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "fillOrder rounds quoteAmount down, letting takers pay less than owed",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a rounding issue in fillOrder, which does not correspond to the missing authorization or integer underflow findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a rounding/truncation issue in fillOrder, which is unrelated to the missing authorization in cancel() or the unchecked underflow in _processWithdrawal().",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "fillOrder does not verify order price against current market / oracle",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a stale-price issue in fillOrder, which differs from the authorization flaw in cancel() and the integer underflow in _processWithdrawal().",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a stale-price oracle issue in fillOrder, while the known findings concern authorization in cancel() and integer underflow in withdrawals.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "deposit() credits balance after external transferFrom (reentrancy via callback token)",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in deposit(), which does not correspond to the missing authorization or integer underflow findings listed.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy vulnerability in deposit(), which is not the same root cause as missing authorization in cancel() or integer underflow in _processWithdrawal().",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "fillOrder lets taker fill own order to mint balances / self-deal",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing maker check in fillOrder, which is a different function and root cause than the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a self-fill flaw in fillOrder, which is unrelated to the missing authorization in cancel() or the integer underflow in _processWithdrawal().",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "getOrders unbounded loop can be gas-DoS'd by attacker placing many orders",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a gas‑DoS due to an unbounded loop, which is unrelated to the missing authorization or integer underflow findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a gas DoS via unbounded loop in getOrders, which is not related to the known findings about missing authorization or integer underflow.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_cancelOrder deletes only partial order fields, leaving remaining/prev/next stale",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a stale data issue in _cancelOrder, which does not correspond to the missing authorization (H-02) or integer underflow (H-04) findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes incomplete deletion of order fields in _cancelOrder, which is not related to the known findings about missing authorization or integer underflow.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "placeOrder does not verify baseToken != quoteToken, enabling self-dealing wash trades",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing token pair validation in placeOrder, which differs from the known authorization or integer underflow issues.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug in placeOrder (missing token validity check), while known findings concern cancel() authorization and withdrawal underflow.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "fillOrder rounding allows zero-quote fills draining maker's base for free",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a rounding error in fillOrder, which does not correspond to the missing authorization in cancel (H-02) or the integer underflow in _processWithdrawal (H-04).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a rounding vulnerability in fillOrder, while the known findings cover authorization in cancel() and integer underflow in balance subtraction.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Fee-on-transfer / rebasing tokens break deposit accounting",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fee-on-transfer/rebasing token accounting issue in deposit(), which is unrelated to the missing authorization in cancel() (H-02) or integer underflow in withdrawals (H-04).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a fee-on-transfer/rebasing accounting issue in deposit(), which is unrelated to the cancel() authorization flaw or the unchecked balance underflow flaw.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Price decimals mismatch between 18-decimal price and 6-decimal tokens",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a price scaling bug in fillOrder, which does not correspond to the missing authorization or integer underflow issues listed.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a price decimals mismatch in fillOrder(), which is not related to the known findings about missing authorization or integer underflow.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "cancel() refunds before fully clearing order, enabling reentrancy double-refund",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy refund issue, not the missing authorization bug of H-02 or any other listed finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy/double-refund issue in cancel(), which is not covered by the known findings (H-02: missing authorization, H-04: integer underflow).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "No deadline/nonce on orders enabling stale execution and replay",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a replay issue due to missing deadline/nonce, which does not correspond to the known findings about missing authorization in cancel() or integer underflow.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing deadline/nonce for order execution, which is a different root cause and impact than the known findings about cancel authorization and balance underflow.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_removeFilledOrder leaves stale remaining/amount fields readable",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a stale data readability issue, which does not correspond to the missing authorization or integer underflow findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability (stale data in order fields) than the known findings (authorization and underflow).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "fillOrder does not credit maker's base-token balance on partial fills correctly across price rounding",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a rounding/truncation issue in fillOrder, which does not correspond to the missing authorization or integer underflow findings listed.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a rounding/partial-fill issue in fillOrder, while the known findings are about missing cancel authorization and withdrawal underflow.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "fillOrder credits taker base tokens without checking maker's locked balance consistency",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a totalDeposits inconsistency in fillOrder, which does not correspond to the missing authorization in cancel() (H-02) or the integer underflow in _processWithdrawal (H-04).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a totalDeposits accounting inconsistency in fillOrder, which is not the same root cause as the missing authorization in cancel() or the unchecked underflow in _processWithdrawa",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "placeOrder allows baseToken == quoteToken, corrupting linked list and balances",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different bug in placeOrder, not the missing cancel authorization or integer underflow listed in known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes a different root cause in placeOrder (same token allowed), not the cancel authorization or withdrawal underflow findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "totalDeposits not decremented on fill, drifts from real holdings",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a liquidity accounting issue in fillOrder, which does not match the missing authorization or integer underflow bugs in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes a different bug (totalDeposits not updated on fill) unrelated to cancel authorization or withdrawal underflow.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "placeOrder allows self-crossing and price inversion without validation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different function and root cause; does not correspond to H-02 or H-04",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a validation issue in placeOrder, while the known findings concern cancel authorization and underflow in _processWithdrawal.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "fillOrder() allows maker to reenter via callback token and manipulate order state",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in fillOrder, which does not correspond to the missing authorization or integer underflow findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in fillOrder(), while the known findings are about missing authorization in cancel() and integer underflow in balance subtraction.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "fillOrder price math truncation lets taker pay zero quote for base",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a price rounding issue in fillOrder, which does not correspond to the missing authorization in cancel() (H-02) or the integer underflow in _processWithdrawal() (H-04).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a price truncation issue in fillOrder, which is unrelated to the known findings about cancel authorization or balance underflow.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "fillOrder quoteAmount cast to uint128 can silently truncate",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a casting overflow issue in fillOrder, which differs from the missing authorization or unchecked underflow bugs in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a truncation issue in fillOrder, which is not covered by any of the known findings (H-02 and H-04).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "placeOrder() allows maker to place order against own balance without lock isolation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a lock‑balance issue in placeOrder, which does not correspond to the cancel authorization (H-02) or integer underflow (H-04) findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a balance accounting issue in placeOrder/cancel, not the missing authorization in cancel (H-02) or integer underflow in withdrawal (H-04).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Zero-amount fills blocked but dust fills still drain maker via rounding",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a rounding/dust fill issue in fillOrder, which does not correspond to the missing authorization in cancel (H-02) or integer underflow in withdrawal (H-04).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes a rounding/dust-fill issue in fillOrder, not the cancel authorization or balance underflow vulnerabilities.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "fillOrder() price/amount rounding lets taker underpay via dust fills",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a rounding/truncation issue in fillOrder(), which does not correspond to the missing authorization or integer underflow findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes rounding in fillOrder(), which is unrelated to the known findings about cancel authorization or withdrawal underflow.",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

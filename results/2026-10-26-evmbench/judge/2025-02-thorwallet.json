@@ -1,0 +1,453 @@
+{
+ "audit": "2025-02-thorwallet",
+ "verdicts": [
+  {
+   "title": "Double-claim of proportional remaining TITN via re-claim after reset",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different bug in a different function than the known H-01 finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a double-claim bug in withdrawRemainingTitn due to pool not being decremented, while the known finding H-01 is about exceeding TGTTOEXCHANGE during exchange period, which is a ",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "withdrawRemainingTitn division by zero and share manipulation via first caller",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a division‑by‑zero and share manipulation bug in withdrawRemainingTitn, which is unrelated to the TGTTOEXCHANGE limit issue of H‑01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a division by zero and share manipulation in withdrawRemainingTitn, while the known finding is about exceeding TGTTOEXCHANGE during the exchange period, a different root cause ",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "claimTitn decrements totalTitnClaimable, corrupting withdrawRemainingTitn math",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different arithmetic flaw in claimTitn, not the TGTTOEXCHANGE limit issue of H-01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug in claimTitn/withdrawRemainingTitn math, while the known finding concerns exceeding TGTTOEXCHANGE during the exchange period.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "claimTitn blocked after 360 days but withdrawRemainingTitn requires claimable balance",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a time‑based claim block and underflow issue, which is unrelated to the known finding about exceeding TGTTOEXCHANGE limits.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different issue in claimTitn/withdrawRemainingTitn, not the exceeded TGTTOEXCHANGE handling flaw from H-01.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "withdrawRemainingTitn double-counts unclaimed TITN causing insolvency",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different bug in withdrawRemainingTitn, not the TGTTOEXCHANGE overflow issue of H-01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug in withdrawRemainingTitn, while the known finding concerns exceeding TGTTOEXCHANGE during the exchange period.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "withdrawRemainingTitn proportional share uses stale initialTotalClaimable",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a stale denominator bug in withdrawRemainingTitn, which is unrelated to the known issue of missing handling when TGTTOEXCHANGE is exceeded.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a stale denominator bug in withdrawRemainingTitn, while the known finding H-01 is about exceeding TGTTOEXCHANGE limit with no handling.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "withdrawRemainingTitn first-caller captures initialTotalClaimable, griefs others",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different bug in a different function, not the TGTTOEXCHANGE limit issue of H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a griefing/dilution issue in withdrawRemainingTitn, which is unrelated to H-01's lack of handling for exceeding TGTTOEXCHANGE.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "withdrawRemainingTitn division by zero freezes all remaining claims",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a division‑by‑zero freeze in withdrawRemainingTitn, which is unrelated to the known H‑01 issue about exceeding TGTTOEXCHANGE limits.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a division-by-zero initialization issue in withdrawRemainingTitn, not the TGTTOEXCHANGE exceeded scenario in claimTitn.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "quoteTitn gives full rate for deposits just before 90-day cliff",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a timing discontinuity in quoteTitn rate calculation, which is unrelated to the known finding about missing handling when TGT_TO_EXCHANGE is exceeded.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a rate discontinuity near the 90-day cliff, while the known finding is about exceeding TGTTOEXCHANGE with no limit handling.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "totalTitnClaimable not decremented in withdrawRemainingTitn for proportional share",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different accounting bug unrelated to the TGTTOEXCHANGE limit handling in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug (accounting error in totalTitnClaimable) than the known finding (lack of handling for exceeded TGTTOEXCHANGE).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Titn _credit marks any recipient as bridged holder, locking legitimate users",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and flaw unrelated to the MergeTgt overflow issue.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding is about a different contract (Titn.sol) and a different root cause (permanent flag setting) than the known finding about MergeTgt.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "onTokenTransfer accepts arbitrary `from` allowing claimable credit to any address",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an arbitrary from issue in onTokenTransfer, which is unrelated to the known H-01 finding about TGTTOEXCHANGE limits.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability in onTokenTransfer regarding the trusted `from` parameter, not the TGTTOEXCHANGE limit issue.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "quoteTitn rounding truncation favors protocol, but zero-amount dust deposits still mint claimable entries",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a rounding/truncation issue, not the excess TGT_TO_EXCHANGE limit described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The known finding concerns exceeding the TGT_TO_EXCHANGE cap, not rounding truncation or zero-output checks in quoteTitn.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "First-caller snapshot of remainingTitnAfter1Year can be gamed to steal share",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a front‑run snapshot manipulation, while the known finding concerns missing limits on TGT deposits, which are unrelated.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a first-caller snapshot gaming issue in withdrawRemainingTitn, while the known finding H-01 concerns exceeding the hardcoded TGT exchange amount.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Transfer lock bypass via transferAllowedContract on Arbitrum",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and flaw unrelated to the MergeTgt excess handling issue.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a token transfer lock bypass in Titn.sol, which is unrelated to the MergeTgt exchange amount issue in the known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "claimTitn allows partial claims that can be replayed after 360 days via withdrawRemainingTitn",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different bug in claimTitn/withdrawRemainingTitn, not the TGTTOEXCHANGE overflow issue of H-01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a replay/partial claim issue in claimTitn and withdrawRemainingTitn, while the known finding H-01 is about exceeding TGTTOEXCHANGE, which is a different root cause and impact.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "claimTitn blocked after 360 days leaves users unable to claim accrued TITN",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a deadline claim issue, not the TGTTOEXCHANGE overflow problem of H-01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes a different bug in claimTitn regarding the 360-day deadline, not the TGTTOEXCHANGE limit issue in known H-01.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Titn transfer restriction bypass via transferAllowedContract and owner exclusion",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a transfer lock bypass in Titn.sol, which is unrelated to the MergeTgt excess handling issue in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a bypass in Titn.sol's transfer validation, which is unrelated to the known finding about MergeTgt's TGTTOEXCHANGE handling.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "claimTitn allows zero-amount claim that mutates accounting state",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a zero-amount claim issue, which is unrelated to the known finding about missing handling when TGTTOEXCHANGE is exceeded.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a zero-amount claim state-noise issue, which is a different bug than the known finding about exceeding TGTTOEXCHANGE during the exchange period.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "totalTitnClaimable can underflow via withdrawRemainingTitn double-decrement path",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an accounting/underflow issue in withdrawRemainingTitn, which is unrelated to the known finding about missing limits on TGT deposits.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an underflow/accounting mismatch in withdrawRemainingTitn, while the known finding H-01 is about exceeding the TGTTOEXCHANGE limit with no handling.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "onTokenTransfer lacks reentrancy guard on tgt callback path via ERC677",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue, while the known finding concerns missing handling of excess TGT deposits, which are unrelated.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy vulnerability in onTokenTransfer, while the known finding [H-01] is about an unenforced hardcoded limit for TGTTOEXCHANGE, which is a different root cause and impa",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "claimTitn reverts after 360 days trapping unclaimed balances",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a time‑based claim revert issue, which is unrelated to the TGTTOEXCHANGE overflow handling described in H‑01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different issue (revert after 360 days) than the known finding about exceeding TGTTOEXCHANGE.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "onTokenTransfer accepts deposits after launch but quoteTitn returns 0 near day 360",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a time-bound boundary issue, while the known finding concerns exceeding a token amount limit, so they are unrelated.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a boundary condition where quoteTitn returns 0 at exactly 360 days, while the known finding is about exceeding the TGTTOEXCHANGE limit, which is a different root cause and impa",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Cross-chain replay of LayerZero OFT messages due to missing peer/chain validation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a cross-chain replay issue in Titn.sol, unrelated to the MergeTgt overflow handling described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a LayerZero OFT replay issue in Titn.sol, which is unrelated to the known MergeTgt exchange limit finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "deposit() enforces exact TITN_ARB amount, blocking partial or repeated funding",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a strict exact amount check on deposit, while the known finding concerns missing handling when TGTTOEXCHANGE is exceeded, a different root cause.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug (exact deposit amount enforcement) than the known finding (no handling of exceeded TGT exchange limit).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "onTokenTransfer accepts arbitrary ERC677 caller spoofing via tgt address check only",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an ERC677 onTokenTransfer spoofing issue, which is unrelated to the known finding about exceeding TGTTOEXCHANGE limits.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a spoofing/hook issue in onTokenTransfer, while H-01 is about exceeding the exchange limit, a different root cause.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "setLaunchTime can be front-run to manipulate quote and claim windows",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a timing manipulation by the owner, which is unrelated to the hardcoded amount overflow issue in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an owner-controlled launch time trust issue, while the known finding is about missing handling of TGTTOEXCHANGE exceeding during the exchange period.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Titn._credit mints to 0xdead without accounting, and bridged-holder flag can be set on 0xdead",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and bug (minting to dead address in Titn._credit) unrelated to the MergeTgt overflow handling.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns Titn._credit minting to 0xdead, while the only known finding is about MergeTgt exceeding exchange limits; different code and root cause.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "withdrawRemainingTitn reads balanceOf before state update, enabling read-only reentrancy",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a read-only reentrancy issue in withdrawRemainingTitn, which is unrelated to the known H-01 finding about missing handling of TGTTOEXCHANGE limits.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a read-only reentrancy vulnerability in withdrawRemainingTitn, while the known finding H-01 concerns exceeding the TGTTOEXCHANGE limit, which is a different root cause and impa",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "quoteTitn uses block.timestamp, enabling same-block manipulation of titnOut",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a timestamp manipulation issue, which is unrelated to the known finding about exceeding TGTTOEXCHANGE limits.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a timestamp manipulation vulnerability in quoteTitn(), while the known finding [H-01] concerns exceeding the TGTTOEXCHANGE limit, which is a different root cause and impact.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Titn transfer lock can permanently freeze bridged holders' funds",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different contract and root cause; not the same issue as H-01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a transfer lock issue in Titn.sol, while the known finding concerns an amount-exceeded handling flaw in MergeTgt.sol; they are unrelated.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "onTokenTransfer accepts TGT from any caller without signature or nonce binding",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a replay issue in onTokenTransfer, which is unrelated to the known finding about exceeding TGTTOEXCHANGE limits.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a replay/unauthorized credit vulnerability in onTokenTransfer, while the known finding H-01 concerns exceeding exchange limits without proper handling.",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

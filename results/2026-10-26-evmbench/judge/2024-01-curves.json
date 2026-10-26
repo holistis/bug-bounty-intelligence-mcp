@@ -1,0 +1,482 @@
+{
+ "audit": "2024-01-curves",
+ "verdicts": [
+  {
+   "title": "Security modifiers onlyOwner/onlyManager are no-ops",
+   "strict": "H-05",
+   "a": {
+    "match": "H-05",
+    "reden": "Both describe the ineffective onlyOwner/onlyManager modifiers in Security.sol that lack require/revert, making privileged functions public.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-05",
+    "reden": "Both findings describe the same bug where onlyOwner/onlyManager modifiers lack require/revert making them no-ops.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "FeeSplitter.setCurves callable by anyone to hijack fee accounting",
+   "strict": "H-04",
+   "a": {
+    "match": "H-04",
+    "reden": "Both describe the unrestricted setCurves function in FeeSplitter allowing anyone to change the Curves reference",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-04",
+    "reden": "Both describe the same root cause: the unprotected setCurves function allowing anyone to change the Curves reference.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Missing access control on Security modifiers allows anyone to bypass onlyOwner/onlyManager",
+   "strict": null,
+   "a": {
+    "match": "H-05",
+    "reden": "Both describe the ineffective onlyOwner/onlyManager modifiers in Security.sol that lack require/revert, resulting in unrestricted access.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "ongeldig": "onbekend-id",
+    "reden": "Both describe the same missing access control due to modifiers without require/revert in Security.sol.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Security modifiers missing revert — access control completely bypassed",
+   "strict": "H-05",
+   "a": {
+    "match": "H-05",
+    "reden": "Both describe the same missing revert in the onlyOwner modifier in Security.sol, leading to ineffective access control.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-05",
+    "reden": "Both findings describe the same access control bypass in Security.sol modifiers onlyOwner and onlyManager due to missing revert.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "CurvesERC20Factory.deploy is permissionless, enabling token squatting",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different function (CurvesERC20Factory.deploy) and issue not covered by any known finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a permissionless factory deployment issue, which is unrelated to the known findings about fee distribution, honeypot, FeeSplitter access control, or modifier logic.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "FeeSplitter.onBalanceChange pushes duplicate tokens, inflating userTokens",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a duplicate token array issue, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes duplicate token entries in userTokens array, which is not mentioned in any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "setWhitelist lets anyone overwrite presale merkle root",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability in Curves.sol's setWhitelist function, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "None of the known findings describe the setWhitelist access control issue in Curves.sol.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "FeeSplitter.onBalanceChange resets user offset, wiping accrued holder fees",
+   "strict": "H-02",
+   "a": {
+    "match": "H-02",
+    "reden": "Both describe the same flaw in FeeSplitter.onBalanceChange where the user fee accumulator is not properly updated, causing loss of accrued holder fees.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-02",
+    "reden": "Both describe the same root cause: onBalanceChange resets user offset without updating accrued fees, leading to loss of holder fees.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "buyCurvesTokenWhitelisted allows buying before presale start",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a presale timing check issue in buyCurvesTokenWhitelisted, which does not correspond to any of the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding addresses presale start time enforcement in buyCurvesTokenWhitelisted.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_transferFees reverts entire trade if any fee recipient rejects ETH",
+   "strict": "H-03",
+   "a": {
+    "match": "H-03",
+    "reden": "Both describe the same _transferFees function where failing external calls (e.g., referralFeeDestination) cause the whole trade to revert, enabling a honey‑pot style denial of service.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-03",
+    "reden": "Both findings describe the same root cause where _transferFees reverts on failed ETH transfer to user-controlled addresses like referralFeeDestination, allowing a malicious subject to block sells.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "FeeSplitter.totalSupply excludes locked tokens, inflating per-token fees",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distinct totalSupply miscalculation in FeeSplitter, which is not covered by any listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes the totalSupply() denominator issue with locked tokens or the related fee inflation.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "FeeSplitter double-counts fees via onBalanceChange resetting offset before addFees",
+   "strict": "H-02",
+   "a": {
+    "match": "H-02",
+    "reden": "Both describe missing or incorrect balance updates in FeeSplitter's onBalanceChange leading to flawed fee accounting",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-02",
+    "reden": "Both findings identify that FeeSplitter does not update user fee credits during token transfers, deposits, or withdrawals.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "buyCurvesTokenWhitelisted allows buying after presale start via direct buy",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a whitelist bypass in buyCurvesToken, which does not correspond to any of the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a presale whitelist bypass in buyCurvesToken, which is not related to any of the known findings about fee splitting, honeypot attacks, setCurves access, or malformed equate.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Reentrancy in _transferFees via arbitrary subject/referral callbacks",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in _transferFees, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "None of the known findings describe reentrancy in _transferFees via external callbacks; they cover fee accrual updates, honeypot via referral call failures, unauthorized setCurves, and a malformed mod",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_transferFees sends subjectFee to curvesTokenSubject even when it is a contract",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unconditional subject fee transfer, while the known finding H-03 concerns an unconditional referral fee transfer; they are different root causes.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes the unconditional subjectFee call to curvesTokenSubject, whereas H-03 describes the unconditional referralFee call to referralFeeDestination—a different bug in the same functio",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "getPrice underflows for supply==0 && amount>1 causing DoS on first buy",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a pricing underflow issue in Curves.sol, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a free first token pricing bug in getPrice, which is not among the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "FeeSplitter totalSupply excludes locked tokens but balanceOf includes them, causing fee dilution",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a totalSupply/balanceOf mismatch issue, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different root cause related to totalSupply excluding locked tokens causing fee dilution, which is not the same as any listed known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "getSellPrice underflows when amount exceeds supply",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an underflow issue in getSellPrice, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes the getSellPrice underflow on amount > supply.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Reentrancy in FeeSplitter.claimFees/batchClaiming via ETH transfer",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy and gas exhaustion issue, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy/gas bloating issue, which is not covered by any of the known findings (H-02, H-03, H-04, H-05).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "transferAllCurvesTokens iterates unbounded ownedCurvesTokenSubjects array",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unbounded loop over an array in Curves.sol, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes an unbounded array in transferAllCurvesTokens, which is not mentioned in any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "sellCurvesToken reverts when supply equals amount, blocking full exit",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a sellCurvesToken revert issue, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a revert condition in sellCurvesToken, which is not covered by any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "buyCurvesTokenWhitelisted increments presalesBuys before merkle verification",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a presale purchase logic issue unrelated to the known findings about fee splitting, honey pot, setCurves access, or malformed modifiers.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a separate bug in buyCurvesTokenWhitelisted, not the root causes of any listed known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "getPrice uses spot supply with no TWAP, manipulable via flash loan",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a price manipulation issue in Curves.sol getPrice(), which is unrelated to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes getPrice or a TWAM/flash-loan price manipulation issue.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "claimFees uses transfer which reverts on recipient rejection",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a transfer gas limit issue in claimFees, which does not correspond to any listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a gas forwarding issue with transfer in claimFees, which is not mentioned in any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Merkle leaf uses abi.encodePacked(address) enabling second-preimage collisions",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a Merkle leaf encoding issue, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a Merkle leaf collision issue in verifyMerkle, which is not among the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "sellCurvesToken lets last holder avoid loss by selling to contract via withdraw",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a withdraw/sellCurvesToken logic flaw, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a vulnerability in Curves.sol's withdraw/deposit/sell logic, which is not covered by any of the known findings (H-02, H-03, H-04, H-05).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Read-only reentrancy in FeeSplitter.totalSupply during Curves trade",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a read-only reentrancy issue in totalSupply, which is not covered by any of the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "None of the known findings describe a read-only reentrancy in FeeSplitter.totalSupply.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "deposit requires tokenAmount <= contract balance, blocking deposits after withdrawals",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a deposit balance check issue in Curves.sol, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a deposit balance check issue in Curves.sol, which is not covered by any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "No deadline or nonce on presale buys; startTime only gates opening",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing presale deadline in Curves.sol, which does not correspond to any of the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing deadline/nonce in presale buys, which is not covered by any of the known findings about fee distribution, honeypot attacks, access control, or malformed equate.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "FeeSplitter.totalSupply underflows when locked balance exceeds supply",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an underflow bug in totalSupply, which is not covered by any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an underflow in totalSupply due to locked balance exceeding supply, which is a different root cause and impact than any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "deposit/sellExternalCurvesToken ordering allows balance manipulation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in Curves.deposit, which does not correspond to any of the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy vulnerability in deposit due to external call before internal transfer, which is not covered by any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "buyCurvesTokenWhitelisted updates presalesBuys before merkle verification",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy and ordering issue in buyCurvesTokenWhitelisted, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy/ordering issue in buyCurvesTokenWhitelisted, which is not covered by any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "transferAllCurvesTokens iterates ownedCurvesTokenSubjects with reentrancy risk",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in transferAllCurvesTokens, which is unrelated to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy/iteration issue in transferAllCurvesTokens, which is not covered by any of the listed known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Presale buy accounting updated before proof verification allows griefing/over-count",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a presale buy ordering issue in Curves.sol, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug in buyCurvesTokenWhitelisted, not covered by the listed known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

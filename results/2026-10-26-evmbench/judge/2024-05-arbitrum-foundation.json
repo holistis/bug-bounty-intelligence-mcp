@@ -1,0 +1,565 @@
+{
+ "audit": "2024-05-arbitrum-foundation",
+ "verdicts": [
+  {
+   "title": "BridgeTester updateRollupAddress has no access control",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an access control issue in BridgeTester, unrelated to the stake amount change finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an access control issue in BridgeTester.sol, which is unrelated to the known finding about stake retrieval.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AbsBoldStakingPool allows early withdrawal leaving pool underfunded for stake",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an early withdrawal issue in AbsBoldStakingPool, which is unrelated to the stake amount reduction scenario of H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug in AbsBoldStakingPool's withdrawal function, unrelated to the known finding about stake retrieval after a required stake decrease.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "GasRefunder.onGasSpent double-refunds same tx via reentrant call",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy double-refund bug in GasRefunder.sol, which does not correspond to the stake amount change issue in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy/gas refund issue in GasRefunder, unrelated to the known H-01 stake decrease vulnerability.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "RollupCreator receive() allows anyone to seed ETH used later by deployFactoriesToL2",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue (unrestricted receive and refund manipulation) that does not match the known finding about stake amount reduction.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a different vulnerability in RollupCreator's receive() and refund mechanism, while the known finding concerns assertion stake retrieval after stake amount changes.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "GasRefunder refunds more than gas actually spent due to gasleft accounting",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a gas refund miscalculation in GasRefunder.sol, which is unrelated to the stake reduction issue in the known H-01 finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a gas refund overpayment in GasRefunder.sol, while the known finding H-01 is about stake retrieval in a different contract and unrelated issue.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "GasRefunder refunds gasUsed computed with attacker-influenced calldataSize",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and flaw unrelated to the known H-01 finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability (gas refund manipulation) unrelated to the stake retrieval issue in the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "GasRefunder.onGasSpent reentrancy via refundee callback",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in GasRefunder.onGasSpent, which is unrelated to the stake‑decrease issue in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in GasRefunder.onGasSpent, which is unrelated to the known finding about stake retrieval in the rollup contract.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "GasRefunder refunds gas to arbitrary refundee without signature",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a gas refund vulnerability in GasRefunder.sol, which is unrelated to the stake‑decrease issue of the known H‑01 finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing signature check in GasRefunder.onGasSpent, which is a different vulnerability than the known finding about stake retrieval after stake amount changes.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "RollupCreator.createRollup refunds entire balance to msg.sender",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an ETH refund issue in RollupCreator, unrelated to the stake amount reduction bug described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug in RollupCreator._deployFactories, unrelated to the known finding about assertion stakes in the rollup contract.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "EdgeStakingPool refund path missing; refundStake is not called by pool, funds stuck",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing refund path in EdgeStakingPool, which is unrelated to the known finding about stake retrieval after required stake amount changes.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing refund path in EdgeStakingPool, while the known finding H-01 is about stake retrieval manipulation due to stake amount changes.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "GasRefunder refunds to arbitrary refundee without checking msg.sender is the refundee",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a refund logic flaw in GasRefunder.sol, which is unrelated to the stake reduction issue in the known H-01 finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a refund misdirection bug in GasRefunder, which is unrelated to the known finding about assertion stake recovery.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "EdgeChallengeManager initializer callable by anyone on implementation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an uninitialized proxy vulnerability, which is unrelated to the stake amount change issue in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a proxy initialization front-running issue, which is unrelated to the known finding about stake retrieval after a required stake decrease.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AssertionStakingPool.createAssertion can be called repeatedly draining pool allowance",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a repeated allowance drain issue, which differs from the known finding about stake reduction causing retrieval problems.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability (repeated createAssertion calls draining allowance) than the known finding H-01 (stake retrieval issue due to decreased required stake).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "GasRefunder refunds based on tx.gasprice without verifying actual gas paid",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a gas refund manipulation bug, which is unrelated to the stake‑decrease issue in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a gas refund manipulation via tx.gasprice in GasRefunder.sol, which is unrelated to the known finding about assertion stake retrieval in a rollup contract.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "RollupCreator refunds excess ETH to msg.sender without reentrancy guard",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in RollupCreator, which is unrelated to the stake amount change described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a reentrancy vulnerability in RollupCreator, while the known finding H-01 is about stake amount changes in a different contract.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "RollupCreator.createRollup refund call reentrancy before state finalization",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in RollupCreator.createRollup, which is unrelated to the known stake‑decrease issue (H-01).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a reentrancy in RollupCreator.createRollup, while the known finding H-01 is about stake retrieval in a different contract and scenario.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ValidatorWallet.executeTransactionsWithGasRefunder reentrancy via destination call",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in ValidatorWallet, which is unrelated to the stake‑decrease issue described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in ValidatorWallet, while the known finding is about stake retrieval in a different contract.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "EdgeChallengeManager.multiUpdateTimeCacheByChildren unbounded loop",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unbounded loop gas exhaustion in EdgeChallengeManager, which does not correspond to the known stake‑decrease retrieval issue.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a gas griefing via unbounded loop, while the known finding is about stake manipulation.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AssertionStakingPool allows depositors to withdraw after assertion posted, leaving protocol underfunded",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a withdrawal accounting flaw, which is unrelated to the stake‑requirement change issue of H‑01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability (withdraw after assertion posted) than the known finding (stake retrieval blocked by decreased required amount).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "GasRefunder refunds to refundee even when call fails, no revert handling",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a refund handling issue in GasRefunder.sol, which is unrelated to the stake reduction issue in the known H-01 finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a different vulnerability in GasRefunder.sol, unrelated to the known finding about assertion stakes.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "EdgeStakingPool.createEdge can be called repeatedly staking multiple times",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a repeatable staking call in EdgeStakingPool, which is unrelated to the known finding about stake amount reduction affecting assertion retrieval.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy-like issue in EdgeStakingPool.createEdge, while the known finding H-01 is about stake retrieval being blocked after a required stake decrease in a different contra",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "RollupUserLogic.stakeOnNewAssertion sends requiredStake to loserStakeEscrow without checking excess",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different root cause and impact; candidate describes excess stake handling, not required stake reduction issue",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes excess stake being locked on a losing assertion, while the known finding concerns a required stake decrease allowing adversaries to trap honest parties' stakes.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Inbox.calculateRetryableSubmissionFee uses block.basefee when baseFee=0",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fee calculation issue in Inbox.sol, unrelated to the stake reduction bug in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a basefee manipulation issue in Inbox.calculateRetryableSubmissionFee, which is unrelated to the known finding about stake retrieval after stake amount changes.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "SequencerInbox blob gas cost uses block.basefee without staleness check",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a gas cost calculation issue in SequencerInbox, unrelated to the stake reduction bug in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding about blob gas cost calculation does not relate to the known H-01 finding about assertion stake retrieval.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "RollupUserLogic.stakeOnNewAssertion token transfer before state update",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different root cause and function; does not match H-01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in stakeOnNewAssertion, while the known finding H-01 is about stake amount decreases preventing stake retrieval.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AbsBoldStakingPool.withdrawFromPool state update before transfer",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in AbsBoldStakingPool, which does not correspond to the known stake‑amount reduction finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy vulnerability in a staking pool, while the known finding H-01 concerns stake amount changes in a rollup assertion system.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "RollupUserLogic.withdrawStakerFunds reverts on zero, blocking withdrawals",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a zero-amount revert in withdrawStakerFunds, which is unrelated to the known finding about stake amount reduction preventing stake retrieval.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a revert on zero withdrawal in withdrawStakerFunds, while the known finding is about stake amount changes blocking retrieval of assertion stakes.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AbsBoldStakingPool.withdrawFromPool reverts on zero amount",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a zero-amount revert in AbsBoldStakingPool, which is unrelated to the stake‑amount reduction issue in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a revert on zero-amount withdrawal, which is a different issue from the known finding about stake retrieval after required amount decrease.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "SequencerInbox.forceInclusion can be blocked by buffer depletion",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue in SequencerInbox unrelated to stake amount changes in H-01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns buffer manipulation in SequencerInbox.forceInclusion, which is unrelated to the known finding about assertion stake retrieval.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Inbox fork functions lack chain-id binding in signed payload",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a replay issue in Inbox.sol unrelated to the stake reduction bug in H-01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing chain-id binding in fork functions, which is a different vulnerability from the known finding about stake retrieval after required amount decrease.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "SequencerInbox forceInclusion lacks chain-id binding in message hash",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a replay issue in SequencerInbox unrelated to stake amount changes in H-01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a missing chain-id binding in forceInclusion, which is unrelated to the known finding about stake retrieval issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AbsOutbox executeTransaction lacks chain-id binding in item hash",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a replay issue in AbsOutbox, unrelated to the stake‑decrease issue of H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing chain-id binding in AbsOutbox, unrelated to the known finding about decreased required stake amounts.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "EdgeChallengeManager refundStake lacks replay protection across chains",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different root cause and function; does not match the known H-01 finding",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different issue (cross-chain replay protection in EdgeChallengeManager) than the known finding about stake retrieval when required amount decreases.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Submit batch spending report recorded on every batch, enabling repeated L1->L2 refunds to same batch poster",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a batch spending report duplication issue, unrelated to the stake reduction bug in H-01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability related to batch spending reports, while the known finding is about stake retrieval.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AssertionStakingPool.createAssertion can be front-run to steal pool-funded assertion stake reward path",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a front‑run attack on createAssertion in a staking pool, which is a different root cause than the known finding about decreasing required stake.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a front-running vulnerability in AssertionStakingPool.createAssertion, while the known finding H-01 concerns required stake decreases preventing honest parties from retrieving ",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ERC20Inbox approves bridge with max allowance indefinitely",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unlimited token allowance issue, unrelated to the stake reduction scenario of H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes an unlimited ERC20 approval in ERC20Inbox, which is unrelated to the known finding about assertion stake amounts.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AssertionStakingPool.createAssertion leaves open allowance to rollup",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unchecked token allowance issue, which is unrelated to the known finding about stake amount reduction.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an unreset allowance in AssertionStakingPool, while the known finding is about a different vulnerability involving decreased required stake amounts.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "EdgeStakingPool.createEdge leaves open allowance to challenge manager",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an allowance misuse in EdgeStakingPool, which is unrelated to the stake‑decrease issue of H‑01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an unreset allowance to challenge manager, while the known finding is about stake decrease causing retrieval issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "GasRefunder disallower can be anyone set by owner, but disallow permits self through owner()",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a permission issue in GasRefunder.sol, unrelated to the stake reduction issue of H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding is about GasRefunder's disallowContracts function and disallower role, while the known finding H-01 concerns stake retrieval in a rollup contract; they are unrelated.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "SequencerInbox addSequencerL2Batch spoofable via rollup address as msg.sender",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and vulnerability unrelated to the stake reduction issue in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns a potential spoofing vector in SequencerInbox, while the known finding is about stake retrieval after required stake decreases; different root cause and impact.",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

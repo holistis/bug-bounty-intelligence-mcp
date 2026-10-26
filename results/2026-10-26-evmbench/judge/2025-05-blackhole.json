@@ -1,0 +1,537 @@
+{
+ "audit": "2025-05-blackhole",
+ "verdicts": [
+  {
+   "title": "GaugeManager.initialize can be front-run to set attacker as owner",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different contract and root cause; does not correspond to H-02",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a front-running vulnerability in GaugeManager.initialize, while the known finding is about reward token draining in GaugeFactoryCL, which is a different contract and root cause",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Pair.mint first-depositor donation attack via direct token transfer",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a mint donation attack in Pair.sol, which is unrelated to the GaugeFactoryCL reward token drain finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a first-depositor donation attack in Pair.mint, which is not related to the known finding about reward token draining in GaugeFactoryCL.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Router hardcodes amountOutMinimum=0 for Algebra CL swaps",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different contract and root cause; does not correspond to H-02",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns slippage protection in RouterV2.sol, while the known finding is about reward token draining in GaugeFactoryCL.sol; they are unrelated.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Pair.permit recomputes DOMAIN_SEPARATOR without caching, allowing cross-chain replay",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a permit nonce griefing issue in Pair.sol, unrelated to the GaugeFactoryCL reward token drain finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate is about permit nonce griefing in Pair.sol, which is unrelated to the known finding about reward token drain in GaugeFactoryCL.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "RouterV2.removeLiquidityWithPermit allows front-running of permit to consume nonce",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a front-running nonce issue in RouterV2, unrelated to the GaugeFactoryCL reward token drain finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a permit front-running issue in RouterV2, while the known finding is about reward token draining in GaugeFactoryCL, unrelated.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Unbounded loop in getAmountOut freezes router and API helper",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unbounded loop in BlackholePairAPIV2.sol, which is unrelated to the GaugeFactoryCL reward token drain finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns an unbounded loop in BlackholePairAPIV2.sol, while the known finding is about a reward token drain in GaugeFactoryCL.sol, which is a different contract and root cause.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "VotingEscrow.delegateBySig missing nonce binding to signer before increment",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a nonce increment issue in VotingEscrow.delegateBySig, which is unrelated to the GaugeFactoryCL reward token drain finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a nonce increment issue in VotingEscrow.delegateBySig, while the only known finding is about reward token draining in GaugeFactoryCL.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Anyone can call claimStakingFees() to drain staking fees to feehandler",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different contract and function; not the same root cause in the same code.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing access control in Pair.sol's claimStakingFees, while the known finding is about reward token draining in GaugeFactoryCL's createGauge function, which is a different r",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Pair._update0/_update1 fee index uses totalSupply that can be zero",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a division-by-zero/fee index issue in Pair.sol, unrelated to the GaugeFactoryCL reward token drain finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a division-by-zero or precision issue in Pair._update0/_update1, which is unrelated to the known finding about reward token draining in GaugeFactoryCL.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Pair.current() divides by zero when timeElapsed is zero",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different contract and issue; not the same root cause as H-02",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a division-by-zero bug in Pair.current(), which is not related to the known finding about reward token draining in GaugeFactoryCL.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Pair.swap callback allows reentrancy into claimFees/transfer before reserves update",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in Pair.swap, which is unrelated to the GaugeFactoryCL reward token drain finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy in Pair.swap, which is unrelated to the known finding about reward token draining in GaugeFactoryCL.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "GaugeCL.getReward allows anyone to claim rewards for any tokenId",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and issue than the known finding",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability in GaugeCL.getReward via GaugeManager.claimRewards, while the known finding [H-02] is about GaugeFactoryCL.createGauge allowing reward token draining.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "GaugeManager._updateForAfterDistribution uses current weights, not epoch weights",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a weight‑timing issue in GaugeManager, which is unrelated to the reward‑token drain in GaugeFactoryCL.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a timing/weight mismatch in GaugeManager._updateForAfterDistribution, while the known finding is about reward token draining in GaugeFactoryCL, which is a different contract an",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "RewardsDistributor.claim_many does not handle AVM original owner",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and flaw unrelated to the GaugeFactoryCL reward drain issue.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns RewardsDistributor.claim_many and AVM owner handling, while the known finding is about GaugeFactoryCL reward token draining.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Bribe.earned uses current epoch rewards with past balances, enabling double-claim",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a double-claim issue in Bribes.sol, unrelated to the GaugeFactoryCL reward token drain finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a bug in Bribes.sol earned() involving checkpoint overwrites, whereas the known valid finding is a drain in GaugeFactoryCL.createGauge.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "PairFees.processStakingFees double-counts staking fees in index",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a double-counting fee bug in Pair.sol, unrelated to the GaugeFactoryCL reward token drain issue.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns PairFees staking fee accounting, not the GaugeFactoryCL reward token drain.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "RewardsDistributor._claim uses balanceOfNFTAt at week end causing rounding drift",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different contract and root cause; not the same issue as H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a rounding drift in rewards calculation due to point-in-time balance sampling, which is unrelated to the known finding about a GaugeFactoryCL access control issue allowing toke",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Pair.getAmountOut uses stale spot reserves without staleness/zero checks",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a stale reserve issue in Pair.sol, unrelated to the GaugeFactoryCL reward token drain finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a stale/zero reserve check issue in Pair.getAmountOut, which is unrelated to the known finding about reward token draining in GaugeFactoryCL.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AlgebraPoolAPI.getPoolInfo trusts globalState sqrtPrice without staleness",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a price oracle staleness issue in AlgebraPoolAPI, which is unrelated to the GaugeFactoryCL reward token drain finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a price manipulation risk in AlgebraPoolAPI, which is unrelated to the known finding about reward token draining in GaugeFactoryCL.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Pair._update0/_update1 external calls before index update enable fee-accounting reentrancy",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in Pair.sol, unrelated to the GaugeFactoryCL reward token drain finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy in Pair._update0/_update1 due to external calls before index update, which is not related to the known finding about reward token draining in GaugeFactoryCL.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "RouterV2.removeLiquidityETHSupportingFeeOnTransferTokens sends full token balance to user",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a token sweep bug in RouterV2.removeLiquidityETHSupportingFeeOnTransferTokens, which is unrelated to the GaugeFactoryCL reward token drain finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a token sweep bug in RouterV2, which is unrelated to the known GaugeFactoryCL reward token drain.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Unbounded loop in getAllPair freezes pair API",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different contract and issue; not the same root cause as H-02",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a gas limit issue in BlackholePairAPIV2.sol, while the only known finding is about a reward token drain in GaugeFactoryCL.sol, which is unrelated.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "GenesisPool.depositToken lacks deadline, allowing stale transactions",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different contract and issue; not the same root cause as H-02",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding about missing deadline in depositToken is unrelated to the known reward token drain in GaugeFactoryCL.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "RouterV2 swapExactTokensForTokens leaves open approval to swapRouter",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an open approval issue in RouterV2, which is unrelated to the GaugeFactoryCL reward token drain finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an allowance management issue in RouterV2.swapExactTokensForTokens, which is unrelated to the known finding about reward token draining in GaugeFactoryCL.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Bribe.getReward allows gaugeManager to drain rewards for any tokenId",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different contract and root cause; does not describe the same flaw as H-02",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns Bribe.getReward and gaugeManager, while the known finding is about GaugeFactoryCL.createGauge; they are different contracts and different vulnerabilities.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "GaugeManager._updateForAfterDistribution uses stale weights for killed gauges",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different bug in GaugeManager.sol, not the reward token drain issue in GaugeFactoryCL.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns GaugeManager's stale weight handling for killed gauges, which is unrelated to the known finding about draining reward tokens in GaugeFactoryCL.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Bribe.earned uses max(supply,1) masking zero-supply epochs",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different contract and root cause; does not match the GaugeFactoryCL reward token drain finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a supply-checkpoint exploit in Bribes.earned, while the known finding involves reward token draining via GaugeFactoryCL's createGauge.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "GenesisPool._addLiquidityAndDistribute passes 0 for amountMin slippage",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different contract and root cause; does not correspond to the GaugeFactoryCL reward token drain finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns GenesisPool._addLiquidityAndDistribute with zero slippage, while the only known finding is about GaugeFactoryCL reward token draining, which is a different contract and ",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "VotingEscrow.withdraw transfers tokens before burning NFT, allowing reentrancy via ERC-721 receiver",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different contract and vulnerability; does not match the known GaugeFactoryCL reward token drain finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate is about VotingEscrow.withdraw reentrancy, while the known finding is about GaugeFactoryCL reward token drain.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Unbounded loop in getAVMNFTFromAddress freezes AVM NFT API",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unbounded loop gas issue, which does not correspond to the reward token drain finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes an unbounded loop in veNFTAPIV1.sol, not related to the GaugeFactoryCL reward drain.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "RewardsDistributor.claim allows AVM original owner to redirect expired-lock rewards",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and flaw unrelated to the GaugeFactoryCL reward token drain finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability in RewardsDistributor.claim, unrelated to the GaugeFactoryCL reward token drain.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "GenesisPool.deductAmount underflows userDeposits on repeated gauge deductions",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different contract and issue; does not correspond to H-02",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns GenesisPool.deductAmount underflow, while the only known finding is about GaugeFactoryCL reward token draining, which is a different contract and issue.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Pair._update0/_update1 use totalSupply before mint/burn updates",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fee index drift issue in Pair.sol, unrelated to the GaugeFactoryCL reward token drain finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a fee accrual inconsistency in Pair.sol, while the known finding is about reward token draining in GaugeFactoryCL, which is a different contract and issue.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "VotingEscrow._deposit_for burns SMNFT tokens without checking allowance",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and issue unrelated to the known GaugeFactoryCL reward token drain finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns VotingEscrow._deposit_for and allowance checks, while the only known finding is about GaugeFactoryCL reward token draining, which is unrelated.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "RouterV2 privileged setters lack two-step ownership and are callable by owner only",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and issue than the known finding",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate discusses RouterV2 access control/ownership issues, while the known finding concerns reward token draining in GaugeFactoryCL; different code and root cause.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "GaugeExtraRewarder uses raw LP balance for reward math without manipulating detection",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and vulnerability (reward math manipulation in GaugeExtraRewarder) than the known finding about token drain in GaugeFactoryCL.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a manipulation of reward math in GaugeExtraRewarder via LP balance inflation, while the known finding H-02 is about draining reward tokens in GaugeFactoryCL, a different contra",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "GaugeV2._deposit calls gaugeRewarder.onReward before transferring TOKEN in",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract (GaugeV2) and a distinct issue (order of reward notification before token transfer), not the known GaugeFactoryCL token drain finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns GaugeV2._deposit and rewarder state inconsistency, while the known finding is about GaugeFactoryCL.createGauge and reward token draining.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "GaugeV2._deductBalance lets genesis balance be drained by non-genesis withdrawals",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and flaw than the known H-02 finding",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns a different contract (GaugeV2) and a different root cause than the known finding in GaugeFactoryCL.",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

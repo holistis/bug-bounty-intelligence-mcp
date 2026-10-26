@@ -1,0 +1,509 @@
+{
+ "audit": "2024-07-basin",
+ "verdicts": [
+  {
+   "title": "`Stable2.decodeWellData` never sets decimal1 when decimal0 == 0",
+   "strict": "H-02",
+   "a": {
+    "match": "H-02",
+    "reden": "Both describe the same copy‑paste bug in decodeWellData where decimal1 is not set correctly when decimal0 is zero",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-02",
+    "reden": "Both describe the same copy-paste bug in Stable2.decodeWellData where decimal1 is not set when decimal0 is zero, leading to incorrect scaling.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Stable2 decodeWellData ignores decimal1==0 check due to copy-paste bug",
+   "strict": "H-02",
+   "a": {
+    "match": "H-02",
+    "reden": "Both describe the same copy‑paste bug in Stable2.decodeWellData where decimal1 is not correctly handled",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-02",
+    "reden": "Both describe the same copy-paste bug in decodeWellData where decimal0 is checked instead of decimal1, causing incorrect scaling when decimal1 is 0.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "First-depositor LP share inflation via donation in addLiquidity",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a liquidity minting inflation issue, which is unrelated to the upgradeability or decimal decoding bugs listed in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The known findings are about upgrade authorization and decimal decoding, not about first-depositor LP share inflation.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "sync() mints LP tokens to caller for pre-existing excess reserves",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a minting issue in sync(), which is unrelated to the upgradeability or decimal decoding findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different root cause (sync minting LP tokens for excess reserves) than the known findings (upgradeable access control and decimal parameter decoding).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "MultiFlowPump `_capRates` silently returns without applying cap",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different bug in MultiFlowPump, unrelated to the known findings about upgradeability or decimal decoding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a bug in MultiFlowPump, unrelated to the WellUpgradeable or Stable2 decimal findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "sync() mints LP for donated tokens, enabling donation-based share dilution",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a sync() minting flaw, which does not correspond to the upgradeability or decimal decoding issues listed in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability in the sync function about LP minting for donated tokens, not related to upgradeability or decimal decoding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "shift() lets anyone extract excess reserves as a single token",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a shift() excess reserve extraction issue, which does not correspond to the upgradeability flaw (H-01) or the decimal decoding error (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different root cause (shift function extracting excess reserves) than the known findings (upgrade access control and decimal parameter decoding).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "WellUpgradeable.init callable by anyone to reinitialize ownership",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unrestricted init reinitialization, which is a different issue than the upgrade access control described in H-01 and unrelated to H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-01",
+    "reden": "Both findings describe the same root cause: lack of access control in WellUpgradeable initialization allowing anyone to become owner.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "removeLiquidityImbalanced transfers tokens before burning LP",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in removeLiquidityImbalanced, which does not correspond to the upgradeability or decimal decoding findings listed.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in removeLiquidityImbalanced, which is not related to the known findings about upgradeability or decimal parameter decoding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Stable2 calcReserveAtRatioSwap/Liquidity can loop 255 times without reverting",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a loop convergence issue in Stable2.sol, which does not correspond to the upgradeability or decimal decoding findings listed.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a loop convergence failure leading to a zero return, while known findings cover upgrade access control and decimal parameter decoding, which are different root causes and impac",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "WellUpgradeable.initNoWellToken callable by anyone on uninitialized proxy",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unprotected initializer issue, which does not correspond to the upgrade authorization issue (H-01) or the decimal decoding bug (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate is about an unprotected initializer allowing ownership takeover, while H-01 is about missing UUPS upgrade authorization; they are different root causes in different functions.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Well.init callable by anyone on uninitialized clone",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unprotected init function, which does not correspond to the upgradeability issue (H-01) or the decimal decoding bug (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes missing access control on Well.init for front-running name/symbol, while H-01 is about missing _authorizeUpgrade restriction in WellUpgradeable; different root cause.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "skim() lets anyone extract positive rebase / donated tokens",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a skim() token extraction issue, which does not correspond to the upgradeability or decimal decoding findings listed.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a skim() access control issue, while known findings concern upgrade authorization and decimal decoding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "MultiFlowPump update silently ignores failed pump updates",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a silent catch of pump update failures, which is unrelated to the upgradeability issue (H-01) or decimal decoding bug (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability (silent failure of pump updates) not covered by the known findings about upgradeability or decimal decoding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Well.shift uses live balances as reserves enabling donation-based price manipulation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a price manipulation issue in shift(), which does not correspond to the upgrade or decimal decoding findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a different vulnerability in the shift function related to live balances, which is not covered by the known findings about upgradeability or decimal parameter decoding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "swapFrom transfers tokens out before updating reserves",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in _swapFrom, which does not correspond to the upgradeability or decimal decoding findings listed.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in _swapFrom due to token transfer before reserve update, which is unrelated to the upgradeability or decimal decoding flaws in the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "swapTo transfers tokens before reserves are committed",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in swapTo, which does not correspond to the upgradeability or decimal decoding bugs listed.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in swapTo, which is not related to the known findings about upgradeability or decimal parameter misassignment.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "MultiFlowPump update can be front-run to reset EMA/cumulative with manipulated reserves",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a front‑run manipulation in MultiFlowPump.update, which is unrelated to the upgradeability issue (H-01) or decimal decoding bug (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a front-running vulnerability in MultiFlowPump's update function, which is unrelated to the known findings about WellUpgradeable upgradeability or decimal parameter assignment.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Stable2.calcReserveAtRatioSwap and calcReserveAtRatioLiquidity can return 0 on non-convergence",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a convergence bug in Stable2.calcReserveAtRatioSwap, which is unrelated to the upgradeability issue (H-01) or decimal decoding issue (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a non-convergence bug in Stable2's calcReserveAtRatioSwap/Liquidity, which is unrelated to the known findings about upgradeability and decimal decoding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "MultiFlowPump _init silently returns on zero reserve leaving oracle uninitialized",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and bug unrelated to the known findings",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug in MultiFlowPump._init(), while known findings are about WellUpgradeable upgrade and decimal decoding in Stable2.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Stable2.calcReserveAtRatioSwap can return without converging, returning stale reserve",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a convergence loop issue in Stable2.calcReserveAtRatioSwap, which does not correspond to the upgradeability or decimal decoding findings listed.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes non-convergence of Newton's method in calcReserveAtRatioSwap, which is a different bug from any known finding about upgrade access control or incorrect decimal parameter decodi",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Aquifer.boreWell accepts arbitrary initFunctionCall allowing ownership hijack",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an arbitrary initFunctionCall vulnerability in Aquifer.boreWell, which is unrelated to the upgradeability issue (H-01) or decimal decoding issue (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability (arbitrary init call in boreWell) than the known findings (upgradeability and decimal parameter issues).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "MultiFlowPump readTwaReserves uses caller-supplied startTimestamp without validation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a TWAP calculation flaw in MultiFlowPump, which is unrelated to the upgradeability issue (H-01) or decimal decoding issue (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes an unvalidated TWAP parameter in MultiFlowPump, while known findings concern WellUpgradeable authorization and Stable2 decimal decoding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "shift transfers tokenOut before updating reserves",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in shift, which does not correspond to the upgradeability or decimal decoding findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy vulnerability in the shift function due to state updates after token transfer, which is not related to the known findings about upgradeability or decimal parameter",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "MultiFlowPump.update reverts on zero reserve, blocking Well operations",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a pump revert issue unrelated to upgrade permissions or decimal decoding errors in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a zero-reserve revert in MultiFlowPump.update, which is unrelated to the known findings about upgradeable access control or decimal parameter decoding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "`_setReserves` reverts when balance < reserves allows permanent reserve desync",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reserve desynchronization bug, which does not correspond to the upgradeability or decimal decoding issues in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reserve desync issue in _setReserves, which is unrelated to the known findings about upgradeability and decimal decoding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "WellUpgradeable._authorizeUpgrade allows upgrade to any Well implementation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a permissive implementation registry check, not the missing access control described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability — insufficient restriction on which implementations are valid — while the known findings are about missing access control entirely and a decode bug.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Well.shift uses live balances, allowing griefing via forced token donation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue (shift using live balances) not covered by H-01 or H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability (live balance usage in shift) than the known findings (upgrade access control and decimal parameter decoding).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "WellUpgradeable `_authorizeUpgrade` can be bypassed by non-Well proxy",
+   "strict": null,
+   "a": {
+    "match": "H-01",
+    "reden": "Both describe the same flaw in WellUpgradeable's _authorizeUpgrade allowing unauthorized upgrades",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a bypass via proxy calldata manipulation, which is a different root cause from the known findings (H-01 is about missing access control, H-02 is about decimal decoding).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "`shift` reads balances directly `balanceOf` — funds donation drains LPs",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reserve calculation bug in shift, which does not correspond to the upgradeability issue (H-01) or decimal decoding issue (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability in the shift function, while the known findings are about upgradeability and decimal decoding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Aquifer.boreWell init call can be front-run to initialize Well with attacker-controlled name/symbol",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a front‑run init vulnerability, which does not correspond to the upgradeability issue (H‑01) or the decimal decoding bug (H‑02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a front-running attack on Aquifer.boreWell initialization, which is a different root cause and impact than the known findings about unauthorized upgrades or incorrect decimal d",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "MultiFlowPump.update can be called by anyone for any well",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a permissionless update in MultiFlowPump, which is unrelated to the upgradeability issue (H-01) or decimal decoding bug (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a permissionless update in MultiFlowPump, which is unrelated to the known findings about WellUpgradeable upgradeability or Stable2 decimal assignment.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "MultiFlowPump `_getDeltaTimestamp` wraps uint40 in 2106",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a uint40 timestamp wrap issue in MultiFlowPump, which does not correspond to the upgradeability or decimal decoding bugs listed in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a timestamp wrap in MultiFlowPump unrelated to the known H-01 or H-02 findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Sigma/helper—Aquifer salt replay across deployments with same salt",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a deterministic salt issue unrelated to the upgradeability or decimal decoding findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a salt collision issue in Aquifer.sol, which is unrelated to the known findings about WellUpgradeable upgradeability and Stable2's decodeWellData.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Missing nonce and chainId in ERC20Permit signed data",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a permit domain separator issue, which does not correspond to the upgradeability or decimal decoding findings listed.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing nonce/chainId issue in ERC20Permit, which is unrelated to the known findings about upgradeability or decimal parameter decoding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "WellUpgradeable init does not bind domain separator to upgraded implementation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a domain separator issue in init, which does not correspond to the upgrade access or decimal decoding findings listed.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a stale permit concern due to domain separator changes, which is a different issue from the known findings about unauthorized upgrades or incorrect decimal decoding.",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

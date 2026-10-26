@@ -1,0 +1,453 @@
+{
+ "audit": "2026-01-tempo-feeamm",
+ "verdicts": [
+  {
+   "title": "rebalanceSwap lets anyone drain userToken reserves to arbitrary recipient",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different function and root cause; candidate describes missing access control, not the reentrancy issue in burn.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing access control in rebalanceSwap(), while the known finding is a reentrancy bug in burn(); they are different functions and root causes.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "burn() transfers tokens before updating reserves and balances",
+   "strict": "H-01",
+   "a": {
+    "match": "H-01",
+    "reden": "Both describe the same reentrancy flaw in FeeAMM.sol's burn() where token transfers occur before updating liquidity accounting, enabling repeated redemption.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-01",
+    "reden": "Both describe reentrancy in burn() due to token transfers before state updates.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "FeeAMM executeFeeSwap uses unchecked ERC20 transfer return values",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes unchecked ERC20 transfer return values in executeFeeSwap, which is a different root cause and function than the known reentrancy issue in burn.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes unchecked ERC20 transfer return values in executeFeeSwap, while the known finding is about reentrancy in burn().",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Fee swap uses fixed rate ignoring pool reserves, enabling value extraction",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different function and root cause; candidate describes fixed-rate swap issue, not the reentrancy in burn.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a fixed-rate swap issue in executeFeeSwap, while the known finding is about reentrancy in burn.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "rebalanceSwap uses fixed rate ignoring reserves, enabling arbitrage drain",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different function and root cause; candidate describes a pricing bug, not the reentrancy issue in burn.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a fixed-rate arbitrage issue in rebalanceSwap, while the known finding is about reentrancy in burn, which is a different root cause and function.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "rebalanceSwap() updates reserves before pulling validatorToken, enabling reentrancy",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different function (rebalanceSwap vs burn) and distinct code path, so not the same known finding",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Known finding H-01 is about reentrancy in burn(), while the candidate describes a reentrancy issue in rebalanceSwap(), a different function with a separate code path.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "FeeSwap drains validator reserve at fixed rate ignoring pool ratio",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different function and root cause; candidate describes a pricing bug, not the reentrancy issue in burn",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a fixed-rate swap vulnerability, while the known finding is about reentrancy in burn.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "FeeAMM mint() ignores userToken deposit, mints liquidity for free",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different function and root cause; candidate describes missing token deposit in mint, not reentrancy in burn",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes a mint accounting issue, not the burn reentrancy vulnerability.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "FeeAMM mint() does not update reserveUserToken, breaking AMM invariant",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different root cause and function; candidate describes missing reserve update in mint, not the reentrancy issue in burn.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing reserve update in mint(), while the known finding is a reentrancy issue in burn().",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "rebalanceSwap rate (N) is worse than feeSwap rate (M), enabling arbitrage",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different function and root cause; candidate describes rate inconsistency arbitrage, not reentrancy in burn",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a pricing-rate arbitrage in rebalanceSwap, while the known finding is a reentrancy vulnerability in burn.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "FeeSwap drains validator reserve without updating user reserve correctly",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an accounting error in executeFeeSwap, not the reentrancy issue in burn() described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability (fee-on-transfer and fixed rate pricing in executeFeeSwap) than the known finding (reentrancy in burn).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "burn() pays out proportional reserves but mint() only took one side",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different root cause; candidate describes accounting mismatch, not reentrancy.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different root cause: an accounting mismatch between mint and burn, while the known finding concerns reentrancy in burn due to violation of CEI.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "mint() liquidity formula ignores userToken deposit, mispricing shares",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different function and root cause; candidate describes a pricing bug in mint(), not the reentrancy issue in burn()",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a mint() pricing flaw, while the known finding is a reentrancy vulnerability in burn().",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "mint liquidity calculation uses fixed N rate instead of reserve ratio",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an incorrect liquidity calculation in mint(), which is unrelated to the reentrancy issue in burn() described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The known finding concerns reentrancy in burn(), while the candidate describes an incorrect mint calculation using N versus reserve ratio.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "burn returns proportional reserves but mint used fixed rate, enabling round-trip profit",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a pricing asymmetry bug, while the known finding is a reentrancy issue in burn.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a pricing asymmetry between mint and burn, not the reentrancy issue in burn that the known finding covers.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "executeFeeSwap() transfers output before/after state inconsistently and lacks reentrancy guard",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different function (executeFeeSwap vs burn) despite similar pattern, so not the same finding",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes reentrancy in executeFeeSwap(), while the known finding is about reentrancy in burn() with LP accounting.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "First depositor can manipulate share price via direct token donation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a share price manipulation in mint(), which is unrelated to the reentrancy issue in burn() described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes a first-depositor share manipulation in mint(), while the known finding is a reentrancy bug in burn().",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "mint() credits liquidity before transferFrom completes; hookable token can reenter",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different function (mint vs burn) despite similar reentrancy pattern",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes reentrancy in mint() via transferFrom hook affecting liquidity calculation, while the known finding focuses on reentrancy in burn() leading to stablecoin pool drainage via stal",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "executeFeeSwap has no liquidity-provider or pool-existence check",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing pool existence/authorization check in executeFeeSwap, which is unrelated to the reentrancy issue in burn described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes a missing authorization check in executeFeeSwap(), while the known finding is a reentrancy vulnerability in burn().",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "burn() does not verify pool has enough tokens, can revert or underflow",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a token balance mismatch issue, not the reentrancy flaw described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate addresses reserves/balance mismatch underflows, known finding is about reentrancy due to CEI violation.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "checkSufficientLiquidity uses fixed M rate, misleading integrators",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a liquidity calculation issue in checkSufficientLiquidity, which is unrelated to the reentrancy bug in burn() described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a fixed-rate issue in checkSufficientLiquidity, while the known finding is about reentrancy in burn.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "FeeAMM burn() reverts on zero transfer, trapping liquidity providers",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a zero-value transfer revert issue, while the known finding concerns a reentrancy vulnerability; they are different root causes.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a zero-transfer revert blocking withdrawals, while the known finding H-01 is about reentrancy due to CEI violation.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "First-mint MIN_LIQUIDITY is added to totalSupply but not to any balance",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unowned MIN_LIQUIDITY accounting issue, not the reentrancy bug in burn described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability (unowned MIN_LIQUIDITY shares in mint) than the known finding (reentrancy in burn).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "FeeAMM checkSufficientLiquidity uses wrong formula vs executeFeeSwap",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a formula misuse in checkSufficientLiquidity, which is unrelated to the reentrancy issue in burn described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a formula mismatch in checkSufficientLiquidity, while the known finding is about reentrancy in burn.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "mint() allows arbitrary to address and uninitialized pool creation by anyone",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a mint() access issue, not the reentrancy bug in burn() described in H-01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a public mint() allowing arbitrary pool creation, while the known finding concerns reentrancy in burn(). They involve different functions and root causes.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "rebalanceSwap amountIn rounding favors caller, drains pool over time",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different function and root cause; candidate describes rounding/fee-on-transfer issue, not reentrancy in burn",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes rounding and fee-on-transfer issues in rebalanceSwap, while the known finding is about reentrancy in burn, which is a different root cause and code location.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "checkSufficientLiquidity uses M but executeFeeSwap can be front-run to drain",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different function and root cause; candidate describes front‑run liquidity drain, not the reentrancy in burn.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a front-running vulnerability in checkSufficientLiquidity/executeFeeSwap, while the known finding is about reentrancy in burn.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "checkSufficientLiquidity() is manipulable via same-block swap/rebalance ordering",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a front‑running manipulation of checkSufficientLiquidity, not the reentrancy bug in burn.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability (manipulation of checkSufficientLiquidity via same-block ordering) than the known finding (reentrancy in burn).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "FeeAMM rebalanceSwap() can be griefed to drain user-token reserves",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different function and flaw (unlimited rebalanceSwap) than the known reentrancy issue in burn.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a griefing attack on rebalanceSwap() due to missing caller limits, while the known finding is about reentrancy in burn() due to CEI violation; they are different root causes an",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "burn() sends both tokens to caller-chosen `to` without ownership check",
+   "strict": null,
+   "a": {
+    "match": "H-01",
+    "reden": "Both describe a reentrancy vulnerability in FeeAMM.sol's burn() caused by external token transfers before state updates",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate focuses on the arbitrary `to` address as a separate issue, while the known finding [H-01] is about reentrancy due to CEI violation in burn, not about the `to` parameter.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "FeeAMM executeFeeSwap() can drain validator reserve to zero, blocking rebalance",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reserve-draining issue in executeFeeSwap, which differs from the reentrancy bug in burn described in H-01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability (draining validator reserve via executeFeeSwap) than the known finding (reentrancy in burn).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "FeeAMM burn() uses stale totalSupply causing rounding to zero",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a rounding/zero-transfer issue, not the reentrancy vulnerability of H-01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a rounding-to-zero bug from stale totalSupply, while the known finding is a reentrancy vulnerability in burn().",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

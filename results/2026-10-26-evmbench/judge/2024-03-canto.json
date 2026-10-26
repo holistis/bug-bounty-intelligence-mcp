@@ -1,0 +1,580 @@
+{
+ "audit": "2024-03-canto",
+ "verdicts": [
+  {
+   "title": "lzCompose callable by anyone, no endpoint/executor check",
+   "strict": "H-02",
+   "a": {
+    "match": "H-02",
+    "reden": "Both describe the permissionless lzCompose allowing arbitrary callers to execute composed messages and steal funds",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-02",
+    "reden": "Both findings identify that lzCompose lacks a check on msg.sender, allowing arbitrary callers to invoke it and steal funds.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_refundToken sends native value to attacker-controlled refund address",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a specific refund address misuse, which differs from the known findings about stuck tokens or generic dual‑transaction theft.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different root cause (attacker-controlled refund address leading to ETH theft) not covered by H-01 (stuck tokens) or H-02 (dual transaction user fund theft).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_depositNoteToASDVault calls arbitrary address with mint selector",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an arbitrary address call vulnerability, which does not correspond to the gas‑token‑stuck issue (H‑01) or the dual‑transaction composable‑message issue (H‑02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an unchecked external call to an arbitrary address in _depositNoteToASDVault, which is a different vulnerability from the known findings about stuck native tokens or dual trans",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_sendASD performs arbitrary call to attacker-chosen address with value",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an arbitrary call vulnerability in _sendASD, which is not covered by the known findings about stuck tokens (H-01) or dual-transaction fund stealing (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an arbitrary call vulnerability in _sendASD, while the known findings cover stuck tokens and dual-transaction theft, not the same root cause.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "asdUSDC withdraw rounds down, allowing dust accumulation and value leak",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a rounding/dust issue in asdUSDC withdraw, which is unrelated to the known findings about token stuck in ASDRouter or composed message transfer.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a rounding issue in asdUSDC withdraw, which is unrelated to the known findings about ASDRouter gas token stuck or composed message theft.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_sendASD transfers tokens after emit and uses untrusted cantoAsdAddress",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unvalidated address issue in _sendASD, which does not correspond to the gas‑token stuck issue (H-01) or the dual‑transaction theft scenario (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an unvalidated cantoAsdAddress allowing attacker-controlled token, which is a different root cause from the known findings about stuck native tokens or dual transaction theft.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ASDRouter _refundToken ignores failed transfer return value",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing ERC20 transfer return check, which is a different root cause than the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing return value check on ERC20 transfer in _refundToken, which is a different root cause and impact than the known findings about native gas token stuck or dual transact",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Incorrect decimal handling in ASDUSDC deposit/withdraw",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a decimal handling bug in asdUSDC deposit/withdraw, which is unrelated to the known findings about token stuck in ASDRouter or composed message transfer.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a decimal handling bug in asdUSDC, which is unrelated to the two known ASDRouter findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_sendASD forwards msg.value to attacker-controlled OFT address",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing whitelist check in _sendASD, which is a different root cause than the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing whitelist for _cantoAsdAddress causing ETH forwarding to attacker, which is a different root cause than the known findings about stuck gas or permissionless lzCompose",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ASDUSDC deposit/withdraw decimal scaling can truncate to zero",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a decimal truncation bug in asdUSDC withdraw, which is unrelated to the gas token stuck or composed message transfer issues in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a decimal truncation bug in asdUSDC.sol, which is unrelated to the known findings about ASDRouter and native gas tokens or dual transaction nature.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "lzCompose refund path reverts and traps tokens when token transfer fails",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a refund failure in _refundToken, which is a different root cause than the native token stuck issue (H-01) or the dual transaction steal issue (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a revert in _refundToken due to token transfer failure, which is a different root cause and impact than the known findings about stuck native tokens or dual-transaction theft.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "lzCompose trusts composeFrom as refund address without verifying sender",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing verification of the refund address in lzCompose, which is a different root cause than the known findings about stuck gas tokens (H-01) or dual-transaction fund steali",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a vulnerability in trusting composeFrom as refund address without verification, while known findings H-01 and H-02 address different root causes (stuck native tokens and permis",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ASDRouter refunds wrong token address on swap failure",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a refund bug with wrong token address on swap failure, which is unrelated to the known findings about native gas token stuck (H-01) or dual transaction stealing (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug (wrong token refund on swap failure) not covered by H-01 or H-02.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ASDRouter._swapOFTForNote casts uint to uint128 without bounds check",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a uint128 truncation bug, which does not correspond to the known findings about stuck native tokens (H-01) or dual transaction theft (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a truncation bug in _swapOFTForNote, which is not related to the known findings about stuck gas tokens or dual transaction theft.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Spot price manipulation via Ambient swap without TWAP or oracle",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a price manipulation issue in _swapOFTForNote, which is unrelated to the gas‑token stuck or dual‑transaction stealing findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a price manipulation vulnerability in Ambient swap, which is different from the known findings about stuck gas tokens and dual transaction theft.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Missing minimum-out enforcement in Ambient swap",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing minimum output check in _swapOFTForNote, which is unrelated to the known findings about token stuck (H-01) or dual transaction stealing (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing minimum output enforcement in a swap function, which is not related to the known findings about stuck gas tokens or dual transaction theft.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "lzCompose performs external calls before state reconciliation, enabling reentrancy",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue, which is a different root cause than the known findings about stuck native tokens (H-01) or dual transaction stealing (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy vulnerability in lzCompose, which is not the root cause of the known findings (stuck native tokens or dual-transaction theft).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "asdUSDC deposit mints extra tokens via decimals mismatch trick",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a decimal-mismatch minting bug in asdUSDC.deposit, which is unrelated to the gas‑token stuck issue (H-01) or the composed‑message transfer issue (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a decimals mismatch bug in asdUSDC deposit/withdraw, which is unrelated to the known findings about stuck gas tokens or dual transaction theft in ASDRouter.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Anyone can freeze router refunds via cantoRefundAddress native-token revert",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a refund address revert in _refundToken, which is a different root cause and function than the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability in _refundToken, not covered by the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ASDRouter enables double minting of ASD by replaying lzCompose on same USDC tokens",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a replay and double‑mint issue due to missing guid uniqueness and endpoint checks, which is not the same root cause as the known findings about stuck gas tokens (H‑01) or the d",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-02",
+    "reden": "Both findings describe the same root cause: lzCompose is externally callable without verifying the LayerZero endpoint or guid, allowing an attacker to craft arbitrary messages and steal/mint ASD.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ASDOFT mint/burn assumes 1:1 NOTE:asD but cNote exchange rate drifts",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a mint/burn exchange rate issue in asdOFT.sol, which is unrelated to the known findings about gas tokens stuck in ASDRouter or dual transaction message stealing.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different issue in ASDOFT contract regarding cNote exchange rate, while known findings are about ASDRouter and LayerZero message handling.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "recover() mints asdUSDC to owner for pre-existing balances, diluting holders",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a minting/dilution issue in recover() of asdUSDC.sol, which is unrelated to the gas token lockup or composed message transfer vulnerabilities listed in H-01 and H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a dilution issue in asdUSDC's recover function, while the known findings are about stuck gas tokens and dual transaction attacks in ASDRouter.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ASDRouter._sendASD uses minAmountLD = amountLD with no slippage tolerance",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a slippage‑tolerance issue causing a functional DoS, which is unrelated to the gas‑token lockup (H‑01) or the dual‑transaction theft vector (H‑02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a slippage/dust issue in _sendASD, which is not the same root cause or impact as either H-01 (stuck gas tokens) or H-02 (dual transaction theft).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Missing slippage protection in ASD send via LayerZero",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fee verification issue, which does not correspond to the known findings about stuck native tokens (H-01) or dual transaction theft (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a fee validation/slippage issue in _sendASD, which is not the same root cause as H-01 (stuck gas tokens) or H-02 (dual transaction theft).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "No check for stale or zero price from calcImpact",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing price check in _swapOFTForNote, which is unrelated to the known issues about stuck gas tokens or dual‑transaction theft.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a missing check on calcImpact return values, which is a different root cause and impact than the known findings about stuck tokens or dual transaction theft.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Refund address can be arbitrary, enabling token theft",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an arbitrary refund address vulnerability, which is unrelated to the native token stuck issue (H-01) or the dual-transaction composability issue (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a lack of validation on the refund address, which is a different root cause and impact than the known findings about stuck gas tokens or dual transaction nature.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ASDOFT.withdrawCarry reads maximumWithdrawable before redeem, no reentrancy guard",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in withdrawCarry, which is unrelated to the gas token stuck or dual transaction theft findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in ASDOFT.withdrawCarry, which is unrelated to the known findings about ASDRouter and composed message transfer.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_refundToken allows arbitrary native send and token transfer to user-chosen address",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an arbitrary token/native send and reentrancy issue in _refundToken, which differs from the known findings about stuck native tokens (H-01) and dual‑transaction fund stealing (",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy and arbitrary token transfer issue in _refundToken, which is distinct from the known findings about stuck tokens (H-01) and dual-transaction theft (H-02).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_swapOFTForNote hardcodes 128-bit cast, DoS for large amounts",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a truncation bug in _swapOFTForNote, which does not correspond to either known finding about stuck gas tokens or dual-transaction theft.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug (uint128 truncation in _swapOFTForNote) than either known finding about stuck gas or transaction theft.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ASDRouter leaves open approval to ASDUSDC and ASD vaults",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unchecked token approval issue, which does not correspond to the known findings about stuck native tokens or dual transaction message stealing.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes residual approvals not reset to zero, which is a different root cause than the known findings about stuck native tokens or dual transaction nature.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ASDOFT.burn redeems cNOTE without burning caller's ASD first",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a burn/redeem ordering issue in asdOFT.sol, which is unrelated to the gas token stuck issue (H-01) or the dual‑transaction composed message flow (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug (redeem-before-burn ordering in ASDOFT.burn) than the known findings, which cover stuck native tokens and dual-transaction theft in ASDRouter.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ASDOFT.burn redeems NOTE before burning asD shares",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in asdOFT.sol burn, which is unrelated to the known findings about gas token stuck or composed message transfer.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy/ordering issue in ASDOFT.burn, while known findings concern ASDRouter native gas stuck and LayerZero dual transaction theft.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_sendASD transfer return value ignored, tokens can be silently stuck",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes ignoring ERC20 transfer return value in _sendASD, which is a different root cause than the known findings about native gas tokens being stuck or dual transaction theft.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes ignoring the return value of transfer in _sendASD, which is a different issue from the known findings about native gas tokens stuck (H-01) or dual transaction theft (H-02).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_swapOFTForNote uses attacker-controlled token address in swap",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distinct swap validation issue in _swapOFTForNote, which does not correspond to the gas‑token lock or composed‑message dual‑transaction findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability related to swap validation in _swapOFTForNote, not the native gas token stuck or dual transaction theft issues covered by the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "asdOFT.withdrawCarry reads stale balance to size max withdrawal",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a stale balance issue in withdrawCarry, which is unrelated to the gas token stuck or dual transaction stealing findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability in asdOFT.withdrawCarry, unrelated to the ASDRouter gas-stuck or composed-message theft issues in H-01/H-02.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ASDRouter _sendASD uses msg.value for fee but refunds full msg.value",
+   "strict": null,
+   "a": {
+    "match": "H-01",
+    "reden": "Both describe the same issue where _sendASD mishandles msg.value, causing native gas tokens to become stuck in the ASDRouter contract.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "ongeldig": "onbekend-id",
+    "reden": "The candidate describes the same root cause: in _sendASD, unspent msg.value beyond the actual fee is not refunded, leaving native tokens stuck in the ASDRouter.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ASDUSDC.recover mints to owner from unaccounted balance, manipulable via donation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a minting/recover bug in asdUSDC.sol, unrelated to token-stuck or composed message transfer issues in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug in ASDUSDC.recover, while the known findings concern ASDRouter native token stuck and dual transaction theft.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ASDOFT.withdrawCarry can be front-run by burn to reduce maximumWithdrawable",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different function and issue (withdrawCarry underflow/front‑run) unrelated to the known findings about gas tokens stuck in ASDRouter or composed message transfer.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug in ASDOFT.withdrawCarry, unrelated to the known ASDRouter findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Owner can freeze ASDRouter by de-whitelisting source OFT mid-flight",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a whitelist de‑whitelisting revert causing stuck funds, which is a different root cause than the known findings about native token lockup (H-01) or dual‑transaction stealing (H",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different failure mode (whitelist change causing refund revert) than H-01 or H-02, which concern stuck native gas or theft via dual transaction flow.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "lzCompose lacks replay protection on _guid",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing replay protection issue, which is not the same root cause as the known findings about stuck gas tokens or dual-transaction theft.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing replay guard, which is a different root cause than the known findings about stuck gas tokens or theft via dual transaction execution.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "asdUSDC.withdraw integer division truncates dust that stays in contract",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an integer division dust issue in asdUSDC.withdraw, which is unrelated to the known findings about token stuck in ASDRouter or composed message transfer.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes integer division truncation in asdUSDC.withdraw, which is a different bug from the known findings about native gas tokens stuck in ASDRouter or dual transaction theft.",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

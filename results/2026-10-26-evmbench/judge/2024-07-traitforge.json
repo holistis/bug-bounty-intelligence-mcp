@@ -1,0 +1,509 @@
+{
+ "audit": "2024-07-traitforge",
+ "verdicts": [
+  {
+   "title": "EntropyGenerator batch writers are callable by anyone",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unrestricted batch write function in EntropyGenerator.sol, which does not correspond to the listed findings about airdrop griefing or percentage miscalculations.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing access control in EntropyGenerator batch writers, which is not among the listed known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "DAOFund swaps ETH to token with minAmountOut = 0 and no deadline control",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a swap slippage issue in DAOFund, which does not correspond to the listed findings about airdrop griefing or percentage miscalculation.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate finding concerns DAOFund.sol receive() with zero slippage, which is not among the known findings (H-02 and H-03 relate to different contracts and issues).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Airdrop.startAirdrop pulls tokens from tx.origin instead of msg.sender",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a tx.origin misuse in Airdrop.startAirdrop, which does not correspond to any listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a tx.origin misuse in Airdrop.startAirdrop, which is not related to the known findings about griefing attacks in TraitForgeNft or percentage calculations in EntityForging/NukeF",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Airdrop claim uses stale totalValue allowing over-claim",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a stale denominator bug in Airdrop.sol claim(), which does not correspond to the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a stale totalValue bug in an Airdrop claim function, while the known findings involve griefing attacks and incorrect percentage calculations in different contracts (TraitForgeN",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Airdrop claim reverts when totalValue is zero, trapping tokens",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a division‑by‑zero griefing issue in Airdrop.sol, which does not correspond to the root cause or contract of the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a division-by-zero revert in Airdrop.sol, which is a different root cause and function than the known findings about griefing on seller's airdrop benefits or percentage calcula",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Airdrop.startAirdrop uses tx.origin for token transferFrom",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a tx.origin misuse in Airdrop.startAirdrop, which does not correspond to the griefing attack or percentage miscalculation findings listed.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a tx.origin vulnerability in Airdrop.startAirdrop, which is unrelated to the known griefing and percentage calculation findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "NukeFund calculateAge uses creation timestamp, not last transfer, for age",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a timestamp mismatch bug, which does not correspond to the known findings about airdrop griefing (H-02) or incorrect percentage calculation (H-03).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a timestamp mismatch between calculateAge and canTokenBeNuked, which is a different root cause and impact than any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "TraitForgeNft._mintInternal increments generation after mint, off-by-one on maxTokensPerGen",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an off‑by‑one token generation count issue, which does not correspond to the listed griefing attack or percentage calculation findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an off-by-one logic in generation increment, which is not the same root cause as any of the known findings (griefing attack, incorrect percentage calculation, or other listed i",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "EntityTrading taxCut division truncation and zero-taxCut brick",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a bug in EntityTrading.sol's buyNFT, while known findings address different contracts/functions.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a division/truncation issue in EntityTrading.buyNFT, while the known findings cover griefing in TraitForgeNft and percentage miscalculation in NukeFund/EntityForging; no known ",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "DevFund pendingRewards overflow / stale rewardDebt on weight change",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reward accounting bug in DevFund, which does not correspond to the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns DevFund.sol reward accounting, while known findings H-02 and H-03 are in different contracts (TraitForgeNft, EntityForging, NukeFund) with unrelated issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "EntityForging forgingFee split truncation favors forger, loses protocol fee",
+   "strict": null,
+   "a": {
+    "match": "H-03",
+    "reden": "Both describe the same truncation bug in EntityForging's fee split calculation when taxCut changes, causing the protocol fee to be lost.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a truncation issue with a fixed taxCut and overpayment, while the known finding H-03 specifically addresses incorrect percentage calculation when taxCut is changed from default",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "EntityTrading.buyNFT deletes listing before NFT transfer, allowing reentrancy drain",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in EntityTrading.buyNFT, which does not correspond to the listed known findings about griefing attacks or percentage miscalculations.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy/drain issue in EntityTrading.buyNFT, which is not related to any of the known findings about griefing airdrops or incorrect percentage calculations in different co",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "EntropyGenerator.getNextEntropy can be called by allowedCaller to predict/force entropy",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a predictability issue in EntropyGenerator, which does not correspond to the listed griefing or percentage calculation findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The known findings listed are about griefing airdrop and incorrect tax percentage calculation, which differ from the candidate's predictable entropy issue.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "EntityForging forgingCounts reset allows unlimited forging within a year",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an off‑by‑one reset bug, which does not correspond to the listed findings about griefing attacks or percentage calculation errors.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug (off-by-one in forging count check and reset logic) than any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "EntropyGenerator.initializeAlphaIndices is public and onlyOwner but callable repeatedly",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a repeatable owner-controlled randomness manipulation in EntropyGenerator, which does not correspond to the listed griefing attack or percentage calculation bugs.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes owner re-rolling entropy initialization, which is not the same root cause as griefing airdrops or incorrect tax percentage calculations.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "NukeFund.nuke() burns NFT before ETH transfer, enabling reentrancy via burn callback",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue via NFT burn callback, which does not correspond to the listed griefing attack or percentage miscalculation findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy vulnerability in NukeFund.nuke() via burn callback, which is not the same root cause as any of the known findings (griefing attack on airdrop or incorrect percenta",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "NukeFund fund accounting drifts from real ETH balance",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an accounting drift issue, which does not correspond to the listed findings about griefing attacks or percentage miscalculations.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a drift between the fund accounting and actual ETH balance due to forced transfers, which is a different root cause from the known findings about airdrop griefing or tax percen",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "NukeFund claim amount computed from live fund balance with no slippage guard",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue (using live fund balance for claim amount) than the known findings, which focus on griefing attacks and incorrect percentage calculations.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes a different root cause (live fund balance dependency/slippage) than either known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Airdrop.claim uses totalValue that can be manipulated via addUserAmount before start",
+   "strict": null,
+   "a": {
+    "match": "H-02",
+    "reden": "Both describe a griefing attack where minting before the airdrop start inflates totalValue/userInfo to claim a disproportionate share",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes manipulation of totalValue via minting NFTs to inflate airdrop share, which is not the same as the griefing attack on seller's airdrop benefits described in H-02.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "mintWithBudget loop can be griefed via entropy generator exhaustion",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a griefing issue in mintWithBudget due to entropy exhaustion, which does not correspond to the listed findings H-02 or H-03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a griefing attack via entropy generator exhaustion in mintWithBudget, which is not the same root cause as any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "NukeFund.nuke can be blocked by reverting receiver",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a blocking issue in NukeFund.nuke, which is a different function/contract than the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different root cause (reverting ETH transfer in NukeFund.nuke) not covered by the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "EntityTrading.buyNFT reverts if seller is a reverting contract",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different griefing scenario in EntityTrading.buyNFT, not covered by H-02 or H-03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a revert/DoS in EntityTrading.buyNFT due to a seller contract that reverts, which is unrelated to the listed known findings about airdrop griefing and percentage calculations.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "EntityForging.forgeWithListed reverts if forger owner rejects ETH",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a griefing revert on ETH transfer in EntityForging.forgeWithListed, which does not correspond to the listed findings about airdrop griefing or percentage miscalculation.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a griefing attack via ETH transfer revert in forgeWithListed, which is not the same root cause as any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "NukeFund fund accounting ignores dev share on receive, enabling over-claim",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fund accounting mismatch and over‑claim issue, not the incorrect percentage calculation described in H‑03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability related to fund accounting and balance mismatch, not the percentage calculation error in H-03.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "EntityTrading.buyNFT does not verify listing is active",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing active listing check in EntityTrading.buyNFT, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing active listing check and potential ETH lock, which is unrelated to the known findings about airdrop griefing or percentage calculation errors.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "EntityForging.forgeWithListed sends ETH to forgerOwner before canceling listing",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy/ordering issue, which does not correspond to the listed griefing attack or percentage miscalculation findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy vulnerability in forgeWithListed, which is not covered by the known findings H-02 or H-03.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "mintWithBudget loop uses stale mintPrice after generation increment",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a pricing loop bug in mintWithBudget, which does not correspond to the listed findings about airdrop griefing or percentage miscalculations.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a distinct mintWithBudget price logic issue, not related to the known griefing airdrop or percentage calculation findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Airdrop claim uses manipulable spot ratio between userInfo and totalValue",
+   "strict": null,
+   "a": {
+    "match": "H-02",
+    "reden": "Both describe the same manipulable airdrop ratio vulnerability allowing a griefing attack on airdrop benefits",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different root cause (manipulable spot ratio in Airdrop.claim via NFT burn) than any known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_beforeTokenTransfer reverts if entityForgingContract is unset",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a revert due to an unset contract in _beforeTokenTransfer, which does not correspond to the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a revert due to unset entityForgingContract, which is not related to the griefing attack or percentage calculation issues in the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "EntityForging.forgeWithListed lacks replay protection on listing index reuse",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a replay/nonce issue in forgeWithListed, which does not correspond to the griefing attack (H-02) or percentage miscalculation (H-03) findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a replay protection issue on listing index reuse, which is not the same root cause as any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "EntityForging.forgeWithListed does not verify forger listing owner still owns token",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing ownership verification in forgeWithListed, which does not correspond to the listed findings about griefing airdrop or percentage miscalculation.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a stale listing/ownership check issue in forgeWithListed, which is not the same root cause as any of the listed known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "TraitForgeNft.mintToken refund transfers ETH before state finalizes, allowing drip-feed griefing",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a refund/griefing issue in mintWithBudget, which does not correspond to the listed findings about airdrop griefing (H-02) or percentage miscalculation (H-03).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a griefing attack via refund in mintToken/mintWithBudget, which is not covered by known findings H-02 (griefing on airdrop benefits) or H-03 (incorrect percentage calculation).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "TraitForgeNft.mintToken refunds excess ETH via call before state is fully settled",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in mintToken, which does not correspond to the listed findings about airdrop griefing or percentage miscalculations.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy vulnerability in mintToken, while the known findings cover a griefing attack on airdrop benefits and incorrect percentage calculations, which are different root ca",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "NukeFund.receive() sends devShare before updating fund, enabling reentrancy",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue, while the known findings cover a griefing attack and incorrect percentage calculation, not reentrancy.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy vulnerability in NukeFund.receive(), which is not related to the known findings about griefing attack or incorrect percentage calculation.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "TraitForgeNft.mintToken refund uses call without checking reentrancy via nonReentrant only on outer",
+   "strict": null,
+   "a": {
+    "match": "H-02",
+    "reden": "Both describe the same refund‑via‑call pattern in TraitForgeNft.mintToken that enables a griefing attack.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy/griefing concern in mintToken's refund pattern, which is a different root cause and impact than the known findings about airdrop griefing or incorrect percentage c",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "DevFund.receive distributes remainder to owner, breaking reward accounting",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a rounding remainder issue in DevFund.sol, which does not correspond to the listed findings about airdrop griefing or tax percentage miscalculations.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reward accounting issue in DevFund.receive(), which is unrelated to the known findings about griefing attacks or percentage calculations in other contracts.",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}
