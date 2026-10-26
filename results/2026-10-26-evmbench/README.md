@@ -44,7 +44,7 @@ Three people outside our team ran check.mjs from a fresh clone at commit 07e6f90
 - AgenticFinanceGraph, 16:15 UTC (comment 6420891233). Also recounted two audits (2023-07-pooltogether and 2026-01-tempo-stablecoin-dex) with a few lines of their own over the verdict files, without our script, and got the same numbers.
 - Tom Smart (smartflowproai-lang), 16:25 UTC (comments 6421394379 and 6424373805). Verified all 84 files in SHA256SUMS, and recounted all 40 audits in a separate Python script written after reading check.mjs: the same sums and group totals, 18 audits without a strict hit, 45 strict-matching hypotheses of 1,537, and 3 of the 3,074 judge answers marked invalid.
 
-What these checks cover: the arithmetic from the verdict files to the table. They do not cover whether the judges verdicts are right, and nobody has checked the 117 against the benchmark own configs yet. Anyone can add a line the same way, see issue 41.
+What these checks cover: the arithmetic from the verdict files to the table. They do not cover whether the judges' verdicts are right, and nobody has checked the 117 against the benchmark's own configs yet. Anyone can add a line the same way, see issue 41.
 
 ## Time and cost
 
