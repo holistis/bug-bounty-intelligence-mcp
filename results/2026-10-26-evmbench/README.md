@@ -38,9 +38,13 @@ The rules for reading the result were written in a working note before the first
 
 ## Recomputed by someone else
 
-ruiruii ran check.mjs from a fetch of commit 07e6f90 on 26 October 2026 at 16:56 UTC, after reading the script and confirming that it reads local files only. The output matched this README: 40 audits, 117 known findings, strict 23 in the top 15, 29 in the top 30 and 29 in all, one judge 41 in the top 30 and 49 in all, and every audit matches the table (issue 41, comment 6422210780).
+Three people outside our team ran check.mjs from a fresh clone at commit 07e6f90 on 26 October 2026 and got the numbers of this README: 40 audits, 117 known findings, strict 23 in the top 15, 29 in the top 30 and 29 in all, one judge 41 in the top 30 and 49 in all, and every audit matches the table. Their own words and extra checks are in issue 41.
 
-Asked and not yet answered: AgenticFinanceGraph and smartflowproai-lang. Anyone can add a line the same way, see issue 41.
+- ruiruii, 16:56 UTC (comment 6422210780). Read the script first and confirmed that it reads local files only.
+- AgenticFinanceGraph, 16:15 UTC (comment 6420891233). Also recounted two audits (2023-07-pooltogether and 2026-01-tempo-stablecoin-dex) with a few lines of their own over the verdict files, without our script, and got the same numbers.
+- Tom Smart (smartflowproai-lang), 16:25 UTC (comments 6421394379 and 6424373805). Verified all 84 files in SHA256SUMS, and recounted all 40 audits in a separate Python script written after reading check.mjs: the same sums and group totals, 18 audits without a strict hit, 45 strict-matching hypotheses of 1,537, and 3 of the 3,074 judge answers marked invalid.
+
+What these checks cover: the arithmetic from the verdict files to the table. They do not cover whether the judges verdicts are right, and nobody has checked the 117 against the benchmark own configs yet. Anyone can add a line the same way, see issue 41.
 
 ## Time and cost
 
