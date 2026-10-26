@@ -2,6 +2,8 @@
 
 AI-powered smart contract security analysis for AI agents and developers.
 
+Every public statement of ours that turned out wrong is listed, with the date and the fix, in [ERRATA.md](ERRATA.md). The counting rule behind our results is [MEASUREMENT-RULE-two-judge-strict.md](MEASUREMENT-RULE-two-judge-strict.md).
+
 ## Update, 25 October 2026, night: two free tools next to the scan
 
 We ran Slither 0.11.6 and Aderyn 0.6.8 with default settings on the same contests and had the same two judges compare their output with the known High and Medium findings. They found none: Slither 0 of 34 and Aderyn 0 of 70, on the contests where our setup could run them. On the same contests our scan found 6 of 34 and 10 of 70 in its first 15 hypotheses. Static tools are not built for the business-logic flaws that contests reward, the older contests may be in the training data of the model behind our scan, and the judges are language models, so read it as a description and not as a ranking: [results/2026-10-25-free-tools/README.md](results/2026-10-25-free-tools/README.md).
