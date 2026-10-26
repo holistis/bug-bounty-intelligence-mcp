@@ -2,6 +2,13 @@
 
 Every public statement of ours that turned out to be wrong or too strong, with the date, where it was said, what was wrong, how it was found, and what we did. Newest first. We keep the wrong wording quoted here instead of deleting it. If you find something that belongs on this list, open an issue on this repository and we add it with your name.
 
+## 26 October 2026, a query rule we pinned without measuring
+
+Where: the known-answer vectors for section 5.5 of the x402 specification in agent-receipt-verify (0.2.19 to 0.2.21), and our checker.
+What was wrong: we pinned the rule of the specification text that sorts repeated query values, so that ?q=a&q=b and ?q=b&q=a get the same identity. We tested our code against the text and never asked who can tell the two requests apart. Every library and framework we measured afterwards does (24 of 24 rows, 18 of 18 libraries and frameworks, research/repeated-query-matrix in agent-receipt-verify), so two different operations could share one identity.
+How found: a review comment on x402 pull request 3776 by NSPG13 (comment 6420653774), which we then measured.
+What we did: proposed arrival order instead of sorting in the pull request (comment 6421360625), prepared the changed vectors and checker as a draft (agent-receipt-verify pull request 72, not merged until the section text changes), made every vector that asserts an equivalence name its basis, with a test that fails without one, and wrote down the checklist we use before proposing a rule (REVIEW-BEFORE-PROPOSING.md).
+
 ## 26 October 2026, the first measurement of the scan
 
 Where: the note "We measured our scan" on tokenizen.nl, in the summary line and in the first paragraph.
