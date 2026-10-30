@@ -6,3 +6,6 @@ bench/** -text
 results/2026-10-24-dev-set/** -text
 results/2026-10-24-dev-set-2/** -text
 results/2026-10-24-sealed/** -text
+PUBLICATION-RULE-scan-results.md text eol=lf
+MEASUREMENT-RULE-two-judge-strict.md text eol=lf
+PREREGISTRATION-next-run-2026-10-26.md text eol=lf
