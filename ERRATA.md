@@ -2,6 +2,13 @@
 
 Every public statement of ours that turned out to be wrong or too strong, with the date, where it was said, what was wrong, how it was found, and what we did. Newest first. We keep the wrong wording quoted here instead of deleting it. If you find something that belongs on this list, open an issue on this repository and we add it with your name.
 
+## 30 October 2026, a run missing from the scoreboard
+
+Where: the scoreboard on tokenizen.nl, from 26 October until 30 October. The scan page said "The public scoreboard lists every run."
+What was wrong: the EVMbench run of 26 October (version 3.1, 23 of 117 in the first 15 hypotheses, 29 of 117 in the first 30) was in results/2026-10-26-evmbench/ of this repository but not on the scoreboard. It was a good result and not a miss, but a page that says it lists every run has to list that one too.
+How found: the check we wrote for the Publication Rule compares the folders of results/ with the rows of the scoreboard, and it named this folder.
+What we did: added the row on 30 October, with the caveats of the results README (High findings only, 4 of the 40 audits overlap earlier tuning sets, the order of the rules and the run is on our word). The check now runs every week in GitHub Actions and turns red when a folder has no row after 7 days.
+
 ## 26 October 2026, who had recomputed our totals
 
 Where: the results README for the EVMbench run, for about an hour on the evening of 26 October.
