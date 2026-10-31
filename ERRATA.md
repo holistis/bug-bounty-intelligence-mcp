@@ -2,6 +2,21 @@
 
 Every public statement of ours that turned out to be wrong or too strong, with the date, where it was said, what was wrong, how it was found, and what we did. Newest first. We keep the wrong wording quoted here instead of deleting it. If you find something that belongs on this list, open an issue on this repository and we add it with your name.
 
+## 31 October 2026, a hash that no longer matched in the EVMbench results
+
+Where: results/2026-10-26-evmbench/SHA256SUMS, from 26 October until 31 October.
+What was wrong: the line for README.md still held the hash of the first version of that README (9645b6fddc496e0d8c6d54da45cf2aac2560e42f86282a531f3984b4a772e5ec, commit 16a3f43). The README was edited three times after that (pull requests 43, 44 and 46: who had recomputed the totals, and two apostrophes), so sha256sum -c failed on that one line. All other files in the folder matched.
+How found: while checking the hashes of every results folder on a fresh clone, before publishing the folder of 31 October.
+What we did: the README.md line of SHA256SUMS now holds the hash of the README as it stands (47667fcce2323bba1bd93f7a6db7d88780b88ccce0e5291f0cc9c5dc4add7e04). The old line is quoted here and stays in the git history. The numbers in the results are not affected, only the text of the README changed. A rule in .gitattributes (results/ with -text) now keeps the bytes of every results folder as committed, so the hashes also hold on a clone with automatic line-ending conversion.
+
+## 31 October 2026, the scoreboard row for version 3.1
+
+Where: the scoreboard on tokenizen.nl, the row for version 3.1 on the sealed eight (25 October 2026), from 25 October until 31 October.
+What the row said: that the version was not tuned on this set, and that a scan takes about 20 to 45 seconds.
+What was wrong: version 3.1 was built after the results of these 8 contests were public on 24 October, so the label should have said partly. The README of the folder says 20 to 50 seconds per scan, not 20 to 45.
+How found: while preparing the rows for the two development runs of 31 October, we read the older row against its README and the dates of the commits.
+What we did: the row now says partly, and both language versions carry a correction line that keeps the old wording. The sealed series on the scoreboard is unchanged.
+
 ## 30 October 2026, a run missing from the scoreboard
 
 Where: the scoreboard on tokenizen.nl, from 26 October until 30 October. The scan page said "The public scoreboard lists every run."
