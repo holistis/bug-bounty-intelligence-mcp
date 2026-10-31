@@ -1,0 +1,481 @@
+{
+ "audit": "2025-05-dodo-cross-chain-dex",
+ "verdicts": [
+  {
+   "title": "Arbitrary external call lets anyone drain GatewayTransferNative via withdraw()",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue than the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "M-1",
+    "reden": "M-1 describes the public withdraw() being abusable due to excess approvals to GatewayZEVM, which is the same exposed withdraw() root cause enabling token drainage.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "GatewayTransferNative.onCall charges fee on raw amount and double-spends fee on swap path",
+   "strict": "M-3",
+   "a": {
+    "match": "M-3",
+    "reden": "The candidate describes the same missing fee deduction update prior to swap in the same function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "M-3",
+    "reden": "Both describe onCall charging/transferring the platform fee but still passing the full un-deducted amount to the swap, causing the swap to draw on already-fee-deducted funds.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "withdraw() is public in GatewayTransferNative, letting anyone trigger gateway withdraws from contract balance",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "M-1",
+    "reden": "M-1 explicitly describes attackers abusing the public GatewayTransferNative::withdraw() function to drain extra approved ZRC20 tokens, the same root cause and impact as the candidate.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`_swapAndSendERC20Tokens` check `targetAmount - amountInMax > 0` uses unspent max, not actual amount spent",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue than the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns a conservative require check using amountInMax vs actual spent amount in _swapAndSendERC20Tokens, which is not the same root cause as any listed finding (M-12 is about spot-rese",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "onCall trusts message-supplied fromTokenAmount and mixSwap params, allowing draining of contract-held tokens",
+   "strict": "H-4",
+   "a": {
+    "match": "H-4",
+    "reden": "Both findings describe a missing validation of the input token for a swap in the onCall function of GatewayTransferNative.sol.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "H-4",
+    "reden": "Both describe missing validation that params.fromToken matches the deposited zrc20 in GatewayTransferNative, letting an attacker swap arbitrary contract-held tokens using the deposited amount.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "GatewayCrossChain.onCall allows arbitrary fromToken swap to drain contract-held ZRC20",
+   "strict": "H-1",
+   "a": {
+    "match": "H-1",
+    "reden": "Both describe a missing validation between swap output token and target withdrawal token in GatewayCrossChain.sol",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "H-1",
+    "reden": "Both describe missing validation between swap fromToken and the deposited/withdrawal token in GatewayCrossChain.onCall, letting an attacker drain accumulated contract-held ZRC20s.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "GatewaySend.onCall swaps with untrusted swapData without checking fromToken/toToken matches message tokens",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in the same function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "H-4",
+    "reden": "Both describe missing validation that swap params.fromToken matches the deposited/message token, letting an attacker approve and drain the contract's own token balance.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "GatewaySend.onCall uses transferFrom for tokens the gateway already delivered, breaking cross-chain receive",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function than any of the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a transferFrom misuse in GatewaySend.onCall pulling tokens from the gateway, which is not among the known findings (none address this transferFrom/approval flaw in GatewaySend.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "claimRefund allows anyone to specify a bots-whitelisted caller to claim refunds to msg.sender",
+   "strict": "H-5",
+   "a": {
+    "match": "H-5",
+    "reden": "The candidate describes the same root cause in the same function and could lead to the same kind of impact.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "H-5",
+    "reden": "Both describe the same claimRefund authorization flaw allowing anyone to claim non-EVM chain refunds due to improper receiver/caller validation.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "GatewaySend second depositAndCall sends msg.value rather than amount for ETH; overpayment stranded",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns GatewaySend.depositAndCall bridging msg.value instead of amount for ETH, which is not described in any listed finding (M-9 covers onRevert ETH refunds, a different bug).",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "GatewaySend.depositAndCall trusts swapData outputAmount and forwards it to the bridge",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function than the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns GatewaySend.depositAndCall trusting swapData outputAmount, which is not described in any known finding (known findings cover GatewayCrossChain/GatewayTransferNative swap validat",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "withDrawToNativeChain/onCall lets caller set zrc20 and amount independently, then fees charged on uncredited token balance",
+   "strict": "H-4",
+   "a": {
+    "match": "H-4",
+    "reden": "The candidate describes the same root cause in the same function and could lead to the same kind of impact.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "H-4",
+    "reden": "Both describe withdrawToNativeChain failing to validate that the swap's fromToken/amount matches the deposited zrc20/amount, enabling misuse of contract balances.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "GatewaySend.depositAndCall swap branch pays out swap output but forwards unrelated `amount`/asset to gateway",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function than the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns GatewaySend.depositAndCall's asset/toToken mismatch, while known findings involve GatewayCrossChain/GatewayTransferNative swap validation, not this function.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "swapAndSendERC20Tokens checks targetAmount - amountInMax > 0 but approves targetAmount - amounts[0], mismatch drains/base-approval",
+   "strict": null,
+   "a": {
+    "match": "H-1",
+    "reden": "Both describe a mismatch between swap output and target withdrawal token in GatewayCrossChain.sol",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an approval/amount mismatch in _swapAndSendERC20Tokens, which is not the same root cause as any listed finding (H-1 concerns missing swap-withdrawal token validation in onCall,",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "onRevert/claimRefund combination: refund keyed only on externalId can be claimed by bots to arbitrary addresses or double-covered by repeated aborts",
+   "strict": "M-7",
+   "a": {
+    "match": "M-7",
+    "reden": "The candidate finding describes the same root cause in the same function and could lead to the same kind of impact.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "M-7",
+    "reden": "Both describe onRevert overwriting existing refundInfos for a reused externalId, causing loss of legitimate pending refunds.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Bitcooin withdraw approves outputAmount+gasFee but withdraws only outputAmount-gasFee, allowing double-spend approvals",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "M-1",
+    "reden": "Both describe the same flaw in GatewayTransferNative where approving outputAmount+gasFee while the gateway only spends outputAmount leaves excess allowance exploitable via withdraw().",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "decodeCompressedMixSwapParams reads beyond data bounds for truncated payloads, allowing panics/DoS but also misparse",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a bounds-checking/parsing flaw in decodeCompressedMixSwapParams, which is not the root cause of any listed finding.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "GatewayTransferNative.onCall and withdrawToNativeChain transfer full `amount` platform fee on wrong token / double use of msg.value",
+   "strict": "H-4",
+   "a": {
+    "match": "H-4",
+    "reden": "The candidate describes the same root cause in the same function and could lead to the same kind of impact.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "H-4",
+    "reden": "Both describe missing validation that params.fromToken matches the deposited zrc20 in GatewayTransferNative, allowing misuse of the deposited amount to swap arbitrary contract-held tokens.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "onCall in GatewaySend trusts message fromToken/amount and pulls tokens from gateway, enabling theft via mixSwap",
+   "strict": null,
+   "a": {
+    "match": "H-1",
+    "reden": "Both describe a missing validation between swap output token and target withdrawal token in the onCall function of GatewaySend.sol",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns GatewaySend.onCall trusting message fields, while known findings about untrusted message/swap validation are in GatewayCrossChain/GatewayTransferNative, not GatewaySend.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "onCall uses attacker-controlled swapData fromTokenAmount instead of verified amount, mixing contract-held funds",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns GatewaySend._doMixSwap using message-supplied fromTokenAmount, which is not the same root cause as any listed finding (H-1/H-4 concern GatewayCrossChain/GatewayTransferNative sw",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Transaction revert/abort refund uses externalId only and onRevert overwrites refundInfos, losing refunds",
+   "strict": "M-7",
+   "a": {
+    "match": "M-7",
+    "reden": "The candidate describes the same root cause in the same function and could lead to the same kind of impact.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "M-7",
+    "reden": "Both describe onRevert overwriting an existing refundInfos entry for the same externalId without validation, causing loss of legitimate refunds.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "onRevert slices revertMessage[0:32] and [32:] without length validation in both gateway contracts",
+   "strict": null,
+   "a": {
+    "match": "M-7",
+    "reden": "The candidate finding describes the same root cause in the same function and could lead to the same kind of impact.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes missing length validation on revertMessage slicing in onRevert, which is a different root cause from all listed findings (M-7 concerns overwriting refundsInfo, not OOB slicing)",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "_swapAndSendERC20Tokens floating slippage and exact-output swap can exhaust balances / leave approval to router",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue than the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes slippage/leftover-allowance and revert issues in _swapAndSendERC20Tokens, which is not the same root cause as any listed finding (M-12 concerns spot-reserve price manipulation,",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "GatewayCrossChain.onCall has no check that decoded.targetZRC20/fromToken equals received zrc20; untrusted params can move other balances",
+   "strict": null,
+   "a": {
+    "match": "H-4",
+    "reden": "The candidate describes the same root cause in the same function and could lead to the same kind of impact.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "H-1",
+    "reden": "Both describe missing validation between the received zrc20 and swap/withdrawal token params in GatewayCrossChain.onCall, enabling drainage of accumulated contract balances.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "claimRefund permits bot to claim refund whose wallet is an arbitrary bytes (sent to bot)",
+   "strict": "H-5",
+   "a": {
+    "match": "H-5",
+    "reden": "The candidate describes the same root cause in the same function and could lead to the same kind of impact.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "H-5",
+    "reden": "Both describe the same claimRefund authorization flaw allowing unauthorized claiming of non-EVM chain refunds due to flawed receiver/bot check logic.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "decodeMessage/decodeNativeMessage assemble byte slices without bounds checks; malformed length fields DoS or corrupt params",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a bounds check issue in a different function and contract than the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes missing bounds checks in SwapDataHelperLib decoding, which is unrelated to any of the listed findings about swap validation, refunds, fees, or encoding bugs.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "AccountEncoder.decompressAccounts reads fixed 32-byte publicKey + 1-byte flag but no bounds check; malformed accounts overflow freePtr",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a buffer overflow issue in the decompressAccounts function of AccountEncoder.sol, which is not present in the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an out-of-bounds memory read in AccountEncoder.decompressAccounts, which is a different bug from M-4's account permission flag parsing issue and not covered by any other known ",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "GatewaySend zero-amount swap and direct transfer without balance check can lose user funds (no minOut)",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes missing slippage/minOut protection and a silently ignored swap in GatewaySend.depositAndCall, which is not the same root cause as any listed finding (which concern validation m",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "decodeNativeMessage does not validate message length, letting truncated message read into swap bytes",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a message-length/truncation parsing issue in decodeNativeMessage, which is not the same root cause as any listed finding about swap token validation, msg.value checks, or refun",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "_doMixSwap value-forwarding uses msg.value even when caller didn't provide matching ETH, causing stuck ETH and unauthorized spend",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in the same function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes msg.value forwarding in _doMixSwap causing stuck/unauthorized ETH, which is not the same root cause as any listed finding (M-5 concerns ZETA fee mismatch causing revert, not st",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "onRevert/onAbort slice revertMessage without length check; short messages revert, locking refunds",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in the same function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes a missing length check on revertMessage slicing in onRevert/onAbort; M-7 concerns overwriting refundsInfo, a different flaw.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "GatewayTransferNative.onCall uses `msg.value` in _doMixSwap although ETH never arrives with ZRC20 path",
+   "strict": null,
+   "a": {
+    "match": "H-4",
+    "reden": "The candidate describes a similar issue in the same function and contract, where the contract uses the deposited amount of zrc20 to approve its own balance of params.fromToken for the swap, leading to",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "M-5",
+    "reden": "Both describe the msg.value/fromTokenAmount mismatch in _doMixSwap when native ZETA/ETH is used as fromToken in withdrawToNativeChain.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "GatewayCrossChain/GatewayTransferNative claimRefund/receive allow stranded ETH mismatch; onRevert for ETH uses asset ZRC20 sent directly",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue than the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "M-9",
+    "reden": "Both describe onRevert using TransferHelper.safeTransfer for native ETH (ETH placeholder address), causing ETH refunds to revert and funds to be trapped.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "claimRefund externalId check uses string literal \"\" against bytes32, never falsy and post-transfer state read",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue than the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a bytes32 vs string literal comparison and post-delete event logging in claimRefund, which is not the authorization flaw in H-5 or any other listed finding.",
+    "model": "deepseek-flash"
+   }
+  }
+ ]
+}

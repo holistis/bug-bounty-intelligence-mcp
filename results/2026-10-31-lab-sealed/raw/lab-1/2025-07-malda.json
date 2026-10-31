@@ -1,0 +1,625 @@
+{
+  "contest": "2025-07-malda",
+  "hypotheses": [
+    {
+      "title": "MixedPriceOracleV4 division by zero / wrong delta when eOraclePrice is zero or negative",
+      "severity": "High",
+      "file": "MixedPriceOracleV4.sol",
+      "function": "_getLatestPrice()",
+      "description": "In `_getLatestPrice`, `deltaBps` is computed as `delta * PRICE_DELTA_EXP / uint256(eOraclePrice < 0 ? -eOraclePrice : eOraclePrice)`. If `eOraclePrice == 0`, this divides by zero and reverts, bricking every price read. More importantly, if `eOraclePrice` is negative (API3 feeds are int256), taking `-eOraclePrice` works, but `apiV3Price`/`eOraclePrice` are then later cast to `uint256(eOraclePrice)` when the eOracle branch is selected, producing a huge positive value instead of rejecting the negative price. The function never validates that feed prices are positive before using them.",
+      "attackPath": "An oracle feed that returns 0 or a negative value (feed misbehaviour or manipulation) causes `getUnderlyingPrice` to revert for all markets (DoS) or to return a maximal uint price when a negative eOracle value is cast to uint and selected as the price. Any borrow/liquidation call hits this path.",
+      "impact": "Borrowing, liquidations and price-dependent accounting either revert entirely (DoS) or read an absurd price, enabling under/over-valued collateral accounting and unhealthy liquidations/borrows.",
+      "recommendation": "Require `apiV3Price > 0 && eOraclePrice > 0` before computing delta, and compute `deltaBps` only after these checks; never cast a potentially negative price to uint."
+    },
+    {
+      "title": "mTokenGateway._outHere overwrites receiver with journal sender so caller receiver ignored and blacklist bypassed",
+      "severity": "High",
+      "file": "mTokenGateway.sol",
+      "function": "_outHere()",
+      "description": "`outHere` takes a `receiver` argument and applies `ifNotBlacklisted(receiver)`, but `_outHere` overwrites `receiver = _sender` from the journal before the transfer, so the `ifNotBlacklisted(receiver)` modifier and the caller-supplied receiver are both ineffective. Transfers always go to the journal's `_sender`.",
+      "attackPath": "Anyone (or a PROOF_BATCH_FORWARDER) can supply a journal with a chosen `_sender`; funds are released to that `_sender` and the caller-provided `receiver` never received them. A caller cannot force another receiver since it is overridden, but blacklist checks on receiver are dead, and any off-chain integration passing a different receiver will misroute funds.",
+      "impact": "Receiver-parameter contract broken; blacklist check on receiver is a no-op; funds always to journal sender. Integrations relying on `receiver` will lose track of funds / send to wrong address.",
+      "recommendation": "Remove `receiver = _sender;` or apply it consistently with the modifier instead of overriding."
+    },
+    {
+      "title": "ChainlinkOracle has no staleness check on chainlink round data",
+      "severity": "Medium",
+      "file": "ChainlinkOracle.sol",
+      "function": "_getLatestPrice()",
+      "description": "`_getLatestPrice` reads `latestRoundData` but discards `updatedAt` (returns it unused) and only checks `price > 0`. Unlike `MixedPriceOracleV3/V4`, there is no check that the round is recent or that `answeredInRound >= roundID`. A stale or deprecated feed continues to be accepted.",
+      "attackPath": "Chainlink feed stops updating or reports a stale round; the oracle keeps returning the old price. Attackers can borrow against or liquidate positions at an outdated price.",
+      "impact": "Mispricing of collateral and debt, enabling over-borrowing or bad-debt liquidations.",
+      "recommendation": "Add a staleness check on `updatedAt` (and `answeredInRound`/`roundId`) and revert if the price is stale."
+    },
+    {
+      "title": "Referral claim signature recoverer is the claimant, so any user can self-generate a valid referral signature",
+      "severity": "Medium",
+      "file": "ReferralSigning.sol",
+      "function": "claimReferral()",
+      "description": "`claimReferral` builds `messageHash = keccak256(abi.encodePacked(msg.sender, referrer, nonces[msg.sender]))` and checks `signer == msg.sender`. The signer is required to be the *claimant*, who obviously controls their own key and can produce that signature at will. This means the signature provides no authorization at all: any user can sign for themselves and register any `referrer` of their choice (including themselves via an alias, or to farm whatever downstream rewards exist). It also permits re-signing at a later nonce after they are un-referred, but since `isUserReferred` is a one-way latch, the simplest abuse is a first-claim registration of an arbitrary referrer with no involvement of the referrer.",
+      "attackPath": "1. Attacker picks any `referrer`, reads `nonces[attacker]` (initial 0), constructs `keccak256(abi.encodePacked(attacker, referrer, 0))`, signs it with their own key, prepends EIP-191.\n2. Calls `claimReferral(signature, referrer)` — signature recovers to `attacker`, so it passes; referral registered.",
+      "impact": "Referral attribution / downstream rewards can be assigned to any address at zero cost and without the supposed referrer's consent; referral reward distribution to referrers is manipulable.",
+      "recommendation": "Verify the signature is over data the referrer signed (e.g., include a nonce/contract address and recover an expected `referrer` or a trusted signer), and use EIP-712 domain separation."
+    },
+    {
+      "title": "Rebalancer max transfer size check uses stale snapshot, bypassable on first send of a window",
+      "severity": "Medium",
+      "file": "Rebalancer.sol",
+      "function": "sendMsg()",
+      "description": "`sendMsg` copies `transferInfo` from storage before updating `currentTransferSize`, then compares `transferInfo.size + _amount < _maxTransferSize`. When the window has expired, `transferInfo.size` holds the previous expired total (reset in storage but not in memory); the check uses the stale memory value while the fresh value is stored, so the first send in each window can be arbitrarily large and later sends in the same window can push beyond the limit.",
+      "attackPath": "Rebalancer EOA submits a call with a large `_amount` right after the window expires; `transferSizeDeadline < block.timestamp`, so `currentTransferSize` is reset to `_amount`, but the stale `transferInfo.size` (old value) is used in the check, letting the size exceed `maxTransferSizes`. Repeated large sends around the boundary multiply the bypass.",
+      "impact": "Per-window outflow cap does not actually bound rebalances around window boundaries; a malicious/compromised rebalancer drains far more than intended per window.",
+      "recommendation": "Use the re-read/updated `currentTransferSize[...].size` in the max check."
+    },
+    {
+      "title": "liquidateExternal overrides receiver to _sender, ignoring caller-supplied receiver",
+      "severity": "Medium",
+      "file": "mErc20Host.sol",
+      "function": "liquidateExternal()",
+      "description": "`_liquidateExternal` explicitly sets `receiver = _sender`, discarding the caller-provided `receiver` parameter though `liquidateExternal` accepts it. The comment acknowledges this is \"temporary.\" The same pattern occurs in `_mintExternal` and `_repayExternal`. This means the documented interface behavior (liquidate on behalf of a receiver) is broken; callers relying on the parameter have no effect.",
+      "attackPath": "Any caller of `liquidateExternal` with a non-zero `receiver` sees the seized collateral always routed to the journal `_sender` instead.",
+      "impact": "Broken API/behavior; collateral is misdelivered relative to the caller's expectation. In the current state it merely constrains liquidations to signer-only, but the mismatch between interface and implementation is a correctness bug that can mislead integrators.",
+      "recommendation": "Respect the `receiver` parameter or remove it from the interface; don't silently override it."
+    },
+    {
+      "title": "ChainlinkOracle getPrice/getUnderlyingPrice can underflow on feedDecimals > 18",
+      "severity": "Medium",
+      "file": "ChainlinkOracle.sol",
+      "function": "getPrice() / getUnderlyingPrice()",
+      "description": "Both `getPrice` and `getUnderlyingPrice` compute `10 ** (18 - feedDecimals)` and `10 ** (36 - feedDecimals)`. If a configured feed has `decimals > 18` (or > 36 for the underlying case, or `baseUnits` exceeding the product for large decimals), the subtraction underflows and reverts. The constructor does not validate feed decimals or `baseUnits` against the arithmetic performed later, so a legitimate feed with 20 decimals bricks the oracle for that asset.",
+      "attackPath": "Any asset whose price feed uses more than 18 decimals (common for some token pairs) makes `getPrice`/`getUnderlyingPrice` revert for that market, blocking borrowing, liquidation and any liquidity checks.",
+      "impact": "DoS on a market's core operations.",
+      "recommendation": "Validate decimals in the constructor or normalise by dividing/multiplying to avoid underflow, e.g. handle `feedDecimals > 18` with a division branch."
+    },
+    {
+      "title": "mTokenGateway withdrawGasFees uses transfer which can brick fee withdrawal",
+      "severity": "Medium",
+      "file": "mTokenGateway.sol",
+      "function": "withdrawGasFees()",
+      "description": "`withdrawGasFees` uses `receiver.transfer(balance)`, which forwards only 2300 gas. If `receiver` is a contract/multisig/relayer that requires more gas to receive ETH (e.g. a Gnosis Safe or a contract with a non-trivial receive), the transfer reverts, and the accumulated gas fees are effectively locked. There is also no zero-address/multisig validation.",
+      "attackPath": "Owner or sequencer-role caller calls `withdrawGasFees` with a receiver that cannot accept ETH within 2300 gas; the transfer reverts. All accrued ETH remains stuck and subsequent attempts fail unless a receiver that fits 2300 gas is used.",
+      "impact": "Permanent lock of accumulated gas fees if the only eligible receiver cannot accept 2300 gas.",
+      "recommendation": "Use `call{value: balance}(\"\")` with a success check, and validate the receiver."
+    },
+    {
+      "title": "MixedPriceOracleV4 does not guard against negative eOracle price leading to underflow cast",
+      "severity": "Medium",
+      "file": "MixedPriceOracleV4.sol",
+      "function": "_getLatestPrice()",
+      "description": "The function reads `eOraclePrice` and `apiV3Price` as `int256` and computes `uint256 uPrice = uint256(eOraclePrice)` / `uint256(apiV3Price)` when selected. Unlike `MixedPriceOracleV3` which has `require(price > 0, ...)`, V4 only validates via staleness and delta. If a feed returns zero or negative (a broken/deprecated aggregator, deprecated round, or manipulated feed), the final cast produces a massive `uPrice` (two's-complement wrap), causing inflated collateral/oracle prices used by operators.",
+      "attackPath": "During liquidation/borrow checks the operator calls `getUnderlyingPrice`; if any feed in the `toSymbol` chain momentarily returns <= 0 (e.g. `latestRoundData` with `answer == 0` on stale feeds, or a negative answer), the price is near `2^256` or an absurd value, letting a borrower mint/borrow against worthless collateral or liquidate healthy positions.",
+      "impact": "Insolvency of markets using this oracle; wrong liquidations; potential underflow in `price * 10**(18 - feedDecimals)` or delta calcs.",
+      "recommendation": "Add `require(apiV3Price > 0 && eOraclePrice > 0, MixedPriceOracle_InvalidPrice())` (and `_absDiff` guard on `eOraclePrice == 0`) before any uint cast / division."
+    },
+    {
+      "title": "mintExternal reads minAmountsOut[i] without bounds check allowing OOB/DoS",
+      "severity": "Medium",
+      "file": "mErc20Host.sol",
+      "function": "mintExternal()",
+      "description": "mintExternal checks length equality only for `mintAmount` (`CommonLib.checkLengthMatch(length, mintAmount.length)`) but then indexes `minAmountsOut[i]` inside the loop. There is no check that `minAmountsOut.length == length`. If `minAmountsOut.length < length` the call reverts with a panic (array out-of-bounds), and if longer, extra entries are silently ignored. The contract-level guard that should make all parallel arrays consistent is missing for `minAmountsOut`.",
+      "attackPath": "A caller (even without a valid proof, via an allowed forwarder) passes a `journalData` with N journals but a `minAmountsOut` array of length N-1; the transaction reverts, but more importantly a relayer that constructs arrays from a proof payload cannot guarantee consistency, and any batch with mismatched `minAmountsOut` is unusable, blocking the mint/withdraw path for affected users.",
+      "impact": "Batch mint can be permanently un-executable for a given journal set via mismatched lengths; accounting accrual (`acc[_chainId].inPerChain`) and minted balances do not advance, leaving cross-chain positions unclaimable until corrected off-chain.",
+      "recommendation": "Add `CommonLib.checkLengthMatch(length, minAmountsOut.length)` before the loop."
+    },
+    {
+      "title": "Missing allowedChains check lets user mint on a market via proof that never validated that chain",
+      "severity": "High",
+      "file": "mErc20Host.sol",
+      "function": "mintExternal()",
+      "description": "`_checkProofCall` validates `allowedChains[chainId]` for the source chain (`_chainId`), but never checks that the source chain (`_chainId`) is distinct from, or that the destination is set up. More importantly, `mintExternal`/`repayExternal`/`liquidateExternal` skip the per-call replay counter reset and rely only on `acc[_chainId].inPerChain[_sender]` accounting. Crucially, `_verifyProof` only decodes and verifies the journal while the actual per-entry `_checkProofCall` runs inside `_mintExternal`. Because `_verifyProof` is skipped entirely when the caller holds the `PROOF_BATCH_FORWARDER` role, an account with that role can supply an arbitrary journal with `chainId` set to any listed chain, and the only bound is `acc[_chainId].inPerChain[_sender]`, which the same call increments — so the accounting is self-referential rather than bounded by a verified proof.",
+      "attackPath": "A batch proof forwarder role holder calls `mintExternal` with a self-crafted journal (`_sender` = their address, `chainId` = a listed chain) and `mintAmount` up to `_accAmountIn - acc[_chainId].inPerChain[_sender]`. Each call increments `acc[_chainId].inPerChain[_sender]`, but since no proof is verified for that role and the accumulator is only compared against itself, there is no external bound.",
+      "impact": "An account with the batch forwarder role can mint unbacked mTokens to themselves (no actual underlying transferred because `doTransfer=false`), then redeem/borrow against the market — draining the market's cash and reserves.",
+      "recommendation": "Enforce that the batch forwarder role cannot bypass verification of the actual mint amounts, e.g. verify the proof against the sum of amounts and require the journal's `accAmountIn` to be checked by the verifier rather than trusting the caller-supplied arrays."
+    },
+    {
+      "title": "setBorrowRateMaxMantissa stores new value before validating/accruing, leaving validation inconsistent",
+      "severity": "Medium",
+      "file": "mTokenConfiguration.sol",
+      "function": "setBorrowRateMaxMantissa()",
+      "description": "`setBorrowRateMaxMantissa` writes `borrowRateMaxMantissa = maxMantissa` before any validation (there is no require). It then accrues interest if totalSupply > 0. Since `_accrueInterest` checks `borrowRateMantissa <= borrowRateMaxMantissa`, calling `setBorrowRateMaxMantissa` with a lower value than the current rate causes the subsequent `_accrueInterest` to revert, but the assignment has already happened in the same tx so it rolls back. However there is no bound on `maxMantissa` (can be set to 0 to disable the safety cap permanently, or absurdly high). The function's only guard is `onlyAdmin`.",
+      "attackPath": "Admin sets `maxMantissa = 0`, disabling the interest rate cap on all future accruals; a misconfigured/malicious IRM can then charge unbounded interest.",
+      "impact": "Removing the safety cap allows runaway interest rates; borrowers' debt can be inflated.",
+      "recommendation": "Enforce a sensible lower bound (or explicitly disallow zero) and perform accrual before storing the new value."
+    },
+    {
+      "title": "EverclearBridge trusts caller-supplied inputAsset without verifying token was received",
+      "severity": "High",
+      "file": "EverclearBridge.sol",
+      "function": "sendMsg()",
+      "description": "`sendMsg` decodes `IntentParams` from the caller-controlled `_message` and only checks `params.inputAsset == _token` and `_extractedAmount >= params.amount`. It then approves `everclearFeeAdapter` for `params.amount` and calls `newIntent` with `params.inputAsset`. The Rebalancer upstream calls `IBridge(_bridge).sendMsg(_amount, _market, _dstChainId, _msg.token, ...)` and `SafeApprove.safeApprove(_msg.token, _bridge, _amount)` — but `_msg.token` is only checked equal to `_market`'s underlying, not equal to what the rebalancer actually holds. The bridge never transfers tokens from the rebalancer (`safeTransferFrom`) before spending them, unlike `AccrossBridge.sendMsg`. So the \"amount\" being spent is not guaranteed to be funded.",
+      "attackPath": "A REBALANCER_EOA calls `Rebalancer.sendMsg` with a whitelisted Everclear bridge and a `_msg.token` that equals the market underlying. Rebalancer approves the bridge for the amount, then EverclearBridge approves `everclearFeeAdapter` for `params.amount` and calls `newIntent`. The fee adapter pulls tokens directly from the bridge, but the bridge holds no tokens — the allowance is from the bridge, and the bridge never transferred funds in. Either the call reverts (DoS) or, if the bridge has stray balances, it spins them.",
+      "impact": "Rebalancing through Everclear is broken (funds never moved, transactions revert), and any tokens already held at the bridge can be redirected to arbitrary receivers/outputAssets via crafted `FeeParams`/`receiver`.",
+      "recommendation": "After decoding, `safeTransferFrom(msg.sender, address(this), params.amount)` and validate that `_message`'s receiver/outputAsset are the configured ones, mirroring `AccrossBridge`."
+    },
+    {
+      "title": "`mintOrBorrowMigration` with `doTransfer=false` can mint free mTokens to arbitrary receiver via Migrator",
+      "severity": "High",
+      "file": "mErc20Host.sol",
+      "function": "mintOrBorrowMigration()",
+      "description": "`mintOrBorrowMigration` is guarded by `onlyMigrator`, but `migrator` is set via `setMigrator` and defaults to `address(0)`. If the admin sets `migrator = Migrator` (as intended), the `Migrator.migrateAllPositions()` path calls `ImErc20Host(position.maldaMarket).mintOrBorrowMigration(true, collateralUnderlyingAmount, msg.sender, address(0), minCollateral)` which runs `_mint(receiver, receiver, amount, minAmount, false)` with `doTransfer=false`. `_mint(...doTransfer=false...)` skips `_doTransferIn` so no underlying is transferred, but increments `totalUnderlying += actualMintAmount` and mints shares of the same value. The claim is that a prior step (step 5 in `migrateAllPositions`) transfers underlying to the market — however `migrateAllPositions` performs mints in **step 2 before step 5**, so minted shares are created before any underlying is ever moved into the market, and if any of steps 3-5 revert for one position, mints from step 2 outstanding against unreceived collateral leave the market under-collateralised. Worse, `Migrator._getMaldaMarket` and `_collectMendiPositions` trust Mendi's `balanceOfUnderlying` and `borrowBalanceStored`, which can be inflated by Mendi-side manipulation to cause `mintOrBorrowMigration` to mint arbitrary mTokens with no backing.",
+      "attackPath": "Attacker manipulates their Mendi cToken balance/borrow balance (e.g. via a flash-loan to Mendi or a transfer of a Mendi cToken before calling `migrateAllPositions` on a shared account) so that `collateralUnderlyingAmount` in `_collectMendiPositions` is inflated, then calls `migrateAllPositions()`. Step 2 mints inflated mTokens against a promised collateral that step 5 cannot source; if any step reverts mid-way, mints are not rolled back unless atomic (they are atomic within the tx, but the mints-in-step-2-first ordering allows step 5 to transfer less than promised while mints already landed).",
+      "impact": "mTokens minted with no backing underlying, diluting existing supply; borrower gets to write-down debt via `borrow` with `doTransfer` true in step 3, extracting underlying.",
+      "recommendation": "Reorder `migrateAllPositions` to withdraw from Mendi and transfer the underlying to the Malda market (**before** any mint), and make `mintOrBorrowMigration` transfer funds (or require a prior balance delta) rather than trusting the caller's `doTransfer=false`."
+    },
+    {
+      "title": "JumpRateModelV4 utilizationRate underflows when reserves exceed cash+borrows",
+      "severity": "Medium",
+      "file": "JumpRateModelV4.sol",
+      "function": "utilizationRate()",
+      "description": "`utilizationRate` computes `borrows * 1e18 / (cash + borrows - reserves)`. If `reserves` grows larger than `cash + borrows` (possible when reserves are accrued and cash is drained), the denominator underflows and reverts. There is also no check that the denominator is non-zero when `borrows > 0`. This makes interest accrual and borrow/supply rates revert, blocking accrual and thus repayment/liquidation paths that call interest accrual.",
+      "attackPath": "Accrued reserves exceeding available cash plus borrows, or a state where cash+borrows-reserves is 0, causes `getBorrowRate`/`getSupplyRate` to revert on every accrual attempt.",
+      "impact": "Interest accrual DoS, blocking repay, redeem, liquidate, and borrow operations on the market.",
+      "recommendation": "Guard against `cash + borrows <= reserves` and return a capped rate or revert with a clear check; ensure reserves cannot exceed the denominator."
+    },
+    {
+      "title": "MixedPriceOracleV4 falls back to stale eOracle when apiV3 is fresh but eOracle is stale and delta check inverts",
+      "severity": "Medium",
+      "file": "MixedPriceOracleV4.sol",
+      "function": "_getLatestPrice()",
+      "description": "The selection logic `if (!apiV3Fresh || deltaBps > deltaSymbol)` uses the eOracle price whenever the two feeds disagree by more than `deltaSymbol`, regardless of which is correct. If the eOracle feed is stale but the apiV3 feed is fresh, the code selects eOracle (because delta is likely large) and then checks `block.timestamp - eOracleUpdatedAt < _staleness`, reverting. Conversely, if eOracle is fresh but wrong and apiV3 is stale, and they happen to be within delta, it may select neither fresh feed correctly. The selection prioritises whichever feed seems \"outsider\" rather than the fresh one.",
+      "attackPath": "A manipulated or stale eOracle value that diverges from the live apiV3 price by >1.5% forces the eOracle branch; if eOracle is stale the call reverts (DoS on all price reads); if eOracle is fresh-but-wrong, it becomes the adopted price.",
+      "impact": "Price read DoS or adoption of the wrong price, leading to mispriced collateral/debt.",
+      "recommendation": "Select prices based on freshness first, and only use delta to decide between two fresh feeds; revert or use the fresh feed exclusively if one is stale."
+    },
+    {
+      "title": "MixedPriceOracleV4 divides by eOracle price without zero-check and does not validate positivity before uint cast",
+      "severity": "Medium",
+      "file": "MixedPriceOracleV4.sol",
+      "function": "_getLatestPrice()",
+      "description": "`_getLatestPrice` computes `deltaBps = (delta * PRICE_DELTA_EXP) / (eOraclePrice<0? -eOraclePrice : eOraclePrice)` without checking `eOraclePrice != 0` and does not check that `apiV3Price`/`eOraclePrice` are > 0 before casting to `uint256`. A zero eOracle price reverts (bricks price), and a negative price wraps to a huge uint in the branch that selects it.",
+      "attackPath": "Feed outage or misconfigured feed makes one price return 0 or negative; all `getPrice`/`getUnderlyingPrice` calls revert or return inflated values, blocking liquidations/borrows or enabling over-borrow.",
+      "impact": "DoS of oracle or mispricing leading to insolvency/over-borrowing.",
+      "recommendation": "Require both prices > 0 before computing delta and casting; guard the divisor."
+    },
+    {
+      "title": "checkOutflowVolumeLimit caps per-tx only by adding before and can be bypassed by rotating dst chains",
+      "severity": "Medium",
+      "file": "Operator.sol",
+      "function": "checkOutflowVolumeLimit()",
+      "description": "`checkOutflowVolumeLimit(uint256 amount)` is called from `mErc20Host.mintExternal`, `repayExternal`, `performExtensionCall`, and reads `cumulativeOutflowVolume` plus `limitPerTimePeriod`. The limit is shared globally, but `_checkOutflow` is only invoked from mint/repay/extension paths — not from `_liquidateExternal` or `_mintExternal` directly. `mintExternal` calls `_checkOutflow(CommonLib.computeSum(mintAmount))` before verifying `journals.length == mintAmount.length`; if lengths mismatch, the call reverts via `checkLengthMatch`, so ordering is okay. But `mintOrBorrowMigration` does not call `_checkOutflow`, so the migrator can mint/borrow ignoring the outflow limit.",
+      "attackPath": "The Migrator contract (or anyone set as migrator) mints collateral and borrows without counting toward `cumulativeOutflowVolume`, bypassing the outflow protection entirely.",
+      "impact": "The outflow limit control (a safety cap) can be bypassed via the migration path, allowing outflow volume beyond configured limits.",
+      "recommendation": "Call `_checkOutflow` from `mintOrBorrowMigration` as well, or restrict migrator to a trusted one-time use that is not governed by the outflow limit only if intended."
+    },
+    {
+      "title": "mErc20 mint is called instead of the gateway supply flow; host market is passed directly as receiver of mint",
+      "severity": "High",
+      "file": "WrapAndSupply.sol",
+      "function": "wrapAndSupplyOnHostMarket()",
+      "description": "`wrapAndSupplyOnHostMarket` calls `ImErc20(mToken).mint(amount, receiver, minAmount)` directly after approving the market. But this is a *host* market, and according to the rest of the codebase the host mint entrypoint is `mintExternal` (used by `BatchSubmitter` via `ImErc20Host.mintExternal`) while plain `mint` is the Compound-style function intended to be called after the underlying has been transferred *and* is normally gated to `onlyProtocolAllowed` / `mintAllowed` in the host, which require a protocol caller/interaction check that a generic wrapper contract cannot satisfy. More importantly, the amount parameter ordering is wrong: `mint(uint256 minAmountOut, address receiver, uint256 amount)` in this codebase's extension interface puts `minAmount` first, so `mint(amount, receiver, minAmount)` passes `amount` as the min-amount-out and `minAmount` as the actual supply amount the contract transfers in, and leaves the caller's `amount` wrongly checked. Because `receiver` can be any address, an attacker calling with `receiver = other` and `minAmount = 0` can use the wrapper as a griefing/mis-allocation vector and, with attacker-controlled `mToken` (any contract whose `underlying()` returns the wrapped native), redirect the approval+transfer flow.",
+      "attackPath": "1. Attacker deploys a fake contract `F` whose `underlying()` returns the wrapped native; calls `wrapAndSupplyOnHostMarket(F, attacker, 0)` with `msg.value = X`.\n2. Wrapper wraps `X` and calls `IERC20(native).approve(F, X)`, then `F.mint(X, attacker, 0)` — `F` pulls `X` native into the attacker's contract.\n3. Even against a real market, the argument ordering mismatches the extension `mint` interface and recipients/amounts are inconsistent with the documented semantics.",
+      "impact": "Native funds of users (or the contract) can be siphoned / mis-supplied to a caller-chosen target; users supplying via the helper can lose funds.",
+      "recommendation": "Call the correct entrypoint (`mintExternal` with a journal, or a `mint` variant the host actually exposes), validate `mToken` is a registered market, and match the argument order exactly."
+    },
+    {
+      "title": "ZkVerifier signs sha256(journalEntry) over the raw ABI-encoded array instead of individual journal",
+      "severity": "High",
+      "file": "ZkVerifier.sol",
+      "function": "__verify()",
+      "description": "`mErc20Host._verifyProof` passes the whole `journalData` (an `abi.encode(bytes[])` blob) to `verifier.verifyInput(journalData, seal)`, and `ZkVerifier.__verify` commits `sha256(journalEntry)` of that entire blob. But `mErc20Host` then re-decodes `journalData` with `_decodeJournals(journalData)` and processes each inner journal independently. There is no cryptographic binding between the seal/imageId's RISC0 commitment to `sha256(bytes)` and the individual decoded journals — the guest program is assumed to emit exactly the same blob, but nothing in this contract verifies that the RISC0 journal contains the same `bytes[]` that is later used for state changes. Any mismatch (e.g. the guest emitted a different encoding or a specialized journal) means the contract trusts a proof of \"some bytes\" while acting on `journalData` supplied by the caller.",
+      "attackPath": "Attacker crafts arbitrary `journalData` containing journals with fabricated `_accAmountIn` values and matching `mintExternal`/`repayExternal`/`liquidateExternal` calls, and supplies a seal that verifies `sha256(journalData)` only in a degenerate case, or exploits any encoding equivalence in the RISC0 commitment (e.g. non-canonical ABI encoding of the bytes[] array). Because `mTokenProofDecoderLib.decodeJournal` reads fixed offsets of the inner bytes with no canonicalization, alternate encodings of the same array can hash differently in a way the guest program may not reject.",
+      "impact": "Falsified cross-chain balances allow `mintExternal`/`repayExternal` to mint mTokens or repay debt against attacker-controlled `inPerChain`, i.e. theft of protocol funds.",
+      "recommendation": "Hash and verify the exact bytes that are later consumed (each `journals[i]`) individually or the full equality of the decoded array to the one whose hash was proven inside the RISC0 guest; do not allow any re-encoding between verification and decoding."
+    },
+    {
+      "title": "mTokenGateway.outHere hard-overrides receiver to _sender, silently discarding the receiver argument and implying inconsistent blacklist/whitelist enforcement",
+      "severity": "Medium",
+      "file": "mTokenGateway.sol",
+      "function": "_outHere()",
+      "description": "`_outHere` takes `receiver` from the caller, runs the `ifNotBlacklisted(msg.sender)` and `ifNotBlacklisted(receiver)` modifiers, but then executes `receiver = _sender;` (a \"temporary overwrite\"). This means the blacklist check on `receiver` is meaningless (the actual transfer goes to `_sender`), and `_sender` is never blacklist-checked — a blacklisted user can be the recipient of the underlying by generating a valid journal with `_sender` equal to that blacklisted address. `_checkSender` also allows `msgSender == srcSender`, or `allowedCallers[srcSender][msgSender]`, or proof-forwarder/owner; nothing there consults the blacklister. So the blacklist cannot stop funds reaching a blacklisted address via `outHere`.",
+      "attackPath": "1. Attacker (blacklisted) generates a valid proof journal where `_sender` = attacker, going through a permitted forwarder or via allowedCallers configuration.\n2. `outHere` is called with any `receiver`; modifier checks the (non-attacker) `receiver` and the caller, not `_sender`.\n3. `receiver` is overwritten to `_sender`; `safeTransfer(_sender, amount)` pays the blacklisted attacker.",
+      "impact": "Blacklist anti-fraud control is bypassable; blacklisted users can extract funds.",
+      "recommendation": "Apply the blacklist check to `_sender` (the actual recipient) in `_outHere`, or remove `ifNotBlacklisted(receiver)` and add `ifNotBlacklisted(_sender)` inside the loop."
+    },
+    {
+      "title": "MixedPriceOracleV4 uses uint256(eOraclePrice) / uint256(apiV3Price) without checking positivity, allowing a negative price to become a huge uint",
+      "severity": "Medium",
+      "file": "MixedPriceOracleV4.sol",
+      "function": "_getLatestPrice()",
+      "description": "The fallback-to-feed logic does not validate that the chosen feed's price is positive. The delta calculation does use `uint256(eOraclePrice < 0 ? -eOraclePrice : eOraclePrice)` for the denominator, but the *return* values `uPrice = uint256(eOraclePrice)` / `uint256(apiV3Price)` are raw casts. If either feed returns a negative int256 (or a zero), the branch that selects it will pass a huge `uPrice` (or zero) up to `_getPriceUSD`, and downstream lending calculations use it to value collateral. There is no `require(price > 0)` in this branch (only MixedPriceOracleV3 has that), and the delta check uses the absolute value so a negative `eOraclePrice` can still satisfy `deltaBps <= deltaSymbol` (e.g., both feeds negative-but-close), selecting the negative one when API3 is stale.",
+      "attackPath": "1. A feed (or a compromised/manipulated feed) returns `apiV3Price < 0` with fresh timestamp while `eOraclePrice` is close in absolute terms, so `deltaBps <= deltaSymbol`.\n2. `apiV3Fresh` is true, so `uPrice = uint256(apiV3Price)` becomes `~2^256`, and `getUnderlyingPrice` returns an enormous price.\n3. Borrowers can borrow against inflated collateral / liquidations are miscalculated, and `_absDiff`/`delta` math for mixed signs is also fragile.",
+      "impact": "Collateral mis-valuation; inflated borrowing power, under/over-liquidations, and potentially draining the market.",
+      "recommendation": "Require each selected price (`apiV3Price`, `eOraclePrice`) to be `> 0` before casting; only compare absolute deltas when both are non-negative."
+    },
+    {
+      "title": "ChainlinkOracle ignores feed staleness and price timestamp",
+      "severity": "Medium",
+      "file": "ChainlinkOracle.sol",
+      "function": "_getLatestPrice()",
+      "description": "`_getLatestPrice` reads `latestRoundData` but only checks `price > 0`; it never checks `updatedAt` / `answeredInRound` for staleness or rounds, unlike MixedPriceOracle which does. A stale or paused Chainlink feed will be consumed at face value.",
+      "attackPath": "When a Chainlink feed has not been updated (network upgrade, feed deprecation, outage), `getPrice`/`getUnderlyingPrice` still return the last value. Attacker times a borrow/liquidation while price is stale to profit.",
+      "impact": "Collateral misvaluation allowing over-borrowing or unfair liquidations during oracle downtime.",
+      "recommendation": "Add a staleness check on `timeStamp` against a configured `STALENESS_PERIOD` and revert on stale data."
+    },
+    {
+      "title": "Repay of full debt via `type(uint256).max` reverts when balance is zero or the transferred amount differs",
+      "severity": "Medium",
+      "file": "mToken.sol",
+      "function": "__repay()",
+      "description": "In `__repay`, `repayAmountFinal` is set to `accountBorrowsPrev` when `repayAmount == type(uint256).max`, then `actualRepayAmount` is used to compute `accountBorrowsNew = accountBorrowsPrev - actualRepayAmount` and `totalBorrowsNew = totalBorrows - actualRepayAmount`. With a fee-on-transfer or otherwise non-exact transfer, `actualRepayAmount` can exceed the debt if `repayAmountFinal` is not the actual balance, and more importantly calling `repay(max)` on a position with zero debt passes `repayAmountFinal = 0`, `actualRepayAmount = 0`, which is harmless, but `repayExternal`/`_repayBehalf` pass arbitrary non-max amounts and any overpayment beyond `accountBorrowsPrev` underflows and reverts. The root cause is the lack of an explicit `repayAmountFinal = min(repayAmountFinal, accountBorrowsPrev)` clamp combined with using the raw input amount for the transfer.",
+      "attackPath": "A user or a third party calls `repayBehalf(borrower, 2 * debt)` (or `liquidate` computes `actualRepayAmount` that exceeds the debt in a race with accrued interest) — the transfer of the full overpayment is attempted; if it succeeds the subtraction underflows and reverts, losing the caller's gas but not funds. Conversely `repay(max)` transfers `accountBorrowsPrev` but `actualRepayAmount` could be less on fee tokens, returning the difference silently.",
+      "impact": "Over-repayments and max-repays are not clamped, causing reverts (DoS of liquidation/repay paths for overpaying callers) and, for fee-on-transfer underlying, silently writing down `totalBorrows`/`accountBorrows` by less than was pulled.",
+      "recommendation": "Clamp `repayAmountFinal = repayAmount == max || repayAmount > accountBorrowsPrev ? accountBorrowsPrev : repayAmount` before computing the transfer."
+    },
+    {
+      "title": "`_liquidateExternal`/`_repayExternal` consume proof capacity before validating amounts and can be replayed against same journal",
+      "severity": "Medium",
+      "file": "mErc20Host.sol",
+      "function": "_repayExternal()",
+      "description": "In `_repayExternal`, `actualRepayAmount = _repayBehalf(receiver, repayAmount, false)` is executed BEFORE the checks `require(repayAmount > 0, ...)` and `require(actualRepayAmount <= _accAmountIn - acc[_chainId].inPerChain[_sender], ...)`. Since `doTransfer=false`, the state mutation (writing down `accountBorrows`, `totalBorrows`) happens on-chain without any inflow, and only afterwards is the cap enforced. The `_accAmountIn` bound check also uses `actualRepayAmount` rather than `repayAmount`, and `inPerChain` is incremented by `actualRepayAmount`, so a caller can pass a `repayAmount` larger than `accAmountIn` as long as the resulting `actualRepayAmount` (which grows because `_repayBehalf` uses `_borrowBalanceStored`) happens to fit — or cause a partial write followed by a revert of the cap check that costs the user nothing but penalises throughput. The order-of-operations is the defect.",
+      "attackPath": "A proof-forwarder feeds a journal for `_sender` with a large `_accAmountIn`; a borrower's `repayAmount` is chosen so that `_repayBehalf` succeeds (interest accrual makes actual slightly larger than the logical amount supplied in the journal). If the check then fails, the entire transaction reverts, but between the accrual and the revert the state is inconsistent for other calls in the batch. More importantly, the same journal can be re-submitted with different `repayAmount` arrays under the same `_accAmountIn`, effectively allowing the `_sender`'s borrowed debt to be written down multiple times up to `_accAmountIn` at no cost.",
+      "impact": "Debt and total borrow accounting on the host can be driven down (deflating borrow totals and accruing interest for everyone) with no corresponding cash inflow, since the `doTransfer=false` path is only checked by the `accAmountIn` counter, and the counter is compared after mutation.",
+      "recommendation": "Move both `require` checks (positive amount and `repayAmount <= _accAmountIn - acc[...]`) to before `_repayBehalf`, and increment `inPerChain` using `repayAmount` not `actualRepayAmount`."
+    },
+    {
+      "title": "`_getCashPrior` returns `totalUnderlying` which is not updated on direct token donations, desyncing exchange rate from actual balance",
+      "severity": "Medium",
+      "file": "mErc20.sol",
+      "function": "_getCashPrior()",
+      "description": "`_getCashPrior()` returns the storage variable `totalUnderlying` rather than `IERC20(underlying).balanceOf(address(this))`. `totalUnderlying` is only incremented/decremented in `_mint`, `_redeem`, `_redeemUnderlying`, `_borrow`, `_repay`, `_repayBehalf`, `_liquidate`, `_addReserves`, `reduceReserves`. Any direct token transfer to the market (donations, refunds, airdrops) is invisible to `_getCashPrior()` and `_exchangeRateStored()`. Conversely, if a fee-on-transfer token is used, `actualMintAmount` is credited correctly, but if underlying tokens are swept by the admin via `sweepToken` (not applicable since underlying is blocked), `totalUnderlying` remains stale. The exchange rate uses this stale stored value while `_doTransferIn`/`_doTransferOut` move real balances, so the stored rate diverges from the true cash-per-share.",
+      "attackPath": "Attacker donates a large amount of the underlying token to the market contract. `_getCashPrior` still returns the old `totalUnderlying`, so `exchangeRateStored` is unchanged and no immediate profit is visible — BUT the attacker can then call `reduceReserves` (only if admin/guardian) or, more directly, whenever an existing deficit exists, later ops compute from stale cash. Real exploit: the attacker donates to the contract and then, using the migrator path with `doTransfer=false` (`mintOrBorrowMigration` mint), `actualMintAmount = mintAmount` without a transfer, inflating `totalUnderlying` without backing.",
+      "impact": "Share price (`exchangeRateStored`) and `getCash` diverge from real token balance, so mints/borrows check against a fictitious `_getCashPrior()` and the market can be drained of real tokens up to the discrepancy.",
+      "recommendation": "Compute `_getCashPrior()` as `IERC20(underlying).balanceOf(address(this))` (adjusted for tokens in flight), and/or require `totalUnderlying` to be reconciled on every state-changing transfer."
+    },
+    {
+      "title": "_repayExternal validates repayment after mutating state, allowing repayment up to accAmountIn regardless of bound check ordering",
+      "severity": "Medium",
+      "file": "mErc20Host.sol",
+      "function": "_repayExternal()",
+      "description": "In `_repayExternal`, `actualRepayAmount = _repayBehalf(receiver, repayAmount, false)` is called (which updates `accountBorrows`, `totalBorrows`, `totalUnderlying`) before the check `require(actualRepayAmount <= _accAmountIn - acc[_chainId].inPerChain[_sender], mErc20Host_AmountTooBig())`. If the require fails the whole tx reverts, so that's okay — but the check uses `_accAmountIn` from the journal while `acc[_chainId].inPerChain[_sender]` accumulates. The issue is that the first check `require(repayAmount > 0)` is also after the external call to `_repayBehalf`. Since `_repayBehalf` is internal and cannot return without doing work, and revert rolls back, ordering here is defensively weak but not exploitable. However: the `acc[_chainId].inPerChain[_sender] += actualRepayAmount` increments the *source* chain's inflow counter from repaying on this chain, which mixes directionality — meaning repayments consume the batch-mint allowance.",
+      "attackPath": "A user repaying their own debt on chain A decreases available `mintAmount` headroom on chain A from their journal-verified inflow.",
+      "impact": "Incorrect accounting: the same `inPerChain` counter is used both for mints and repays, so a legitimate repayment reduces the mints that can be performed with a genuine proof.",
+      "recommendation": "Use separate counters for mint/repay/liquidate inflow accounting, and perform `repayAmount > 0` before calling `_repayBehalf`."
+    },
+    {
+      "title": "_mintExternal mints without checking that the recipient's receiver is entered into the market correctly, and minAmountOut is passed but exchangeRate can be manipulated",
+      "severity": "Medium",
+      "file": "mErc20Host.sol",
+      "function": "_mintExternal()",
+      "description": "`_mintExternal` calls `_mint(receiver, receiver, mintAmount, minAmountOut, false)`. In `__mint`, `minAmountOut` is compared against `mintTokens` *before* the first-supply 1000-token burn. For a fresh market (`totalSupply == 0`), mintTokens is computed from `actualMintAmount / exchangeRate` where exchangeRate = initialExchangeRateMantissa. Then `if (totalSupply == 0) { totalSupply = 1000; accountTokens[address(0)] = 1000; mintTokens -= 1000; }`. If the exchange rate is high, `mintTokens` could be less than 1000 causing underflow revert; more significantly the first depositor gets `mintTokens - 1000`. Because exchange rate is the initial rate (attacker can fund market to skew), an attacker can grief.",
+      "attackPath": "Attacker mints first with a tiny amount and then funds the contract directly (donating underlying), raising `_exchangeRateStored` for the second minter; the second minter's `_mintExternal` slippage parameter protects them, but it's cross-chain and callers might pass 0.",
+      "impact": "Users minting on a fresh market may receive fewer tokens than expected or revert on small amounts (<1000 wei of mTokens).",
+      "recommendation": "Perform the 1000-token burn before the `minAmountOut` check and ensure `mintTokens >= 1000` before subtraction, or add a protection for first-mint griefing."
+    },
+    {
+      "title": "_liquidate code: `_liquidate` calls `ImToken(mTokenCollateral).accrueInterest()` then requires accrual block timestamp == current, but seize in same tx can reset the borrower's collateral check incorrectly",
+      "severity": "Medium",
+      "file": "mToken.sol",
+      "function": "__liquidate()",
+      "description": "In `__liquidate`, after `beforeMTokenLiquidate` (which does a shortfall check based on stored balances), `__repay` is executed and only then `liquidateCalculateSeizeTokens` is computed. The `accrueInterest` for collateral happens in `_liquidate` before `__liquidate`. But the operator's `liquidateCalculateSeizeTokens` reads `ImToken(mTokenCollateral).exchangeRateStored()` — which is fine after accrual. However, the `beforeMTokenLiquidate` shortfall check is done on account liquidity using `accountAssets`; if the liquidator seizes collateral and the borrower had multiple collateral entries, that's fine. The actual vulnerability: `beforeMTokenSeize` in `_seize` runs `_updateMaldaSupplyIndex(mTokenCollateral)` and distributes supplier MALDA, which can change `totalSupply`? No, it just updates indices. So no issue. The lib issue is the operator's liquidation incentive per-market: `liquidationIncentiveMantissa[mTokenCollateral]` could be 0 if not configured, making `seizeTokens = 0`. Then `_seize` with 0 tokens: `protocolSeizeTokens = 0`, `liquidatorSeizeTokens = 0`, `totalSupply -= 0`, everything at 0 — but the repay already happened. Liquidator repays debt, borrower keeps all collateral, liquidator gets nothing.",
+      "attackPath": "Admin forgets to set `liquidationIncentiveMantissa` for a listed market (it defaults to 0). Liquidator calls liquidate. The repay is deducted from borrower's borrow and added to reserves, but the liquidator receives no collateral.",
+      "impact": "Liquidators lose repaid funds with no collateral seized; only admin could configure, but it's a required step with no validation. The system can function with broken incentives because `supportMarket` doesn't require incentive be set.",
+      "recommendation": "Require liquidationIncentive > 0 when setting it (or default to 1.0) and validate non-zero in `liquidateCalculateSeizeTokens`."
+    },
+    {
+      "title": "Migrator._collectMendiPositions uses stale `balanceOfUnderlying` without accrual; v1Withdraw uses borrower repay balance",
+      "severity": "Medium",
+      "file": "Migrator.sol",
+      "function": "migrateAllPositions()",
+      "description": "`_collectMendiPositions` reads `mendiMarket.balanceOfUnderlying(user)` (an accrued view) and `borrowBalanceStored(user)` (stored, unaccrued). `migrateAllPositions` then repays exactly `position.borrowAmount` via `repayBorrowBehalf(msg.sender, borrowAmount)` — the borrow was not accrued against `block.timestamp`, so between collection and repay in the same tx interest should not accrue, but if Mendi's `repayBorrowBehalf` accrues, the amount checked (`== 0`, i.e. success) fails because residual interest remains. More importantly, step 5 does `v1Balance = IMendiMarket(...).balanceOfUnderlying(address(this))` after `safeTransferFrom` of cTokens, so the migrator redeems the full cToken balance, then `underlying.safeTransfer(position.maldaMarket, position.collateralUnderlyingAmount)`, but `position.collateralUnderlyingAmount` was computed before the v1 cToken transfer and before any interest accrual in step 4. If the redeemed `v1Balance` differs from `collateralUnderlyingAmount`, leftover underlying stays stuck in the Migrator, or collateral mints fail on insufficient transfer.",
+      "attackPath": "User with an outstanding borrow whose Mendi position accrued before migration: the stored borrow balance is repaid, but `repayBorrowBehalf` returns non-zero due to a fee or interest, causing the `require(==0)` to revert. Alternatively, after `redeemUnderlying(v1Balance)`, the actual `v1Balance` exceeds `collateralUnderlyingAmount`, and the surplus remains locked in the Migrator.",
+      "impact": "Migration reverts for users with any accrued interest, or leaves leftover underlying permanently stuck in the Migrator.",
+      "recommendation": "Accrue (or use `borrowBalanceCurrent`) before repay, and transfer exactly the `v1Balance` actually redeemed rather than a pre-computed, stale `collateralUnderlyingAmount`."
+    },
+    {
+      "title": "Operator.beforeMTokenRepay not marked `view`/no pause check order issue; repay can be paused per-user",
+      "severity": "Low",
+      "file": "Operator.sol",
+      "function": "beforeMTokenRepay()",
+      "description": "`beforeMTokenRepay` enforces `!paused[mToken][Repay]`, so pausing repay can also block liquidation, since `__liquidate` calls `__repay` which calls `beforeMTokenRepay`. But `beforeMTokenLiquidate` only checks the Liquidate pause. A pool with `Repay` paused makes `__repay` revert during liquidation, preventing bad debt from being cleared.",
+      "attackPath": "Guardian (with GUARDIAN_PAUSE) sets `paused[mtoken][Repay] = true` as a \"safety\" measure but `Liquidate` remains unpaused; now `liquidate()` calls `__liquidate` → `__repay` → `beforeMTokenRepay` → reverts, so no liquidation can happen even though it is not paused.",
+      "impact": "Liquidations blocked while repays are paused; existing bad debt cannot be cleared, allowing borrowers to evade liquidation.",
+      "recommendation": "In `__liquidate`, either skip the Repay pause check for the internal repay path, or in `beforeMTokenRepay` allow calls where msg.sender is the market during liquidation."
+    },
+    {
+      "title": "mErc20Host._verifyProof skips L1Inclusion check for batch-proof-forwarder, but batch roles can also pass through mint/repay/liquidate external paths",
+      "severity": "High",
+      "file": "mErc20Host.sol",
+      "function": "_verifyProof() / mintExternal() / repayExternal() / liquidateExternal()",
+      "description": "In `_verifyProof`, the `L1Inclusion` requirement is skipped when the caller is `_getBatchProofForwarderRole()`, not just `_getProofForwarderRole()`. However, the batch forwarder is also permitted to skip proof verification entirely in the outer functions (`if (!_isAllowedFor(msg.sender, _getBatchProofForwarderRole())) _verifyProof(...)`). Combined with `_checkSender` accepting `_getBatchProofForwarderRole()`, a batch forwarder role holder can submit any `journalData` (any sender/market/chainId/accAmountIn) without any proof and bypass the L1Inclusion safeguard.",
+      "attackPath": "A caller holding `PROOF_BATCH_FORWARDER` (or compromised account of it) submits `mintExternal` with fabricated journals for arbitrary sender/accAmountIn, no seal verification is performed, `_accAmountIn - acc[_chainId].inPerChain[_sender]` yields a large allowance, and mTokens are minted to attacker-supplied `_sender`.",
+      "impact": "Batch forwarder role bypasses all zk proofs; if role is compromised or mis-assigned, unbounded mint/repay/liquidate.",
+      "recommendation": "Either always call `_verifyProof` for the batch forwarder path (as it does for regular users), or restrict what the batch forwarder can do; do not combine \"skip proof\" with \"trust journal bytes\"."
+    },
+    {
+      "title": "First depositor exchange rate manipulation: donation to underlying before any mint inflates share price",
+      "severity": "High",
+      "file": "mToken.sol",
+      "function": "__mint()",
+      "description": "`_exchangeRateStored` computes `(totalCash + totalBorrows - totalReserves) * expScale / totalSupply` with `totalCash = totalUnderlying`. When `totalSupply == 0`, the first depositor flow sets `totalSupply = 1000` and `accountTokens[address(0)] = 1000` AFTER `mintTokens` is computed with the pre-deposit exchange rate; a second depositor gets `mintTokens = div_(actualMintAmount, exchangeRate)`. Because `totalUnderlying` is a stored variable (not `balanceOf`), a direct `safeTransfer` of underlying to the market does not update `totalUnderlying`, but a subsequent `_doTransferIn` from any mint will observe `balanceAfter - balanceBefore = 0` and silently drop the donated tokens — however, the more dangerous path is that in `__redeem`/`__borrow` `totalUnderlying` is decremented below the actual balance and later mints re-sync. A colluding first depositor can also exploit the 1000-share bootstrap: mint 1 wei (`1 * 1e18` shares), then bring `totalUnderlying` up via repeated small mints so that the next victim's `mintTokens` rounds down to 0 when `mintTokens >= minAmountOut` is not checked against actual share value.",
+      "attackPath": "Attacker mints 1 underlying wei in a fresh market (receives `1e18 - 1000` shares), then donates underlying via a transfer that later gets counted into `totalUnderlying` through a controlled `_doTransferIn` from a helper contract — after which a victim's `redeem` truncates to 0 `redeemAmount` while burning shares, or a victim's `mint` yields `mintTokens = 0` because `div_(actualMintAmount, exchangeRate)` truncates.",
+      "impact": "Victim shares are truncated to zero on mint or burn with no underlying returned — the attacker captures the victim's deposit.",
+      "recommendation": "Enforce a minimum mint/output invariant (e.g. require `mintTokens > 0` and require burned shares' underlying value is emitted on redeem), and use a dead-share bootstrap large enough (or an ERC-4626 style virtual offset) to make truncation attacks unprofitable."
+    },
+    {
+      "title": "ChainlinkOracle.getUnderlyingPrice does not validate that both feeds exist and ignores lack of staleness check",
+      "severity": "Medium",
+      "file": "ChainlinkOracle.sol",
+      "function": "getUnderlyingPrice() / getPrice()",
+      "description": "`getUnderlyingPrice` reads `priceFeeds[symbol].decimals()` *before* `_getLatestPrice` performs its `require(address(priceFeeds[symbol]) != address(0))` check. Calling `decimals()` on `address(0)` will revert (since `priceFeeds[symbol]` defaults to address(0), ABI call to no code), so the missing-feed case never reaches the intended `ChainlinkOracle_NoPriceFeed()` error — it reverts with an opaque low-level failure. More importantly, there is no staleness (`updatedAt`) check at all: `_getLatestPrice` returns `timeStamp` but the caller discards it, so a stale but positive price is fully trusted. For a lending protocol this means a market can be valued with a dead feed during exactly the window when manipulation / outage risk matters, and borrowing against it or liquidating with it results in real loss or bad debt.",
+      "attackPath": "1. Operator relies on `ChainlinkOracle` as `IOracleOperator` for a market.\n2. Feed stops updating (or is stale by hours) but still reports the last positive answer.\n3. `getUnderlyingPrice` returns that stale price; borrowers borrow against inflated collateral or liquidators underpay, and the protocol accrues bad debt.",
+      "impact": "Borrowing power and liquidation correctness are compromised during feed outages; insolvency risk / bad debt.",
+      "recommendation": "Move the feed existence check in front of `decimals()`, and reject prices whose `updatedAt` exceeds a configured staleness window."
+    },
+    {
+      "title": "BatchSubmitter.batchProcess trusts caller-supplied arrays without length checks against decoded journals",
+      "severity": "Medium",
+      "file": "BatchSubmitter.sol",
+      "function": "batchProcess()",
+      "description": "`batchProcess` iterates over `data.initHashes.length` and indexes `journals[data.startIndex + i]`, `data.amounts[i]`, `data.selectors[i]`, `data.mTokens[i]` and `data.receivers[i]` without verifying that these arrays are all the same length or that `startIndex + i` is within the verified journal array. A proof-forwarder role caller can supply mismatched lengths causing out-of-bounds reverts (DoS of the entire batch), or index journals not covered by the proof (though selectors still limit to mint/repay/outHere). Because it calls `mintExternal`/`repayExternal`/`outHere` on behalf of `data.receivers[i]` with `encodedJournal` constructed from an arbitrary journal, the proof verification covers the whole journalData, but per-element binding between amount and journal is loose.",
+      "attackPath": "A caller with PROOF_FORWARDER role (or a bug in forwarding) provides `initHashes.length` larger than `amounts`/`selectors` arrays, causing a revert for the whole batch; or a verified journal may be re-used across `i` values implicitly if startIndex matches, mismatching amount and operation.",
+      "impact": "Batch settlement DoS or incorrect operation/amount pairing once proof passes.",
+      "recommendation": "Require all arrays (`initHashes`, `amounts`, `minAmountsOut`, `selectors`, `mTokens`, `receivers`) to have the same length, and require `startIndex + initHashes.length <= journals.length`."
+    },
+    {
+      "title": "ReferralSigning signature can be front-run/claimed for arbitrary referrer by anyone for the user",
+      "severity": "Medium",
+      "file": "ReferralSigning.sol",
+      "function": "claimReferral()",
+      "description": "The signed message is `keccak256(abi.encodePacked(msg.sender, referrer, nonces[msg.sender]))` and the signer must equal `msg.sender`. Since it is signed by the user themselves, the nonce is per-user and incremented on success, the signature is not bound to this contract or chain (no domain separator/chainId), and any caller could theoretically submit it — but the `signer == msg.sender` check requires the user to be the caller, so a third party submitting cannot pass. However the whole design requires the user to sign their own message, making the signature redundant and, because the check makes `claimReferral` only callable by the signer, a user can never use their referral for another address.",
+      "attackPath": "The signature mechanism enforces that the claimer is the signer, so a referrer cannot bind a user to them; and if this contract is deployed on multiple chains or via proxy, the same `(msg.sender, referrer, nonce)` signature is replayable on all of them since no chain/domain is included.",
+      "impact": "The referral system can't be used for its apparent purpose (referrer-driven claim); and cross-chain replay of signature allows a referral registration on another deployment, potentially front-running or duplicating a claim.",
+      "recommendation": "Include `address(this)` and `block.chainid` in the signed payload and define who signs (the referrer, presumably) and what binds it; require `signer == referrer`, not `msg.sender`."
+    },
+    {
+      "title": "ReferralSigning signed payload lacks chain/domain and contract binding, allowing cross-deployment replay",
+      "severity": "Medium",
+      "file": "ReferralSigning.sol",
+      "function": "claimReferral()",
+      "description": "The signed message is `keccak256(abi.encodePacked(msg.sender, referrer, nonces[msg.sender]))`, wrapped only as an ethSignedMessage; it contains no `address(this)` or `block.chainid`. The nonce is per-user and per-deployment; the same signature is valid on any chain/contract where the user hasn't yet claimed.",
+      "attackPath": "A user signs a referral off-chain; an attacker (or the user) replays it on another chain/deployment of ReferralSigning where the `(msg.sender, referrer)` combination hasn't been used, causing a duplicate referral registration.",
+      "impact": "Cross-chain/contract replay of referrals; incorrect referral accounting, potentially rewarding referrers multiple times if referral rewards are paid elsewhere in the system.",
+      "recommendation": "Include `address(this)` and `block.chainid` in the signed payload (EIP-712 domain)."
+    },
+    {
+      "title": "Blacklister list removal uses swap-and-pop, allowing O(n) griefing and duplicate-adjacent deletion races",
+      "severity": "Medium",
+      "file": "Blacklister.sol",
+      "function": "unblacklist() / _removeFromBlacklistList()",
+      "description": "`_removeFromBlacklistList` performs swap-and-pop with `_blacklistedList[i] = _blacklistedList[len - 1]; _blacklistedList.pop();`. If the removed address equals the last element and there are duplicates (which can't happen for the *same* address due to the `isBlacklisted` guard, but distinct addresses are fine), this is OK. However, the `getBlacklistedAddresses` view is consumed by downstream code and ordering changes; the list is also O(n) per removal, and `_blacklistedList` grows without bound. A single guardian adding many addresses (or the guardian being compromised) makes `unblacklist` and downstream consumers expensive; combined with `blacklist` being callable by owner *or* GUARDIAN_BLACKLIST, the growth is unbounded.",
+      "attackPath": "GUARDIAN_BLACKLIST (a lower-trust role) can add unlimited addresses to `_blacklistedList`, making `unblacklist` (O(n) loop) and the view function `getBlacklistedAddresses` increasingly expensive. If any core withdraw path integrates `getBlacklistedAddresses`, it can exceed block gas limits.",
+      "impact": "DoS of `unblacklist` and of any consumer of `getBlacklistedAddresses` in ordinary/attack use; permanent growth of storage.",
+      "recommendation": "Use an enumerable set (index map) for O(1) removal and cap guardian-driven additions, or expose only the `isBlacklisted` mapping to consumers."
+    },
+    {
+      "title": "AccrossBridge slippage check computed on outputAmount vs inputAmount ignores maxSlippage's actual purpose and permits massive output reduction",
+      "severity": "Medium",
+      "file": "AcrossBridge.sol",
+      "function": "sendMsg()",
+      "description": "The check `if (msgData.inputAmount > msgData.outputAmount) { ... inputAmount - outputAmount <= inputAmount * maxSlippage / SLIPPAGE_PRECISION }` allows a 100% loss: if `inputAmount` equals `outputAmount * maxSlippage/1e5 >= inputAmount`, the check passes with `outputAmount` much lower than intended. Example: `maxSlippage = 1e4` (10%), input = 100, output = 90 (10% fee) passes. But the equality operator (`if input > output`) means when input == output or `output >= input` the slippage check is skipped; a malicious `relayer`/message that sets `outputAmount = 0` would pass. But that is not possible to profit from if the bridge itself refunds. The check uses `msgData.outputAmount` (attacker-controlled message) vs `msgData.inputAmount`, both supplied by the REBALANCER_EOA; the only enforced constraint is on self-consistency of the message, not against the bridge's real price. A malicious rebalancer can specify an `outputAmount` just under the slippage threshold and route funds to an arbitrary `relayer`.",
+      "attackPath": "Compromised REBALANCER_EOA sends `_message` with `inputAmount = 1000`, `outputAmount = 900`, and a whitelisted relayer they control; slippage check passes. That relayer can then feel free to underpay the destination, redirecting 10%+ of funds to themselves.",
+      "impact": "Loss of up to `maxSlippage` (10%) per rebalance to a compromised/malicious relayer; larger loss if `maxSlippage` is raised.",
+      "recommendation": "Validate `outputAmount` against an on-chain oracle or restrict `outputAmount >= inputAmount * (SLIPPAGE_PRECISION - maxSlippage) / SLIPPAGE_PRECISION` and always validate the relayer against allowlist of trusted relayers only."
+    },
+    {
+      "title": "Migrator holds user cTokens and underlying between steps; minted mTokens with 0 collateral check and borrow go to migrator before repay, allowing griefing via fee-on-transfer or rebasing underlying",
+      "severity": "Medium",
+      "file": "Migrator.sol",
+      "function": "migrateAllPositions()",
+      "description": "`migrateAllPositions` (1) mints mTokens against nothing (doTransfer=false), (2) borrows into the migrator (receiver=`address(this)`), (3) repays Mendi, (4) pulls cTokens from the user via `safeTransferFrom`, redeems and transfers underlying to the v2 market. Between steps 2 and 4, the migrator holds borrowed underlying for all users. If the v1 or v2 market underlying is a fee-on-transfer or rebasing token, `mintOrBorrowMigration(true, collateralUnderlyingAmount, ...)` (doTransfer=false) mints against `collateralUnderlyingAmount` regardless of what was actually received later; the subsequent `safeTransfer` loses a fee and the market's `totalUnderlying` credits are inconsistent with the underlying transferred. Additionally, `v1Balance` is computed with `balanceOfUnderlying` which may overstate cash due to accrued interest before redeem; the check `underlyingBalanceAfter - underlyingBalanceBefore >= v1Balance` mitigates but not `RewardDistributor`-style profit accounting.",
+      "attackPath": "Attacker migrates with a FoT underlying (e.g. USDT-like with fee). The mint credits `collateralUnderlyingAmount` in the target market (false credit), then after FoT the market has less cash than accounting, letting attacker redeem at a favorable exchange rate at the expense of other suppliers. Or attacker with a rebasing token benefits from redeem accounting drift.",
+      "impact": "Migrator misprices collateral for fee-on-transfer / rebasing tokens; the target market becomes insolvent relative to its totalUnderlying.",
+      "recommendation": "Either disallow FoT/rebasing tokens in `allowedMarkets`, or measure the actual transfer amount in step 5 and scale the amount used in step 1's mint call."
+    },
+    {
+      "title": "`_accAmountIn` validation in `_liquidateExternal` uses subtraction on unbounded values allowing underflow revert and off-by-one cap",
+      "severity": "Medium",
+      "file": "mErc20Host.sol",
+      "function": "_liquidateExternal()",
+      "description": "`require(liquidateAmount <= _accAmountIn - acc[_chainId].inPerChain[_sender], ...)` performs the subtraction in a view context where `_accAmountIn` comes from a zk-proven journal but `acc[...].inPerChain[_sender]` is contract state that was incremented by previous on-chain calls. If a caller submits two liquidations in the same batch beyond the proof's `_accAmountIn`, the second `require` reverts with a panic (0x11) rather than the intended `mErc20Host_AmountTooBig` because the right side underflows before the comparison. Worse, the check is applied to `liquidateAmount` before the actual seize-calculated `seizeTokens` and before `_liquidate` runs — if `liquidateAmount` is smaller than the actual repay due to price manipulation, the seize is under-bounded, letting the receiver enqueue more within `_accAmountIn` than the proof accounted for in USD terms.",
+      "attackPath": "A forwarder submits a batch where the sum of `liquidateAmount`s for the same `_sender` exceeds `_accAmountIn` in a single transaction, causing a raw panic revert of a batch that should have partial execution and blowing up the whole call, DoSing any batch containing an over-budget entry. Independently, price changes between proof generation and execution let `liquidateAmount` be accepted against stale `_accAmountIn`.",
+      "impact": "Batch DoS via cheaply triggerable arithmetic revert; and for accounting, the in-per-chain counter can be advanced with liquidations whose intended-USD cap was not enforced against the seize math at execution time.",
+      "recommendation": "Rewrite the check as `acc[...] + liquidateAmount <= _accAmountIn` and revert with the named error, and calculate the seize value after price lookup rather than trusting the input `liquidateAmount`."
+    },
+    {
+      "title": "`checkOutflowVolumeLimit` converts amount to USD using oracle price without staleness/decimals check, allowing cap bypass and expensive calls",
+      "severity": "Medium",
+      "file": "Operator.sol",
+      "function": "checkOutflowVolumeLimit()",
+      "description": "`_convertMarketAmountToUSDValue` fetches `IOracleOperator(oracleOperator).getUnderlyingPrice(mToken)` and multiplies by `amount / 1e10`; there is no bounds check on price magnitude or freshness, and any mid-transaction price manipulation (via the borrow/liquidate path where allowlist lets the caller set `liquidateAmount` or `mintAmount`) directly scales the USD counter. Since `checkOutflowVolumeLimit` is `external` and callable only by listed markets, an attacker interacting through an allowed market can cause `cumulativeOutflowVolume` to be advanced by less than actual value (if oracle returns a too-small price) or later reset by waiting past `outflowResetTimeWindow` — while a large `amount` is transferred with `doTransfer` true in the underlying `_mint`/`_repay` (which run after the check) the actual outflow is not tied to the USD amount recorded.",
+      "attackPath": "Attacker mints a tiny amount first (small contribution to `cumulativeOutflowVolume`), then flash-loans the underlying and manipulates the market's oracle price down (if the oracle is manipulable), performing a large `mintExternal`/`repayExternal` with a small USD value recorded, exhausting the real outflow budget without hitting the cap. Alternatively, the attacker waits one window per operation to reset the counter and drain the market.",
+      "impact": "Outflow cap is bypassable, allowing attacker to drain the market's underlying through `mintExternal`/`repayExternal` beyond the intended per-period limit.",
+      "recommendation": "Use a TWAP/cached price with staleness bounds, apply the cap based on the actual underlying transferred rather than on caller-supplied `amount`, and prevent resets by using a monotonic window (`block.timestamp / window`) rather than `lastOutflowResetTimestamp`."
+    },
+    {
+      "title": "`_getHypotheticalAccountLiquidity` snapshot uses stale `exchangeRateStored` and stale `borrowBalanceStored` in one loop while collateral can accrue interest elsewhere",
+      "severity": "Medium",
+      "file": "Operator.sol",
+      "function": "_getHypotheticalAccountLiquidity()",
+      "description": "`_getHypotheticalAccountLiquidity` iterates `accountAssets[account]` and reads `getAccountSnapshot` (which returns `_borrowBalanceStored` and `_exchangeRateStored`) — both view-only and not accrued. `beforeMTokenBorrow` calls it *before* `_accrueInterest` on `mToken` (via `__borrow`, `_borrow` calls `_accrueInterest` first, then `__borrow` calls `beforeMTokenBorrow`, so the current market is accrued, but **other** markets in `accountAssets` are not). Thus shortfall of the borrow check depends on the snapshot exchange rate/borrow balances of the other collateral/borrow markets being up-to-date, but they aren't accrued in this call. A caller can trigger an interaction on the current market, and immediately in the same block interaction with a second market, so that the first market's freshly-accrued index affects one market and not another.",
+      "attackPath": "Attacker has debt in market A and collateral in market B. Attacker calls `borrow()` in market A. Inside `__borrow`, `_accrueInterest()` accrues A's interest and increases `B`'s borrow index view is unchanged — but the liquidity check uses `B`'s `_borrowBalanceStored` which is stale relative to A's freshly-accrued balance. Attacker can borrow more than their true health allows by ordering operations so the check reads stale balances on the not-yet-accrued markets.",
+      "impact": "Borrower can exceed the collateral factor / borrow more than allowed, accruing bad debt for the protocol; existing suppliers cannot withdraw the shortfall.",
+      "recommendation": "Accrue interest on every market in `accountAssets[account]` before the liquidity computation in `beforeMTokenBorrow`, `beforeMTokenRedeem`, and `beforeMTokenLiquidate`, or use an oracle like `borrowBalanceCurrent` guarded by reentrancy."
+    },
+    {
+      "title": "`Redeem`/`__redeem` computes `redeemAmount` before adding actual cash and uses stale `totalUnderlying` on fee-on-transfer path",
+      "severity": "Medium",
+      "file": "mToken.sol",
+      "function": "__redeem()",
+      "description": "`__redeem` computes `exchangeRate = _exchangeRateStored()` using `totalUnderlying`, then computes `redeemAmount = mul_ScalarTruncate(exchangeRate, redeemTokensIn)`, decrements `totalUnderlying -= redeemAmount` after the `_doTransferOut`, and never re-checks that cash is still available after transfer. If the underlying token is fee-on-transfer, `_doTransferOut` will send less than `redeemAmount` to the redeemer but decrement `totalUnderlying` by the full `redeemAmount`, so `totalUnderlying` under-counts relative to the actual balance over time — the market's cash shrinks more than the real token balance. Over many redeems the exchange rate is pushed upward (fewer cash against shares) so that any user redeeming later gets more than a pro-rata claim, draining the market and leaving the last withdrawers unable to withdraw.",
+      "attackPath": "Attacker mints with a fee-on-transfer underlying (market tolerates it since `actualMintAmount = balanceAfter - balanceBefore < mintAmount`), then repeatedly redeems. Each redeem decrements `totalUnderlying` by `redeemAmount` (full), while the real balance decreases by only 99% of `redeemAmount`; the exchange rate rises, letting the attacker extract more underlying than they contributed from the same supply. Once cash runs low, the final redeemer cannot withdraw (`mt_RedeemCashNotAvailable`).",
+      "impact": "Value leak from late withdrawers to early redeemers; permanent under-backing of the market (`totalUnderlying` smaller than actual or vice versa) and eventual DoS on redemptions.",
+      "recommendation": "Decrement `totalUnderlying` by the actual amount transferred out (`balanceBefore - balanceAfter`), and revert on `actual != redeemAmount` for non-standard tokens, or disallow fee-on-transfer underlyings."
+    },
+    {
+      "title": "`_borrow` in `__borrow` checks `_getCashPrior() >= borrowAmount` before decrementing but `_borrowWithReceiver` uses same path with a separate `receiver` enabling value extraction to unlisted address",
+      "severity": "Medium",
+      "file": "mToken.sol",
+      "function": "__borrow()",
+      "description": "`_borrowWithReceiver(user, receiver, borrowAmount)` calls `__borrow(payable(user), payable(receiver), borrowAmount, true)` so the debt is written to `user` but the underlying is sent to `receiver`. `beforeMTokenBorrow` checks `borrower` (`user`) — so KYC/whitelist/blacklist applies to `user` and not `receiver`. Similarly, `borrow` allows any address to receive the underlying. Combined with `mintOrBorrowMigration`, `Migrator` calls `_borrowWithReceiver(borrower, receiver, amount)` with `receiver` = attacker-chosen forwarding address and `borrower` = the honest user (`msg.sender` in `Migrator`), so a borrower can have their debt increased while the underlying lands in another account (e.g. an anon address) that doesn't pass `onlyAllowedUser` or `ifNotBlacklisted`.",
+      "attackPath": "Attacker with access to a `Migrator` flow calls `migrateAllPositions` after inflating their Mendi `borrowBalanceStored`; `_collectMendiPositions` reads inflated borrows, and `mintOrBorrowMigration(false, borrowAmount, address(this), msg.sender, 0)` borrows the inflated amount to the attacker's receiver while crediting debt to `msg.sender` (their own address). If `msg.sender` is blacklisted mid-flow or bypassed via a fresh `receiver`, the underlying leaves the protocol to an unfiltered address, and if the borrower address is the Migrator's helper, the attacker receives value from the protocol with the debt recorded against a wallet that can then be abandoned.",
+      "impact": "Underlying tokens are borrowed out to a receiver that bypasses whitelist/blacklist; the receiver can be an attacker EOA, leaving bad debt to the protocol with no liquidation recourse against the intended borrower.",
+      "recommendation": "Require `receiver == user` for `_borrow` (drop `_borrowWithReceiver` or gate `receiver` through the same allowlist checks), and enforce `onlyAllowedUser(receiver)`/`ifNotBlacklisted(receiver)` across borrow flows."
+    },
+    {
+      "title": "Migrator.migrateAllPositions repays Mendi debts before collateral withdrawal can fail, causing partial migration state",
+      "severity": "Medium",
+      "file": "Migrator.sol",
+      "function": "migrateAllPositions()",
+      "description": "In step 3 the migrator repays Mendi debts using `underlying.approve` + `repayBorrowBehalf`. It uses `position.borrowAmount` computed earlier via `borrowBalanceStored` in `_collectMendiPositions`. But between collection and repayment, the debt accrues interest (a new block), so `repayBorrowBehalf(msg.sender, position.borrowAmount)` repays only the stale-stored amount. The migrator then in step 5 uses `balanceOfUnderlying(msg.sender)` (current) redeem. If `borrowAmount` was stale/less than current debt, Mendi may revert or leave residual debt after collateral is withdrawn. Also step 4 approves exact `position.borrowAmount`; Mendi market needs less if partially repaid. No reentrancy guard on `migrateAllPositions`.",
+      "attackPath": "User calls `migrateAllPositions`. Interest accrues between collection and repay, leading to underpayment of debt; the collateral is then redeemed anyway, potentially reverting the withdraw (since v1 collateral can't be freed while debt outstanding) after mTokens were already minted in step 2.",
+      "impact": "User can end up with minted v2 mTokens (step 2) and partially repaid v1 debt that reverts step 5, leaving an inconsistent state or revert. Since steps all in one tx, revert rolls back, but the migration may fail unexpectedly due to stale borrow amounts.",
+      "recommendation": "Use `type(uint256).max` or `repayBorrowBehalf(msg.sender, type(uint256).max)` equivalent for full repayment, or refresh the balance immediately before repaying."
+    },
+    {
+      "title": "performExtensionCall rechargeable fee check uses msg.value but never returns excess, and acc increments for user without verifying chain",
+      "severity": "Medium",
+      "file": "mErc20Host.sol",
+      "function": "performExtensionCall()",
+      "description": "`CommonLib.checkHostToExtension` requires `msg.value >= gasHelper.gasFees(dstChainId)` but there's no refund of excess ETH and no check that `msg.value` was actually forwarded or stored. Excess ETH stays in contract, claimable only by admin/sequencer via `withdrawGasFees`. Additionally, `acc[dstChainId].outPerChain[msg.sender] += _amount` records out flow on the destination chain, but the same `acc[...].outPerChain` mapping is used for nothing else (only `getProofData` view). So that increment has no enforcement effect; it just accumulates. The user can perform extension withdrawals without any per-user limit if the global outflow check is disabled (=0).",
+      "attackPath": "Attacker calls `performExtensionCall` with the min gas value and withdraws/borrows up to allowed liquidity. Excess gas is stranded (minor); the outPerChain increment has no effect, so the accounting is meaningless.",
+      "impact": "Outflow accounting on outPerChain is not enforced (dead state), and ETH overpayment is captured by the protocol rather than refunded.",
+      "recommendation": "Refund excess `msg.value` and either use `outPerChain` for enforcement or remove it; clarify accounting semantics."
+    },
+    {
+      "title": "Missing length check between journal entries and minAmountsOut in mintExternal",
+      "severity": "Medium",
+      "file": "mErc20Host.sol",
+      "function": "mintExternal()",
+      "description": "Same root cause as the earlier finding but framed around accounting: `CommonLib.computeSum(mintAmount)` and `_checkOutflow` are computed on the whole `mintAmount` array before any journal is validated, and the loop uses `minAmountsOut[i]`. Neither the sum nor individual amounts are keyed to journal `_accAmountIn`/`_sender`, so a mismatched array either reverts from out-of-bounds on `minAmountsOut[i]` or, in the case where `minAmountsOut` is longer, silently consumes the wrong element for each journal, applying a `minAmountOut` intended for a different user's journal. Since mint with `doTransfer=false` relies on the journal accrual bound for real security, a wrong `minAmountOut` allows mint accounting (`totalUnderlying`, `totalSupply`) to be recorded with slippage values that do not match the receiver.",
+      "attackPath": "A batch-proof forwarder constructs `minAmountsOut` in a different order than `journalData`, or prepends extra zero entries. The per-user mint executes with a slippage limit belonging to another user, allowing an unbalanced mint where one user's mTokens are minted below their protected minimum.",
+      "impact": "Wrong slippage applied per-user; a user can receive fewer mTokens than their own `minAmountOut` intended, or more if a seller-friendly value of the wrong index is picked.",
+      "recommendation": "Require `minAmountsOut.length == length` and document that indices align; bound each journal mint by both `_accAmountIn` and `minAmountsOut[i]`."
+    },
+    {
+      "title": "`_mint` credits 1000 dead-shares only when totalSupply==0; subsequent first mint can be manipulated to over/under-mint",
+      "severity": "Medium",
+      "file": "mToken.sol",
+      "function": "__mint()",
+      "description": "The dead-share anti-manipulation uses `if (totalSupply == 0) { totalSupply = 1000; accountTokens[address(0)] = 1000; mintTokens -= 1000; }`. The check is `totalSupply == 0`, not `mintTokens > 1000`. If the initial exchange rate is such that `mintTokens < 1000` (e.g. a high initial exchange rate or tiny first deposit), `mintTokens -= 1000` underflows and reverts — but per the code the smallest possible `mintTokens` from the deployment config could be below 1000 if exchangeRate > mintAmount/1000. The bigger issue: this dead-share scheme is only applied on first mint, and `mintTokens` before subtraction has no minimum; a second minter now cannot deposit into an exchange rate that's seeded correctly, so this is only DoS of the very first, tiny deposit. Worse: after seeding 1000, `exchangeRateStored()` uses `initialExchangeRateMantissa` when totalSupply==0, but once seeded with totalSupply=1000 and cash, the rate is recomputed from `(cash + borrows - reserves) * 1e18 / 1000`, so a first deposit of `X` sets rate to `X*1e18/1000`. A subsequent attacker can mint a small amount to further inflate, then redeem.",
+      "attackPath": "First depositor mints a tiny amount, gets `mintTokens=X/initialRate`. If `X/initialRate < 1000` the tx reverts, blocking the market from ever being seeded. If it is exactly seeded, the admin's initialExchangeRate config determines whether first deposit sets a manipulable rate; secondary depositor then mints at the wrong rate.",
+      "impact": "Market uninitializable if `1000 > mintAmount/exchangeRate`, i.e. permanent DoS on first supply for many tokens with different decimals. If bypassed, first-mover controls the exchange rate and all subsequent minters get gamed.",
+      "recommendation": "Use `if (totalSupply == 0) { ... }` but mint the 1000 to the zero-address by adjusting `totalSupply` without subtracting from the depositor's `mintTokens`, and require `mintTokens > 1000` with a clear error; better yet, mint dead shares equivalent to `initialExchangeRateMantissa / 1e18`."
+    },
+    {
+      "title": "_doTransferIn returns balanceAfter - balanceBefore; accounting uses `totalUnderlying` instead of actual balance",
+      "severity": "Medium",
+      "file": "mErc20.sol",
+      "function": "_getCashPrior() / _doTransferIn()",
+      "description": "`_getCashPrior()` returns `totalUnderlying`, a manually maintained bookkeeping variable incremented in `__mint`, `__repay`, `_addReserves` and decremented in `__redeem`, `__borrow`, `reduceReserves`. If any external transfer out under-delivers (e.g. a token that burns on transfer or a proxy that can change balance via direct transfer), or if a user sends underlying directly to the contract (not via `mint`), `totalUnderlying` and the real `IERC20(underlying).balanceOf(address(this))` diverge. Since `_exchangeRateStored` and `_getCashPrior` all use `totalUnderlying`, direct transfers are orphaned from supply accounting, and a token with a fee-on-transfer where `_doTransferOut` forwards `amount` but the recipient gets `amount - fee` is silently accounted as if full amount left. In `_seize`, `totalSupply` and `accountTokens` are reduced by `protocolSeizeTokens` while `totalReserves += protocolSeizeAmount`, which is consistent with `totalUnderlying` unchanged — so seized tokens' underlying value stays in reserves only if `exchangeRateStored` recomputes consistently; on mErc20Host with `doTransfer=false` external accrual, the underlying was never sent so accounting depends entirely on `totalUnderlying` bookkeeping.",
+      "attackPath": "Attacker uses a fee-on-transfer underlying (listed by admin) to mint: `_doTransferIn` returns net amount and `totalUnderlying += net`, so mint is correct. Redeem: `_doTransferOut` sends `amount`, recipient gets `amount - fee`, but `totalUnderlying -= amount`. The fee is taken from the contract, meaning the redemption user absorbs the fee while remaining suppliers' `totalUnderlying`-based rate is unaffected — which understates loss only if fee exceeds expectation. More direct: any direct ERC20 transfer to the market leaves `balanceOf > totalUnderlying`; that underlying is unredeemable and permanently stuck.",
+      "impact": "Directly-sent underlying is permanently locked; with non-standard transfer tokens the accounting drifts and some suppliers cannot exit at the rate they expect.",
+      "recommendation": "Compute `_getCashPrior()` from `IERC20(underlying).balanceOf(address(this))` minus any pending transfers, or add a reconciliation/skim function; disallow fee-on-transfer/rebasing underlyings at the Operator level."
+    },
+    {
+      "title": "performExtensionCall for actionType == 2 can be called by any msg.sender without an outflow allowance, and outPerChain is written with wrong id and value (`_amount` unset)",
+      "severity": "High",
+      "file": "mErc20Host.sol",
+      "function": "performExtensionCall()",
+      "description": "In `performExtensionCall`, the `actionType == 2` branch calls `_borrow(msg.sender, amount, false)` which accrues debt to `msg.sender`, but `msg.sender` does not need to be an authorized caller or have any prior credit — the function only requires `msg.value >= gasFees`. The `_borrow` flow does not charge the underlying and does not transfer out, so this becomes a free entry to open debt and, critically, writes `acc[dstChainId].outPerChain[msg.sender] += _amount` where `_amount = amount` in this branch. Then the on-chain debt is never tracked back to that outPerChain entry. On L2 the extension will credit the sender based on `outPerChain`, but here the host records the debt without transferring underlying. Combined with `_checkOutflow` summing across the caller's amount only once, a user can open a borrow position while the outflow check computes only `amount`.",
+      "attackPath": "Attacker calls `performExtensionCall(1, X, dstChainId)` (withdraw) for amount `X`, which increments `outPerChain[msg.sender]` by X but reduces only supply (that's OK). Then calls `performExtensionCall(2, Y, dstChainId)` for arbitrary Y (bounded only by `_getCashPrior`, i.e. open debt up to available cash), which writes `outPerChain[msg.sender] += Y`. On the extension chain the same user holds both signatures and can claim both withdraw and borrow, but the debt is registered against msg.sender here — yet the outflow balance for the sender is already used up, allowing more debt than intended on the destination.",
+      "impact": "Debt is created against the borrower's mTokens without any liquidation check; a user can borrow on the destination chain without previous collateral on the source, potentially undercollateralized repayment on extension.",
+      "recommendation": "In `actionType == 2`, do not decrement `_getCashPrior`/`totalUnderlying` without transferring; verify `beforeMTokenBorrow` actually requires liquidity for the same account (it does) — but currently `_checkOutflow` is on `amount` only while the debt is created; ensure per-chain accounting is bound to the proof at claim time."
+    },
+    {
+      "title": "BatchSubmitter.verifyInput failure reverts entire batch although events catch per-op; and journals indexed by startIndex while hashes/amounts arrays are zero-based — length mismatch is unchecked",
+      "severity": "Medium",
+      "file": "BatchSubmitter.sol",
+      "function": "batchProcess()",
+      "description": "`batchProcess` uses `length = data.initHashes.length` to bound the loop, but indexes `journals[data.startIndex + i]`, `data.amounts[i]`, `data.minAmountsOut[i]`, `data.receivers[i]`, `data.mTokens[i]`, `data.selectors[i]` — no check that all these arrays have at least `length` entries or that `startIndex + length <= journals.length`. An under-sized array (e.g., `receivers` shorter than `initHashes`) causes an out-of-bounds revert, so the whole batch reverts even though the per-op `try/catch` was designed to let failures be reported. Conversely, an oversized `journals` array with `startIndex` pointing beyond a mixed set means some journals processed earlier/later than `initHashes` imply. The proof is verified once for `journalData`, but the individual journals are re-encoded into `singleJournal = [journals[startIndex+i]]` and passed to the mToken/gateway with an empty seal and no further proof verification; authorization then rests solely on the mToken/gateway internals trusting `msg.sender` (the BatchSubmitter), so any journal content between `startIndex` and `startIndex+length` is treated as pre-authorized.",
+      "attackPath": "1. A compromised/misconfigured PROOF_FORWARDER crafts `journalData` with extra journals and a `startIndex` that selects journals not intended by the submitting protocol, while `initHashes`/`amounts` arrays match the fake set.\n2. The verifier's `verifyInput(journalData, seal)` passes because the image was built for the whole array; per-op calls use `\"\"` seal and rely on caller trust.\n3. mToken/gateway processes foreign journals (e.g., minting to the attacker's `receivers[i]`) under the BatchSubmitter's identity.",
+      "impact": "Journal-to-action binding is bypassable within the batch: the proof is only over the blob, not over which subset is executed with which amounts; and an attacker who can influence one forwarder action can execute additional journal entries. Also, mismatched array lengths cause batch-wide reverts (DoS of whatever batching the forwarder needs).",
+      "recommendation": "Enforce `startIndex + length <= journals.length` and `length == receivers.length == amounts.length == minAmountsOut.length == mTokens.length == selectors.length`. Bind the executed subset/amounts to the proof (encode them into the verified journal, or have the mToken verify the real seal per op)."
+    },
+    {
+      "title": "Blacklister._removeFromBlacklistList silently leaves list intact if address not found",
+      "severity": "Medium",
+      "file": "Blacklister.sol",
+      "function": "unblacklist()",
+      "description": "`_removeFromBlacklistList` loops over `_blacklistedList` and removes on first match but does nothing if the address is not found (no revert). Because blacklist/unblacklist are independent of the `isBlacklisted` mapping, if the list ever desynchronises from the mapping (e.g., a duplicate push is impossible, but external state or future refactor), `getBlacklistedAddresses()` can diverge from `isBlacklisted`. The for loop also iterates the full list per removal; combined with no dedupe on `_addToBlacklist` beyond the mapping check, the view `getBlacklistedAddresses()` (used by external integrators/UI) can become inconsistent with the authoritative `isBlacklisted(user)`.",
+      "attackPath": "A user blacklisted, then the same address pushed again only if mapping is reset bypassing `blacklist` — not directly exploitable; more practically, callers relying on `getBlacklistedAddresses()` may miss a user if any code path leaves a stale mapping. The primary risk is DoS from an unbounded loop as the blacklist grows, blocking unblacklisting.",
+      "impact": "Unblacklisting gas grows linearly; a large blacklist makes `unblacklist` expensive, and any list/mapping drift causes integrators to see wrong sets.",
+      "recommendation": "Use an index mapping (address => index+1) for O(1) removal and keep the array and mapping strictly in sync; revert if the address is not found."
+    },
+    {
+      "title": "mTokenGateway.whitelist/gasFee can be bypassed via supplyOnHost if wrapper contract is whitelisted",
+      "severity": "Medium",
+      "file": "mTokenGateway.sol",
+      "function": "supplyOnHost()",
+      "description": "`supplyOnHost` enforces `onlyAllowedUser(msg.sender)` and `ifNotBlacklisted(msg.sender)` and `ifNotBlacklisted(receiver)`, plus `require(msg.value >= gasFee)`. The `WrapAndSupply.wrapAndSupplyOnExtensionMarket` contract calls `supplyOnHost` and only forwards `msg.value` implicitly — it never adds `gasFee`, and it has no whitelist/blacklist awareness for the actual user. If the wrapper is whitelisted (likely, to enable native-asset supply), any user can supply through it while bypassing the whitelist gate on their own EOA (the check sees the wrapper), and the wrapper does not check `receiver` bl  \nagainst blacklist — `supplyOnHost` does check `receiver`, so that part holds, but the `gasFee` requirement makes `WrapAndSupply` always revert unless the user overpays ETH to the wrapper and the wrapper forgets to forward it.",
+      "attackPath": "Non-whitelisted user calls `WrapAndSupply.wrapAndSupplyOnExtensionMarket` (if wrapper whitelisted); whitelist check passes for wrapper, not user. Or user pays exactly `msg.value` for wrapping; `supplyOnHost` requires `msg.value >= gasFee`, and the wrapper forwards `msg.value` unchanged, so a value exactly equal to wrap amount fails — but there is no forwarding logic shown to add gasFee, so the entire path reverts whenever gasFee > 0.",
+      "impact": "Whitelist bypass for supplies, and/or the native-asset supply wrapper is permanently broken whenever `gasFee > 0`.",
+      "recommendation": "Have `WrapAndSupply` accept and forward `msg.value = amount + gasFee`, and consider having `supplyOnHost` read the real end-user (e.g. via a trusted caller mapping) rather than `msg.sender`."
+    },
+    {
+      "title": "_grantReward uses ImToken(token) for reward token, but reward token may not implement ImToken.balanceOf semantics",
+      "severity": "Medium",
+      "file": "RewardDistributor.sol",
+      "function": "_grantReward()",
+      "description": "`_grantReward` reads `ImToken(token).balanceOf(address(this))` and calls `ImToken(token).transfer(user, amount)`. The reward token is whitelisted by owner (`whitelistToken`) and need not be an mToken, but the code treats it as ImToken. `ImToken.transfer` returns bool; a normal ERC20 return works, but the check `require(status)` will revert for tokens not returning bool (though here it decodes as ImToken). More critically, `_claim` sets `accountState.rewardAccrued = _grantReward(...)` which returns 0 on success; if insufficient balance, it returns the original amount leaving the accrued balance — meaning users can never be paid if the distributor is underfunded, silently. The owner can drain via `grantReward` (no balance check) leaving others unclaimable.",
+      "attackPath": "Owner calls `grantReward` with an amount exceeding the distributor's balance of the token (it only checks `isRewardToken`). `_grantReward` sees amount > remaining so it returns amount, silently not transferring; but no funds moved. Later claimants find the distributor underfunded. This is owner trust, so lower severity. However: via `_claim`, if `amount > remaining`, it returns `amount` (unchanged), so `rewardAccrued` is not zeroed — the user's claim silently fails while the operator already updated indices, but that behavior is intentional partial-claim.",
+      "impact": "Users may be unable to claim while balances run out; but no direct theft.",
+      "recommendation": "Revert on transfer failure / underfunding rather than returning silently."
+    },
+    {
+      "title": "_repayExternal checks amount validity after executing repay (effect before validation)",
+      "severity": "Medium",
+      "file": "mErc20Host.sol",
+      "function": "_repayExternal()",
+      "description": "In `_repayExternal`, `_repayBehalf(receiver, repayAmount, false)` is executed first, mutating `accountBorrows`, `totalBorrows`, and `totalUnderlying`, and then the code checks `require(repayAmount > 0)` and `require(actualRepayAmount <= _accAmountIn - acc[...])`. A zero-repay or over-accrual is only caught after the borrow state has been changed. Since these are in the same transaction, the revert undoes state, so the direct impact is limited, but the ordering violates the effects-before-external-call discipline used everywhere else and makes the function fragile: any future refactor that moves the repay into a separate call, or a token whose transfer triggers a callback before the require, could leave inconsistent borrow accounting.",
+      "attackPath": "A caller supplies `repayAmount = 0` with a valid journal where `_accAmountIn` is nonzero; `_repay` runs its state changes and emits `RepayBorrow`, then `require(repayAmount > 0)` reverts the whole tx. With a hook-capable underlying used in `doTransfer=false` path this is benign, but the reversed order means validations cannot rely on state not having advanced.",
+      "impact": "Risk of inconsistent accounting if underlying or operator is ever refactored to defer checks; currently a revert-guarded footgun rather than immediate loss.",
+      "recommendation": "Move the `require` validations for `repayAmount` and the accrual bound before calling `_repayBehalf`."
+    },
+    {
+      "title": "blacklist() is not guarded by ifNotBlacklisted and can re-blacklist addresses; but the real issue: unblacklist after re-add creates duplicate list entries / stale list",
+      "severity": "Medium",
+      "file": "Blacklister.sol",
+      "function": "unblacklist()",
+      "description": "`unblacklist` sets `isBlacklisted[user] = false` and calls `_removeFromBlacklistList`, which finds *one* entry and swaps/pops it. If, via the rest of the system, `_addToBlacklist` is reachable while a user is already blacklisted (the guard in `blacklist()` blocks this today, but `_addToBlacklist` is also reachable indirectly through future functions or a stored-state mismatch), duplicates could exist. More concretely, the array swap-and-pop in `_removeFromBlacklistList` iterates and `break`s on the *first* match; combined with the fact that membership in `_blacklistedList` and `isBlacklisted` are mutated in different functions with no cross-check, `getBlacklistedAddresses()` can return a list that no longer matches `isBlacklisted` after a blacklisted-then-unblacklisted-then-re-added cycle at a different index. However, the strongest concrete issue is the ordering in `unblacklist`: it clears the mapping before removing from the array, so `_removeFromBlacklistList` must succeed for consistency; if `user` is somehow not in the array (state desync from a failed external write, or removal of a duplicate), the array retains `user` forever while `isBlacklisted` is false, and `getBlacklistedAddresses()` permanently lists an un-blacklisted address, and re-blacklisting it pushes a duplicate that a future unblacklist only partially removes.",
+      "attackPath": "1. Guardian blacklists `u`; array `[u]`, flag true.\n2. Guardian unblacklists `u`; array `[]`, flag false.\n3. Guardian blacklists `u` again; array `[u]`, flag true.\n4. Guardian unblacklists `u`; array `[]` — fine. But if any integration path (`_addToBlacklist`) were ever called twice before an unblacklist (e.g. new owner functions in part 2), removing once leaves a ghost entry, and the loop breaks on the first match so the duplicate persists, causing `getBlacklistedAddresses()` to over-report/drift.",
+      "impact": "Any consumer trusting `getBlacklistedAddresses()` (dashboards, off-chain proofs, UI) sees addresses that aren't blacklisted, breaking integration / allowing perceived blacklisted addresses to appear live while funds flow, and duplication can desync the guardian's tooling.",
+      "recommendation": "Have `unblacklist` revert if `_removeFromBlacklistList` didn't find the entry, and add an internal guard in `_addToBlacklist` against duplicates (or assert on the array membership before adding)."
+    },
+    {
+      "title": "EverclearBridge sendMsg does not check token.transferFrom and does not verify market is the token holder",
+      "severity": "Medium",
+      "file": "EverclearBridge.sol",
+      "function": "sendMsg()",
+      "description": "`sendMsg` approves the `everclearFeeAdapter` for `params.amount` and calls `newIntent`, but it never pulls tokens from the Rebalancer itself. It relies on the Rebalancer's prior `safeApprove(_msg.token, _bridge, _amount)` and the fee adapter pulling via allowance. When `_extractedAmount > params.amount`, the bridge transfers the excess back to `_market` from its own balance; however if the fee adapter does not pull exactly `params.amount` or the approve allowance is left over, the leftover allowance persists (SafeApprove resets to 0 before next set, but leftover bridge-held balance after `extractForRebalancing` may not reconcile). More importantly, the market is trusted blindly via `_market` and the excess-return transfer could fail or mismatch the actual extracted amount accounting.",
+      "attackPath": "Rebalancer calls with an amount larger than `params.amount`; the bridge sends `params.amount` to Everclear and returns the difference to `_market`, but if the adapter charges differently or the transfer-from is skipped, tokens can remain stranded in the bridge or be returned incorrectly, desynchronising the market's extraction accounting.",
+      "impact": "Stranded or misdirected tokens, and market accounting drift versus actual balances.",
+      "recommendation": "Measure actual `token.balanceOf(address(this))` before and after calls to determine amounts moved, and transfer leftovers deterministically; validate the market and use checked balance deltas."
+    },
+    {
+      "title": "mTokenGateway.outHere can be called by proof forwarder for another user's sender without L1Inclusion and drains accAmountOut",
+      "severity": "Medium",
+      "file": "mTokenGateway.sol",
+      "function": "outHere() / _outHere()",
+      "description": "`outHere` skips `_verifyProof` entirely when `msg.sender` has `PROOF_BATCH_FORWARDER`, and `_outHere` only checks `_checkSender(msg.sender, _sender)` which permits the forwarder role. However, `_checkSender` also permits `allowedCallers[srcSender][msgSender]`. Combined with the temporary `receiver = _sender;` overwrite in `_outHere`, funds always go to `_sender`. BatchSubmitter calls `outHere(encodedJournal, \"\", singleAmount, data.receivers[i])` with `encodedJournal` wrapping a single journal it accepts from chain data. If the forwarder is malicious or the journal is crafted for another user, funds are sent to `_sender` (who the journal declares) rather than `receiver`. The `accAmountOut[_sender]` accounting check `_accAmountOut - accAmountOut[_sender] >= amount` only validates against the same user's history, so a forwarder can't drain another user — but for any smart contract callers setting `allowedCallers`, the flow is unbounded by L1 inclusion.",
+      "attackPath": "A contract/user sets `allowedCallers[themselves][forwarder] = true` for legitimate reasons; the forwarder now can submit arbitrary journals naming that user as `_sender` without `_verifyProof`, using a made-up high `_accAmountOut` — but the second check `_accAmountOut - accAmountOut[_sender] >= amount` limits to the difference. However, once a legitimate proof raised `_accAmountOut` for the user but funds were already paid elsewhere, the forwarder can replay journals with a fabricated `_accAmountOut`, effectively draining any balance remaining.",
+      "impact": "Unauthorized release of underlying for users whose journals have been partially processed; loss to gateway liquidity, since `accAmountOut` can be inflated by the forwarder itself.",
+      "recommendation": "Enforce `ifNotBlacklisted`/`onlyAllowedUser` against the actual `_sender` and, if `msg.sender` is a forwarder in `allowedCallers`, require the amount to be authenticated in a signed L1 journal; also make the temporary `receiver = _sender` override respect the caller's intent."
+    },
+    {
+      "title": "`_repayExternal` uses `outPerChain` sender debit but `_accAmountIn` allowance key is `acc[_chainId].inPerChain[_sender]` while `_repayBehalf` changes state before the amount check",
+      "severity": "Medium",
+      "file": "mErc20Host.sol",
+      "function": "_repayExternal()",
+      "description": "`_repayExternal` calls `_repayBehalf(receiver, repayAmount, false)` before the amount bound check, which reduces `totalBorrows` and decrements the borrower's principal. The check `require(actualRepayAmount <= _accAmountIn - acc[_chainId].inPerChain[_sender])` happens after; if the check fails the whole tx reverts (OK), but if it passes, only `actualRepayAmount` is added to `inPerChain`. `actualRepayAmount` may be less than `repayAmount` (if `repayAmount` exceeds the debt, `__repay` will underflow at `accountBorrowsPrev - actualRepayAmount` and revert), so the effective accounting is subtle. Worse, `repayAmount` is delivered to `__repay` as `type(uint256).max`-sensitive only when caller uses it explicitly; here `repayAmount` is bounded by proof allowance but is required to be >0 only after the state update (a `mErc20Host_AmountNotValid` revert exists post-call, not pre-call). That is a wasted gas bubble, not a loss, but combined with off-by-one in `inPerChain` accumulation across multiple journals, the same journal allowance can be reused.",
+      "attackPath": "Two journals with the same `(chainId, _sender, _accAmountIn, acc.inPerChain)` can each satisfy `repayAmount <= _accAmountIn - inPerChain` because `inPerChain` is only incremented after the repay; the update happens correctly in sequence though. However, the check is against `_accAmountIn` per journal, not against a running global cap, so the proof's `_accAmountIn` can be spammed with multiple identical entries — each satisfying the per-journal check — whenever `_decodeJournals` returns duplicates.",
+      "impact": "Replays/multiple journals with the same `_accAmountIn` each pass independently; `inPerChain` grows monotonically so the same proof can't be reused across calls, but within a single transaction the batch is bound only by `computeSum(repayAmount)`. Sender-accounted `inPerChain` per chain is the only invariant.",
+      "recommendation": "Validate `repayAmount > 0` before the external call, and validate the aggregate of `repayAmounts` against a proof-level total."
+    },
+    {
+      "title": "`Operator.enterMarkets` has no cap on accountAssets length; user can enter all markets and then exitMarket is O(n) with external calls in loop — DoS",
+      "severity": "Medium",
+      "file": "Operator.sol",
+      "function": "enterMarkets() / exitMarket() / _getHypotheticalAccountLiquidity()",
+      "description": "`_getHypotheticalAccountLiquidity` iterates `accountAssets[account]` and calls `ImToken(_asset).getAccountSnapshot` plus the oracle's `getUnderlyingPrice` for each. `enterMarkets` has no maxAssets cap (\"capped by maxAssets\" comment is stale — no maxAssets implemented). An attacker can call `enterMarkets` with all listed markets, growing `accountAssets`. However this is their own array, and the cost is their own — not a griefing of others. `exitMarket` is O(n) with external calls, but only for that user. Borrow/redeem for a user with a huge `accountAssets` list will run out of gas and lock their funds.",
+      "attackPath": "A user (or via `mint` auto-entering markets one by one) accumulates membership in many markets. Since the protocol can list many markets, `beforeMTokenRedeem` → `_beforeRedeem` → `_getHypotheticalAccountLiquidity(redeemer, ...)` iterates the whole list and calls oracle for each. As markets are listed by owner over time and the user auto-enters each via `enterMarketsWithSender` (called during `__mint`), their `accountAssets` grows; eventually redeem reverts due to gas limit and the user cannot withdraw collateral.",
+      "impact": "Withdraw (redeem/borrow) DoS for users holding many markets; funds cannot be redeemed.",
+      "recommendation": "Reintroduce a `maxAssets` cap in `_activateMarket`/`enterMarkets`."
+    },
+    {
+      "title": "`claimMalda(address)` uses `allMarkets` snapshot without deprecation/market filtering",
+      "severity": "Low",
+      "file": "Operator.sol",
+      "function": "claimMalda()",
+      "description": "`claimMalda(address holder)` iterates `allMarkets` and calls `_claim`, which requires `markets[mToken].isListed` — trivially true for all markets in the array. For a deprecated market the supply/borrow notify path still executes. Because deprecated markets set `reserveFactorMantissa == 1e18` but are not removed from `allMarkets`, claim still processes them; more critically if any market is ever de-listed (there is no de-list function currently), the require would revert, bricking the single-arg `claimMalda` for all users. The `getUSDValueForAllMarkets()` function correctly skips with `if (_isDeprecated(...)) continue;` but claim does not.",
+      "attackPath": "Owner (or future guardian) never de-lists today, so not currently triggerable; but `reserveFactorMantissa` can be set to `1e18` on a market, making `_isDeprecated` true. The claim path still updates borrow index and distributes, so depreciation does not actually prevent claim distribution as intended, causing emissions from deprecated markets.",
+      "impact": "Continued reward accrual/distribution from deprecated markets, effectively diluting active-market rewards.",
+      "recommendation": "In `_claim`, skip markets where `_isDeprecated(mToken)` is true, matching `getUSDValueForAllMarkets`."
+    }
+  ]
+}

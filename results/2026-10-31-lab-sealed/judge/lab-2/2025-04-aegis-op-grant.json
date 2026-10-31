@@ -1,0 +1,369 @@
+{
+ "audit": "2025-04-aegis-op-grant",
+ "verdicts": [
+  {
+   "title": "_calculateMinYUSDAmount silently accepts arbitrary yusdAmount when price is unavailable",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a price-unavailable fallback in _calculateMinYUSDAmount allowing arbitrary yusdAmount, which is unrelated to the known findings about redemption fee insolvency, stuck collatera",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Redeem collateral amount recalculated differently on approval causing wrong transfer and fee/burn mismatch",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue than the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a manager-controlled collateral amount recalculation mismatch in approveRedeemRequest, which is a different root cause from the known findings about fee disbursement insolvency",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Redeem request can be permanently locked by reusing a requestId still in WITHDRAWN/REJECTED state check",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue than the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate is a confused/incoherent description about requestId reuse and approveRedeemRequest collateral calculation, not the same root cause as any listed finding (fee disbursal insolvency, stuck",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`_calculateMinYUSDAmount` overflows `collateralAmount * 10**(18-decimals)`; also ignores oracle and only uses Chainlink",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue in the same function, involving overflow and underflow, and a different impact.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes overflow/decimals handling and oracle bypass in _calculateMinYUSDAmount, which is unrelated to the known findings about redemption fee insolvency, stuck collateral, or redeem l",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "depositIncome mints YUSD for income without deducting collateral from custody, allowing double-count",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a double-counting issue in depositIncome, which is not the same as the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a speculative double-counting of untracked income in depositIncome, which is not the same root cause as any listed finding (redemption fee depeg, stuck collateral accounting, o",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Chainlink price used without staleness/heartbeat set can freeze or misprice; `_getAssetYUSDPriceOracle` reuses Chainlink price but returns oracle decimals",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue related to Chainlink price staleness and decimal handling, not matching any of the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a Chainlink price staleness/decimals normalization bug in _getAssetYUSDPriceOracle, which is unrelated to the known findings about redemption fee insolvency, stuck collateral, ",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "AegisRewards claim does not verify claimRequest amount against stored reward, allowing underflow revert / grief via mismatched arrays",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an underflow/revert in AegisRewards.claimRewards due to unverified claim amounts, which is unrelated to the known findings about redemption fees, stuck collateral, or redeem li",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Anyone can withdraw another user's expired redeem request YUSD",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes missing caller authorization in withdrawRedeemRequest enabling griefing, which is a different root cause from the known findings about fee insolvency, stuck collateral, or rede",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "depositIncome lets yusdAmount order field exceed collateral-derived value, minting unbacked YUSD into rewards",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue in the same function, related to overflow and unchecked collateral amount.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes unbacked YUSD minting via depositIncome's yusdAmount/price handling, which is unrelated to the known findings about redemption fee insolvency, stuck collateral, or redeem limit",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "YUSD supply broken by AegisRewards.depositRewards allowing reward amount to persist across finalize/withdraw sets, letting old rewards absorb new",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function than the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a depositRewards/finalized-state bug in AegisRewards, which is unrelated to the known findings about redemption fees, stuck collateral, or redeem limit griefing.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "claimRewards allows claiming only some ids silently while still transferring, but a claim amount larger than reward amount underflows/steals from other ids",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns claimRewards underflow/amount validation in AegisRewards, while all known findings are about minting/redeem collateral, limits, and fees in AegisMinting.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "OrderLib.verify does not bind order hash to chain of signed values independently; userWallet must equal msg.sender but requestRedeem/depositIncome pass manager callers",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns OrderLib.verify binding userWallet to msg.sender for depositIncome, which is unrelated to the known findings about redemption fees, stuck collateral, or redeem limit griefing.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Order signature does not bind chain-specific nonce; replay across redeploys and cross-contract is only partially protected",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a replay attack vulnerability in the order verification process, which is not related to the known findings about insolvency, collateral management, or redemption limit",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns order signature replay/nonce deduplication in OrderLib.verify, which is unrelated to the known findings about redemption fee insolvency, stuck collateral, or redeem limit griefi",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`_stringToBytes32` truncates IDs to 32 bytes, enabling collision-based reward/request id confusion",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue related to string truncation and collision in reward IDs, which is not covered by the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a string-to-bytes32 truncation/collision bug, which is unrelated to the known findings about redemption fees, stuck collateral, or redeem limit griefing.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`depositIncome` credits custody transferrable funds before verifying mint, and mints YUSD on income without transferring any asset — collaterals are never moved in",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes depositIncome minting YUSD against untracked balance without transferring assets, which is a different root cause than the redemption-fee insolvency, stuck collateral accountin",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Redeem collateral amount recomputation on approval allows underpaying user relative to locked YUSD",
+   "strict": null,
+   "a": {
+    "match": "H-1",
+    "reden": "The candidate describes the same root cause in the same function and could lead to the same kind of impact.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes underpaying users via collateral recomputation on approval, which is a different root cause and impact than the listed findings (fee-driven insolvency, stuck collateral, or red",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`_checkMintRedeemLimit` resets `currentPeriodTotalAmount` after rejecting in same tx incorrectly; period-end boundary gap lets user bypass limit",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue in the same function, related to the period-end boundary gap and incorrect reset of currentPeriodTotalAmount.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a period-boundary/limit-reset logic bug in _checkMintRedeemLimit, which is unrelated to the known findings about fee insolvency, stuck collateral, or redeem-limit griefing.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`AegisConfig._setAegisConfigAddress` allows a config with no interface support to be set, DoS'ing whitelist checks",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns an owner-controlled zero-address config causing whitelist DoS, which is unrelated to the known insolvency, stuck collateral, or redeem-limit griefing findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "claimRewards allows unbacked claims via `additionalData` custom reward id collision, and does not cap to remaining amount",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function and contract.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns claimRewards signer-controlled amounts in AegisRewards, unrelated to the known findings about redemption fees, stuck collateral, or redeem limit griefing.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`requestRedeem` does not deduplicate order nonce, allowing repeated use of same signed order with different requestIds",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a nonce deduplication issue in the requestRedeem function, which is not related to the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing nonce deduplication in requestRedeem, which is unrelated to the known findings about redemption fee insolvency, stuck collateral, or redeem limit griefing.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`order.verify` trusts `expectedSigner` from config; if `trustedSigner` changes, previously signed unexecuted orders become invalid or remain valid indefinitely (no expiry check for depositIncome)",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue related to order expiry and replay protection, not matching any of the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns order signature expiry/trustedSigner replay in OrderLib.verify, which is unrelated to the known findings about redemption fees, stuck collateral, or redeem limit griefing.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Redeem request YUSD locked but collateral approval can be blocked by frozen funds check ordering",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue related to frozen funds and collateral approval.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a freeze/balance-check ordering issue blocking redeem approvals, which is not the same root cause as any listed finding (fee disbursal insolvency, stuck collateral accounting, ",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`requestRedeem` fee-less full YUSD lock while approval burns fee-adjusted amount causes locked balance drift",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a locked balance drift issue due to inconsistent fee calculations, which is not the same as the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes fee accounting drift in requestRedeem/approveRedeemRequest, which is not the same root cause as the known findings about redemption fee insolvency, stuck collateral, or redeem ",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`_deduplicateOrder` bitmap slot computed without bounds and nonce type collision does not block replay",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a nonce collision issue in the _deduplicateOrder function, which is not related to the known findings about redemption limits or collateral management.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns nonce bitmap truncation/replay in _deduplicateOrder, unrelated to the known findings about redemption fees, stuck collateral, or redeem limit griefing.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`_addSupportedAsset` stores heartbeat without validating non-zero; stale feed check `updatedAt >= block.timestamp - 0` reverts if heartbeat 0",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a zero-heartbeat stale-price DoS in _getAssetUSDPriceChainlink/_addSupportedAsset, which is unrelated to the known findings about redemption fees, stuck collateral, or redeem l",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Rounding in `_calculateInsuranceFundFeeFromAmount` lets fee-having orders diverge from slippage check and favors redeemers vs protocol",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a rounding issue in fee calculation that could lead to different impacts compared to the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate discusses fee rounding and slippage consistency, which is unrelated to the known findings about redemption fee insolvency, stuck collateral, or redeem limit griefing.",
+    "model": "deepseek-flash"
+   }
+  }
+ ]
+}

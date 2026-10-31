@@ -1,0 +1,305 @@
+{
+  "contest": "2025-07-mellow-flexible-vaults",
+  "hypotheses": [
+    {
+      "title": "Consensus.checkSignatures accepts duplicate signers to satisfy threshold",
+      "severity": "High",
+      "file": "Consensus.sol",
+      "function": "checkSignatures()",
+      "description": "`checkSignatures(orderHash, signatures)` iterates over `signatures` and for each verifies signer exists and the signature. But it does not track which signers have already been used, so the same valid signer can appear multiple times in `signatures` (each copy passing the per-signer check). Threshold is measured as `signatures.length >= threshold` rather than unique signers. So a single valid signer can satisfy a threshold of N by submitting N copies of the same signature.",
+      "attackPath": "Attacker gets one legit signer's signature on an order. Then for a consensus with threshold 3, the attacker builds `signatures = [sig, sig, sig]` all with the same signer and signature. `checkSignatures` checks each entry independently: signer exists, ECDSA.recover matches. Each passes. Returns true. Now `SignatureDepositQueue.deposit` or `SignatureRedeemQueue.redeem` proceeds with one signer's approval where 3 distinct signers are needed.",
+      "impact": "Bypass of multisig threshold: any single compromised or cooperative signer can execute all orders alone — full loss of funds from the vault by redeeming on unfair prices / draining liquidity, minting shares to arbitrary recipient, or forcing redemptions.",
+      "recommendation": "Track already-seen signers with a bitmap/mapping per call, requiring distinct signers, and count unique signers against threshold."
+    },
+    {
+      "title": "Consensus threshold bypass via duplicated signatures in checkSignatures",
+      "severity": "High",
+      "file": "Consensus.sol",
+      "function": "checkSignatures()",
+      "description": "`checkSignatures` requires only `signatures.length >= $.threshold`, then loops verifying each entry independently. The loop never records which signers have already been seen, so the same valid EIP712/EIP1271 signature can appear `threshold` times. `requireValidSignatures` is the only gate for `SignatureDepositQueue.deposit` and `SignatureRedeemQueue.redeem`, so a single signer (or an attacker that obtained one signer's key) can meet any m-of-n threshold alone. Nonce checking in `SignatureQueue` is per-caller and does not prevent replay inside one call.",
+      "attackPath": "With a consensus configured threshold N, one compromised signer produces one signature for a malicious order, then repeats it N times in the `signatures` array and calls `redeem`/`deposit`. `checkSignatures` returns true and the order executes.",
+      "impact": "Complete bypass of multisig threshold: theft of vault assets (redeem) or arbitrary share minting (deposit).",
+      "recommendation": "Track already-used signer addresses (e.g. in a memory bitmap or a small array) and revert or skip duplicates; count distinct valid signers against the threshold."
+    },
+    {
+      "title": "DepositQueue cancelDepositRequest reads wrong index from prices checkpoint",
+      "severity": "High",
+      "file": "DepositQueue.sol",
+      "function": "cancelDepositRequest()",
+      "description": "In `cancelDepositRequest`, the code does `(bool exists, uint32 timestamp, uint256 index) = $.prices.latestCheckpoint();` then `$.requests.modify(index, -int256(assets))`. But `index` here is the *value* stored in the prices checkpoint, which is `reducedPriceD18` (via `$.prices.push(timestamp, reducedPriceD18)`), not the request index in `$.requests`. `$.requests.modify` expects a request index (0..length-1) matching the Fenwick tree position where the deposit was added in `deposit()`. So `cancelDepositRequest` will decrement the wrong Fenwick entry (potentially out-of-bounds if `index >= tree.length` or corrupting sums), and leave the user's deposit still in the tree.",
+      "attackPath": "1) User deposits at time t0 (request index 0, tree[0] += assets). 2) Oracle report occurs, `$.prices.push(timestamp, reducedPriceD18)` — reducedPriceD18 is a `uint224` at typical 1e18 scale (e.g., 1e18), so `index` returned by latestCheckpoint is e.g. 1e18. 3) User calls `cancelDepositRequest`; check `timestamp >= request._key` prevents cancel if the price covers the request, but if a *newer* price exists but does not (in timestamp terms) cover this user's request... impossible, since `cancelDepositRequest` requires `timestamp < request._key`. But if `request._key` is in the future vs latest reported price and multiple requests exist, uses `$.requests.modify(index=reducedPriceD18, ...)`. That is a huge index — `modify` reverts with `IndexOutOfBounds` since tree length is small. So cancellation is *blocked* for legitimate users.",
+      "impact": "Users can never cancel their pending deposit (as soon as an oracle report exists with any price pushed), permanently locking their assets until claimable. Or corrupt Fenwick state if `index` happens to be small.",
+      "recommendation": "Track request index per user alongside the request timestamp (e.g., store index in `requestOf[account]`), and use that index in `modify()`."
+    },
+    {
+      "title": "ShareManager.updateChecks compares global lockup against block.timestamp not lockup duration semantics",
+      "severity": "Medium",
+      "file": "ShareManager.sol",
+      "function": "updateChecks()",
+      "description": "`if (block.timestamp < flags_.getGlobalLockup())` compares the current timestamp with the lockup *duration* seconds from Unix epoch. `createMask` stores `globalLockup` as a duration (seconds) at bits 5..36, and `getGlobalLockup` extracts it. This check only prevents transfers until `block.timestamp >= globalLockup`. Any non-zero `globalLockup` smaller than current `block.timestamp` (which is always, once the chain is past that many seconds since 1970) is effectively a no-op; a huge `globalLockup` will block all transfers/burns permanently. This is a bug: the intent is clearly to enforce a global lockup period after vault creation (e.g., `block.timestamp < createdAt + globalLockup`), but no start timestamp is stored.",
+      "attackPath": "Set `globalLockup = 1 year in seconds (31_536_000)` while current `block.timestamp > 31_536_000` (always in practice): no effect. Set `globalLockup = 2_000_000_000`: transfers/burns are permanently blocked — a griefing/lock-up via misconfiguration. Either way, invariants are not upheld.",
+      "impact": "Either the global lockup never applies (breaking the protocol's promise) or funds/shares are permanently locked if the admin sets a large value.",
+      "recommendation": "Store the vault creation timestamp (or per-account mint timestamp) and compare `block.timestamp < startTimestamp + globalLockup`."
+    },
+    {
+      "title": "`updateChecks` transfer-whitelist logic is inverted and lets permitted transfers fail",
+      "severity": "High",
+      "file": "ShareManager.sol",
+      "function": "updateChecks()",
+      "description": "For transfer with `hasTransferWhitelist`: `if (info.canTransfer || !$.accounts[to].canTransfer) { revert TransferNotAllowed(from, to); }`. This means a transfer reverts when the *sender* has `canTransfer=true`, or when the *recipient* has `canTransfer=false`. The intended semantics (as with deposit whitelist) is presumably that both sender and recipient must be whitelisted: revert if `!info.canTransfer || !accounts[to].canTransfer`. The current code allows a sender with `canTransfer=false` to send when recipient is whitelisted, and blocks a whitelisted sender from sending to a whitelisted recipient. That both breaks transfers and allows non-whitelisted senders to move shares.",
+      "attackPath": "Set a transfer whitelist; a non-whitelisted account that holds shares (e.g. received before whitelist was on) can now transfer them to any whitelisted holder, evading the lockup.",
+      "impact": "Breakage of transfer restrictions; unauthorized share transfers.",
+      "recommendation": "Change to `if (!info.canTransfer || !$.accounts[to].canTransfer) revert TransferNotAllowed(from, to);`."
+    },
+    {
+      "title": "Fee-on-transfer and rebasing assets break accounting in DepositQueue and RiskManager",
+      "severity": "High",
+      "file": "DepositQueue.sol",
+      "function": "deposit()",
+      "description": "`deposit()` calls `TransferLibrary.receiveAssets(asset_, caller, assets)` which uses `safeTransferFrom(from, this, assets)` and then books the full `assets` amount via `$.requests.modify(index, int256(uint256(assets)))` and `riskManager.modifyPendingAssets(asset_, int256(uint256(assets)))`. If the asset charges a transfer fee (or otherwise credits less than `assets`), the queue's accounting registers more pending assets than were received, so the eventual `_handleReport` sends `assets` (full amount) to the vault and mints shares worth more than deposited — the vault pays out of other users' funds. Symmetrically, `TransferLibrary.sendAssets` returns the requested amount, not what arrived; rebasing/deflationary tokens make bookkeeping drift from real balances.",
+      "attackPath": "1) Attacker with a fee-on-transfer asset (supported by oracle) deposits `X`; queue records `X` but only `X - fee` arrives. 2) `_handleReport` credits `X` shares-worth to the attacker and transfers `X` to vault; the vault is short by `fee`. 3) Attacker (or any depositor) is over-credited; other users' shares are diluted and vault becomes insolvent.",
+      "impact": "Over-minting of shares and shortfall in vault assets: other users cannot fully redeem; attacker extracts value.",
+      "recommendation": "Measure received amount with `balanceOf` before/after in `receiveAssets` and use those for accounting, or restrict supported assets to non-fee-on-transfer tokens via oracle whitelist."
+    },
+    {
+      "title": "Permissionless factory registration lets anyone inject a malicious implementation",
+      "severity": "High",
+      "file": "Factory.sol",
+      "function": "proposeImplementation()",
+      "description": "`proposeImplementation(address implementation)` has no access modifier, so any caller can add an arbitrary address to `$.proposals`. The owner then only needs to accept, but more importantly the owner can be socially tricked, and the \"proposal\" state used by UIs/automation is attacker-controlled. Since `acceptProposedImplementation` accepts any proposed address, and `create()` deploys proxies with that implementation, a malicious implementation registered through a benign-looking owner action can be initialized as a vault/queue/module with arbitrary logic. The lack of `onlyOwner` on propose is the root cause.",
+      "attackPath": "1) Attacker calls `proposeImplementation(maliciousImpl)` and floods proposals. 2) Owner (or an automation/keeper that reflexively accepts the latest proposal index) calls `acceptProposedImplementation(maliciousImpl)`. 3) Attacker calls `create(version, owner, initParams)` and gets a proxy pointing at malicious code, or tricks users into depositing into the created vault.",
+      "impact": "Arbitrary malicious implementation can become a valid factory entity; users depositing into the resulting vault lose funds to attacker logic.",
+      "recommendation": "Add `onlyOwner` to `proposeImplementation`, or remove the proposal mechanism and gate acceptance with a timelock."
+    },
+    {
+      "title": "Queue.canBeRemoved called by ShareModule.removeQueue on SignatureQueue allows removal with outstanding user balances",
+      "severity": "High",
+      "file": "SignatureQueue.sol",
+      "function": "canBeRemoved()",
+      "description": "`SignatureQueue.canBeRemoved()` returns `true` unconditionally. `ShareModule.removeQueue` only checks `IQueue(queue).canBeRemoved()` before deleting the queue from `$.queues[asset]` and decrementing `$.queueCount`. If a `SignatureRedeemQueue` (or `SignatureDepositQueue`) is registered as a vault queue and has open user positions (e.g., assets held in the queue contract from prior deposits, or users mid-flow), removal succeeds. The queue is no longer in `$.assets`/`$.queues`, so `callHook` for it later reverts with Forbidden (its `queue` check no longer passes). Any assets still held in the queue become permanently locked (no claim path).",
+      "attackPath": "Role holder with `REMOVE_QUEUE_ROLE` calls `removeQueue(signatureQueue)`. `canBeRemoved` returns true. Shares/assets in the queue are inaccessible. Users cannot claim because the hook path requires `$.queues[asset].contains(queue)`.",
+      "impact": "Permanent lock of user funds in the removed queue.",
+      "recommendation": "`canBeRemoved` should return true only when the queue's own asset/shares balances are all settled; require `IERC20(asset()).balanceOf(address(this)) == 0` and no pending user requests."
+    },
+    {
+      "title": "DepositQueue._handleReport transfers via shareManager.mint without accounting claim of fees correctly",
+      "severity": "Medium",
+      "file": "DepositQueue.sol",
+      "function": "_handleReport()",
+      "description": "`_handleReport` computes `shares = assets * reducedPriceD18 / 1e18` and `fees = assets * priceD18 / 1e18 - shares`, then calls `shareManager_.allocateShares(shares)` and `shareManager_.mint(feeManager.feeRecipient(), fees)`. However, the `depositFee` is applied per-report but `mint` calls `updateChecks(from=0, to=feeRecipient)` which applies the global lockup/whitelist; if the fee recipient is not whitelisted (whitelist flag on), `mint` reverts and the entire `handleReport` path reverts, bricking oracle reports and redeem queue processing. Moreover, `mint` sets `lockedUntil` for the fee recipient each time — fee recipient balance stays locked forever under `targetedLockup`, permanently back-locking the fee recipient's existing fee balance.",
+      "attackPath": "Vault admin enables `hasWhitelist` and `targetedLockup > 0` and the fee recipient is not whitelisted/blacklisted. Oracle submits report: `mint(feeRecipient, fees)` reverts -> handleReport fails -> deposits and redeems cannot process. Also, `lockedUntil` for the fee recipient is continually reset, blocking fee withdrawal forever.",
+      "impact": "DoS of the deposit-handling and redeem-handling flow; permanent lock of fee recipient's accrued fees.",
+      "recommendation": "Mint fees with a privileged internal mint that bypasses `updateChecks`/lockup (e.g., `mintAllocatedShares` after `allocateShares`), or don't apply lockup to fee recipient; restrict the flag combination."
+    },
+    {
+      "title": "BitmaskVerifier.verifyCall trusts bitmask length from unverified abi layout, enabling hash mismatch bypass",
+      "severity": "High",
+      "file": "BitmaskVerifier.sol",
+      "function": "verifyCall()",
+      "description": "The assembly in `verifyCall` reads `verificationData` with `let temp := add(verificationData.offset, calldataload(add(verificationData.offset, 0x20)))`, which assumes a non-canonical encoding: the second word is used as an offset *relative to itself*, which never matches the standard `abi.encode`. Even if the layout matches, `calculateHash` indexes `bitmask[0:32]`, `bitmask[32:64]`, `bitmask[64:96]` and then `data[i] & bitmask[i + 96]`, and `data` is a `bytes calldata` where `&` on bytes slices is not valid Solidity — the bitmask offsets are computed from the raw calldata segment, but the outer `verifyCall` recomputes `verificationHash_ := calldataload(verificationData.offset)` (first word). A crafted `verificationData` can align `expectedHash`, bitmask offset and length freely; because `data.length + 0x60 != bitmask.length` is the only check, attacker controls the hash input layout.",
+      "attackPath": "1) Caller constructs `verificationData` with a custom non-standard offset so that `bitmask.offset` and `bitmask.length` land on attacker-chosen bytes. 2) Submits a `call` where `data` and masked `where/value` compose to the `expectedHash` crafted in `verificationHash_`. 3) `getVerificationResult` returns true via CUSTOM_VERIFIER path, and `CallModule.call` executes arbitrary target/value/data (e.g. `transferFrom` on tokens).",
+      "impact": "Bypass of allowed-call / merkle permission checks; arbitrary calls from a subvault including transferring out funds.",
+      "recommendation": "Replace the hand-rolled assembly with canonical `abi.decode(verificationData, (bytes32, bytes))` and require `bitmask.length == data.length + 96`; also validate each mask byte range."
+    },
+    {
+      "title": "DepositQueue.deposit credits wrong Fenwick index when same-timestamp path is taken",
+      "severity": "High",
+      "file": "DepositQueue.sol",
+      "function": "deposit()",
+      "description": "In `deposit()`, `index` is initialized to `timestamps.length()`. If `latestTimestamp < timestamp`, a new timestamp checkpoint is pushed and `index` remains `length-1` (0-based newly pushed index) which is correct. But in the same-timestamp branch, the code executes `--index;` intending to reference the last existing timestamp's index. However the `requests` tree was extended only when a new checkpoint was pushed, and on the first-ever batch (`_length == 16`, `index = 0` before `--index` underflows). Also on a same-timestamp path after the tree extension the mapping between `timestamps.length()` and the current tree length diverges (tree only extends once per new timestamp), so `--index` may point at the wrong bucket and `$.requests.modify(index, ...)` updates the wrong accumulator, causing later `_handleReport` sums to be misattributed across batches.",
+      "attackPath": "1) Two users deposit in the same block (same timestamp). 2) Second user takes `--index` branch. 3) The accumulator that `_handleReport` reads via `$.requests.get(handledIndices, latestEligibleIndex)` no longer matches the per-user requests, so users in that batch receive too many or too few shares when the report is handled.",
+      "impact": "Share misallocation across depositors in the same timestamp; some users get over-credited (diluting others) or under-credited (loss).",
+      "recommendation": "Compute the request index from `timestamps.length()` consistently after the push, or track `timestamps.length()-1` in the else-branch (`index = timestamps.length() - 1`), and verify Fenwick extension matches the timestamp before modify."
+    },
+    {
+      "title": "Oracle.submitReports pushes timestamp uint32(block.timestamp - interval); if interval > block.timestamp or interval > uint32 max, underflow/truncation",
+      "severity": "Medium",
+      "file": "Oracle.sol",
+      "function": "submitReports()",
+      "description": "`uint32 depositTimestamp = uint32(block.timestamp - securityParams_.depositInterval);` — `depositInterval` is not validated against `block.timestamp` in `_setSecurityParams`. If set large (attacker with `SET_SECURITY_PARAMS_ROLE`, or misconfiguration), `block.timestamp - depositInterval` underflows (revert) or, if under uint32 boundary, truncates producing a wrong timestamp. Also `uint32(block.timestamp)` overflows after 2106 but that's not relevant. The truncation allows the report to compute deprecated eligible timestamps causing `DepositQueue._handleReport` to process stale batches with old prices, or not process them at all. `acceptReport` similarly computes `timestamp - params.depositInterval` which reverts if `timestamp < depositInterval` (in `acceptReport` the `timestamp` is the report's own, may be small).",
+      "attackPath": "Role holder sets `depositInterval = 2^32` (allowed since only != 0 check). Oracle submit reverts (uint32 cast wraps or underflow reverts) → reports can never be submitted → deposits and redemptions frozen. Or set to a value causing `timestamp - depositInterval` truncation in queue → wrong batch cutoffs.",
+      "impact": "DoS of reports; incorrect batch assignment; frozen queue.",
+      "recommendation": "Validate `depositInterval`/`redeemInterval` < `type(uint32).max` and `<= block.timestamp` where subtracted; also enforce sane upper bounds."
+    },
+    {
+      "title": "`EigenLayerVerifier.completeQueuedWithdrawal` checks `withdrawal.strategies.length == 1` after indexing `withdrawal.strategies[0]`, allowing out-of-bounds revert not passing verification",
+      "severity": "Medium",
+      "file": "EigenLayerVerifier.sol",
+      "function": "verifyCall()",
+      "description": "In the `completeQueuedWithdrawal` branch: `IStrategy strategy = withdrawal.strategies[0];` is read before the guard `withdrawal.strategies.length != 1`. If the array is empty, `withdrawal.strategies[0]` panics (array out-of-bounds) due to Solidity bounds check → the whole `verifyCall` reverts instead of returning `false`. In `Verifier.getVerificationResult` for `CUSTOM_VERIFIER`, the call is a staticcall via `ICustomVerifier(verifier).verifyCall(...)` — a revert bubbles up and the whole `CallModule.call`/verification path reverts. Compare with other branches which return `false`. The attacker can craft a call with an empty strategies array, and callers whose subvault has this verifier in a custom-verification path will revert when trying to verify the legitimate call? More specifically, the attacker (a legitimate caller with CALLER_ROLE to subvault) can submit a malicious payload which reverts inside verification; since the offchain signer creates the verificationData, not attacker. Actually `verifyCall` is only reached when the subvault's signer approves an extended call. If that is controlled, not a DoS.",
+      "attackPath": "",
+      "impact": "If a custom-verifier-based call path expects `verifyCall` to return false, it reverts and raises revert. A subsequent call might be blocked. Low-ish impact.",
+      "recommendation": "Move `IStrategy strategy = withdrawal.strategies[0];` after the `withdrawal.strategies.length != 1` guard."
+    },
+    {
+      "title": "`EigenLayerVerifier.completeQueuedWithdrawal` reads strategies[0] before the length guard",
+      "severity": "Medium",
+      "file": "EigenLayerVerifier.sol",
+      "function": "verifyCall()",
+      "description": "In the `completeQueuedWithdrawal` branch: `IStrategy strategy = withdrawal.strategies[0];` is executed before the guard `withdrawal.strategies.length != 1`. With an empty `strategies` array, Solidity's bounds check panics and the whole `verifyCall` reverts instead of returning `false`. The other verification branches return `false`, so a malformed extended-call verification can revert the vault's `CallModule.call` path rather than cleanly rejecting it, causing repeated failures in that path.",
+      "attackPath": "A caller with `CALLER_ROLE` on the verifier submits an extended call whose verification data encodes an empty `withdrawal.strategies`; the verifier reverts, propagating through `CallModule.call` and the subvault operation.",
+      "impact": "DoS/griefing of extended call paths using this verifier; legitimate withdrawals cannot be bundled in the same way.",
+      "recommendation": "Move `IStrategy strategy = withdrawal.strategies[0];` after the `withdrawal.strategies.length != 1` guard."
+    },
+    {
+      "title": "RiskManager.convertToShares returns price-based conversion but shares units are not consistent across assets",
+      "severity": "Medium",
+      "file": "RiskManager.sol",
+      "function": "convertToShares()",
+      "description": "`convertToShares(asset, value)` converts an asset amount to \"shares\" using `Math.mulDiv(value, priceD18, 1 ether)`, treating priceD18 as a share-value multiplier. But `modifyVaultBalance`/`modifySubvaultBalance` are called with differing sign/convention across contracts: in `DepositQueue._handleReport`, `riskManager.modifyVaultBalance(asset_, int256(uint256(assets)))` is called *after* the deposit has already been converted to shares (shares = assets * reducedPriceD18 / 1e18). `modifyVaultBalance` internally re-converts `change` (assets) via `convertToShares` (using oracle priceD18), producing a different share value than what was minted to the user (`reducedPriceD18`). The vault balance increment thus overstates or understates the minted shares, meaning `vaultState.limit`/balance and `subvaultStates` no longer align with actual minted shares. This drift means `maxDeposit` limits are miscomputed over time — allowing more share minting (deposit over limit) or blocking.",
+      "attackPath": "Sequentially, the discrepancy between minted shares (assets*reducedPriceD18/1e18) and accounted `balance` (assets*oraclePriceD18/1e18) accumulates. Since `reducedPriceD18 < priceD18` (fee deducted), `balance` is always ≥ minted shares. So limits are conservative, not exploitable in the direction of exceeding the limit. But it favors the protocol at the cost of user deposits failing later. Subvault accounting: `modifySubvaultBalance(subvault, asset, +value)` converts using priceD18; then `_pushAssets` calls `TransferLibrary.sendAssets(asset, subvault, value)` — value unchanged. If asset is transferred from the vault *after* converting, we convert the raw amount to \"shares\" — the conversion of any asset-amount to \"shares\" *is* an accounting currency, consistent. So it's \"value in share terms\", and drift comes from oracle price mismatches. Moderate.",
+      "impact": "Cumulative drift in accepted deposit limits when oracle price deviates from `reducedPriceD18` used at deposit; potential UX/liveness issues if limits exceeded due to reprice.",
+      "recommendation": "Bookkeeping should account shares using consistent unit (the actual minted shares), not re-convert with oracle price at each call."
+    },
+    {
+      "title": "SignatureRedeemQueue burns shares from recipient but cash goes to recipient - reentrancy/order flaw",
+      "severity": "High",
+      "file": "SignatureRedeemQueue.sol",
+      "function": "redeem()",
+      "description": "In `redeem()`, the function calls `vault_.callHook(order.requested)` before sending assets to the recipient and before `modifyVaultBalance`. More importantly it burns `order.ordered` shares from `order.recipient` but pays `order.requested` assets to `order.recipient`. The liquidity check uses `vault_.getLiquidAssets()` which is queried via the redeem hook (BasicRedeemHook.getLiquidAssets uses `msg.sender` = ShareModule), summing subvault balances. `callHook` performs delegatecalls to hooks like `BasicRedeemHook.callHook`, which pulls assets from subvaults into the vault (`hookPullAssets` triggers `_pullAssets`, which calls `riskManager().modifySubvaultBalance`) - that modifies state projections. The assets sent to the recipient come from the vault's own balance, but `modifyVaultBalance(-requested)` is applied only *after* the transfer. If the transfer (`sendAssets` via `safeTransfer`) re-enters the vault or queue, or if a hook delegatecalls into a hook that triggers a callback, ordering of state updates is wrong; additionally, no check that shares burned match assets requested at oracle price beyond the `validateOrder` price check.",
+      "attackPath": "A caller with a valid signed order triggers `redeem`. The hook `BasicRedeemHook.callHook` is delegatecalled into the queue, meaning `address(this)` is the queue - it then calls `vault.hookPullAssets` which pulls from subvaults. Since the vault's local balance is what gets `sendAssets`'d to the recipient and `modifyVaultBalance` is deferred, an attacker who can trigger two orders (or reentrancy via ERC20 hooks in `safeTransfer`) can extract more than accounted.",
+      "impact": "Vault accounting (vault balance, risk manager limit accounting) desynchronized from actual liquid assets; potential over-withdrawal and protocol insolvency.",
+      "recommendation": "Move `riskManager().modifyVaultBalance(...)` before asset transfers and perform nonReentrant-safe state updates before the external `callHook` and `sendAssets`; also make `sendAssets` occur last."
+    },
+    {
+      "title": "VaultModule._pushAssets calls modifySubvaultBalance then send, but BasicRedeemHook.getLiquidAssets counts vault-balance delta after hook — accounting drift",
+      "severity": "Medium",
+      "file": "VaultModule.sol",
+      "function": "_pushAssets()",
+      "description": "`_pushAssets(subvault, asset, value)` first calls `riskManager().modifySubvaultBalance(subvault, asset, int256(value))` (which converts assets to shares at the oracle price), then `TransferLibrary.sendAssets`. If the transfer fails (ERC20 returns false is handled by SafeERC20, so revert), state rolls back. But `RedeemQueue.handleBatches` reads `vault_.getLiquidAssets()` (which sums queue hook liquid assets) *before* `callHook(demand)` and *before* `modifyVaultBalance(-demand)`. The order means the liquid snapshot does not include the shares that `modifyVaultBalance(-demand)` will convert back or the subvault balance the hook pulls. `handleBatches` can push batches through even when the *after-hook* liquid is lower than demanded, leaving `totalDemandAssets` inconsistent with actual output for the next batch.",
+      "attackPath": "1) Many redeemers queue. 2) `handleBatches` computes `counter++` while `demand+batch.assets <= liquidAssets` from a stale liquid value. 3) `callHook` pulls subvault funds to cover, but the vault's risk balance was decremented by the same `demand` regardless of whether hook pulled enough, causing `totalDemandAssets` and riskManager `vaultState.balance` to disagree with actual token balances.",
+      "impact": "Batches become claimable beyond actual backing; the last claimers can be undercollateralized and lose funds.",
+      "recommendation": "Recompute liquid available after the hook runs, or have `callHook` return the actually pulled amount and only advance `batchIterator` for amounts truly funded."
+    },
+    {
+      "title": "BasicRedeemHook.callHook reads vault address as address(this) incompatibly with getLiquidAssets using msg.sender",
+      "severity": "Medium",
+      "file": "BasicRedeemHook.sol",
+      "function": "getLiquidAssets()",
+      "description": "`callHook` treats `address(this)` as the vault (correct when executed via `Address.functionDelegateCall` from `ShareModule.callHook`, since `address(this)` is the Vault), but `getLiquidAssets` treats `msg.sender` as the vault. `getLiquidAssets` is invoked by `ShareModule.getLiquidAssets` as a normal external call (`IRedeemHook(hook).getLiquidAssets(asset)`), so `msg.sender` is the Vault during that call — but the same function may be reached through `Address.functionDelegateCall` in `callHook` context if the hook defines it, causing inconsistent address resolution. More importantly, `ShareModule.getLiquidAssets` uses `IRedeemHook(hook).getLiquidAssets(asset)`, meaning `msg.sender == address(vault)` — this is consistent. However, the mismatch between the two functions' reliance on different address-resolution models (delegatecall `address(this)` vs external `msg.sender`) means any hook that implements both via this pattern will misreport liquid assets when called from a different delegate context (e.g., a hook calling another hook via delegatecall, as `LidoDepositHook` does). The `getLiquidAssets` here would then read balances of the wrong address.",
+      "attackPath": "A redeem queue calls `ShareModule.getLiquidAssets` -> external call hook -> OK. But if `BasicRedeemHook` is ever chained as `nextHook` via `functionDelegateCall` from another hook's `callHook`, `getLiquidAssets` is not invoked via delegatecall anyway, so the risk is conditional. Trigger comes from ordinary use where a hook composes multiple hooks.",
+      "impact": "`getLiquidAssets` returning the wrong balance would let `RedeemQueue.handleBatches` treat the queue as having more/less liquid assets than it does, prematurely moving batches with insufficient backing (or blocking withdrawals). Underlying funds not actually present may be counted as available, leading to a shortfall for redeeming users.",
+      "recommendation": "Use a single consistent address resolution (e.g., always `address(this)` and document that hooks are delegatecalled), and never use `msg.sender` as the vault in a hook that may also execute via delegatecall."
+    },
+    {
+      "title": "Oracle.acceptReport recomputes timestamps differently from submitReports and can underflow",
+      "severity": "Medium",
+      "file": "Oracle.sol",
+      "function": "acceptReport()",
+      "description": "`submitReports` computes `depositTimestamp = uint32(block.timestamp - securityParams_.depositInterval)` and `redeemTimestamp = uint32(block.timestamp - securityParams_.redeemInterval)` at submission time. `acceptReport` instead uses the stored `timestamp` (the original submission time) and does `timestamp - params.depositInterval` / `timestamp - params.redeemInterval`, which underflows (reverting) if an admin later raises `depositInterval` above the stored timestamp, and otherwise yields a cutoff relative to the old timestamp rather than the current one. This can block or distort queue eligibility for the accepted report.",
+      "attackPath": "Admin (or normal operation after a params update) raises `depositInterval`; a suspicious report is accepted and `timestamp - depositInterval` underflows, reverting `acceptReport` and permanently blocking that asset's queued requests until a fresh non-suspicious report is accepted.",
+      "impact": "DoS of report acceptance / queue processing; stuck pending deposits/redemptions for the asset.",
+      "recommendation": "Persist the already-derived deposit/redeem eligibility timestamps in the stored report at submission and reuse them in `acceptReport`, or compute using the current `block.timestamp` with bounds checks."
+    },
+    {
+      "title": "SignatureQueue.validateOrder permits replay/ordering flaw when signed order still valid at call, plus deposit uses order.caller rather than msg.sender enforced but nonces incremented before external calls",
+      "severity": "Medium",
+      "file": "SignatureQueue.sol",
+      "function": "validateOrder()",
+      "description": "`validateOrder` checks `order.caller == _msgSender()` and `order.nonce == nonces(order.caller)`. `SignatureDepositQueue.deposit` then increments nonce then pulls assets and calls `vault_.callHook(order.ordered)`. However, `validateOrder` calls the oracle `validatePrice` and this is only a sanity check — the caller (signers) signs the `hashOrder`. `hashOrder` binds all order fields but *not* the queue's current `batchIterator`, batch state, or `totalDemandAssets`. That's fine for a deposit. But for the redeem queue, `SignatureRedeemQueue.redeem` checks `order.requested > vault_.getLiquidAssets()`. `getLiquidAssets` sums balances, which could be manipulated via donation to satisfy. Also `redeem` does `TransferLibrary.sendAssets(order.asset, order.recipient, order.requested)` but `order.ordered` shares are burned from `order.recipient`. Fee is not applied on the signature redeem path, bypassing redeemFee. Not a severe exploit, but an accounting gap: signers effectively approve off-fee redemptions.",
+      "attackPath": "Attacker colludes with signers (or via single-signer bypass in Consensus) to bypass redeem fee. Not directly attacker-exploitable without signer collusion.",
+      "impact": "Fees bypassed, but requires signer cooperation. Medium.",
+      "recommendation": "Apply redeem fee consistently (mint fee shares to feeRecipient, or include fees in signature-queue flow)."
+    },
+    {
+      "title": "MellowACL.supportedRoles can never be revoked — role removal check uses role member count of enumerable set that is never cleared",
+      "severity": "Medium",
+      "file": "MellowACL.sol",
+      "function": "_revokeRole()",
+      "description": "`_revokeRole` calls `getRoleMemberCount(role) == 0` *after* `super._revokeRole` has already removed the member. That is technically correct on last-revoke, but `supportedRoles` is a `Bytes32Set` that is also added to on every `_grantRole` — including grants performed during `_grantRole` recursively through AccessControlEnumerable's internal `_grantRole` on role admin *grant* (admin role assignment). More importantly, if a role is granted, revoked, granted again: `_grantRole` `supportedRoles.add(role)` returns `false` second time (already in set), still returns true from `super`, but the role membership can later drop to zero without a `RoleRemoved` event only if the last member is removed. That is consistent. The actual issue is that `_revokeRole` returns `super._revokeRole(...)` un-gated, so if the role had never been granted (count stays 0), `supportedRoles.remove` is attempted and the role is removed from the supported set unconditionally — silently dropping support for a still-referenced role.",
+      "attackPath": "Owner (or admin) calls `renounceRole` for a role it holds; AccessControlEnumerable removes it and `_revokeRole` fires; if another account still holds a *different* admin pairing, the role's enumerable member count may be 0 while external contracts still reference it as \"supported\", or conversely a role referenced in permissions is removed from `supportedRoles`.",
+      "impact": "`supportedRoles` set diverges from actual roles; off-chain/on-chain role discovery ignores still-live roles or vice versa.",
+      "recommendation": "Use `if (getRoleMemberCount(role) == 0 && _mellowACLStorage().supportedRoles.contains(role)) remove(...)` and avoid modifying set on revoke when the role was never in it."
+    },
+    {
+      "title": "FeeManager.calculateFee charges protocol fee off stale timestamp without updating minPrice on every asset",
+      "severity": "Medium",
+      "file": "FeeManager.sol",
+      "function": "calculateFee()",
+      "description": "`calculateFee` accrues protocol fee using `($.timestamps[vault])`, but `updateState` is only called from `ShareModule.handleReport` *after* the fee is computed, and it returns early if `$.baseAsset[vault] != asset`. For non-base assets, `timestamps[vault]` is never updated, so the next `handleReport` for a *different* asset charges a huge protocol fee for the whole elapsed input, or an attacker repeatedly triggers reports for a non-base asset to accrue/decay at a manipulated cadence. Also `minPriceD18` is a running minimum that only decreases, so `performanceFeeD6 * (minPrice - price)` is only ever charged on new all-time lows; the \"high water mark\" semantics mean the fee can be paid repeatedly on the same low if `minPrice` is not reset after charging.",
+      "attackPath": "Oracle submitter sends reports for the base asset; `updateState` records the timestamp. Switch to a non-base asset: `calculateFee` uses the stale `timestamps` (still the base asset's last update) and `minPriceD18[vault]` (base asset's min) with the new asset's `totalShares` — mixing assets. The protocol fee `protocolFeeD6 * (block.timestamp - timestamp)` is charged against the *base* asset state but applied to share supply, so fees are mispriced.",
+      "impact": "Fee over/undercharging, dilution across fee recipients; possible repeated performance fee.",
+      "recommendation": "Track timestamps and min prices per `(vault, asset)` and update them in `calculateFee` or in `updateState` for every asset, not just the base asset."
+    },
+    {
+      "title": "RedeemQueue.redeem captures timestamp via uint32(block.timestamp) but reuses stale prefixSum index",
+      "severity": "Medium",
+      "file": "RedeemQueue.sol",
+      "function": "redeem()",
+      "description": "`redeem` computes `timestamps.latestCheckpoint()` and, if a new second, pushes a new checkpoint and sets `$.prefixSum[index] = shares + $.prefixSum[index - 1]`. If same second, it uses `$.prefixSum[--index] += shares`. In the `_handleReport` aggregation, `$.prefixSum[latestEligibleIndex]` is taken to represent cumulative shares; the sum for a batch is `prefixSum[latestEligibleIndex] - prefixSum[handledIndices - 1]`. However `timestamps` in `Queue.__Queue_init` pushes an initial checkpoint at deploy-time with `uint224(0)`. The first redeem after deploy in the same second as deploy uses index 0 (since `latestTimestamp == deployTimestamp` == `block.timestamp`), incrementing `$.prefixSum[0]`. `_handleReport` with `handledIndices` at 0 will compute `prefixSum[latestEligibleIndex] - 0` where `latestEligibleIndex` after `--latestEligibleIndex` logic can be 0, summing batch shares from before deploy checkpoint. Race conditions across seconds around the deploy second can compute shares for the wrong batch boundary, causing some users' shares to be dropped or double-counted.",
+      "attackPath": "Attacker redeems in the second the queue is deployed (or in a same-timestamp checkpoint update) to shift the checkpoint alignment; when the report comes in, `_handleReport` may set `handledIndices` past their request without ever including them in a batch, so their shares are never returned.",
+      "impact": "User shares lost (redeeming shares burned but no assets claimable).",
+      "recommendation": "Ensure the initial deploy checkpoint is not treated as an eligible bucket; compare only checkpoints created strictly after deploy via a distinguishable sentinel. Also disallow same-second checkpoint push unless needed."
+    },
+    {
+      "title": "RedeemQueue.claim leaves zero-share batches and iterates past previously processed entries",
+      "severity": "Medium",
+      "file": "RedeemQueue.sol",
+      "function": "claim()",
+      "description": "`claim()` iterates over `timestamps` provided by caller, but doesn't bound the array size, and doesn't prevent the caller from passing the same timestamp multiple times. After a request is claimed, `callerRequests.remove(timestamp)` is called, but if the caller passes duplicates within one call, the first iteration deletes them; subsequent duplicates are no-ops via `tryGet` returning false — safe. More critically, if `batch.shares` becomes 0 after all users claim from it (rounding to zero via `Math.mulDiv`), the next claimant's `Math.mulDiv(shares, batch.assets, batch.shares)` reverts with division by zero, effectively freezing remaining smaller claimants in that batch forever (there is no way to add shares back).",
+      "attackPath": "Attacker with a large share position in a batch claims first. If their `batch.assets` round down, `batch.shares` reduces but if assets become 0 while shares remain (e.g., dust assets), the next claimant computes `Math.mulDiv(shares, 0, 0)` = revert; also if `batch.shares` reaches exactly 0 with residual dust, later `claim` for that index reverts. `handleBatches` and `canBeRemoved` treat batch as processed.",
+      "impact": "DoS on `claim()` for the affected batch; some users' shares become permanently unclaimable.",
+      "recommendation": "Guard `batch.shares == 0` before `Math.mulDiv`, and ensure shares stay >0 (or delete/reallocate dust)."
+    },
+    {
+      "title": "SignatureDepositQueue and SignatureRedeemQueue accept ETH (payable) but never refund, and receiveAssets for ETH checks msg.value == assets",
+      "severity": "Medium",
+      "file": "SignatureDepositQueue.sol",
+      "function": "deposit()",
+      "description": "`deposit` is `payable` and calls `TransferLibrary.receiveAssets(order.asset, order.caller, order.ordered)`. For ETH orders, `receiveAssets` requires `msg.value == assets`. But `SignatureDepositQueue` then forwards the ETH to the vault via `sendAssets(..., address(vault_), order.ordered)`, so `msg.value` is exactly consumed. That is fine for the amount, but the `order.asset` is attacker-controlled up to the oracle/consensus check, which only validates `order.asset == asset()`. The real issue: `msg.value` is used as the *only* ETH amount and the caller cannot overpay, but the queue does not verify that exactly one deposit account name matches — no; the actual flaw is `nonReentrant` plus ordering: the nonce is incremented *before* `receiveAssets`, so if the transfer reverts the nonce is not rolled back only on revert (it is), so fine. The real issue is that `order.ordered` must equal `msg.value` but the consensus signature covers `order.ordered`, not `msg.value`; a caller may sign for 1 ETH and send `msg.value = 1 ETH` — fine. The concrete flaw is that no external amount verification prevents `msg.value > ordered` being silently trapped.",
+      "attackPath": "Caller sends `msg.value` equal to `order.ordered` exactly, so no overpay — unless the caller wants partial fill; a caller that accidentally overpays has ETH stuck in the queue (no refund). Anyone can call with a valid signed order and `msg.value` larger than `ordered` only if they break the check; `receiveAssets` will revert on overpay. The residual is that queues hold a `receive()` and there's no sweep: ETH that arrives by mistake is permanently locked.",
+      "impact": "ETH sent to the queue by mistaken `msg.value` or direct send is permanently locked.",
+      "recommendation": "Add a rescue function for stuck ETH, or make the queue non-payable and pull funds from the vault, or add `if (msg.value > ...) refund`."
+    },
+    {
+      "title": "ShareModule.hasQueue calls IQueue(queue).asset() on the unchecked caller before verifying membership — DoS on hooks and onlyQueue guards",
+      "severity": "Medium",
+      "file": "ShareModule.sol",
+      "function": "hasQueue()",
+      "description": "`hasQueue(queue)` calls `IQueue(queue).asset()` unconditionally before checking membership. `IShareModule.hasQueue` is invoked by `ShareManager` modifiers `onlyQueue` and `onlyVaultOrQueue` (via `IShareModule(vault_).hasQueue(caller)`), and the storage `vault` may be unset for an attacker-created (or maliciously set) queue address. A caller can pass an address that reverts on `asset()` (e.g. a proxy not yet initialized) and `hasQueue` reverts — but more importantly `claimShares` and `getLiquidAssets` read `$.queues[asset]` for whatever asset `queue.asset()` returns; a queue can return an attacker-chosen asset and enter `getLiquidAssets`'s hook dispatch (`getHook(queue)`), which then delegatecalls into an attacker-controlled hook address (custom hook set by role, but the redeem hook path is only gated by `queues[asset].contains(queue)`). An attacker who gets a single queue registered for asset A can register a `customHook` that returns arbitrary liquid and, via `callHook`, delegatecalls out of the vault.",
+      "attackPath": "1) Role holder `SET_HOOK_ROLE` set a custom hook (trusted), but `getHook` returns hook for any queue — including an attacker-deployed queue that passes `hasQueue` by returning a real asset from `asset()`. 2) `getLiquidAssets` on a fake queue calls `hook.getLiquidAssets`, and `callHook` delegatecalls into the hook with attacker-influenced `assets` (from `handleBatches` reentrancy). 3) Malicious redeemer triggers `handleBatches` on a queue they control that returns a supported asset — `callHook` delegatecalls into the (trusted) hook but is later abused to pull more than intended because the hook sees a forged `assets`.",
+      "impact": "A malicious/fake queue that returns a valid asset address can cause the vault to delegatecall hooks in an unexpected context and potentially pull funds beyond intent.",
+      "recommendation": "In `hasQueue`, check `$.queues[asset].contains(queue)` *after* verifying `queue` is a known entity of the queue factory (`depositQueueFactory.isEntity(queue)` or `redeemQueueFactory.isEntity(queue)`)."
+    },
+    {
+      "title": "SignatureQueue.claimableOf and claim are virtual empty stubs that users can call; getLiquidAssets used before state updates",
+      "severity": "Medium",
+      "file": "SignatureQueue.sol",
+      "function": "claimableOf() / claim()",
+      "description": "`SignatureQueue.claimableOf` and `claim` are empty virtual functions (no body), yet `IShareModule.claimShares` calls `IDepositQueue(queue).claim(account)` on any queue where `isDepositQueue[queue]` is true. If a `SignatureDepositQueue` instance is registered as a deposit queue in `ShareModule`, `IShareModule.claimShares` will call its `claim` (which is the empty stub here — no revert but no claim), and `claimableSharesOf` will call the empty `claimableOf`. That's fine (returns 0), but `SignatureRedeemQueue` is registered as redeem queue and `ShareModule.callHook` calls the hook. The `SignatureRedeemQueue.redeem` calls `vault_.getLiquidAssets()` twice around a `burn` and `callHook` — a redeem can be griefed by another redeem pulled ahead in the same block, empties liquid; a transaction that passed the check reverts at `sendAssets`, wasting gas only. But the more serious issue: `SignatureQueue.validateOrder` accepts orders where `order.ordered != 0` and `requested != 0`, and `SignatureRedeemQueue.redeem` burns `order.ordered` shares and pays `order.requested` assets. The price validation uses `Math.mulDiv(order.ordered, 1e18, order.requested, Math.Rounding.Ceil)` — so a malicious user submitting an order with price >= current market (within tolerance) can extract more assets per share than the fair ratio by rounding the order toward allowed tolerance repeatedly, exploiting the per-order `suspicious` tolerance.",
+      "attackPath": "Attacker with signers (or colluding) submits many small redeem orders at the top of the allowed price tolerance; each order pays `ordered * 1e18 / requested` where requested was chosen to maximize the ratio within `maxRelativeDeviation`; summing many extracts value from the vault at the expense of remaining shareholders.",
+      "impact": "Slow-value extraction, dilution of other share holders, potential vault insolvency.",
+      "recommendation": "Bound the number of signature-queue orders per period, or enforce the report price (not user-provided ratio) for redeem/deposit conversion; use exact parity with oracle."
+    },
+    {
+      "title": "Oracle.acceptReport passes original report.timestamp to vault.handleReport, but uses it for queue timestamps; user could get wrong batch",
+      "severity": "Medium",
+      "file": "Oracle.sol",
+      "function": "acceptReport()",
+      "description": "`acceptReport` calls `$.vault.handleReport(asset, report_.priceD18, timestamp - params.depositInterval, timestamp - params.redeemInterval)`. The `timestamp` passed is caller-provided but validated to match `report_.timestamp`. However, in `submitReports` the report is stored with `report.timestamp = uint32(block.timestamp)` and then `vault_.handleReport(..., uint32(block.timestamp - depositInterval), ...)`. When `acceptReport` is called later (potentially much later after a suspicious report), the passed `timestamp - depositInterval` uses the old report's stored timestamp as \"now\", but the oracle's `report_.timestamp` was set at submission time. Downstream `Queue.handleReport` requires `timestamp < block.timestamp` (only checks that), so a time much earlier than current block can be passed, causing the queue to process requests in the earlier window — those requests may have never been intended for that report because they were created between submission and acceptance.",
+      "attackPath": "Admin sets `depositInterval = 1`. Attacker submits a suspicious (large deviation) report at t=0 -> stored with `timestamp=0`, `isSuspicious=true`. Between t=0 and t=100, many deposits accumulate. At t=100, `acceptReport(...)` passes `depositTimestamp = 0 - 1` (underflow revert). If `acceptReport` passes a safe value, one can craft `timestamp` (must match report's) and the queue will include requests in the earlier window.",
+      "impact": "Wrong batch assignment; deposits accepted at wrong price; accounting drift.",
+      "recommendation": "In `acceptReport`, use current `block.timestamp` to compute eligible timestamps (as in submit) but keep the stored report's price timestamp separately for validation."
+    },
+    {
+      "title": "`Oracle.acceptReport` subtracts `params.depositInterval`/`redeemInterval` from the report timestamp, which the report stores as `block.timestamp` during submitReports; underflow reverts if intervals > block.timestamp, but intervals can be large",
+      "severity": "Medium",
+      "file": "Oracle.sol",
+      "function": "acceptReport()",
+      "description": "`acceptReport` calls `$.vault.handleReport(asset, report_.priceD18, timestamp - params.depositInterval, timestamp - params.redeemInterval)` with `timestamp` from the stored report (submission time). `submitReports` sets `depositTimestamp = uint32(block.timestamp - securityParams_.depositInterval)` at submission, not acceptance. But `acceptReport` re-derives timestamps from the report timestamp at acceptance time, so it disagrees with the values already computed in `submitReports`. This may not be exploitable, but the values underflow if `params` are large. Also `handleReport` on the vault then passes those timestamps to queues. Both reports use the same `timestamp`. So acceptReport uses a different (later) cutoff than scheduled submissions. Not exploitable.",
+      "attackPath": "",
+      "impact": "Inconsistent report timestamps; if `params.depositInterval > timestamp`, revert.",
+      "recommendation": "Store the derived deposit/redeem timestamps in the report when submitting, and reuse them in `acceptReport`; decode with `SafeCast`."
+    },
+    {
+      "title": "DepositQueue initialize creates requests tree but claim/cancel rely on prefix sum length mismatch after extend",
+      "severity": "Medium",
+      "file": "DepositQueue.sol",
+      "function": "deposit()",
+      "description": "In `deposit()`, when `latestTimestamp < timestamp`, the code pushes a new timestamp checkpoint and, `if ($.requests.length() == index)`, calls `$.requests.extend()`. `index` is `timestamps.length()` *before* the push, so it equals the new checkpoint's index. This assumes the Fenwick tree length is exactly equal to `timestamps.length()`. On `initialize`, `$.requests.initialize(16)` while `timestamps` starts with length 1. After 15 pushes, `index` reaches 16 (well, index = timestamps.length() before push). Actually tree length 16 allows indices 0..15; when index=16 (17th push), extend triggers. So up to 15 pushes without extend - but index is only 0..14 in that window because tree initialized to 16. Wait: first deposit index=1 (timestamps.length()=1), fine. Second index=2,... 15th index=15 (allowed, tree length 16). 16th: index=16 == requests.length() (16), so extend → tree length 32. OK. But the *same timestamp* path does `--index`, using the current timestamps.length()-1, which may be much larger than tree length after many accumulated deposits? No, index = timestamps.length()-1 always ≤ tree length-1 if extend occurred each time. Edge case: if `requests.length()` is > `index` (e.g., due to a bug), no extend, then `$.requests.modify(index, ...)` with index ≥ length reverts. This happens if timestamps.length() grows while requests.length() doesn't match (e.g., after `extend` only pushes to double, so if timestamps.lengtt jumps past 2*length, out of bounds). Since extend only doubles and pushes one at a time, alignment holds — but initial value is 16 while timestamps starts at 1. So for the first 15 deposits, `requests.length()=16` but `timestamps.length() <= 15`. That's fine (extra capacity). The invariant holds since extend is only called when `index == requests.length()`. Low risk.",
+      "attackPath": "N/A beyond alignment assumption.",
+      "impact": "If alignment is broken (e.g., via upgrade), deposits revert.",
+      "recommendation": "Assert tree length equals or exceeds index consistently, or initialize tree to match timestamps."
+    }
+  ]
+}

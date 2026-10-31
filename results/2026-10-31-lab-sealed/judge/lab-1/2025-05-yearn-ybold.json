@@ -1,0 +1,285 @@
+{
+ "audit": "2025-05-yearn-ybold",
+ "verdicts": [
+  {
+   "title": "StakerFactory.newStrategy is permissionless — anyone can create unlimited strategies that share the strategy's implementation; weak deployments mapping",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a permissionless function and a weak deployments mapping, which is not the same as the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a permissionless newStrategy and weak deployments mapping in StakerFactory, which is unrelated to the known findings about share inflation, loss-report timing, or dustThreshold",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Staker strategy _harvestAndReport calls ACCOUNTANT.distribute with no guard; any unaccounted asset drained to feeRecipient",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different bug in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an unguarded Accountant.distribute sweep in _harvestAndReport, which is unrelated to the known findings about share inflation, loss-report timing, or dustThreshold.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Auction starting price scaled 1e18 too low in _tend (extra /WAD)",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a scaling error in the auction starting price calculation, which is not the same as the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a starting-price scaling bug in _tend, which is unrelated to the share inflation, deposit-timing, or dustThreshold issues in the known findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Anyone can call distribute() on Accountant via strategy harvest, sweeping any fee balance",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing access control / full-balance sweep in Accountant.distribute, which is unrelated to the share inflation, loss-timing deposit, or dustThreshold findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Accountant.report treats totalAssets<totalSupply as loss only vs supply, ignoring loss param",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns Accountant.report fee/loss accounting, which is unrelated to the known findings about share inflation, loss-report timing deposits, or dustThreshold.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "StakerFactory.newStrategy lacks an access-control modifier, letting anyone deploy and overwrite deployments",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a lack of access control in the newStrategy function, which is not the same as the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing access-control modifier on StakerFactory.newStrategy, which is unrelated to the share inflation, loss-timing deposit, or dustThreshold issues in the known findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Accountant.report charges 100% performance fee on gain even when vault totalAssets < totalSupply was already covered by loss",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a fee-calculation flaw in Accountant.report ignoring per-strategy losses, which is unrelated to the known findings about share inflation, loss-reporting timing, or dustThreshol",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "StrategyAprOracle differs: aprAfterDebtChange divides by zero when SP deposits=0 and _delta<0, and `_delta * -1` overflows on type(int256).min",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an overflow/divide-by-zero in StrategyAprOracle.aprAfterDebtChange, which is unrelated to the known findings about share inflation, loss-report timing, or dustThreshold.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Strategy `_tend` computes starting price using `_available * _price / WAD * _bufferPercent / WAD / WAD` — dust-size collateral gets zero start price",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue related to the auction starting price calculation.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a zero start-price rounding issue in _tend, which is unrelated to the share inflation, deposit-timing, or dustThreshold-locking root causes of the known findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "StrategyFactory.setAddresses allows a management transfer to a zero/garbage address via chained self-renounce",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns missing zero-address validation in StrategyFactory.setAddresses, which is unrelated to the share inflation, loss-timing deposit, or dustThreshold findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Accountant.report fees are never pulled/transferred; distribute() pays from residual balance only",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different contract and function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns Accountant.report/distribute fee accounting, unrelated to the known findings about strategy share inflation, loss-report timing, or dustThreshold.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "StakerFactory.newStrategy overwrites deployments mapping keyed only by asset; multiple strategies unsupported",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns StakerFactory.newStrategy overwriting a deployments mapping, which is unrelated to the known findings about share inflation, loss-timing deposits, or dustThreshold.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Accountant.report healthcheck uses per-strategy current_debt for maxGain/maxLoss — manipulated by strategy",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns Accountant.report maxGain/maxLoss bounds via current_debt, which is unrelated to the known findings about share inflation, loss-report timing, or dustThreshold.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "StrategyAprOracle._getCollateralIndex is O(n) over all collaterals per call — DoS/gas griefing",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a gas griefing issue in a different function and contract than the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an O(n) gas/DoS issue in StrategyAprOracle._getCollateralIndex, which is unrelated to the share inflation, loss-timing deposit, or dustThreshold findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "StrategyAprOracle divide-before-multiply truncates weighted rate to zero",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a precision loss issue in a different function and contract.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate is a precision/truncation issue in StrategyAprOracle.aprAfterDebtChange, unrelated to the share inflation, deposit-timing, or dustThreshold findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Strategy._tend starting price computes available from auction + strategy but sends only strategy balance; double counts",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a double-counting issue in the _tend function, which is not the same as the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a starting-price double-counting issue in _tend, which is unrelated to the share inflation, deposit-timing, or dustThreshold findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Strategy._freeFunds always withdraws with claim=true; claim()/_tend side effects and SP state interactions",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue related to the _freeFunds function and its interaction with the Stability Pool.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns claim()/_freeFunds coupling to SP withdrawal semantics, which is unrelated to the share inflation, deposit-timing, or dustThreshold issues in the known findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`_tend` sets starting price based on `_available` including existing AUCTION balance and immediately transfers then calls `kick`, reentrancy of ERC20/auction possible",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in the _tend function, which is not the same as the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy/starting-price issue in _tend, which is unrelated to the share inflation, deposit-timing, or dustThreshold findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Accountant.report for gain path uses vault totalAssets < totalSupply check across all strategies; single gain is used to fill another strategy's cumulative loss",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a vault-wide gain/loss accounting issue in Accountant.report, which is unrelated to the known findings about first-depositor inflation, post-loss deposit timing, or dustThresho",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Strategy `_tend` uses `block.basefee` for gas gating while keepers pay priority fee; can be free DoS via high-priority-tx even when basefee low",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue related to gas gating and DoS in the _tendTrigger function, which is not present in the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns gas gating via block.basefee and a claim/withdraw revert, which is unrelated to the share inflation, loss-timing deposit, or dustThreshold findings.",
+    "model": "deepseek-flash"
+   }
+  }
+ ]
+}

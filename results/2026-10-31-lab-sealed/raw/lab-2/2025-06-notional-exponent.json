@@ -1,0 +1,245 @@
+{
+  "contest": "2025-06-notional-exponent",
+  "hypotheses": [
+    {
+      "title": "Force-withdraw griefing permanently freezes a borrower's position with no recovery to normal operations",
+      "severity": "Medium",
+      "file": "AbstractLendingRouter.sol",
+      "function": "forceWithdraw()",
+      "description": "`forceWithdraw` is public and unauthenticated; it only requires `borrowed > maxBorrow`. It calls `_initiateWithdraw` which calls `IYieldStrategy(vault).initiateWithdraw(account, sharesHeld, data)` — this has `onlyLendingRouter` and `setCurrentAccount(account)` and triggers `_withdraw` which then calls `s_escrowedShares += sharesHeld`. After this, `_isWithdrawRequestPending(account)` returns true, which blocks `enterPosition` (reverts `CannotEnterPosition`), blocks `mintShares`, blocks entering other vaults, and blocks liquidating on that vault. The comment in the code states: \"Can only force a withdraw if health factor is negative, this allows a liquidator to force a withdraw and liquidate a position at a later time.\" However, there is no requirement that `msg.sender` be a liquidator with debt to repay, and no check that the account is *actually* liquidatable beyond `borrowed > maxBorrow`. Even momentary interest-accrual pushes `borrowed` past `maxBorrow` on a normal-looking position. The account then cannot exit, cannot re-enter, and its shares are permanently in the legacy withdraw path.",
+      "attackPath": "(1) Attacker observes any user whose position is momentarily under water from accrued interest. (2) Attacker calls `forceWithdraw(account, vault, \"\")` with arbitrary `data`. (3) The user's shares are moved to escrow. (4) If the withdraw request never finalizes rationally (or the borrower catches up on repayments), the user is still in escrow and any attempt to enter/exit the vault reverts due to `_isWithdrawRequestPending`. Attacker pays only gas.",
+      "impact": "User's assets are locked into a withdraw path they did not choose. Position cannot be liquidated normally either (pre-liquidation blocks entrance when liquidator has position; the account is now a legacy escrow). Users can lose value against their will.",
+      "recommendation": "Require `msg.sender` to be an active liquidator on this router with outstanding debt tied to the position, or restrict `forceWithdraw` to the account's own callers/approved operators, or gate it on a real insolvency check."
+    },
+    {
+      "title": "RewardManagerMixin fallback delegates to REWARD_MANAGER without restricting selectors, bypassing onlyLendingRouter-mandated share/escrow state",
+      "severity": "High",
+      "file": "RewardManagerMixin.sol",
+      "function": "fallback()",
+      "description": "The fallback only guards against `IRewardManager.updateAccountRewards.selector` and then delegatecalls arbitrary calldata into REWARD_MANAGER. Because it is a delegatecall, `msg.sender` inside the reward manager is the original caller, so `onlyUpgradeAdmin` checks still apply, but crucially the strategy's own transient account context (`t_CurrentAccount`) and escrow bookkeeping are not set. Functions like `claimRewardTokens()` (public, nonReentrant) and `claimAccountRewards()` can be reached, but the real issue is that any future/extraneous IRewardManager function (or any selector inherited) becomes callable directly on the vault without going through the strategy's mint/burn/escrow accounting.",
+      "attackPath": "Caller invokes an IRewardManager function on the vault address directly (via the fallback). The delegatecall runs the reward manager implementation in the vault's storage context, mutating reward accumulators and account reward debts without the matching shares-before/shares-after that the strategy normally supplies from lending-router flows. An attacker can pre-claim/shift reward accumulators or debts for arbitrary accounts by choosing selector arguments.",
+      "impact": "Reward accounting corruption; accounts can be advanced or reset outside the escrow/mint/burn logic, letting a caller steal or deny others' accrued rewards.",
+      "recommendation": "Restrict the fallback to an explicit whitelist of selectors (e.g., getters plus specific reward-manager entry points), or remove it in favor of explicit internal delegate wrappers like `_updateAccountRewards`."
+    },
+    {
+      "title": "`CurveConvexLib.checkReentrancyContext` uses `remove_liquidity(1)` in the V2 branch, but the LP_LIB holds no LP tokens (they are delegated to the vault and immediately staked to Convex), so all V2 vault liquidations revert",
+      "severity": "High",
+      "file": "CurveConvex2Token.sol",
+      "function": "checkReentrancyContext",
+      "description": "`AbstractSingleSidedLP._preLiquidation` calls `_checkReentrancyContext()` before setting allow flags. `CurveConvex2Token._checkReentrancyContext` does `CurveConvexLib(payable(LP_LIB)).checkReentrancyContext()` — a normal (non-delegate) external call. Inside `CurveConvexLib.checkReentrancyContext` for `CurveInterface.V2`, it calls `ICurve2TokenPoolV2(CURVE_POOL).remove_liquidity(1, minAmounts, true, address(this))`, so the Curve pool debits one wei of LP from the LP_LIB's own LP balance. All LP held by the vault is minted via `_joinPoolAndStake` (delegated) which is then staked to Convex; the LP_LIB never holds LP tokens, so the debit underflows and reverts.",
+      "attackPath": "Any call to liquidate() on a V2 single-sided-LP vault reaches `IYieldStrategy(vault).preLiquidation(...)` → `_checkReentrancyContext()` → `CurveConvexLib.remove_liquidity(1)` → underflow revert; the liquidate call reverts. This blocks liquidations on every V2 SSLP vault.",
+      "impact": "Undercollateralized positions cannot be liquidated, so bad debt accrues to the lending market; liquidation DoS.",
+      "recommendation": "Seed the LP_LIB with at least 1 wei of LP tokens at deployment (or make it hold a permanent dust LP balance), or use a call that doesn't need to burn LP (e.g., `get_virtual_price()` which has the nonreentrant lock)."
+    },
+    {
+      "title": "`PendlePT._executeInstantRedemption` redeems PT with `params.minPurchaseAmount` only checked at the second leg when `TOKEN_OUT_SY != asset`; first leg (PT → SY) has no slippage protection",
+      "severity": "Medium",
+      "file": "PendlePT.sol",
+      "function": "_executeInstantRedemption()",
+      "description": "In the `TOKEN_OUT_SY != asset` path, `_redeemPT(...)` calls `PendlePTLib.swapExactPtForToken(...)` which sets `tokenOutput.minTokenOut = 0` (commented out in the library at \"We check the min token out later\"). The `limitOrderData` passed in is attacker/keeper-controlled calldata. A sandwicher can manipulate the Pendle AMM to return far fewer `TOKEN_OUT_SY` tokens; only the second trade against `asset` uses `params.minPurchaseAmount`, and that limit is only on the `asset` output, which can be manipulated by front-running the first leg. Net effect: user receives materially fewer assets than expected. `PendlePT_sUSDe._executeInstantRedemption` even has a comment \"NOTE: no slippage guard is set here, it is enforced in the second leg of the trade\" — but the second leg only bounds `DAI → asset`, not the first `sUSDe → sDAI` hop, so a sandwich on the sUSDe/sDAI Curve pool drains value.",
+      "attackPath": "(1) User calls `exitPosition` with an instant redemption. (2) Attacker sandwiches the sUSDe↔sDAI Curve V2 pool (or Pendle PT↔SY swap) to reduce the intermediate output. (3) The vault receives fewer sDAI, then fewer DAI, then fewer asset than expected. (4) `minPurchaseAmount` only checks the final `asset != DAI` branch. If `asset == DAI`, `_executeInstantRedemption` calls `sDAI.redeem(...)` with `daiAmount` and reverts only if `params.minPurchaseAmount > daiAmount` — but that check is against DAI, not against the intended value, so a user setting `minPurchaseAmount` for DAI is protected there. But the `PendlePT_sUSDe` path with `asset != DAI` bounds final asset leg only; still, the sUSDe→sDAI leg is unguarded, so cost is passed on to the asset leg — actually if the sUSDe→sDAI leg gets hurt, DAI output shrinks and the DAI→asset trade can still satisfy `minPurchaseAmount` only if the user's bound is generous. Realistic MEV loss.",
+      "impact": "Material slippage to users, MEV extraction across the first hop.",
+      "recommendation": "Add explicit minTokenOut on PT→SY and sUSDe→sDAI swap using oracle-backed bounds, not `0`."
+    },
+    {
+      "title": "Anyone can trigger a real, permanent freeze of another borrower's position via unauthenticated `forceWithdraw`",
+      "severity": "Medium",
+      "file": "AbstractLendingRouter.sol",
+      "function": "forceWithdraw()",
+      "description": "`forceWithdraw` is unauthenticated and only requires `borrowed > maxBorrow`. It moves the victim's shares into a legacy withdraw escrow. After this, all normal entry/exit/liquidation paths for that vault are blocked because `_isWithdrawRequestPending(account)` returns true and both `mintShares`/`enterPosition` and normal `exitPosition` are prevented.",
+      "attackPath": "See above.",
+      "impact": "Locked position, no choice.",
+      "recommendation": "Require the caller to be a genuine liquidator with outstanding debt and require actual insolvency."
+    },
+    {
+      "title": "`BaseLPLib.finalizeAndRedeemWithdrawRequest` divides by `w.sharesAmount` without checking for zero, causing all redeem finalizations to revert for accounts with no request on a token",
+      "severity": "Medium",
+      "file": "AbstractSingleSidedLP.sol",
+      "function": "finalizeAndRedeemWithdrawRequest",
+      "description": "In `BaseLPLib.finalizeAndRedeemWithdrawRequest`, `uint256 yieldTokensBurned = uint256(w.yieldTokenAmount) * sharesToRedeem / w.sharesAmount;` runs for every token in `TOKENS()` regardless of whether the account has a request on that manager. When the request was only initiated on one token (the earlier zero-balance skip), `w` for the other token is zero-initialized and `sharesAmount` = 0 → divide-by-zero revert. This is on the exact burn/finalize path (`_redeemShares` isEscrowed branch), so the user's exit is blocked.",
+      "attackPath": "1. A user has a pending request on only one token (see prior finding). 2. They call `exitPosition`/`redeemNative`/liquidation. `_redeemShares` → `_withdrawPendingRequests` → `finalizeAndRedeemWithdrawRequest`; on the token with no request, `w.sharesAmount = 0` → division by zero → revert. The position can neither be exited nor liquidated.",
+      "impact": "Griefing/loss via permanently stuck position or forced bad debt; core exit DoS.",
+      "recommendation": "Skip the token when `w.requestId == 0` and/or `w.sharesAmount == 0`; only finalize managers with a pending request."
+    },
+    {
+      "title": "Mint shares uses effectiveSupply before fee accrual, over-issuing shares and diluting existing holders",
+      "severity": "High",
+      "file": "AbstractYieldStrategy.sol",
+      "function": "_mintSharesGivenAssets()",
+      "description": "In `_mintSharesGivenAssets`, `effectiveSupply()` is computed after `_accrueFees()` but the denominator `(initialYieldTokenBalance - feesAccrued() + VIRTUAL_YIELD_TOKENS)` uses `feesAccrued()` which includes the just-accrued fees. The numerator `yieldTokensMinted * effectiveSupply()` uses `effectiveSupply()` which is `totalSupply - escrowed + VIRTUAL_SHARES`. Since `s_accruedFeesInYieldToken` was just incremented by `_accrueFees()`, the denominator is reduced while `effectiveSupply()` is unchanged by fees — meaning the minter receives more shares than the fair rate corresponding to the yield-token amount just added. Existing holders are diluted because the newly-minted shares claim a portion of `feesAccrued` yield tokens that belong to prior holders, not the minter.",
+      "attackPath": "Attacker (or any minter through the lending router) calls `mintShares` at a time when `block.timestamp != s_lastFeeAccrualTime` with a small deposit. `_accrueFees` inflates `feesAccrued`, shrinking the denominator; the numerator uses the larger pre-fee effective supply, so shares minted > proportional value of deposit. Attacker immediately `redeemNative` or `exitPosition`; they capture a fraction of the accrued fees belonging to other holders.",
+      "impact": "Yield theft from existing vault holders and protocol fee receiver; repeatable each block by a minter able to enter/exit; can compound fee accrual into value extraction.",
+      "recommendation": "Compute the share price using the same `feesAccrued()` basis in both numerator and denominator (i.e., use the post-fee numerator, `yieldTokensMinted * (initialYieldTokenBalance - feesAccrued() + VIRTUAL) / ...`) or don't call `_accrueFees()` inside the mint and instead require the minter to pay in proportion to the pre-mint state."
+    },
+    {
+      "title": "`PendlePT._initiateWithdraw` bypasses escrow fee accrual ordering and can mis-price PT withdrawal",
+      "severity": "Medium",
+      "file": "PendlePT.sol",
+      "function": "_initiateWithdraw()",
+      "description": "`PendlePT._initiateWithdraw` redeems the expired PT for `TOKEN_OUT_SY`, then calls `withdrawRequestManager.initiateWithdraw` with `sharesAmount: sharesHeld`. But `AbstractYieldStrategy._withdraw` also does `s_escrowedShares += sharesHeld` after the call. `withdrawRequestManager.initiateWithdraw` internally records `sharesAmount` and `yieldTokenAmount`. Because `tokenOutSy` (netTokenOut) differs from PT amount by `ptRate`, and `convertSharesToYieldToken` (used in `_withdraw` before `_initiateWithdraw`) applies a Pt-rate conversion, the amount recorded in the manager's `yieldTokenAmount` (tokenOutSy units) is NOT necessarily proportional to the PT shares amount. When `getWithdrawRequestValue` computes `tokenAmount = w.yieldTokenAmount` in `s.finalized == false` branch and then `price()` normalizes by `w.sharesAmount`, the resulting value uses YIELD_TOKEN (PT) oracle price against `tokenOutSy` units — units mismatched.",
+      "attackPath": "A user calls `initiateWithdraw` on a `PendlePT_sUSDe`-style vault. The manager records `yieldTokenAmount = tokenOutSy` (e.g., sUSDe units) and `sharesAmount = sharesHeld` (PT shares). `AbstractWithdrawRequestManager.getWithdrawRequestValue` when not finalized uses `TRADING_MODULE.getOraclePrice(YIELD_TOKEN, asset)` where `YIELD_TOKEN` is the PT token — no rate conversion between PT and sUSDe — then multiplies by `w.yieldTokenAmount` which is in sUSDe units. The vault's `price()` overvalues/undervalues the position by the PT rate (e.g., 0.95x). Morpho uses this for health checks, letting borrowers evade liquidation or forcing healthy borrowers into liquidation.",
+      "impact": "Incorrect collateral valuation used by lending router; users can borrow more than allowed or be liquidated unfairly; can create insolvency.",
+      "recommendation": "In `PendlePT._initiateWithdraw`, record the `yieldTokenAmount` in the same units as the manager's `YIELD_TOKEN` (use the PT amount, not the redeemed `tokenOutSy` amount), or override `gotWithdrawRequestValue`/price handling in `PendlePT` to convert sUSDe amounts back to PT equivalent when not finalized."
+    },
+    {
+      "title": "`forceWithdraw` can be called by anyone on any account with negative health factor to force early exit, but `_checkExit` cooldown is bypassed and re-entry is unrestricted",
+      "severity": "Medium",
+      "file": "AbstractLendingRouter.sol",
+      "function": "forceWithdraw()",
+      "description": "`forceWithdraw` is public and permissionless; it only requires `borrowed > maxBorrow`. It calls `_initiateWithdraw` which calls `IYieldStrategy(vault).initiateWithdraw(account, sharesHeld, data)` — but `initiateWithdraw` has `onlyLendingRouter setCurrentAccount(account)` modifiers. Force-withdraw runs `_accrueFees()` inside `_withdraw` and sets `s_escrowedShares += sharesHeld`. The critical consequence: the account's shares go into escrow and the borrower is now stuck in a legacy withdraw path. Combined with `_isWithdrawRequestPending(account)` returning true, the borrower can no longer `enterPosition` (reverts `CannotEnterPosition`), can no longer `exitPosition` normally, and can no longer `liquidate` on this vault as a liquidator. So a third party who notices ANY momentary negative health factor (e.g. price blip) can permanently freeze the borrower's position into a legacy escrow state with no ability to recover principal. This is a griefing/DoS with real asset lock-in.",
+      "attackPath": "(1) Attacker monitors positions. (2) A borrower momentarily has `borrowed > maxBorrow` due to interest accrual or oracle noise. (3) Attacker calls `forceWithdraw(account, vault, \"\")`. (4) `initiateWithdraw` escrows all shares and `_checkExit` cooldown is NOT enforced (forceWithdraw skips `_checkExit`). (5) Borrower can no longer exit normally, enter new positions, or be liquidated; only the withdraw request path remains. Attacker cost is gas.",
+      "impact": "Position stalemate; borrower loses ability to respond to market moves; potential loss if the withdraw price is unfavorable. No direct theft but strong griefing with material asset impact.",
+      "recommendation": "Only allow liquidators with a valid claim (e.g. require caller to have an outstanding debt to be repaid) to call `forceWithdraw`, or restrict `forceWithdraw` so the borrower is only frozen when they would be liquidatable at the time."
+    },
+    {
+      "title": "Unauthenticated `forceWithdraw` can permanently lock any borrower's position into legacy withdraw escrow",
+      "severity": "Medium",
+      "file": "AbstractLendingRouter.sol",
+      "function": "forceWithdraw()",
+      "description": "`forceWithdraw(account, vault, data)` has no caller authentication — it only checks `borrowed > maxBorrow` via `healthFactor`. It then calls `_initiateWithdraw` which invokes `IYieldStrategy(vault).initiateWithdraw(account, sharesHeld, data)`. That path (`onlyLendingRouter` → `_withdraw` → `_accrueFees()` + `s_escrowedShares += sharesHeld`) places all of `account`'s shares into a withdraw-request escrow. Once escrowed, `_isWithdrawRequestPending(account)` returns true forever until the request is finalized, and that flag causes `mintShares` (`CannotEnterPosition`) and the whole `_enterPosition` path to revert for the account. It also blocks the account from being liquidated normally: any liquidator who tries `liquidate` sees `preLiquidation` revert because `_isWithdrawRequestPending(liquidateAccount) && balanceOf(liquidator) > 0`. The account cannot unilaterally recover: it has no `cancelWithdraw` in the shown code, and `redeemNative` reverts on escrowed shares while they remain in `s_escrowedShares`. Anyone can trigger this because it requires only a momentary `borrowed > maxBorrow` (e.g., from one block of accrued interest without any user action). This is a real DoS with concrete asset lock-in.",
+      "attackPath": "(1) Attacker tracks an account whose `borrowed` momentarily exceeds `maxBorrow` after interest accrual (or due to a small oracle move). (2) Attacker calls `forceWithdraw(account, vault, \"\")` — cost is gas. (3) `initiateWithdraw` moves shares to `s_escrowedShares`. (4) The account can no longer `enterPosition`, `exitPosition`, `mintShares`, or be liquidated on this vault because of the pending-withdraw flag. (5) If the withdraw is never intentionally finalized by the account, the shares sit in escrow, and exit paths are limited to the withdraw-request flow whose `failures`/delay is external.",
+      "impact": "An attacker can at will convert any (even briefly unhealthy) account into a legacy escrow with no way to re-enter or exit on the account's terms, and no normal liquidation path. The victim is at the mercy of the vault's withdraw manager to eventually reconcile — materially worse than taking the market liquidation, and in some vault configurations the position never exits. Real griefing/DoS with potential fund lock.",
+      "recommendation": "Require `msg.sender` to be a genuine liquidator on this vault with a debt position being repaid (as the comment implies), or restrict `forceWithdraw` to the account's own callers/approved operators, or require `healthFactor` to be below the LLTV with a margin slack and disallow escrowing from a healthy-looking borrower."
+    },
+    {
+      "title": "`AbstractSingleSidedLP.convertToAssets` reverts if the account has a pending request on only one token, because `BaseLPLib.getWithdrawRequestValue` requires `hasRequest` on every manager",
+      "severity": "Medium",
+      "file": "AbstractSingleSidedLP.sol",
+      "function": "convertToAssets",
+      "description": "`convertToAssets` overrides to a pending-request valuation when `_isWithdrawRequestPending(t_CurrentAccount)` returns true. `_isWithdrawRequestPending` = `ILPLib.hasPendingWithdrawals(account)`, which returns true if the account has a request on **any one** manager. It then calls `BaseLPLib.getWithdrawRequestValue`, which loops over **all** managers in `TOKENS()` and does `require(hasRequest)` on each. When the account's requests don't cover every token, the loop reverts. Case: `initiateWithdraw` (`BaseLPLib.initiateWithdraw`) skips exit tokens whose balance is zero (`if (exitBalances[i] == 0) continue;`), so an account can end up holding a request on only token i. Then `price(borrower)` (used by `MorphoLendingRouter.healthFactor`) reverts.",
+      "attackPath": "1. Attacker enters a Morpho position backed by an SSLP vault and calls `exitPosition` to initiate a withdraw. If any exit balance is 0 (rounding, thin pools), the withdraw request is created on only one token. 2. Every subsequent `healthFactor`/`liquidate` for that account calls `price(borrower)` → `convertToAssets(borrower)` → `hasPendingWithdrawals` true → `getWithdrawRequestValue` reverts at the missing manager. 3. `MORPHO.liquidate` also calls the vault's oracle (vault) for health checks and reverts.",
+      "impact": "Liquidation DoS and inability to read health factor for the borrower; bad debt can accumulate.",
+      "recommendation": "In `getWithdrawRequestValue`, use `if (!hasRequest) continue;` instead of `require(hasRequest)`, so partial requests yield valuation of their real value."
+    },
+    {
+      "title": "AbstractLendingRouter.exitPosition allows assetToRepay path to redeem for arbitrary receiver without migrate check; onMorphoRepay trusts isMigrate to transferFrom arbitrary receiver",
+      "severity": "High",
+      "file": "MorphoLendingRouter.sol",
+      "function": "_exitWithRepay(), onMorphoRepay()",
+      "description": "`_exitWithRepay` encodes `isMigrate = _isMigrate(receiver)` where `_isMigrate` requires `receiver == msg.sender && isLendingRouter`. But `onMorphoRepay` decodes the receiver and, when `isMigrate` is true, performs `ERC20(asset).safeTransferFrom(receiver, address(this), assetToRepay)`. The receiver here is a lending router (the migrator), not the user, and the migrator must have approved funds—correct. However `_redeemShares` is called with `isMigrate ? receiver : address(0)`, and in the migrate path with `assetToRepay == type(uint256).max`, `sharesToRepay` is set to the full borrowShares but `assetToRepay` is set to 0, meaning `assetsWithdrawn` measured vs `assetToRepay` comparison uses 0 while the real repayment is computed by Morpho. The `profitsWithdrawn = assetsWithdrawn - assetToRepay` then sends the entire redeemed amount to the receiver, and Morpho pulls `assetToRepay` (now 0 here — but the callback's first arg is the actual repaid amount). The divergence between the `assetsToRepay` local and the actual amounts means profit/loss checks are computed against the wrong baseline.",
+      "attackPath": "A lending router calls exitPosition with `assetToRepay = type(uint256).max` on behalf of a user; Morpho reports the true repaid amount via callback param but the code compares `assetsWithdrawn < assetToRepay` where assetToRepay was zeroed. Losses are not caught.",
+      "impact": "Incorrect repayment validation; redeems could underpay debt or misroute profits, potentially leaving bad debt or leaking assets.",
+      "recommendation": "Use the callback-supplied `assets`/repaid amount consistently for the profit/loss check instead of the zeroed local; assert repay amount equals Morpho's reported figure."
+    },
+    {
+      "title": "`_calculateAdditionalFeesInYieldToken` Taylor approximation can exceed real e^x, under-charging fees and mis-accounting user balances",
+      "severity": "Medium",
+      "file": "AbstractYieldStrategy.sol",
+      "function": "_calculateAdditionalFeesInYieldToken()",
+      "description": "The Taylor polynomial `1 + x + x^2/2 + x^3/6` truncates the `e^x` series. For `x` above roughly 1 (which requires a very long `timeSinceLastFeeAccrual` with high `feeRate`), the truncation overestimates `eToTheX`; but more importantly for large `x`, `x*x*x` underflows `(6 * DEFAULT_PRECISION * DEFAULT_PRECISION)` only for enormous values, and for x=0 the function returns 0 but leaves `s_lastFeeAccrualTime` stale (handled by caller). The bug: when `x*x*x/(6*1e36)` and the `+ (x*x)/(2*1e18)` term are added without higher-precision fixed-point normalization, the sum can exceed `DEFAULT_PRECISION` significantly. The result is `postFeeUserHeldYieldTokens = preFee * DEFAULT_PRECISION / eToTheX` returns fewer tokens than expected, meaning `additionalFeesInYieldToken` inflation — which then gets permanently recorded in `s_accruedFeesInYieldToken`, silently reducing the share price.",
+      "attackPath": "An attacker who can delay/avoid fee accrual (e.g., only way is via a long period without any call), then triggers `collectFees` or the first mint after a long pause; the accrued fee is over-estimated and the value extracted. A user whose shares were priced before the accrual sees their effective share value drop.",
+      "impact": "Users' shares are valued against an inflated `feesAccrued` balance; fee receiver gets more than intended; share price drops disproportionately.",
+      "recommendation": "Use a proper fixed-point exponentiation with bounds on `x` (and revert or clamp for long accrual), and ensure the series is monotonic in `x`. Consider accruing fees more reliably in a heartbeat within `_update`."
+    },
+    {
+      "title": "`AbstractLendingRouter._enterOrMigrate` leaves residual infinite allowance to `migrateFrom` on failed/partial migration",
+      "severity": "Medium",
+      "file": "AbstractLendingRouter.sol",
+      "function": "_enterOrMigrate()",
+      "description": "Sets `ERC20(asset).checkApprove(migrateFrom, assetAmount)` and never revokes it. `exitPosition` on `migrateFrom` may pull less than `assetAmount` (partial repay). Residual allowance persists on the router contract beyond the tx.",
+      "attackPath": "Any migrated router or future compromised router code can pull an arbitrary amount from any lending router that has ever been migrated into it.",
+      "impact": "Cross-router token drain.",
+      "recommendation": "After exit calls, `checkRevoke(migrateFrom)`."
+    },
+    {
+      "title": "Liquidation reward debt ignores existing liquidator escrow and can revert or mispay",
+      "severity": "Medium",
+      "file": "RewardManagerMixin.sol",
+      "function": "_postLiquidation()",
+      "description": "In `_postLiquidation`, the reward update for the liquidate account uses `accountSharesAfter: t_LiquidateAccount_SharesBefore - sharesToLiquidator`. `t_LiquidateAccount_SharesBefore` is captured in `_preLiquidation` from `accountSharesHeld` passed by the lending router (the collateral balance). However, the `_update` transfer of shares from the lending router to the liquidator in `postLiquidation` calls `_burn`-style accounting; when the liquidate account had a pending withdraw request, `sharesToLiquidator` may exceed the tracked pre-balance because rewards for escrowed shares are zeroed via `sharesInEscrow`. In the escrowed branch, `_claimRewardToken` is skipped only when `sharesInEscrow && accountSharesAfter == 0`, so when `didTokenize` is true and `accountSharesAfter` becomes nonzero, the subtraction underflows only if `sharesToLiquidator > accountSharesHeld`, which can happen when the withdraw request manager tokenizes more yield share value than `accountSharesHeld` due to rounding in `tokenizeWithdrawRequest`. The reward debt is then set against a stale share figure.",
+      "attackPath": "A liquidator liquidates an account that has a pending withdraw request where `tokenizeWithdrawRequest` returns `didTokenize=true` and the computed `sharesToLiquidator` (from `MORPHO.liquidate` and `tokenizeWithdrawRequest`) is slightly larger than `accountSharesHeld`. The `_updateAccountRewards` call for `liquidateAccount` underflows `t_LiquidateAccount_SharesBefore - sharesToLiquidator` and reverts, blocking the liquidation; alternatively the debt is written with wrong amounts, letting the account keep an inflated reward debt.",
+      "impact": "Liquidation of accounts with pending withdraw requests reverts (DoS of liquidation, bad debt accrues) or accounts receive incorrect reward balance that can let them over-claim future rewards.",
+      "recommendation": "Clamp `accountSharesAfter` to zero when `accountSharesAfter < sharesToLiquidator` and re-read the account's actual escrowed shares, or assert `sharesToLiquidator <= t_LiquidateAccount_SharesBefore` before subtracting."
+    },
+    {
+      "title": "`convertSharesToYieldToken` can revert or produce wrong values when `feesAccrued() > _yieldTokenBalance()`",
+      "severity": "Medium",
+      "file": "AbstractYieldStrategy.sol",
+      "function": "convertSharesToYieldToken()",
+      "description": "`convertSharesToYieldToken` computes `(shares * (_yieldTokenBalance() - feesAccrued() + VIRTUAL_YIELD_TOKENS)) / effectiveSupply()`. `feesAccrued()` includes `_calculateAdditionalFeesInYieldToken()` which uses `_yieldTokenBalance() - s_accruedFeesInYieldToken`. After `collectFees()` transfers yield tokens out, `_yieldTokenBalance()` drops but `s_lastFeeAccrualTime` and `s_accruedFeesInYieldToken` are reset, so that path is fine. However, if `_accrueFees()` is called and the vault still holds accrued fees, then a large `share` count across many users can multiply shares by a small balance. More concretely: under rounding / donation scenarios where a vault has 0 yield tokens but non-zero supply (e.g. after fees were collected but fees kept sizeable), `_yieldTokenBalance() - feesAccrued()` underflows and reverts. The `price()` function used by Morpho health calculation reverts, blocking liquidation and health checks.",
+      "attackPath": "An attacker donates minimal yield tokens through mintShares with `assets=0` shortcut (shares minted 0) — not enough. Better path: `_calculateAdditionalFeesInYieldToken` returns a value such that `s_accruedFeesInYieldToken + additional > _yieldTokenBalance()` after a large feeRate period or after accumulative accrual without collectFees. In that state `price()`/`convertSharesToYieldToken` reverts, freezing Morpho health checks (liquidation and `healthFactor`) — a DoS on core functions.",
+      "impact": "Health checks and liquidations DoS; account positions can't be liquidated while vault becomes insolvent.",
+      "recommendation": "Bound `feesAccrued` at `_yieldTokenBalance()` (or cap the fee accrual) and use `Math.min` before subtraction, or track fees separately from balance to prevent `underflow`."
+    },
+    {
+      "title": "`AbstractLendingRouter._enterOrMigrate` approves `vault` to spend `assetAmount` but only `mintShares` consumes it; on the `migrateFrom` path the approve is skipped, leaving a stale infinite/`assetAmount` allowance to a previously migrated router",
+      "severity": "Medium",
+      "file": "AbstractLendingRouter.sol",
+      "function": "_enterOrMigrate()",
+      "description": "In the `migrateFrom != address(0)` branch, `ERC20(asset).checkApprove(migrateFrom, assetAmount)` is set (approval to the OLD router), then `migrateFrom.exitPosition(...)` is called. After the exit, the allowance is not revoked. In `_enterPosition`, `assetAmount` is `depositAssetAmount` which is `0` for migrate (see `migratePosition`), so `checkApprove(migrateFrom, 0)` sets the allowance to 0. But `onMorphoFlashLoan` path (`_flashBorrowAndEnter`) calls `_enterOrMigrate(onBehalf, vault, asset, assets + depositAssetAmount, ...)` which sets `checkApprove(migrateFrom, assets + depositAssetAmount)`. That's the flash-borrowed amount, which the old router pulls via `exitPosition`. Since the old router is trusted (registered), the leftover after the pull remains as an allowance = assets + deposit - repaid amount. If `exitPosition` on the old router returns early without pulling the full allowance (e.g., the assetToRepay path is `type(uint256).max` and repayment returns 0), leftover allowance persists indefinitely, allowing the old router (or anyone who can compromise its subsequent calls, or a malicious upgrade) to pull tokens on a future call.",
+      "attackPath": "(1) Migrate with migrateFrom A, flash-borrow X, allow A to pull X. (2) A pulls less than X (e.g., partial debt repay). (3) Residual allowance persists across transactions. (4) Any later call to A that sees the allowance could exploit it via a reentrancy or admin route. Though A is trusted, this is a lingering authorization.",
+      "impact": "Latent allowance exposure.",
+      "recommendation": "After `exitPosition`, call `checkRevoke(migrateFrom)` to clear any residual allowance."
+    },
+    {
+      "title": "`t_CurrentAccount`/`t_AllowTransfer`/`t_CurrentLendingRouter` transient state pollutes pricing and can leak between non-lending-router calls",
+      "severity": "Medium",
+      "file": "AbstractYieldStrategy.sol",
+      "function": "price(address)",
+      "description": "`price(address borrower)` sets `t_CurrentAccount = borrower`, computes, and restores it to `prevCurrentAccount`. If called inside a lending router context (where `t_CurrentAccount` is already set to the real borrower), the function temporarily changes it to the attacker-supplied `borrower`, computes a price using `convertToAssets` which for staking strategies inspects `_isWithdrawRequestPending(t_CurrentAccount)` and potentially the pending withdraw valuation at the user's chosen account. An attacker controlling `borrower` can force `price()` to return a withdraw-request-based value during another protocol's call (e.g., a reentering lending router call, or a valuation callback) — because the \"restore\" is a plain assignment, and the transient variable is shared globally.",
+      "attackPath": "Attacker enters a Morpho operation that calls `IYieldStrategy.price(borrower)` from a context where `t_CurrentAccount` was already set (e.g., a nested call to a lending router during liquidation where `postLiquidation` hasn't yet cleared `t_CurrentAccount`, or any path where a reentering call `price(attackerAccount)` is made while an outer call has set a different `t_CurrentAccount`). The temporary overwrite can set an incorrect price used for a liquidation check.",
+      "impact": "Manipulated price can cause positions to appear under/over-collateralized; enables forced liquidation of healthy accounts or blocking of valid liquidations.",
+      "recommendation": "Do not allow `price(address)` to temporarily mutate transient state used elsewhere; instead pass borrower into a pure valuation function or make `price(address)` strictly view-only (no transient changes) and disable it in a context where `t_CurrentAccount` is already set (revert if `t_CurrentAccount != address(0) && t_CurrentAccount != borrower`)."
+    },
+    {
+      "title": "`AbstractLendingRouter.claimRewards` calls `RewardManagerMixin` cast that can bypass reward manager selector protection",
+      "severity": "Medium",
+      "file": "AbstractLendingRouter.sol",
+      "function": "claimRewards()",
+      "description": "`claimRewards` calls `RewardManagerMixin(vault).claimAccountRewards(msg.sender, balanceOfCollateral(msg.sender, vault))`. Inside `claimAccountRewards`, since `msg.sender` is the lending router, `ADDRESS_REGISTRY.isLendingRouter(msg.sender)` is true, so `sharesHeld` comes from the passed parameter (the collateral). This means the router's view of collateral must equal the true held collateral; if a malicious whitelisted router calls claimRewards on behalf of a user with an inflated `balanceOfCollateral`, the account's reward debt gets bumped to the inflated share amount, and next time they claim with their real (smaller) shares the reward calculation underflows, reverting. Worse: an attacker-controlled approved vault (if any) can mix these values.",
+      "attackPath": "A whitelisted-malicious router (or vault-listed approved) calls `claimAccountRewards` with an inflated `sharesHeld` via `claimRewards`, or directly. `_claimRewardToken` computes `rewardDebt` and updates it to `accountSharesAfter * rewardsPerVaultShare / DEFAULT_PRECISION`. With inflated shares, the `accountSharesBefore` decayed `rewardsPerVaultShare` and the account's debt is over-sized in `accountSharesAfter`, so on next legit claim the subtraction `(...) - rewardDebt` reverts, forever blocking the user from claiming.",
+      "impact": "User can be forcibly blocked from claiming rewards; if collateral is real and the router trusts a message, this can be exploited for griefing.",
+      "recommendation": "In `claimAccountRewards`, always read `sharesHeld` from the vault (`balanceOf`) or from an internal trusted storage view, not from caller input; verify against `ILendingRouter.balanceOfCollateral`."
+    },
+    {
+      "title": "`PendlePT_sUSDe._executeInstantRedemption` sets `limit: 0` on the sUSDe→sDAI swap, then only guards the final asset leg; first hop is MEV-extractable",
+      "severity": "Medium",
+      "file": "PendlePT_sUSDe.sol",
+      "function": "_executeInstantRedemption()",
+      "description": "The sUSDe→sDAI Trade is built with `limit: 0` with an explicit comment that the guard is enforced in the second leg. However, the second leg is `DAI→asset`. The first leg intermediate output (`sDAIAmount`) determines `daiAmount = sDAI.redeem(...)`. When `asset != DAI`, the second leg's `minPurchaseAmount` is only on `asset`, but if the attacker sandwiches sUSDe→sDAI badly, `daiAmount` collapses and the second trade would revert at `minPurchaseAmount`. When `asset == DAI`, the guard `if (params.minPurchaseAmount > daiAmount) revert SlippageTooHigh(daiAmount, ...)` protects. So slippage protection exists on the final DAI output. The exposure is a swap that succeeds with a user's `minPurchaseAmount` that they set for a different size — front-running between the tx submission and block inclusion shifts intermediate pool ratios. Whether this is exploitable depends on user-provided `minPurchaseAmount`. Under-providing bots (common). Real but user-dependent.",
+      "attackPath": "Sandwich sUSDe/sDAI Curve pool before exit tx.",
+      "impact": "Material slippage for users who set loose `minPurchaseAmount`.",
+      "recommendation": "Enforce a minTokenOut directly on the first leg using the oracle rate of sUSDe→sDAI."
+    },
+    {
+      "title": "AbstractLendingRouter.isAuthorized modifier clears t_CurrentAccount after external call enabling cross-account state confusion",
+      "severity": "Medium",
+      "file": "AbstractLendingRouter.sol",
+      "function": "isAuthorized()",
+      "description": "The `isAuthorized` modifier clears `IYieldStrategy(vault).clearCurrentAccount()` after the function body. But mint/burn flows set `t_CurrentAccount` via `setCurrentAccount` and rely on it persisting through the entire lending-router context (per the comment in AbstractYieldStrategy). The liquidation path (`liquidate`) is not wrapped in `isAuthorized`, and it sets `t_CurrentAccount` in `preLiquidation`, clearing in `postLiquidation`. If both happen, or if any nested call re-enters, the transient `t_CurrentAccount` can be cleared mid-context or left set. In particular `forceWithdraw` calls `_initiateWithdraw` then manually clears, but `_initiateWithdraw` goes through `IYieldStrategy.initiateWithdraw` whose `setCurrentAccount` set it; still fine. The real hazard: `exitPosition` clears current account at the end, and if `receiver` is a lending router (migration), the inner router's calls also touch the same vault.",
+      "attackPath": "Migrator router calls exitPosition on victim router; both operate on same vault; inner call sets/clears t_CurrentAccount while outer still relies on it for `price()`/convertToAssets() valuation. Wrong valuation during withdraw.",
+      "impact": "Valuation executed under wrong account; incorrect collateral accounting during migration.",
+      "recommendation": "Save and restore the prior `t_CurrentAccount` instead of unconditionally deleting; use `setCurrentAccount` matching onBehalf."
+    },
+    {
+      "title": "DineroWithdrawRequestManager.canFinalizeWithdrawRequest returns true only when outstandingRedemptions() > totalAssets — inverted / wrong liquidation logic",
+      "severity": "Medium",
+      "file": "Dinero.sol",
+      "function": "canFinalizeWithdrawRequest()",
+      "description": "The function comments \"Can only finalize if the total assets are greater than the outstanding redemptions\" but the code returns `PirexETH.outstandingRedemptions() > totalAssets`. Therefore it allows finalization exactly when outstanding redemptions exceed assets, which is the opposite condition and can let finalize proceed before funds are available, or block normal finalized states. Also the loop \"Can only finalize if all validators are dissolved or slashed\" returns false when status is NOT Dissolved/Slashed — meaning it requires all validators dissolved/slashed, which is only valid when there was a slashing event.",
+      "attackPath": "Anyone calls finalizeAndRedeemWithdrawRequest through the approved vault; canFinalize returns true when it shouldn't (reverting in redeemWithUpxEth) or blocks finalization, causing stuck withdraws.",
+      "impact": "Denial of withdrawal or premature redemption attempt.",
+      "recommendation": "Flip the comparison to `totalAssets <= PirexETH.outstandingRedemptions()` or match the documented semantics, and clarify the validator-status condition."
+    },
+    {
+      "title": "AbstractSingleSidedLP._checkPoolShare uses _totalPoolSupply for LP token but compares against yieldToken balance in 1:1 — broken for fee/virtual supply LPs",
+      "severity": "Medium",
+      "file": "AbstractSingleSidedLP.sol",
+      "function": "_checkPoolShare()",
+      "description": "`maxSupplyThreshold = totalPoolSupply * MAX_POOL_SHARE / DEFAULT_PRECISION`, then compares to `_yieldTokenBalance()`. `_yieldTokenBalance()` is the LP token the vault holds if staked 1:1, but for Curve `add_liquidity` the poolClaim returned may differ from amount actually minted and for Composable pools the total supply is virtual. The check is used as a manipulation guard; making it wrong allows the vault to hold too much of the pool and single-sided exits (via `remove_liquidity_one_coin`) to be heavily drained by slippage.",
+      "attackPath": "Attacker enters with a small deposit that pushes the pool share just under the threshold due to mismatch, then exits single-sided; slippage loss charged to all vault holders.",
+      "impact": "LP pool manipulation leading to vault losses.",
+      "recommendation": "Compare like-for-like: LP token supply vs staked LP token balance as reported by the pool/booster, or override in derived implementations."
+    },
+    {
+      "title": "`finalizeRequestManual` is griefable — any external caller can advance `s.finalized`, blocking liquidators' larger share conversion",
+      "severity": "Low/Medium",
+      "file": "AbstractWithdrawRequestManager.sol",
+      "function": "finalizeRequestManual()",
+      "description": "`finalizeRequestManual(vault, account)` is permissionless (no `onlyApprovedVault` and no auth) and can finalize a withdraw request. It calls `_finalizeWithdraw`, which sets `s.finalized = true` and `s.totalWithdraw = tokensWithdrawn`. This permanently fixes `totalWithdraw` for the request. If the request is later tokenized to a liquidator, subsequent finalize-and-redeem paths use `totalWithdraw * w.yieldTokenAmount / s.totalYieldTokenAmount`, which is fine. But note that `_finalizeWithdrawImpl` transfers WETH/tokens to `address(this)` (the manager), not the vault, which is intended until the vault claims. Once finalizeRequestManual is called, users that had a pending withdraw request that they did NOT want finalized (e.g., they'd like to top up or the request was pending a very favorable rate) cannot do so. More importantly `s.finalized` short-circuit in `_finalizeWithdraw` returns `s.totalWithdraw * w.yieldTokenAmount / s.totalYieldTokenAmount`, so this greedily treats manual finalization as canonical.",
+      "attackPath": "A griefer calls `finalizeRequestManual(vault, account)` for any vault/account pair whose underlying request is now claimable. The manager records the finalization early. When the account later calls the normal exit path with a `withdrawYieldTokenAmount` less than `s_withdraw.yieldTokenAmount`, rounding cascades through `s.totalWithdraw * w.yieldTokenAmount / s.totalYieldTokenAmount`, potentially returning a different (lower) `tokensWithdrawn` than the true proportional claim — the difference is stuck in the manager.",
+      "impact": "Rounding dust accumulates in the manager; griefing prevents the account from claiming a larger share through an alternative path.",
+      "recommendation": "Restrict `finalizeRequestManual` to the approved vault (`onlyApprovedVault`) or to `upgradeAdmin`, and require finalization to happen through the vault so state is coordinated with `s_accountWithdrawRequest`."
+    }
+  ]
+}

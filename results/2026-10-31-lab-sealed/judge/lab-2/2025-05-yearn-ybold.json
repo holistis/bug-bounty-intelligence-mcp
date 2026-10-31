@@ -1,0 +1,341 @@
+{
+ "audit": "2025-05-yearn-ybold",
+ "verdicts": [
+  {
+   "title": "Permissionless distribute() lets anyone drain Accountant's fee balance",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing access control on Accountant.distribute(), which is unrelated to the share inflation, deposit timing, or dustThreshold issues in the known findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "distribute(address) is permissionless and sweeps entire balance to feeRecipient",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a permissionless function that sweeps the entire balance of a token to a fee recipient, which is not the same as the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing access control on Accountant.distribute(address), which is unrelated to the strategy share inflation, loss-timing deposit, or dustThreshold findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "StrategyAprOracle.aprAfterDebtChange divides before multiplying, returning 0 for most troves",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a division before multiplication issue in the StrategyAprOracle contract, which is not related to the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a precision/truncation bug in StrategyAprOracle.aprAfterDebtChange, which is unrelated to any of the listed findings about share inflation, deposit timing, or dustThreshold.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "StrategyAprOracle.aprAfterDebtChange reverts on debt decrease due to wrong delta sign",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different bug in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an arithmetic/sign bug in StrategyAprOracle.aprAfterDebtChange, which is unrelated to any of the listed findings about share inflation, deposit timing, or dustThreshold.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Missing access control on AccountantFactory.newAccountant",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a missing access control issue in the AccountantFactory contract, which is unrelated to the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns missing access control on AccountantFactory.newAccountant, which is unrelated to the strategy share inflation, loss-timing deposit, or dustThreshold findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "StakerFactory.newStrategy unrestricted lets anyone deploy strategies and reset deployments mapping",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an unrestricted newStrategy deployment overwriting the deployments mapping, which is unrelated to the share inflation, loss-timing deposit, or dustThreshold findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "aprAfterDebtChange uses int256(_stabilityPoolDeposits) + _delta; negative delta can wrap or exceed unsafely",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns an int256 overflow/DoS in StrategyAprOracle.aprAfterDebtChange, unrelated to the share inflation, deposit-timing, or dustThreshold findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "StrategyAprOracle APR math truncates to zero before scaling, yields wrong APR",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a precision loss issue in APR calculation, which is not related to the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a precision/rounding bug in StrategyAprOracle's APR math, which is unrelated to any of the listed findings about share inflation, deposit timing, or dustThreshold.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Accountant.report() fee computation uses vault totalAssets vs totalSupply directly, mis-converting when vault decimals differ",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a decimals mismatch in Accountant.report() fee logic, which is unrelated to any of the listed findings about share inflation, deposit timing, or dustThreshold.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`StrategyAprOracle` iterates all troves every call with unbounded `_count`",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a gas-heavy iteration over all troves, which is not the same as the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes unbounded trove iteration in StrategyAprOracle, which is unrelated to the share inflation, loss-timing deposit, or dustThreshold findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "aprAfterDebtChange accepts positive delta that inflates denominator and allows negative-delta bound check bypass via int overflow",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different bug in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns an integer overflow/bound-check issue in StrategyAprOracle.aprAfterDebtChange, which is unrelated to the share inflation, deposit-timing, or dustThreshold findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Strategy._tend() reverts on zero starting price after oracle-down buffer when COLL not yet priced",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in the same function, involving zero starting price and potential reverts or burning of collateral.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a zero-price/overflow issue in _tend's auction starting price, which is unrelated to the share inflation, deposit-timing, or dustThreshold findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "distribute() public overload on Accountant has no modifier; anyone can call full-balance distribute to feeRecipient",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different contract and function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns an access-control issue in Accountant.distribute(), which is unrelated to any of the listed Yearn strategy findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "TroveManager's `_getCollateralIndex`/APR oracle division rounding can report zero APR for valid pools",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a precision loss issue in the APR calculation, which is not related to the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a rounding/precision bug in StrategyAprOracle's APR calculation, which is unrelated to any of the listed known findings about share inflation, deposit timing, or dustThreshold.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Accountant.report() trusts msg.sender-vault state and lets any added vault set fee recipient-backed gain arbitrarily",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function and contract.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a malicious vault abusing report()/addVault in Accountant.sol, which is unrelated to the known findings about strategy share inflation, loss-report timing, or dustThreshold.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "StrategyAprOracle.setCollateralBias allows only >=1e18, unset bias silently defaults to WAD in apr query",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns StrategyAprOracle bias configuration, unrelated to the share inflation, loss-timing deposit, or dustThreshold findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`Accountant.report` has no check that reported `gain`/`loss` correspond to vault state; strategy can self-report gains to pull real assets as fee",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function and contract.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns Accountant.report trusting gain/loss, which is unrelated to the known findings about share inflation, loss-report timing, or dustThreshold.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Accountant report treats `assets < supply` using totalAssets() which can be manipulated to dodge performance fees",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function and contract.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a unit-mismatch/manipulation in Accountant.report's assets vs supply fee logic, which is unrelated to the known findings about share inflation, deposit timing after loss, or du",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`_tend` `setStartingPrice` amount uses summed available COLL which doesn't match auction pricing when amount includes already-in-auction balance",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a setStartingPrice/available-balance issue in _tend, which is unrelated to the share inflation, loss-report timing, or dustThreshold findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Stability strategy reports estimatedTotalAssets that ignores unreported pending collateral gain and unreported losses in SP",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue related to the timing of collateral gains and losses reporting, which is not the same as the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "H-2",
+    "reden": "Both describe depositing/withdrawing around the timing of loss reporting versus collateral auction/profit reporting to shift value between depositors, rooted in estimatedTotalAssets not accounting for",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Strategy._tend auction starting price uses unavailable `_toAuction` amount -> division truncation griefing / underprice",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an auction starting-price calculation issue in _tend, which is unrelated to the share inflation, deposit-timing, or dustThreshold findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`_delta` cast `uint256(_delta)` ignores sign and the require only checks `<`, allowing `_delta == 0` or positive incorrectly",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns a delta sign/bounds check in StrategyAprOracle.aprAfterDebtChange, which is unrelated to any of the listed known findings about share inflation, loss-timing deposits, or dustThr",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`claim()` calls `_freeFunds(0)` which calls `SP.withdrawFromSP(0, true)` claiming collateral but relying on a nonstandard zero-withdraw behavior",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue related to the claim function and its interaction with the Stability Pool.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns a zero-amount withdrawFromSP call in claim() causing potential DoS, which is unrelated to the share inflation, deposit-timing theft, or dustThreshold issues in the known finding",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "_tend callable by anyone (keeper) deploys idle asset without pricing idle asset in check; check-then-act on auction lets stalled auction block reporting withdrawal path",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in the same function, related to auction settlement and withdrawal path blocking.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a check-then-act/reverting _tend blocking the report path, which is unrelated to the share inflation, deposit-timing, or dustThreshold findings.",
+    "model": "deepseek-flash"
+   }
+  }
+ ]
+}

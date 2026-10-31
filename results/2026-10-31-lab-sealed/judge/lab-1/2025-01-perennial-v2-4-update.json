@@ -1,0 +1,845 @@
+{
+ "audit": "2025-01-perennial-v2-4-update",
+ "verdicts": [
+  {
+   "title": "Controller.chargeFee pulls DSU from account to msg.sender without max fee or sanity bound",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns Controller.chargeFee operator draining DSU, which is unrelated to any of the listed market/vault findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`Manager.claim` pays to `msg.sender` (the operator) but checks `claimable[account]` — operator can claim someone else's funds by acting as operator",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an operator payout trust issue in Manager.claim, which is unrelated to any of the known findings about market accounting, intents, liquidation, or Vault.settle.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "makerReceiveOnly flips funding sign based on stale fromPosition.skew rather than toSkew",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns a funding sign bug in VersionLib._accumulateFunding, which is unrelated to any of the listed known findings about intents, margin checks, liquidation, or vault settlement.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "KeeperOracle.commit overwrites latestVersion unconditionally, allowing out-of-order commits to stale versions",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns KeeperOracle.commit overwriting latestVersion with out-of-order commits, which is unrelated to any of the listed market/vault findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "TriggerOrder.execute grants operator-less holders control via market.update; missing authorization on executeOrder",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing authorization issue in the executeOrder function, which is not the same as the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing authorization/extension registration issue in Manager.executeOrder, which is unrelated to any of the listed known findings about intent pnl accounting, margin checks,",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`Position.utilization` and `efficiency` use unsafeDiv without guarding maker == 0 and can revert when major > 0",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a division-by-zero revert in Position.utilization/efficiency, which is unrelated to any of the listed known findings about intents, liquidation accounting, or Vault settlement.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`_commitRequested` advances `_global.latestIndex` even though `requests[_global.currentIndex]` was not consumed",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns KeeperOracle request/latestIndex reconciliation, which is unrelated to any of the listed market/vault findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Rebalance keeper fee charged even when fee exceeds configured maxRebalanceFee / account empty",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns keeper fee handling in Controller_Incentivized.rebalanceGroup, which is unrelated to any of the known findings about intent pnl accounting, margin checks, liquidation, or Vault.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Account.deposit() lacks ownerOrController and pulls USDC from any caller into an account they may not own",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing ownerOrController modifier on Account.deposit() allowing USDC pulls from arbitrary callers, which is unrelated to any of the listed market/intent/vault findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Rebalance uses stale rebalance configs after account transfers to markets",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns Controller rebalance using stale collateral and USDC wrapping, unrelated to the known Perennial market/intent findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Oracle.request over-commits latest epoch timestamp before provider actually advances",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns Oracle.request timestamp handling, while all known findings relate to market accounting, intents, liquidation, or Vault settlement.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`claimFee` pushes `settlementFeeRequested` to caller without capping to `feeReceived`",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns Oracle.claimFee fee-pushing/capping logic, which is unrelated to any of the listed market, vault, or intent findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Adiabatic exposure uses fromPosition.skew instead of order-aware skew for exposures",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match, different bug in the same function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns adiabatic exposure using pre-order skew in VersionLib, which is unrelated to any of the listed findings about intents, margin checks, liquidation, or vault settlement.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "update(Fill) lets a solver fill the same signed intent without consuming its nonce, front-running the trader's own fill and the solver is charged minus-fee on the trader side",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a front-running vulnerability in the update function, which is not covered by any of the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a nonce/replay and solver front-running issue in update(Fill), which is not the same root cause as any listed finding about pending PnL, margin checks, fees, liquidation, or va",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`settle()` pays async fee after removing the callback, but `applyFeeMaximum` scaling uses full pre-removal callback count",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns async fee scaling in PriceResponse.sol, which is unrelated to any of the listed known findings about intents, margin, liquidation, or Vault profit shares.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Oracle.claimFee underflows when market fee received is less than settlement fee requested",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an underflow in Oracle.claimFee's fee subtraction, which is unrelated to any of the listed known findings about intent pnl accounting, margin checks, liquidation, or Vault sett",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Controller.marketTransferWithSignature does not validate that the market is in a rebalance configuration owned by the signer",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes missing validation of the market address in Controller.marketTransferWithSignature, which is unrelated to any of the listed known findings about intent pnl accounting, margin c",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Controller pulls DSU from account via wrapIfNecessary without owner authorization check",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes broad token approvals and wrapIfNecessary balance reconciliation in Account.sol, which is unrelated to any of the listed known findings about market health accounting, intents,",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Verifier accepts any domain for operator/signer updates regardless of requesting market",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns missing domain/msg.sender binding in Verifier signature checks, which is unrelated to any of the listed market accounting, liquidation, or vault findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`MarketFactory.referralFees` returns protocol default when referrer sets fee to zero, preventing referrer from opting out",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns referral fee defaulting logic in MarketFactory, which is unrelated to any of the listed known findings about intent accounting, liquidation, or vault settlement.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Subtractive referral fee double-subtracted from maker and taker trade fees",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a referral fee double-subtraction in VersionLib._accumulateFee, which is unrelated to any of the listed known findings about intents, liquidation, margin, or vault settlement.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "callbacks are added per timestamp before deduping, so async fee is paid once per callback registration",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns KeeperOracle callback fee accounting in settle(), which is unrelated to any of the listed market/vault findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "_accumulateSettlementFee / _accumulateLiquidationFee use `context.order.orders - context.guarantee.orders` and the receipt fee without checking guarantee cover",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an unchecked subtraction/underflow in VersionLib fee accumulation, which is unrelated to any of the listed known findings about intent pnl accounting, margin checks, or liquida",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "KeeperOracle.request adds to _localCallbacks before deduplicated request check, letting anyone spamming market requests inflate callback count used in commit fee calculation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns KeeperOracle callback count inflation affecting keeper fees, which is unrelated to any of the listed known findings about market health accounting, intents, liquidations, or vau",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "MetaQuantsFactory._parsePrices does not verify update timestamp equals expected version, allowing signed updates for any publishTime to be accepted",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns missing timestamp/version validation in MetaQuantsFactory._parsePrices, which is unrelated to any of the listed Perennial market/vault findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`KeeperOracle.request()` dedups by `requests[_global.currentIndex]` so a second account's callback rewrites the same slot without advancing index, letting `_global.currentIndex` drift from `requests`",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns KeeperOracle.request callback deduplication/index drift, which is unrelated to any of the listed market, intent, vault, or liquidation findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "KeeperOracle.commit calls arbitrary receiver push of settlement fee, and payouts computed from stored response instead of verified receipt",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns KeeperOracle.commit fee push/reentrancy and stored-response fee computation, which is unrelated to any of the listed market/intent/vault findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "MetaQuantsFactory parses exponent without bounds, allowing 10**abs(exponent) overflow/DoS or absurd scaling",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an unbounded exponent overflow/DoS in MetaQuantsFactory price parsing, which is unrelated to any of the listed findings about market accounting, intents, liquidation, or vault ",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Controller.rebalanceGroup is unauthenticated and can settle and move an owner's collateral between markets, including into attacker-triggered fee extraction paths",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unauthenticated function that can move collateral, but this is not the same as the known findings which describe issues with health accounting, liquidation, or fee handling.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes unauthenticated rebalanceGroup collateral movement, which is unrelated to any of the listed known findings about intent pnl accounting, margin checks, fees, liquidation positio",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Controller.chargeFee caller can pull DSU from any account but is gated only on marketFactory.operators; no check the wrapped/settled balance belongs to owner",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an operator privilege/chargeFee withdrawal concern, which is unrelated to any of the listed known findings about intent pnl accounting, margin checks, liquidation, or vault set",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Account has no way to recover tokens sent directly (no sweep) and approvals are unlimited",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns missing token sweep/approval revocation in Account.sol, unrelated to any of the listed market/vault findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "MultiInvoker._executeOrder calls _handleKeeperFee with msg.data[0:0]—keeper fee calldata size undercounted",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns keeper fee calldata undercounting in MultiInvoker._executeOrder, which is unrelated to any of the listed known findings about intent pnl accounting, margin checks, liquidation, ",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`Guarantee.priceDeviation` divides by `min(|guaranteePrice|, |price|)` which can be zero, reverting within invariant check and blocking settlement of zero-price guarantee",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a division-by-zero DoS in priceDeviation, which is unrelated to any of the listed known findings about health accounting, margin checks, fees, liquidation, or vault settlement.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Interface fee is charged before order executes and never refunded if the position update is a no-op",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes interface fee charged before a no-op order execution, which is not the same root cause as any listed finding about pending PnL, margin checks, liquidation, or vault profit shar",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`executeOrder` charges full keeper fee even when protocol caps `maxFee` short, letting order-behavior grief the keeper's user fee source",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns keeper fee charging in executeOrder, which is unrelated to any of the listed findings about intent pnl accounting, margin checks, liquidation, or vault profit shares.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`TriggerOrderLib.execute` queries `market.positions` after `settle` which does not apply pending; close-position magic uses stale real position via `_position` in `notionalValue`",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match, the candidate describes a different issue than the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a stale-state interface fee calculation in TriggerOrderLib.execute, which is not the same root cause as any listed finding about pending pnl, margin checks, or liquidation acco",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "update(address,UFixed6,UFixed6,UFixed6,Fixed6,bool) no-pause overload bypasses whenNotPaused",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue related to the lack of pause protection in a function overload.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns a missing whenNotPaused modifier on an update overload, which is unrelated to any of the listed known findings about intent pnl accounting, margin checks, fees, liquidation posi",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "updateRiskParameter applies truncated parameter but reads back into `_riskParameter` before `_global.update`, so global exposure is recomputed against the new (possibly mutually inconsistent with stored versions) parameter",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes risk parameter update timing/truncation causing inconsistent global exposure, which is unrelated to any of the listed known findings about intents, pending pnl, liquidation che",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "_accumulateAdiabaticFee uses `context.order.takerPos().sub(context.guarantee.takerPos())` and `.sub(guarantee.takerNeg())`; underflow if guarantee taker covers order taker but summing pos+neg via separate fields can mismatch the order's actual pos/neg",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an underflow/overcharge in _accumulateAdiabaticFee's takerPos/takerNeg subtraction, which is unrelated to any of the listed known findings about intent pnl accounting, margin c",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "update(account, amount, referrer) and update(account, makerAmount, takerAmount, collateral, referrer) with `signer = address(0)` allow any msg.sender to move an account's position (\"self-send\"), and _processReferrer records msg.sender as referrer even if the account did not consent",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an authorization bypass via signer=address(0) in the public update overloads, which is not the root cause of any listed finding.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "PositionStorageGlobalLib.store is `public` and calls `PositionStorageLib.validate` which only checks timestamp — maker/long/short range checks are separated, but `store` on `OrderStorageGlobalLib` and `OrderStorageLocalLib` does not bound `protection`/`invalidation` upper limits consistently (local checks, global silently truncates)",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns OrderStorageGlobalLib.store discarding protection/invalidation fields, which is unrelated to any of the listed known findings about pending pnl, margin checks, fees, liquidation",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "_update's `oracle.request(IMarket(this), context.account)` is gated on `newGuarantee.isEmpty()`, so a non-empty guarantee (intent fill) never requests a new oracle version for the counterparty account even when the identity of the account changes across `update(Fill)` calls",
+   "strict": null,
+   "a": {
+    "match": "H-3",
+    "reden": "Both describe a scenario where fees from intent orders are not accounted in collateral, allowing user to withdraw all collateral ignoring these pending fees.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a skipped oracle request for non-empty guarantees causing stale oracle version use, which is not the root cause of any listed finding.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "KeeperOracle.settle pays asyncFee per callback but commit-time fee cap allows asyncFee to be applied repeatedly beyond maxSettlementFee",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns KeeperOracle fee accounting, while all known findings are about market/intent accounting, liquidation, or Vault settlement—none share the same root cause or code.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "KeeperOracle.commit updates _global.latestVersion to version.timestamp even for unrequested versions and without monotonicity check across commit paths",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns KeeperOracle.commit/latestVersion monotonicity, which is unrelated to any of the listed market/vault findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "MetaQuantsFactory._parsePrices is view but depends on msg.value not validated for sufficient fee",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns signature replay/fee handling in MetaQuantsFactory._parsePrices, which is unrelated to any of the listed Perennial market/vault findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "KeeperOracle.settle iterates callbacks and pays asyncFee per callback without checking receiver/market.settle success ordering side effects",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a callback re-adding/asyncFee drain issue in KeeperOracle.settle, which is unrelated to any of the listed known findings about market accounting, intents, liquidation, or Vault",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`Oracle.at()` loop skips index 0 and stops at `i > 0`, so the first epoch is unreachable",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns an off-by-one/loop-condition bug in Oracle.at() epoch lookup, which is unrelated to any of the listed market/vault findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`_parsePrices` in MetaQuantsFactory verifies signatures per-update but permits cross-feed replay/reorder via id bind to array index",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns signature replay/reorder and publishTime checks in MetaQuantsFactory._parsePrices, which is unrelated to any of the listed Perennial market/vault findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "MetaQuantsFactory signature does not bind to oracle id/exponent, enabling cross-feed and exponent manipulation of parsed prices",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns signature replay/binding in MetaQuantsFactory._parsePrices, which is unrelated to any of the listed Perennial market/vault findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "PythFactory._parsePrices passes all ids in one parse call and single data blob; length mismatch between parsedPrices and underlyingIds unhandled",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns PythFactory._parsePrices length mismatch and fee accounting, which is unrelated to any of the listed Perennial market/vault findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "MultiInvoker._update leaves withdraw of positive balanceBack to DSU as withdraw to account even for negative-collateral path",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a speculative DSU withdrawal/drain in MultiInvoker._update, which is unrelated to any of the known findings about intent pnl accounting, margin checks, fees, liquidation positi",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "RebalanceLib.checkMarket allows rebalance when groupCollateral <= 0 producing target of zero and draining surplus markets",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns RebalanceLib.checkMarket negative target collateral logic, which is unrelated to any of the listed known findings about intents, liquidation, or Vault settlement.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "chargeFee wraps then pulls DSU; account DSU balance unpulled remains, but wrapIfNecessary shortfall ignored",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns chargeFee/wrapIfNecessary DSU handling in Controller.sol, which is unrelated to any of the listed market/vault findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "_raiseKeeperFee in MultiInvoker withdraws from market without checking withdraw succeeded or remaining fee",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns _raiseKeeperFee overstating withdrawn collateral in MultiInvoker, which is unrelated to any of the listed market/vault/intent findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Trigger order execution skips order update/settlement accounting after possibly-failing canExecute re-read",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a fee/notionalValue ordering issue in executeOrder, which is not the same root cause as any listed finding about pending pnl health accounting, intent fees, liquidation, or vau",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "checkOrder invoked inside executeOrder does not re-verify market/oracle validity, allowing stale-price execution",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a stale-price/oracle-version lag issue in executeOrder/checkOrder, which is unrelated to any of the listed findings about intent pnl accounting, margin checks, fees, liquidatio",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`GuaranteeLib.from` omits `notional` from `GuaranteeStorageGlobalLib.validate`, allowing storage write to truncate negative/overflow values but only for local paths",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a missing check for `notional` and `solverReferral` in the `store` function of `Guarantee.sol`, which could lead to silent reverts due to overflow or truncation.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns missing notional/solverReferral bounds in GuaranteeStorageGlobalLib.validate, unrelated to any of the listed market/intent/vault findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "SolverVault.updateCoordinator disables/claims signer without updating only on both success",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns SolverVault.updateCoordinator signer revocation ordering, which is unrelated to any of the listed market/vault findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "update(address,Fixed6,address) lets msg.sender sign on behalf of account via authorization depending on factory",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate is a conditional concern about the out-of-scope factory authorization check, not the same root cause as any listed finding.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "_updateMarket update(address,Fixed6,Fixed6,Fixed6,address) passes address(0) signer with no auth check in Market",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate speculates about a missing auth check with zero signer in the update overload, which is unrelated to any of the listed findings about health accounting, pending pnl, fees, liquidation, o",
+    "model": "deepseek-flash"
+   }
+  }
+ ]
+}

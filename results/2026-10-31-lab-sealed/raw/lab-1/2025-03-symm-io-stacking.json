@@ -1,0 +1,325 @@
+{
+  "contest": "2025-03-symm-io-stacking",
+  "hypotheses": [
+    {
+      "title": "notifyRewardAmount does not call _addRewardsForToken, so reward rate/period are never set",
+      "severity": "High",
+      "file": "SymmStaking.sol",
+      "function": "notifyRewardAmount()",
+      "description": "In `notifyRewardAmount`, for each token it transfers the amount in and does `pendingRewards[token] += amount`, but it never calls `_addRewardsForToken(token, amount)`. `_addRewardsForToken` is the only place that sets `state.rate`, `state.lastUpdated`, and `state.periodFinish`. As a result `rate` stays zero forever, so `rewardPerToken` is always just `perTokenStored`, `earned` is always 0, and no user can ever claim any reward.",
+      "attackPath": "Owner/reward manager calls `notifyRewardAmount([SYMM], [amount])`. Tokens are transferred into the contract and `pendingRewards[SYMM]` increases, but `rate` and `periodFinish` remain 0. Every later `claimRewards` / `claimFor` computes `earned == 0`, so no reward is ever paid out.",
+      "impact": "All notified reward tokens are stuck in the contract permanently; stakers receive nothing. Withdrawing the tokens via `rescueTokens` is the only exit (admin-only), so in normal operation rewards are permanently undeliverable.",
+      "recommendation": "After incrementing `pendingRewards[token]`, call `_addRewardsForToken(token, amount)` inside the loop before the `updateRewards` bookkeeping; also call `_updateRewardsStates(address(0))` after rate changes as intended."
+    },
+    {
+      "title": "SymmStaking.updateRewardsStates uses rewards[] as accumulator but earned() adds it, double-counting",
+      "severity": "High",
+      "file": "SymmStaking.sol",
+      "function": "_updateRewardsStates",
+      "description": "In `_updateRewardsStates`, the line `rewards[account][token] = earned(account, token)` overwrites the user's stored reward with the full earned amount. But `earned()` itself returns `(balanceOf * delta)/1e18 + rewards[account][token]`, i.e. it already adds the previously stored `rewards` mapping value. So each update takes the stored reward, adds it again into the new stored value, and amplifies it. After N reward-state updates, the stored reward grows to roughly `(N+1) * reward` instead of `1*reward`, and `userRewardPerTokenPaid` is overwritten with the correct per-token value so no negative correction exists. `pendingRewards[token]` is only decremented in `_claimRewardsFor`, so the inflated amount is paid out of the shared reward pool.",
+      "attackPath": "Attacker stakes a tiny amount, then repeatedly calls `claimRewards()` (or `deposit(0)` is blocked, but `deposit(1)`/`withdraw` triggers update too) to cycle `_updateRewardsStates(msg.sender)`. Each iteration doubles-ish accumulation because earned = delta+prev-claimed-added-again. After a few iterations the stored reward massively exceeds the rewards they are actually entitled to. Then `_claimRewardsFor` transfers that amount, draining other stakers' pending rewards.",
+      "impact": "Reward pool drained; honest stakers cannot claim their share (`pendingRewards[token] -= reward` underflows for later claims or balance is insufficient). Insolvency.",
+      "recommendation": "In `_updateRewardsStates`, set `rewards[account][token] += (balanceOf[account] * (perTokenStored - userRewardPerTokenPaid[account][token])) / 1e18;` instead of using `earned()` (which re-adds stored rewards). Or make `earned()` return only the delta."
+    },
+    {
+      "title": "SymmStaking double-counts stored rewards because earned() includes rewards[] and update assigns it back",
+      "severity": "High",
+      "file": "SymmStaking.sol",
+      "function": "_updateRewardsStates",
+      "description": "`earned(account, _rewardsToken)` returns `(balanceOf[account] * (rewardPerToken - userRewardPerTokenPaid)) / 1e18 + rewards[account][_rewardsToken]`, i.e. it adds the *previous* stored reward on top of the delta. `_updateRewardsStates` then does `rewards[account][token] = earned(account, token)` — it writes the whole value back, which stores delta + old reward. Every subsequent update adds the previous stored reward again (delta is normally reset by `userRewardPerTokenPaid` being overwritten, but stored `rewards` is not zeroed). The amount therefore compounds toward `(N+1) * trueReward` after N updates. `_claimRewardsFor` pays the inflated number out of the shared pool and subtracts it from `pendingRewards[token]`.",
+      "attackPath": "Depositor calls `claimRewards()` repeatedly (each claim triggers `_updateRewardsStates` and then checks `pendingRewards`). Even if there is no new emission, `earned()` keeps returning `previousStore + delta` and the assignment grows `rewards[user][token]`. `_claimRewardsFor` then transfers that inflated amount in `SafeTransfer(user, reward)`. Alternatively, a griefer can spray `deposit(1, victim)` many times to blow up victim's stored reward (deposit calls `_updateRewardsStates(receiver)`).",
+      "impact": "Rewards are minted/paid far beyond what `pendingRewards` was funded for; either `pendingRewards[token] -= reward` underflows and honest claims revert, or the contract balance is insufficient and honest stakers cannot withdraw rewards. Reward pool insolvency.",
+      "recommendation": "In `_updateRewardsStates`, compute only the delta: `rewards[account][token] += (balanceOf[account] * (state.perTokenStored - userRewardPerTokenPaid[account][token])) / 1e18;`. Do not assign `earned()`'s full value."
+    },
+    {
+      "title": "SymmVesting.getLiquidityQuote order-of-operations bug: usdcAmount scaled by 1e18/1e30 after computing",
+      "severity": "High",
+      "file": "SymmVesting.sol",
+      "function": "getLiquidityQuote",
+      "description": "`usdcAmount = (symmAmount * usdcBalance) / symmBalance;` already yields USDC (correct units). Then `usdcAmount = _mulDivUp(usdcAmount, 1e18, 1e30);` multiplies by 1e18 and divides by 1e30, i.e. divides by 1e12. If SYMM and USDC are 18 and 6 decimals respectively, this division by 1e12 is exactly the decimal adjustment — but it is applied after the balances already include the decimal scaling. Proportional formula between two pools with different decimals is `usdcIn = symmAmount * usdcBalance / symmBalance`, which is decimals-correct only if both balances are raw; since SYMM=18 and USDC=6, using raw balances the quotient naturally produces the correct USDC raw amount. Applying an additional `/1e12` makes `usdcIn` one trillion times too small, so `USDC.safeTransferFrom(msg.sender, address(this), usdcIn)` transfers far less USDC than required by the router, and the router's `addLiquidityProportional` will revert or the user pays almost nothing for a large SYMM deposit.",
+      "attackPath": "User calls `addLiquidity(large SYMM amount)`. `getLiquidityQuote` returns a usdcIn that is 1e12 too small. The contract transfers that tiny USDC in, then the router takes proportionally much larger USDC from the contract's balance (which does not have it). Either reverts (DoS) or, if the contract holds other users' USDC, that balance is drained to subsidize the deposit.",
+      "impact": "Either addLiquidity is permanently broken (DoS of core function) or the pool's proportional USDC requirement is satisfied from contract funds, letting the caller subsidize their deposit with other users' USDC. Loss of funds.",
+      "recommendation": "Remove the `_mulDivUp(usdcAmount, 1e18, 1e30)` adjustment (or move it to correct decimal conversion done once). Confirm decimal handling and add tests."
+    },
+    {
+      "title": "SymmVesting.getLiquidityQuote divides the proportional USDC quote by 1e12, giving a wrong USDC amount",
+      "severity": "High",
+      "file": "SymmVesting.sol",
+      "function": "getLiquidityQuote",
+      "description": "`usdcAmount = (symmAmount * usdcBalance) / symmBalance` already returns the proportional USDC amount in raw USDC units when balances are raw (the decimals of SYMM and USDC are inherently handled by the proportional formula — the share is a ratio). The line `usdcAmount = _mulDivUp(usdcAmount, 1e18, 1e30)` then multiplies by 1e18 and divides by 1e30, i.e. it divides by 1e12. For an 18/6 decimal pair this is an extra `/1e12` on top of an already-correct figure. The downstream `_addLiquidity` uses this `usdcIn` to `safeTransferFrom` from the caller and to `PERMIT2.approve(...)`.",
+      "attackPath": "Caller calls `addLiquidity(symmAmount, ...)`. Because `usdcIn` is 1e12 times too small, the contract pulls almost no USDC from the user but passes `[symmIn, usdcIn]` to `ROUTER.addLiquidityProportional`. The router requires the proportional USDC from the contract's balance (`usdc.approve(PERMIT2, usdcIn)` only approves a tiny amount, so the transfer step inside the router will fail or take from the contract's existing USDC balance depending on how the router pulls). In the revert case, `addLiquidity` is a permanently broken core function. In the take-from-balance case, the deposit is subsidized by USDC held in the contract.",
+      "impact": "Either DoS of the core `addLiquidity` / `addLiquidityByPercentage` function or loss of pooled USDC from the contract.",
+      "recommendation": "Remove the `_mulDivUp(usdcAmount, 1e18, 1e30)` call (or fix the decimal conversion to be applied exactly once, using the concrete token decimals). Add an on-chain assertion that the returned `amountsIn[1]` equals `usdcIn` (or revert/refund the difference)."
+    },
+    {
+      "title": "SymmAllocationClaimer.totalAllocation is not decremented on claim, so it overstates outstanding allocation and can block setters",
+      "severity": "Medium",
+      "file": "SymmAllocationClaimer.sol",
+      "function": "claim",
+      "description": "`claim()` sets `userAllocations[msg.sender] = 0` and mints, but never subtracts the claimed amount from `totalAllocation`. `setBatchAllocations` maintains `totalAllocation` as the sum of outstanding `userAllocations` (it subtracts old and adds new for each user). Once a user claims, their old allocation is no longer a `userAllocations` entry, but it remains in `totalAllocation`. Any future `setBatchAllocations` that touches other users only adds to the stale total. Eventually `totalAllocation > MAX_ISSUABLE_TOKEN` and every `setBatchAllocations` reverts with `TotalAllocationExceedsMax`.",
+      "attackPath": "Honest users claim; `totalAllocation` keeps counting their amounts. Once cumulative claims plus outstanding allocations exceed 400M, the SETTER_ROLE can no longer assign any new (or reduced) allocations because the post-loop check compares the stale figure against `MAX_ISSUABLE_TOKEN`. The function does not recompute `totalAllocation` from scratch, so the drift is permanent.",
+      "impact": "Liveness failure — the setter cannot update or add allocations after enough claiming happens in normal use. Also `totalAllocation` no longer reflects real outstanding allocations for any external consumer.",
+      "recommendation": "In `claim()`, `totalAllocation -= userAllocations[msg.sender];` before zeroing; or recompute the sum in `setBatchAllocations` from the affected entries instead of relying on the running aggregate."
+    },
+    {
+      "title": "SymmAllocationClaimer.setBatchAllocations subtract can underflow after claim sets allocation to zero and totalAllocation not decremented on claim",
+      "severity": "Medium",
+      "file": "SymmAllocationClaimer.sol",
+      "function": "setBatchAllocations",
+      "description": "In `claim()`, `userAllocations[msg.sender]` is set to 0 after minting, but `totalAllocation` is NOT decremented by the claimed allocation. Later `setBatchAllocations` for that user does `totalAllocation = totalAllocation - userAllocations[users[i]]` (0 after claim, fine for the same user) and adds the new value. But for a user who has NOT claimed, `totalAllocation` was already added in a previous batch; if a setter re-runs with the same user and the previous allocation, the subtract correctly removes the old. The real issue: after `claim()`, the user's `userAllocations` is 0 but the `totalAllocation` still counts the claimed amount. Re-setting the same user adds a new allocation on top of stale `totalAllocation`, and the MAX check uses the inflated totalAllocation. Actually wait, since claim sets userAllocations to 0, a re-set for that user subtracts 0 and adds new, so totalAllocation still includes the old claimed amount forever, growing. This can:\n1. Cause `TotalAllocationExceedsMax` to fire prematurely, blocking setters (DoS).\n2. Inflate `totalAllocation` view.\n\nHowever, the underflow scenario: user has allocation A, totalAllocation includes A. Not claimed. Setter sets same user to new value A2: subtract A (ok), add A2. Fine. Claim sets userAllocations=0, totalAllocation still includes A. Setter sets user to A3: subtract 0, add A3 → totalAllocation = A + A3, but A was already minted. Check MAX will trip earlier. This is a real accounting drift. But the exploit consequence — underflow — only occurs if `userAllocations[user] > totalAllocation`. Since totalAllocation always ≥ sum of userAllocations unless inflation happened, underflow is unlikely. The primary symptom is inflated totalAllocation blocking setBatchAllocations. Not a strong lost-funds issue. Severity Medium as DoS.",
+      "attackPath": "User claims (reducing userAllocations to 0). totalAllocation unchanged. Other users' allocations fill up to MAX_ISSUABLE_TOKEN. Now setter cannot set new allocations because totalAllocation exceeds MAX even though actual outstanding allocations are smaller. Claimed tokens were already minted, so totalAllocation overstates.",
+      "impact": "Liveness: setBatchAllocations reverts with TotalAllocationExceedsMax despite real outstanding being low.",
+      "recommendation": "decrement totalAllocation by the claimed allocation in `claim()`."
+    },
+    {
+      "title": "addLiquidity forgets to subtract used SYMM from totalVested, causing totalVested to drift",
+      "severity": "Medium",
+      "file": "SymmVesting.sol",
+      "function": "_addLiquidityProcess()",
+      "description": "In `_addLiquidityProcess`, SYMM is consumed to provide liquidity via `symmVestingPlan.resetAmount(symmLockedAmount - amountsIn[0])`, but `totalVested[SYMM]` is never decreased by the SYMM spent (`amountsIn[0]`). Every other path that shrinks locked SYMM (`_claimLockedToken`) explicitly does `totalVested[token] -= amount`. Since `totalVested` is meant to track the total still-vested-and-owed amount, it becomes larger than the sum of the actual remaining vesting plans, i.e. the accounting invariant `totalVested[SYMM] == Σ(user.amount - user.claimedAmount)` breaks.",
+      "attackPath": "Any user calls `addLiquidity(amount,...)` repeatedly. Each call consumes SYMM from the vesting plan but leaves `totalVested[SYMM]` untouched, permanently inflating it. No attacker gain is needed for the drift to occur — it happens in ordinary use and compounds over all users.",
+      "impact": "`totalVested` no longer reflects the contract's real obligations and overstates the SYMM token the contract \"should\" hold. Any logic (off-chain or in subclasses/derived checks) relying on `totalVested` as the required-balance reference will be wrong; the same inflation also makes `_ensureSufficientBalance`-style reasoning and later reconciliations incorrect, and could mask real underfunding.",
+      "recommendation": "In `_addLiquidityProcess`, after determining `amountsIn[0]`, do `totalVested[SYMM] -= amountsIn[0];` (or set it via the reset helper) so the consumed SYMM is removed from `totalVested` consistently with `_claimLockedToken`."
+    },
+    {
+      "title": "SymmVesting._addLiquidityProcess uses _resetVestingPlans which triggers _claimUnlockedToken and can violate lpVestingPlan accounting",
+      "severity": "Medium",
+      "file": "SymmVesting.sol",
+      "function": "_addLiquidityProcess()",
+      "description": "In `_addLiquidityProcess`, after receiving `lpAmount` LP tokens, if `lpVestingPlan.isSetup()` it calls `_resetVestingPlans(SYMM_LP, users, amounts)` where `amounts[0] = lpVestingPlan.lockedAmount() + lpAmount`. Inside `_resetVestingPlans`, `_claimUnlockedToken(SYMM_LP, user)` is called again (already called just above), then `vestingPlan.resetAmount(amount)` is applied. `resetAmount` reverts `PlanIsFinished` if `remainingDuration == 0`. If `lpVestingPlan.endTime` is in the past (fully finished), `isSetup()` returns true (amount != 0) and the `_resetVestingPlans` path reverts, permanently blocking `addLiquidity` for that user. Additionally, `resetAmount` recomputes `startTime = block.timestamp` and `endTime = block.timestamp + remaining` — but the outer `_setupVestingPlans` path uses `symmVestingPlan.endTime` as endTime for a brand-new plan while startTime is `block.timestamp`, giving a potentially inconsistent schedule.",
+      "attackPath": "User has finished LP vesting plan (endTime < now); they call `addLiquidity`. `_claimUnlockedToken(SYMM_LP)` succeeds, `lpVestingPlan.isSetup()` true, `_resetVestingPlans` calls `resetAmount` which reverts `PlanIsFinished` — permanent DoS.",
+      "impact": "Users with finished LP vesting plans cannot call `addLiquidity`.",
+      "recommendation": "Handle the finished-plan case by using `_setupVestingPlans` (or an equivalent fresh setup) when `remainingDuration == 0` instead of `_resetVestingPlans`."
+    },
+    {
+      "title": "SymmStaking.rescueTokens can drain staking tokens or reward balances, breaking withdrawals/claims",
+      "severity": "High",
+      "file": "SymmStaking.sol",
+      "function": "rescueTokens()",
+      "description": "`rescueTokens(address token, uint256 amount, address receiver)` is `onlyRole(DEFAULT_ADMIN_ROLE)` and transfers any token, including `stakingToken` and any whitelisted reward token, without checks against `totalSupply` or `pendingRewards`. An admin (or a compromised default-admin key) can drain the staking token, making `withdraw` revert (insufficient balance), or drain reward tokens, breaking `claimRewards`. Because the code path is not gated by any invariant about protecting user funds, this is a direct path to user fund loss even though it requires admin privilege.",
+      "attackPath": "DEFAULT_ADMIN calls `rescueTokens(stakingToken, balanceOf(this), attacker)` — then users cannot withdraw.",
+      "impact": "Loss of all staked user funds or unreleased reward funds.",
+      "recommendation": "Disallow rescuing `stakingToken`; for reward tokens, cap `amount` at balance minus `pendingRewards[token]` (or maintain a separate \"dust\" reserve). Note: the \"admin is trusted\" caveat only applies to non-user funds."
+    },
+    {
+      "title": "configureRewardToken removal loop starts at i=0 while it is called with pendingRewards still >0 guard; also removal leaves pending rewards unclaimable",
+      "severity": "Medium",
+      "file": "SymmStaking.sol",
+      "function": "configureRewardToken()",
+      "description": "When `status == false`, the token is removed from `rewardTokens` if `pendingRewards[token] <= 10`. `_claimRewardsFor` and `_updateRewardsStates` iterate over `rewardTokens`, so once removed, users can no longer be paid the residual `rewards[user][token]` (the earned-but-unclaimed balances) nor the <=10 wei pending. `_claimRewardsFor` iterates `rewardTokens`, and the removed token's entry is gone, so any `rewards[user][token]` accumulated for that token is permanently stranded. `pendingRewards[token]` is also left non-zero, blocking any later re-add? Re-adding resets `duration` but not `pendingRewards`, so accounting is poisoned.",
+      "attackPath": "Reward manager calls `configureRewardToken(token, false)` after a period ends with a small residual unclaimed balance (<=10 pending). Users who had unclaimed `rewards[user][token]` from before can no longer claim them because the token is not in `rewardTokens`. `claimRewards` silently skips it.",
+      "impact": "Residual rewards are permanently locked in the contract. `pendingRewards` is not zeroed so the tracker diverges from actual balances.",
+      "recommendation": "Before removing, either zero `pendingRewards[token]` and require all user reward balances to be zero, or keep the token in `rewardTokens` for claiming but disable new notifications; set `pendingRewards[token] = 0` on successful removal."
+    },
+    {
+      "title": "AirdropHelper does not exclude SYMM_TOKEN from rescueFunds, letting owner drain pending airdrop principal",
+      "severity": "Medium",
+      "file": "AirdropHelper.sol",
+      "function": "rescueFunds()",
+      "description": "`rescueFunds` is `onlyOwner` and transfers the entire balance of any token to `owner()`. Nothing prevents `tokenAddress == SYMM_TOKEN`, so the owner can drain the exact tokens that were funded for the active `_airdropRecipients`/`_airdropAmounts` configuration. There is no separation between \"extra\" balances and configured airdrops. The earlier `transferAirdrops` would then revert mid-batch, and remaining `getRemainingAirdrops()` cannot be processed.",
+      "attackPath": "Owner funds AirdropHelper with X SYMM for `configureAirdrop`, then calls `rescueFunds(SYMM_TOKEN)`. All X is transferred to owner; `transferAirdrops` cannot pay the recipients.",
+      "impact": "Airdrop funds can be stolen by a single owner action, blocking recipient payouts (permanent loss of user-expected tokens).",
+      "recommendation": "Disallow `tokenAddress == SYMM_TOKEN` while an airdrop configuration exists (or subtract remaining configured airdrop from rescue amount); only allow rescuing `balanceOf - totalConfiguredAirdrop + totalProcessedAirdrop`."
+    },
+    {
+      "title": "SymmVesting mints/obtains `amount` SYMM but only `amountsIn[0]` is consumed; leftover SYMM is stranded",
+      "severity": "Medium",
+      "file": "SymmVesting.sol",
+      "function": "_addLiquidityProcess",
+      "description": "`_ensureSufficientBalance(SYMM, amount)` is called with the full requested `amount`, minting/requiring `amount` SYMM into the contract. The router returns `amountsIn`, and the code only refunds excess USDC (`if (usdcIn - amountsIn[1] > 0) usdc.safeTransfer(...)`). There is no corresponding refund of `amount - amountsIn[0]` SYMM. The vesting plan is only reduced by `amountsIn[0]` (`resetAmount(symmLockedAmount - amountsIn[0])`), so the residual SYMM has no plan backing it and no return to the user. Proportional deposits can legitimately consume less SYMM than supplied (e.g. slippage-retry, cap on the USDC side), and the manager path `_addLiquidityProcess` is also called from `addLiquidityByPercentage`.",
+      "attackPath": "Caller invokes `addLiquidity` with an `amount` such that the router returns `amountsIn[0] < amount`. The difference `amount - amountsIn[0]` is minted into the contract by `_mintTokenIfPossible` (for SYMM) without being routed anywhere and is deducted from the user's locked plan only by `amountsIn[0]`. The user loses the difference; the contract holds SYMM with no plan attached.",
+      "impact": "Permanent loss of user SYMM (the diff between minted supply and the amount the pool accepted); the stranded SYMM can also be silently consumed later by another user's `_ensureSufficientBalance` shortfall (`currentBalance` check), shifting value between users.",
+      "recommendation": "Pass the exact SYMM amount the router will consume to `_ensureSufficientBalance`, or refund `amount - amountsIn[0]` to the user (or leave it in their vesting plan) after the swap."
+    },
+    {
+      "title": "SymmAllocationClaimer claim() not restricted to the user's own allocation — actually unrestricted claim loop draining totalAllocation",
+      "severity": "High",
+      "file": "SymmAllocationClaimer.sol",
+      "function": "claim()",
+      "description": "`claim()` is `public` and mints based on `userAllocations[msg.sender]`. However, `setBatchAllocations` does not validate against `totalUserClaimedAmount` nor does it check that a user wasn't already claimed; more importantly the `claim()` function never verifies that the caller has been granted any role, but that is by design. The real issue: `setBatchAllocations` uses `totalAllocation = totalAllocation - userAllocations[users[i]];` while iterating; if the same user appears twice in the `users` array, the first iteration zeroes their allocation and adds the new value, and the second iteration does the same again — this is fine for `totalAllocation`, but `userAllocations[users[i]] = allocations[i]` overwrites silently. More critically, `adminClaimableAmount += (userAllocations[msg.sender] - amountToClaim)` is computed from the current allocation, and `totalMintAmount`/`totalUserClaimedAmount` are not checked against `MAX_ISSUABLE_TOKEN` at claim time, only `totalAllocation` is capped at set time. A SETTER can set allocations up to `MAX_ISSUABLE_TOKEN`, but if allocations are reset after some users claim (lowering `totalAllocation` under the cap), additional allocation can be issued so that `totalUserClaimedAmount + totalAllocation` exceeds the cap.",
+      "attackPath": "A SETTER sets 400M total allocation; some users claim; SETTER then resets remaining users to a new 400M total (the reset subtracts already-allocated-but-unclaimed values, so cap is on the new total, not on cumulative issuance). Users claim again, and cumulative minted exceeds `MAX_ISSUABLE_TOKEN`.",
+      "impact": "Token mint cap of 400M can be exceeded, inflating supply.",
+      "recommendation": "Track cumulative minted against `MAX_ISSUABLE_TOKEN` at claim time, and enforce `totalAllocation + totalUserClaimedAmount <= MAX_ISSUABLE_TOKEN`."
+    },
+    {
+      "title": "rescueTokens lets admin withdraw staking principal and reward balances, enabling insolvency",
+      "severity": "Medium",
+      "file": "SymmStaking.sol",
+      "function": "rescueTokens()",
+      "description": "`rescueTokens` is `onlyRole(DEFAULT_ADMIN_ROLE)` and transfers any token, any amount, to any receiver. There is no accounting distinction between \"extra\" tokens and the staking principal backing `totalSupply` / `withdraw` or the `pendingRewards[token]` backing unclaimed rewards. The function also has no check that the remaining balance covers outstanding obligations.",
+      "attackPath": "Admin (or compromised admin) calls `rescueTokens(stakingToken, balanceOf(address(this)), attacker)` and drains the principal; all `withdraw` calls then revert on `safeTransfer`. Alternatively drains a reward token and `claimRewards` reverts.",
+      "impact": "Users' staked principal and reward claims become unredeemable (insolvency). This is a real path in the code, not just \"admin trusted\".",
+      "recommendation": "Track accounting amounts reserved for principal and pending rewards, and in `rescueTokens` only allow withdrawing `balanceOf(token) - reserved` (reserved = stakingToken ? totalSupply : pendingRewards[token])."
+    },
+    {
+      "title": "getLiquidityQuote computes usdcIn via a p-added 1e18/1e30 scaling that mis-scales USDC (6 decimals)",
+      "severity": "Medium",
+      "file": "SymmVesting.sol",
+      "function": "getLiquidityQuote()",
+      "description": "`usdcAmount = (symmAmount * usdcBalance) / symmBalance;` then `usdcAmount = _mulDivUp(usdcAmount, 1e18, 1e30);` — for a 6-decimal USDC, this gives `usdcAmount / 1e12`, effectively dividing usdcIn by 1e12 when symmBalance and usdcBalance are raw balance units. USDC demanded is far less than proportional (or is zero for small amounts), while `expectedLpAmount = symmAmount * totalSupply / symmBalance` neglects the decimal mismatch and pairs mismatched ratios. `_addLiquidity` uses `amountsIn[0] = symmIn`, `amountsIn[1] = usdcIn` with router proportional add, so the proportional mismatch causes the router to consume a different ratio than quoted and revert, or allow the user to add SYMM at a wrong stated USDC cost.",
+      "attackPath": "User calls `addLiquidity(amount, 0, 0)`. `getLiquidityQuote` returns a tiny `usdcIn` (e.g. for symmAmount = 1e18 and symmetric balances, usdcAmount ≈ 1e6/1e12 = 0). User transfers near zero USDC while the router's proportional add still reverts on the mismatch — DoS. Where rounding yields non-zero minimum, the user underpays USDC relative to the LP tokens received.",
+      "impact": "Either the ratio mismatch makes `addLiquidityProportional` revert (core exit path from SYMM vesting via LP is broken; claimed unlocked tokens are transferred before the revert, but state resets), or correct-ratio users receive mispriced LP, diluting existing LPs.",
+      "recommendation": "Remove the `_mulDivUp(usdcAmount, 1e18, 1e30)` rescale and use decimal-consistent scaling (convert balances to a common precision, e.g. divide by 1e12 for USDC 6 dec vs SYMM 18 dec) in both usdcIn and expectedLpAmount."
+    },
+    {
+      "title": "SymmVesting._addLiquidity default slippage 1% applied on expectedLpAmount, but ROUTER gets expectedLpAmount as min — mint check happens after router already accepted",
+      "severity": "Medium",
+      "file": "SymmVesting.sol",
+      "function": "_addLiquidity()",
+      "description": "In `_addLiquidity`, `ROUTER.addLiquidityProportional(..., expectedLpAmount, ...)` passes `expectedLpAmount` computed from `getLiquidityQuote`, which is a spot computation; if `minLpAmount == 0`, the user-provided slippage is (expectedLpAmount * 99) / 100, checked after router executes. The router call has already minted/transferred LP before the explicit `lpAmount < minLpAmountWithSlippage` check, so no additional protections exists at router level. If pool state changed between the quote in `getLiquidityQuote` and the router execution, `expectedLpAmount` passed as a minimum doesn't help because `expectedLpAmount` is the same value the check uses. Result: sandwich attacker manipulates pool, causing user to receive significantly less USDC-valued LP than expected, and the check `lpAmount < minLpAmountWithSlippage` may still pass because both are computed under the same skewed state.",
+      "attackPath": "Attacker front-runs to shift pool price; user's `getLiquidityQuote` uses skewed balances, computes expectedLpAmount low, minLpAmountWithSlippage low, router executes at skewed price, user receives fewer real-value LP; attacker back-runs restoring price and capturing profit.",
+      "impact": "Users lose value (USDC + SYMM) via sandwich.",
+      "recommendation": "Pull quote from a manipulation-resistant source; align router `minLpAmount` argument with `minLpAmountWithSlippage` rather than `expectedLpAmount` so the router itself reverts."
+    },
+    {
+      "title": "SymmAllocationClaimer.claim(): dust adminClaimableAmount computed from (allocation - claimAmount) can be > 0 even when claimAmount == allocation only when mintFactor < 1e18; user pays entire allocation as admin claimable even though admin gets nothing if claimed amount != wallet amount due to rounding",
+      "severity": "Medium",
+      "file": "SymmAllocationClaimer.sol",
+      "function": "claim()",
+      "description": "In `claim()`, `adminClaimableAmount += (userAllocations[msg.sender] - amountToClaim)` where `amountToClaim = (userAllocations * mintFactor) / 1e18`. When `mintFactor < 1e18`, this captures the rounded-down remainder as admin-claimable. Fine. However when `mintFactor == 1e18`, `adminClaimableAmount += 0`. Also this function resets `userAllocations[msg.sender] = 0` — so a user who calls `claim()` gets the full allocation minted (or its reduced amount); there is no per-user due mechanism because there is no mint amount tracking for admin. The concern: `adminClaimableAmount` can exceed `MAX_ISSUABLE_TOKEN - totalMintAmount`, and adminClaim doesn't check a global cap — it only checks `amount > adminClaimableAmount`. So if `totalAllocation > MAX_ISSUABLE_TOKEN` in cumulative-claim sense (as above), admin can push total minted above `MAX_ISSUABLE_TOKEN*?`. Combined with earlier finding this shows cap enforcement is set-time-only.",
+      "attackPath": "SETTER exploits as in first finding; admin then pulls adminClaimableAmount to foundation.",
+      "impact": "Cumulative minted supply exceeds MAX_ISSUABLE_TOKEN.",
+      "recommendation": "Add `totalMintAmount + adminClaimableAmount <= MAX_ISSUABLE_TOKEN` check in claim() and adminClaim()."
+    },
+    {
+      "title": "rewardPerToken/earned stops accruing whenever totalSupply is zero, silently stranding notified rewards with no way to retrieve them or start over cleanly",
+      "severity": "Medium",
+      "file": "SymmStaking.sol",
+      "function": "_addRewardsForToken()",
+      "description": "When `notifyRewardAmount` is called while `totalSupply == 0`, `_addRewardsForToken` sets `state.rate = amount / state.duration` and `periodFinish = now + duration`, but `rewardPerToken` returns `perTokenStored` unchanged while `totalSupply == 0`, so no accounting progress occurs. After the period finishes with nobody staked, the reward tokens are physically sitting in the contract but `state.rate` will be re-derived from scratch on the next notify (`block.timestamp >= periodFinish` branch), and the leftover from the previous (unaccrued) period is never accounted into `pendingRewards` bookkeeping proportionally. More importantly, a staker who deposits only after the window has partially elapsed gets rewards only for the remaining window, and the un-distributed portion becomes an untracked surplus that can only be pulled via `rescueTokens` by the admin.",
+      "attackPath": "Reward manager calls `notifyRewardAmount` at a time when no one is staked (or all stake is withdrawn), so `totalSupply == 0`. Rewards are transferred in and `pendingRewards[token] += amount` is recorded, but `rewardPerToken` never advances during the zero-supply window. When periods roll over, `_addRewardsForToken` overwrites `rate` using only the fresh `amount` and the `leftover = remaining * state.rate` (with the old, unaccrued state), never reconciling the unaccrued amount previously notified. The notified-but-not-accrued tokens become surplus outside `pendingRewards`.",
+      "impact": "Reward tokens notified while the staking pool is empty are not distributed proportionally as intended; a portion is effectively stranded as untracked surplus in the contract (recoverable only by admin rescue), and `pendingRewards[token]` can exceed the actual distributed amount, blocking `configureRewardToken(token,false)` (which reverts if `pendingRewards[token] > 10`) and making the accounting inconsistent with real balances.",
+      "recommendation": "In `notifyRewardAmount`, when `totalSupply == 0`, hold the notified amount as pending rather than starting the rate clock (or explicitly recycle un-accrued rewards into the next period's `rate` computation) so `pendingRewards` always equals the distributable-not-yet-claimed amount."
+    },
+    {
+      "title": "configureRewardToken removal leaves userRewardPerTokenPaid and earned() behind, letting removed-token rewards be re-credited or double-claimed after re-whitelisting",
+      "severity": "Medium",
+      "file": "SymmStaking.sol",
+      "function": "configureRewardToken()",
+      "description": "`configureRewardToken(token, false)` swaps the token out of `rewardTokens` but does not reset `rewardState[token]`, `userRewardPerTokenPaid[*][token]`, or `rewards[*][token]`. `_claimRewardsFor` only iterates current `rewardTokens`, so any user who still has a nonzero `rewards[user][token]` for the removed token cannot claim it while it is de-whitelisted. If the token is later re-whitelisted, `rewardTokens.push(token)` runs but `rewardState[token].duration` is reset, and `_updateRewardsStates` recomputes `rewards[account][token] = earned(account, token)` — using the stale `perTokenStored`/`userRewardPerTokenPaid` — so a user's stale balance can be re-credited on top of whatever is still in `rewards[user][token]` (which re-adds the previous unclaimed reward), causing over-crediting relative to `pendingRewards`.",
+      "attackPath": "Admin de-whitelists a token previously earned by many users while `pendingRewards[token] <= 10` (e.g. after most rewards paid). Later admin re-whitelists the same token to resume a new reward program. A stale user calls any function (deposit/claim) that triggers `_updateRewardsStates`, which sets `rewards[user][token] = earned(...) + rewards[user][token]` (since `earned` re-adds the stored `rewards` field). The stale `rewards` from before de-whitelisting is added on top of newly earned rewards, and `pendingRewards[token] -= reward` in `_claimRewardsFor` underflows or transfers more than was deposited for that user.",
+      "impact": "Users can claim more reward tokens than allocated after a whitelist cycle, draining rewards belonging to other stakers (or causing underflow/revert in `pendingRewards[token] -= reward`, bricking claims for that token).",
+      "recommendation": "On de-whitelisting, force-claim or zero out each user's `rewards[user][token]` and reset `userRewardPerTokenPaid[user][token]`/`rewardState[token]`, or require `pendingRewards[token] == 0` (not just `<= 10`) before allowing removal so all reward state can be fully settled."
+    },
+    {
+      "title": "AirdropHelper: configureAirdrop can be called repeatedly to overwrite/append recipients without clearing; progress indices desync totalConfiguredAirdrop",
+      "severity": "Medium",
+      "file": "AirdropHelper.sol",
+      "function": "configureAirdrop()",
+      "description": "`configureAirdrop` is `onlyOwner` and appends to `_airdropRecipients`/`_airdropAmounts` and adds to `totalConfiguredAirdrop`, but does not reset `nextAirdropIndex` or `totalProcessedAirdrop`. If called after `transferAirdrops` has partially advanced `nextAirdropIndex`, the newly appended recipients will be processed starting at the old `nextAirdropIndex`, skipping over the previously-processed prefix and potentially re-emitting batches pointing at already-used data — but since data isn't removed until completion, the appended entries are reachable. However, if `configureAirdrop` is called mid-progress with a smaller set, the indices point into the combined array, so newly configured recipients are appended after unprocessed originals — meaning the earlier partial `totalProcessedAirdrop += batchAmount` combined with the new additions is fine, but `totalConfiguredAirdrop` accumulates. The only real risk is that after `transferAirdrops` completes fully (which resets all indices and deletes arrays), the next `configureAirdrop` starts fresh — that path is safe.",
+      "attackPath": "Only owner can trigger; not exploitable by external attacker.",
+      "impact": "Owner error could cause incorrect accounting display; not a hacker path.",
+      "recommendation": "Require that no active (unprocessed) configuration exists before appending, or reset indices and totals on each configureAirdrop call."
+    },
+    {
+      "title": "SymmVesting.addLiquidity uses stale / wrong minting amount before swap; leftover SYMM stranded",
+      "severity": "Medium",
+      "file": "SymmVesting.sol",
+      "function": "_addLiquidityProcess",
+      "description": "`_ensureSufficientBalance(SYMM, amount)` mints/obtains exactly `amount` SYMM into the contract, but the router may only use `amountsIn[0] <= amount` of it (e.g. proportional liquidity can be bounded by the USDC side or by the deposit limits). The locked plan is reduced by the full `amountsIn[0]`, but any excess `amount - amountsIn[0]` SYMM remains in the contract without any vesting plan backing it, and it is not refunded to the user. If `amount > amountsIn[0]` because the SYMM minted exceeded what the pool accepted, the user's locked plan cannot recover it. This leftover SYMM is effectively lost to the user and potentially usable by others in `_ensureSufficientBalance` paths.",
+      "attackPath": "Assume a proportional deposit where the SYMM minted exceeds what the pool consumes (e.g. USDC cap on user side by the router). The user's plan is reduced by `amountsIn[0]` but the contract holds `amount - amountsIn[0]` SYMM free. Later the same or another user's `_ensureSufficientBalance` will consume this free balance without minting, but that is the contract's accounting; the first user loses the difference.",
+      "impact": "Loss of user SYMM (the difference between minted amount and actually deposited), trapped in the contract without allocation.",
+      "recommendation": "Only ensure/mint `amountsIn[0]` after the router call, i.e. withdraw SYMM to router via the router itself from the contract's balance, or refund `amount - amountsIn[0]` back (either burn or credit). Prefer having the router pull exactly what it needs."
+    },
+    {
+      "title": "Vesting._claimUnlockedToken and _claimLockedToken use raw IERC20.transfer without checking return value",
+      "severity": "Medium",
+      "file": "Vesting.sol",
+      "function": "_claimUnlockedToken",
+      "description": "`IERC20(token).transfer(user, claimableAmount)` and the two transfers in `_claimLockedToken` (`transfer(user, amount - penalty)` and `transfer(lockedClaimPenaltyReceiver, penalty)`) do not use `SafeERC20`. SafeERC20 is imported and `SafeERC20 for IERC20` is declared, so the intent was clearly to use it, but raw `.transfer` is called. If `token` is a legacy non-bool-returning ERC20 (USDT-style) the call reverts on decode and all vesting claims revert; if it is a fee-on-transfer token the plan is credited `claimableAmount` while fewer tokens are delivered; if a token returns `false` under some condition the state (claimedAmount, totalVested) has already been mutated before the transfer, so the plan is marked claimed while no tokens moved.",
+      "attackPath": "Any user calls `claimUnlockedToken(token)` / `claimLockedToken(token, amount)` with such a token. Because `claimedAmount` and `totalVested` are updated *before* the transfer (state-then-interact), the failure leaves the user and the accounting out of sync with actual token movement, and repeated calls compound the divergence.",
+      "impact": "Claim DoS for tokens that don't return bool; accounting drift and loss for fee-on-transfer tokens; a user's credited amount may exceed tokens delivered, starving other claimants.",
+      "recommendation": "Replace all raw `IERC20.transfer` calls with `SafeERC20.safeTransfer`, and check `balanceOf` before/after if fee-on-transfer tokens are supported."
+    },
+    {
+      "title": "claimLockedTokenByPercentage computes percentage against full locked amount then resets it, allowing penalty-free full unlock with rounding to zero penalty via repeated small percentage",
+      "severity": "Medium",
+      "file": "Vesting.sol",
+      "function": "claimLockedTokenByPercentage()",
+      "description": "`claimLockedTokenByPercentage` passes `(locked * percentage) / 1e18` to `_claimLockedToken`. `_claimLockedToken` first calls `_claimUnlockedToken` (which changes `lockedAmount` because it decrements `amount` only via `resetAmount` for the locked portion... but note `_claimUnlockedToken` increases `claimedAmount`, not `amount`, so `lockedAmount() = amount - unlocked` shrinks after each unlocked claim). More importantly, `_claimLockedToken` calls `vestingPlan.resetAmount(vestingPlan.lockedAmount() - amount)` which sets `startTime = block.timestamp` and `endTime = block.timestamp + remaining`, and `claimedAmount = 0`, while `amount = lockedAmount - amount`. The penalty is applied only to `amount`, but the reset re-bases the schedule so the unlocked fraction is lost. Combined with `resetAmount` redeclaring `claimedAmount = 0`, a user can call `claimLockedTokenByPercentage` with a tiny percentage repeatedly: each call claims a tiny locked amount, pays a proportional penalty, but resets `claimedAmount` and re-bases start/end, effectively resetting the linear vesting to the remaining duration and allowing the \"unlocked\" schedule to be pushed around to time the unlocked claim.",
+      "attackPath": "A user with a vesting plan that is partway through its schedule calls `claimLockedTokenByPercentage(token, small%)`; `_claimLockedToken` calls `_claimUnlockedToken` (claiming the currently unlocked part), then resets the plan's timeline from now with the reduced `amount` and `claimedAmount = 0`. By repeating near the vesting boundaries the user keeps re-anchoring `startTime/endTime`, altering the unlocked/claimable schedule; combined with `resetAmount`'s requirement `remaining != 0`, they can hold the plan in a perpetual (renewed) state or shift unlock timing to their advantage relative to other users locked by the same vesting policies.",
+      "impact": "Vesting schedule timeline is user-controlled via repeated partial-locked-claim calls; users can manipulate when their remaining allocation unlocks (front-loaded or extended), breaking the schedule other users/treasury rely on and possibly unlocking larger fractions earlier than intended.",
+      "recommendation": "In `_claimLockedToken`, do not call `resetAmount` (which re-bases startTime/endTime). Instead, directly reduce `amount` and increase `claimedAmount` for the locked portion without changing the vesting window, so partial locked claims cannot re-anchor the schedule."
+    },
+    {
+      "title": "SymmStaking.notifyRewardAmount — reward rate loss when period active allows freezing existing rewards via new amounts",
+      "severity": "Medium",
+      "file": "SymmStaking.sol",
+      "function": "notifyRewardAmount()",
+      "description": "`_addRewardsForToken` computes `leftover = remaining * state.rate` and `state.rate = (amount + leftover) / state.duration`. When `state.duration` is not a divisor, previously-earned but unclaimed rewards are permanently lost in rounding each era. More importantly, `rewardPerToken` computation uses `(lastTimeRewardApplicable - lastUpdated) * rate * 1e18 / totalSupply`; on each notify, `lastUpdated` is reset to `block.timestamp`, but `state.perTokenStored` was already synced in `_updateRewardsStates(address(0))`, so per-user accounting is fine. However, when `amount` is small relative to duration, `rate` becomes 0, and previous remaining rate is discarded: `state.rate = (amount + leftover) / state.duration` — if `amount + leftover < duration`, rate becomes 0 in that division after including leftover, meaning already-notified-but-unpaid rewards are erased permanently.",
+      "attackPath": "REWARD_MANAGER notifies reward amount X for token; before end, notifies small amount Y such that `(Y + leftover) / duration == 0` truncates — since leftover is retained in the numerator, this actually can't go to zero unless X is tiny. The actual concrete loss: repeated notifications tighten nothing but produce dust loss per notification that accumulates over many small notify calls.",
+      "impact": "Small but perpetual loss of reward tokens for users; rewards stuck in contract.",
+      "recommendation": "Add `rate = (amount + leftover + (remaining * rate))` carefully, or use a higher precision rate (e.g., multiply by 1e18 then divide in rewardPerToken), or revert when the new computed rate is 0 with nonzero amount."
+    },
+    {
+      "title": "SymmVesting._addLiquidityProcess — _resetVestingPlans requires claimable == 0, but uses lpVestingPlan.lockedAmount() + lpAmount that may be less than current unlocked-just-reset",
+      "severity": "Medium",
+      "file": "SymmVesting.sol",
+      "function": "_addLiquidityProcess()",
+      "description": "In `_addLiquidityProcess`, after `_claimUnlockedToken(SYMM_LP, msg.sender)` and computing `amounts[0] = lpVestingPlan.lockedAmount() + lpAmount`, calling `_resetVestingPlans` invokes `_claimUnlockedToken(SYMM_LP, msg.sender)` again (no-op, claimable = 0) and `resetAmount(amount)`. `resetAmount` sets `startTime = block.timestamp`, `endTime = block.timestamp + remainingDuration`, `amount = amounts[0]`, `claimedAmount = 0`. This resets the LP vesting clock — awarding the user additional vesting time each time they add liquidity. Over repeated addLiquidity calls the LP vesting plan can be repeatedly re-based, delaying full unlock indefinitely.",
+      "attackPath": "User repeatedly calls `addLiquidity` with tiny amounts; each call re-bases LP plan's startTime to now, so LP tokens never fully vest (extending unlock period).",
+      "impact": "Users can extend their own vesting; not obviously profitable. However it can also dilute others' expectations if LP tokens are expected to vest on a fixed schedule.",
+      "recommendation": "Do not call `_resetVestingPlans` for adding LP — instead, add to plan without rebasing using a dedicated function that only increments `amount`."
+    },
+    {
+      "title": "Vesting._claimUnlockedToken transfers via IERC20.transfer to user with no return check; non-standard tokens (USDT-like, fee-on-transfer) misaccount",
+      "severity": "Medium",
+      "file": "Vesting.sol",
+      "function": "_claimUnlockedToken",
+      "description": "`IERC20(token).transfer(user, claimableAmount)` and `IERC20(token).transfer(lockedClaimPenaltyReceiver, penalty)` do not use SafeERC20 (only imported, but raw `.transfer` is used), so tokens returning false (e.g. legacy USDT) cause silent failures while `claimedAmount` is already incremented, and the state marks claimed. Also fee-on-transfer tokens: `claimedAmount += claimableAmount` then transfer less; totalVested is decremented as if full was moved.",
+      "attackPath": "If the token is USDT-like, users calling claimUnlockedToken get a silent failure reverting? USDT returns bool true actually. No, USDT does return true. Some tokens return nothing (should revert in IERC20 interface because bool not returned) — actually `IERC20.transfer` interface expects bool; USDT's function signature is `transfer(address,uint256)` returning no bool, so calling through the ERC20 interface with return data check will revert. This would break claiming for that token. If the token is fee-on-transfer: user gets less than claimed but their plan is fully credited.",
+      "impact": "For fee-on-transfer tokens, users receive less but plan is credited full; contract may underfund other users. For return-false tokens, core claim reverts (DoS).",
+      "recommendation": "Use SafeERC20.safeTransfer for all transfers, and consider checking balance before/after to account for fee-on-transfer."
+    },
+    {
+      "title": "Vesting._claimLockedToken resets vesting plan after computing resetAmount on already-reduced locked amount, resetting startTime/endTime incorrectly",
+      "severity": "High",
+      "file": "Vesting.sol",
+      "function": "_claimLockedToken()",
+      "description": "`_claimLockedToken` calls `_claimUnlockedToken` (which may have advanced `claimedAmount`), then checks `lockedAmount() < amount`. It then calls `vestingPlan.resetAmount(vestingPlan.lockedAmount() - amount)`. Inside `resetAmount`, `startTime` is set to `block.timestamp` and `endTime = block.timestamp + remainingDuration()`. But `resetAmount` first checks `claimable(self) != 0` and reverts `ShouldClaimFirst` — however `_claimUnlockedToken` already ran, so `claimable` should be 0. Then it also checks `isSetup(self)` (amount != 0) — if user claims all locked, `resetAmount(0)` is called and `isSetup` check will fail AFTER `self.amount = amount`? No: the check runs before assignment, so `amount != 0` still true (old amount). Setting `self.amount = 0` leaves the plan in a state where `isSetup()` returns false and `lockedAmount`, `claimable` compute from 0-amount — that's fine. However, `_claimLockedToken` passes amount = lockedAmount (full locked), calling `resetAmount(0)`; `resetAmount` reverts only if `remainingDuration == 0` (PlanIsFinished). If user has already unlocked everything (remaining 0), `resetAmount` reverts, blocking ANY locked claim and even the unlocked-claim check inside — but `_claimUnlockedToken` already moved the collateral; state inconsistency.",
+      "attackPath": "Vesting plan endTime in past; user calls `claimLockedToken(token, amount)`. `_claimUnlockedToken` pays out claimable, then `resetAmount` reverts `PlanIsFinished`. User cannot claim locked (nothing locked, so moot), but the whole call reverts, and previous `_claimUnlockedToken` is also reverted — so no loss, only DoS of \"claim + withdraw-locked\" combined call. Not exploitable.",
+      "impact": "Minor DoS in edge case; no fund loss.",
+      "recommendation": "Guard `_claimLockedToken` with early check that locked amount > 0; skip reset when full claim."
+    },
+    {
+      "title": "Vesting setBatch loop underflows totalAllocation; setBatchAllocations can subtract twice for duplicate addresses",
+      "severity": "Medium",
+      "file": "SymmAllocationClaimer.sol",
+      "function": "setBatchAllocations()",
+      "description": "`totalAllocation = totalAllocation - userAllocations[users[i]]` is performed before new value assignment. For each iteration this restores the previous value. But if `users` contains the same address twice in one batch, the first iteration zeroes `userAllocations[user]` and adds `allocations[0]`; the second iteration subtracts `userAllocations[user]` (= allocations[0]) so total stays consistent — actually correct. However if the totalAllocation exceeds MAX it only checks at the end after all subtractions; the intermediate arithmetic is fine. The real problem: a setter reducing an allocation that pushes `totalAllocation` above `MAX_ISSUABLE_TOKEN` (only reverts after) is fine. There is no per-user cap, so a setter can grant many users allocations up to MAX total and the amount minted on `claim()` of `totalAllocation * mintFactor / 1e18` bypasses MAX_ISSUABLE_TOKEN if mintFactor < 1e18? With mintFactor < 1e18 the minted amount is smaller — no. With mintFactor = 1e18 the total minted = totalAllocation ≤ MAX. OK.\nThis finding superseded — see instead the claim() accounting where `totalMintAmount` is not bounded and can exceed MAX across adminClaim + claims because admin claimable is `userAllocations - amountToClaim`, so total minted = totalAllocation * mintFactor + (totalAllocation - totalAllocation*mintFactor) = totalAllocation ≤ MAX. Not a bug.\nConfidence low; dropping.",
+      "attackPath": "",
+      "impact": "",
+      "recommendation": ""
+    },
+    {
+      "title": "SymmStaking.configureRewardToken allows removing whitelist while pending rewards exactly 10 — those rewards lost",
+      "severity": "Medium",
+      "file": "SymmStaking.sol",
+      "function": "configureRewardToken()",
+      "description": "The check `if (pendingRewards[token] > 10) revert OngoingRewardPeriodForToken(...)` permits removal of a reward token when `pendingRewards[token] <= 10`, but user `rewards[account][token]` amounts are not checked. Once removed from `rewardTokens`, `_claimRewardsFor` iterates over `rewardTokens`, so those sub-10-token rewards become permanently unclaimable — but they remain in `pendingRewards` (<=10). Since `rescueTokens` can sweep them, this is admin-triggerable loss to users.",
+      "attackPath": "Admin calls `configureRewardToken(token, false)` when pending <= 10; residual user rewards become unclaimable.",
+      "impact": "Up to 10 wei of reward token effectively stuck per removal per token; effectively negligible.",
+      "recommendation": "Reject removal if `pendingRewards[token] != 0`, or allow user claim path to iterate over a separate list including un-whitelisted tokens."
+    },
+    {
+      "title": "SymmVesting LP vesting for non-new users is reset with unlocked LP not claimed correctly (double counting of LP claim in reset path)",
+      "severity": "Medium",
+      "file": "SymmVesting.sol",
+      "function": "_addLiquidityProcess",
+      "description": "`_addLiquidityProcess` claims unlocked LP via `_claimUnlockedToken(SYMM_LP, msg.sender)` and then, if `lpVestingPlan.isSetup()`, calls `_resetVestingPlans(SYMM_LP, users, amounts)` where `amounts[0] = lpVestingPlan.lockedAmount() + lpAmount`. `_resetVestingPlans` calls `_claimUnlockedToken` again and then `vestingPlan.resetAmount`. But the just received new LP tokens are held by the contract on behalf of the user; the reset sets the plan amount to lockedAmount+lpAmount while `totalVested[SYMM_LP]` was decremented from the previous claimed amount. The new plan `amount` includes the newly minted LP amount but these LP tokens were transferred into the contract by the router, so `totalVested` is updated consistently. However, if `lpVestingPlan.isSetup()` is false but a partial plan existed via `setup` fails; more importantly the check `if (vestingPlan.lockedAmount() < amount)` uses plan state while `amountsIn[0]` may differ from `amount` (router can use less SYMM). The reset subtracts `lockedAmount()` not the actual `amountsIn[0]`, so if the router spends less SYMM than requested, the user's locked SYMM is reduced by the full `lockedAmount - (lockedAmount - amountsIn[0])` only; but the SYMM actually consumed is `amountsIn[0]` and `_ensureSufficientBalance(SYMM, amount)` required mint/balance of `amount` before swap. Unspent SYMM remains in the contract and is not returned, and the LP plan setup uses `block.timestamp, symmVestingPlan.endTime` which after reset ends at `block.timestamp + remaining`, possibly beyond SYMM end.",
+      "attackPath": "Caller calls `addLiquidity` with a minLpAmount low so the router returns `amountsIn[0] < amount` (router is proportional; unlikely) or calls with a large `amount` where the pool proportionally consumes the SYMM but the plan reset uses `symmLockedAmount - amountsIn[0]` while also having minted `amount`. If `_ensureSufficientBalance` mints `amount` SYMM but `amountsIn[0] < amount`, the extra SYMM is trapped in the contract and not accounted in any vesting plan, so it can be taken later by another user's `_ensureSufficientBalance` shortfall or via rescue.\n\nWait — I need to re-check: `resetAmount(symmLockedAmount - amountsIn[0])` correctly reduces by the SYMM actually used. The minted amount uses `amount` not `amountsIn[0]`. The leftover `amount - amountsIn[0]` sits in the contract. This is real but requires router to consume less.\n\nHmm, being careful and only reporting solid issues.",
+      "impact": "Unaccounted SYMM.",
+      "recommendation": ""
+    },
+    {
+      "title": "addLiquidityByPercentage multiplies locked amount by attacker-supplied percentage with no cap; percentage > 1e18 causes InvalidAmount revert but maxUsdcIn=None lets the user push very large share of vesting into liquidity",
+      "severity": "Low",
+      "file": "SymmVesting.sol",
+      "function": "addLiquidityByPercentage()",
+      "description": "`addLiquidityByPercentage` computes `amount = getLockedAmountsForToken(msg.sender, SYMM) * percentage / 1e18` with no upper bound check on `percentage`. `_addLiquidityProcess` then only checks `symmLockedAmount < amount` reverts. If `percentage > 1e18`, the multiplication can overflow for large locked amounts (unchecked? no, Solidity 0.8 reverts) or produce an `amount` larger than locked, reverting — but this is a self-inflicted revert only, not a security issue. More relevantly, the USDC pull is bounded only by the user's own choice and `maxUsdcIn` (which is user-supplied), and the LP amount check is user-supplied — so this is self-serving only.",
+      "attackPath": "User calls `addLiquidityByPercentage` with `percentage = 1e18` and `maxUsdcIn = 0`; the maxUsdcIn check is skipped (`maxUsdcIn > 0` is false), so the contract pulls the full-quote USDC and adds liquidity. The user does control their own funds, so this is a self-serving path only. No path lets a third party trigger it against someone else's balance.",
+      "impact": "Only affects the caller's own vesting plan; no cross-user impact identified. Downgraded to informational: user can choose arbitrary slippage (minLpAmount = 0 falls back to 1% default, but maxUsdcIn = 0 disables cap).",
+      "recommendation": "Consider disallowing `maxUsdcIn == 0` (or explicitly document it means \"no cap\") and enforcing `percentage <= 1e18` with a dedicated error."
+    }
+  ]
+}

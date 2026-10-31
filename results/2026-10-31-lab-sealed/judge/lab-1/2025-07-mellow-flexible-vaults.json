@@ -1,0 +1,537 @@
+{
+ "audit": "2025-07-mellow-flexible-vaults",
+ "verdicts": [
+  {
+   "title": "Consensus.checkSignatures accepts duplicate signers, allowing threshold bypass with repeated signatures",
+   "strict": "H-1",
+   "a": {
+    "match": "H-1",
+    "reden": "Both findings describe the same issue in the same function and contract.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "H-1",
+    "reden": "Both describe Consensus.checkSignatures failing to deduplicate signers, allowing threshold bypass via repeated signatures.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Consensus.checkSignatures lacks duplicate-signer check — threshold can be met with one signer repeating",
+   "strict": "H-1",
+   "a": {
+    "match": "H-1",
+    "reden": "Both findings describe a duplicate-signer check issue in the checkSignatures function of the Consensus contract.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "H-1",
+    "reden": "Both describe the same missing duplicate-signer check in Consensus.checkSignatures allowing threshold bypass.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "BitmaskVerifier hashes masked bytes but not original length, allowing shorter data to match longer calldata",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found as the candidate describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns BitmaskVerifier.verifyCall masking/hash logic, which is unrelated to any of the listed known findings about signature duplication, queues, fees, or token handling.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Fee-on-transfer / rebasing assets break RiskManager and Queue accounting",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "M-3",
+    "reden": "Both describe queue accounting assuming exact asset amounts transferred, breaking with fee-on-transfer/rebasing tokens like stETH.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "DepositQueue cancel uses wrong Fenwick index, corrupting pending request accounting",
+   "strict": "M-5",
+   "a": {
+    "match": "M-5",
+    "reden": "The candidate finding describes the same root cause in the same function and could lead to the same kind of impact.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "M-5",
+    "reden": "Both describe cancelDepositRequest using the wrong Fenwick index from the price checkpoint instead of the user's request index, corrupting/reverting the pending request accounting.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "SignatureDepositQueue mints arbitrary shares before risk checks/mintAllocatedShares",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in the same function as H-1.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes minting shares without NAV/price validation in SignatureDepositQueue.deposit, which is not the same root cause as any listed finding (H-1 is duplicate signers in Consensus.chec",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "SignatureDepositQueue mints signer-chosen shares without NAV-based share pricing",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function than the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes signer-chosen share minting without NAV pricing, which is not the same root cause as any listed finding (H-1 is about duplicate signers bypassing threshold).",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "SignatureQueue.validateOrder accepts signatures with zero threshold (fresh Consensus)",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue than the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a zero-threshold acceptance flaw, while H-1 is about missing signer duplication checks; different root cause.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "BasicRedeemHook liquid accounting ignores vault.riskManager state and can over-withdraw on empty subvault",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a divergence between BasicRedeemHook's live ERC20 balance reads and RiskManager's tracked subvault balance, which is not the same root cause as any listed finding.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "RedeemQueue users overpaid when handling batches with mixed-share batches via claim ordering",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes rounding dust stranded in RedeemQueue batch accounting, which is not the same root cause as any listed finding (H-2 concerns timestamp boundary mismatch, not per-claim rounding",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "SignatureRedeemQueue burns recipient chosen shares and pays requested assets unvalidated against NAV",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes missing NAV/price validation allowing signers to drain the vault, which is not the same root cause as any listed finding (H-1 is signature duplication, others concern different",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Reentrancy-unsafe ordering in RedeemQueue.claim lets double-claim same batch",
+   "strict": "H-2",
+   "a": {
+    "match": "H-2",
+    "reden": "The candidate describes a similar accounting mismatch in RedeemQueue.claim.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "H-2",
+    "reden": "Both describe RedeemQueue accounting mismatch between batch creation/processing and claim eligibility due to timestamp boundary handling, causing mis-attributed or unclaimable redemptions.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Verifier does not validate custom verifier address against verifierFactory entities",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns missing verifierFactory entity validation in Verifier.getVerificationResult, which is unrelated to any listed finding.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Missing `handledIndices` update on empty batch in RedeemQueue._handleReport lets the timestamp be re-processed",
+   "strict": null,
+   "a": {
+    "match": "H-2",
+    "reden": "The candidate describes a similar accounting mismatch in RedeemQueue._handleReport.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a rounding-to-zero assets issue in RedeemQueue batch creation, which is not the same root cause as any listed finding (H-2 concerns timestamp boundary mismatch, not rounding).",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "SignatureQueue replay across queue instances in the same vault",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue than the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes cross-instance signature replay via shared EIP-712 domain, which is not the same root cause as any listed finding (H-1 is about duplicate signers within checkSignatures).",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "ShareManager applied deposti fee to shares minted to recipient, base of protocol fee shifted",
+   "strict": null,
+   "a": {
+    "match": "H-5",
+    "reden": "The candidate describes the same root cause in the same function as H-5.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes fee accrual base/timestamp and minPrice reset issues in FeeManager.calculateFee, which is not the same root cause as any listed finding (H-5 concerns the performance fee formul",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "ShareManager mint() overwrites target lockup for recipient with a smaller value",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "M-8",
+    "reden": "Both describe ShareManager.mint() unconditionally resetting/overwriting the target lockup on each mint, though M-8 frames it as a feeRecipient DoS while the candidate frames it as shortening a recipie",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`handleReport` mints fees using feeManager recipient before updating fee state causing fee-on-fee accrual",
+   "strict": null,
+   "a": {
+    "match": "H-4",
+    "reden": "The candidate describes the same root cause in the same function and could lead to the same kind of impact.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "M-4",
+    "reden": "Both describe protocol fee shares compounding because handleReport mints fees based on totalShares that already includes previously minted fee shares.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Verifier.getVerificationResult trusts verifier address encoding in verificationData",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns unvalidated custom verifier addresses in Verifier.getVerificationResult, which is unrelated to any of the listed known findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "TransferLibrary.receiveAssets for ETH does not verify msg.value when called with ERC20 path",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes ETH/ERC20 msg.value mismatch in TransferLibrary.receiveAssets, which is not the same root cause as any listed finding (e.g., M-2 concerns missing receive() in SignatureRedeemQu",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "TransferLibrary.receiveAssets leaves msg.value stuck when depositing ERC20",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding addresses ETH stuck when depositing ERC20 via TransferLibrary.receiveAssets; it is a distinct issue from the listed findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "handleReport timestamp validation allows future `timestamp` leading to mis-processing",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes timestamp/interval underflow and retroactive security-param changes in acceptReport, which is not the same root cause as any listed finding (H-2 concerns RedeemQueue batch/clai",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "ShareModule.callHook sends assets to queue even when hook is a deposit hook (delegatecall path)",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes excess assets left in the vault after redeem hook pulls more than requested, which is not the root cause of any listed finding.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "redeem fee shares are minted to fee recipient after burn, reducing effective redeem amount and causing reentrancy-order issue",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in the same function as H-6, but the impact is not the same.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "H-6",
+    "reden": "Both describe redeem fee shares being burned/minted in RedeemQueue.redeem such that redeemers avoid paying fees, with the candidate adding a SignatureRedeemQueue fee-bypass variant of the same root ca",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Missing `modifyPendingAssets` for signature deposit; vault balance incremented before callHook",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in the same function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing modifyPendingAssets/ordering issue in SignatureDepositQueue.deposit causing vault balance staleness and limit bypass, which is not the same root cause as any listed f",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Any whitelisted body can freely drive LidoDepositHook's delegatecall (hook is an entity shared as hook)",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function and contract.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an unverified delegatecall/forged-assets concern in LidoDepositHook, which is not the same root cause as any listed finding.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Missing checks in create() let anyone use Factory.create to circumvent blacklist by reusing entities",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function than any of the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes missing access control on Factory.create allowing bypass of vault-level checks, which is not the same root cause as any listed finding.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "BitmaskVerifier.calculateHash uses bytes32 concatenation masking that truncates address/bytes masks",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns BitmaskVerifier.calculateHash byte-masking semantics, which is unrelated to any of the listed known findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "RedeemQueue claim leaves batch.shares positive while zero assets after rounding, allowing free claims",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a rounding issue in the claim function of RedeemQueue, which is not covered by any of the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a rounding/accounting mismatch in RedeemQueue.claim(), which is not the same root cause as any listed finding (H-2 concerns timestamp boundary mismatch, not rounding).",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Verifier.getVerificationResult CUSTOM_VERIFIER loads address from calldata without entity check",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns Verifier.getVerificationResult custom verifier handling, which is unrelated to any of the listed known findings about queues, fees, signatures, or token handling.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "ShareModule.getLiquidAssets trusts msg.sender queue membership but not pause/deposit direction check after hook call",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a malicious/compromised redeem hook returning inflated liquid assets in getLiquidAssets, which is not the same root cause as any listed finding (M-7 concerns unsupported assets",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "LidoDepositHook callHook re-delegates with possibly zero assets and uses nextHook without verifying interface, allowing infinite loop if nextHook == self",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a self-referential nextHook infinite recursion in LidoDepositHook.callHook, which is unrelated to any of the listed known findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`FenwickTreeLibrary.get(from,to)` returns wrong results when index == length-1 boundary",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a Fenwick tree extend/get bug, which is unrelated to any listed finding (M-5 concerns a wrong index in cancelDepositRequest, not extend/get logic).",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "SignatureQueue.claimableOf/claim/handleReport are empty virtual stubs and can be inherited without override",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue than the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes empty virtual stubs in SignatureQueue not being overridden, which is not the same root cause as any listed finding.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "BasicRedeemHook.callHook trusts `assets` passed by ShareModule and has no authentication of the queue",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a speculative pull-then-push churn in BasicRedeemHook.callHook, which is not the same root cause as any listed finding.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "VaultConfigurator.create is permissionless and uses proxyAdmin as clone owner; anyone can construct a vault with themselves as proxyAdmin",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a permissionless function in VaultConfigurator.sol, which is not present in the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a permissionless VaultConfigurator.create with attacker-chosen proxyAdmin, which is not the same root cause as any listed finding.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "RedirectingDepositHook.callHook runs in vault context and pushes on behalf of any calling queue without checking caller is the deposit hook's vault",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function and contract.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing caller authentication in RedirectingDepositHook.callHook causing wrong-direction hook execution, which is not the root cause of any listed finding.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "SignatureRedeemQueue.redeem does not burn requested shares before transfer, allowing share/asset mismatch",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in the same function as H-6.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a speculative share/asset mismatch and oracle/hook liquidity concern in redeem, which does not correspond to any listed finding's root cause.",
+    "model": "deepseek-flash"
+   }
+  }
+ ]
+}
