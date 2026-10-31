@@ -1,0 +1,431 @@
+{
+ "audit": "2025-07-mellow-flexible-vaults",
+ "verdicts": [
+  {
+   "title": "Consensus.checkSignatures accepts duplicate signers to satisfy threshold",
+   "strict": "H-1",
+   "a": {
+    "match": "H-1",
+    "reden": "Both findings describe the same issue in the same function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "H-1",
+    "reden": "Both describe Consensus.checkSignatures failing to check for duplicate signers, allowing threshold bypass.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Consensus threshold bypass via duplicated signatures in checkSignatures",
+   "strict": "H-1",
+   "a": {
+    "match": "H-1",
+    "reden": "Both findings describe the same issue of duplicated signatures in checkSignatures leading to a consensus threshold bypass.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "H-1",
+    "reden": "Both describe checkSignatures not checking for duplicate signers, allowing threshold bypass via repeated signatures.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "DepositQueue cancelDepositRequest reads wrong index from prices checkpoint",
+   "strict": "M-5",
+   "a": {
+    "match": "M-5",
+    "reden": "The candidate finding describes the same root cause in the same function and could lead to the same kind of impact.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "M-5",
+    "reden": "Both describe cancelDepositRequest using the price checkpoint value instead of the request index when modifying the Fenwick tree, causing wrong index/out-of-bounds behavior.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "ShareManager.updateChecks compares global lockup against block.timestamp not lockup duration semantics",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a global lockup timestamp/duration comparison bug in ShareManager.updateChecks, which is not among the known findings (M-1 covers whitelist inversion in the same function, a di",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`updateChecks` transfer-whitelist logic is inverted and lets permitted transfers fail",
+   "strict": "M-1",
+   "a": {
+    "match": "M-1",
+    "reden": "The candidate finding describes the same root cause in the same function and could lead to the same kind of impact.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "M-1",
+    "reden": "Both describe the same inverted transfer-whitelist logic in ShareManager.updateChecks.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Fee-on-transfer and rebasing assets break accounting in DepositQueue and RiskManager",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function and contract.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "M-9",
+    "reden": "Both describe rebasing/fee-on-transfer token accounting drift in DepositQueue where booked assets differ from actual received balances.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Permissionless factory registration lets anyone inject a malicious implementation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing access control on proposeImplementation in Factory.sol, which is not among the known findings about signature duplication, queue accounting, fees, or token handling.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Queue.canBeRemoved called by ShareModule.removeQueue on SignatureQueue allows removal with outstanding user balances",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes unconditional canBeRemoved allowing queue removal with locked balances; it is a distinct issue not covered by the listed findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "DepositQueue._handleReport transfers via shareManager.mint without accounting claim of fees correctly",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "M-8",
+    "reden": "Both describe feeRecipient shares being perpetually locked because ShareManager.mint applies/resets targeted lockup on every fee mint.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "BitmaskVerifier.verifyCall trusts bitmask length from unverified abi layout, enabling hash mismatch bypass",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns BitmaskVerifier.verifyCall's bitmask/hash layout, which is unrelated to any of the listed known findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "DepositQueue.deposit credits wrong Fenwick index when same-timestamp path is taken",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a wrong Fenwick index in DepositQueue.deposit(), which is a different bug from the known cancelDepositRequest index issue (M-5) and not covered by any other listed finding.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Oracle.submitReports pushes timestamp uint32(block.timestamp - interval); if interval > block.timestamp or interval > uint32 max, underflow/truncation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a timestamp underflow/truncation in Oracle.submitReports, which is not the root cause of any listed finding (H-4 concerns fee accrual, not timestamp arithmetic).",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`EigenLayerVerifier.completeQueuedWithdrawal` checks `withdrawal.strategies.length == 1` after indexing `withdrawal.strategies[0]`, allowing out-of-bounds revert not passing verification",
+   "strict": null,
+   "a": {
+    "match": null,
+    "ongeldig": "geen-json",
+    "reden": "",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an out-of-bounds array access in EigenLayerVerifier.verifyCall, which is unrelated to any of the listed known findings about queues, fees, signatures, or token handling.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`EigenLayerVerifier.completeQueuedWithdrawal` reads strategies[0] before the length guard",
+   "strict": null,
+   "a": {
+    "match": null,
+    "ongeldig": "geen-json",
+    "reden": "",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns an out-of-bounds array access in EigenLayerVerifier.verifyCall, which is unrelated to any of the listed known findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "RiskManager.convertToShares returns price-based conversion but shares units are not consistent across assets",
+   "strict": null,
+   "a": {
+    "match": null,
+    "ongeldig": "geen-json",
+    "reden": "",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a share/asset unit inconsistency in RiskManager.convertToShares and vault balance accounting, which is not the root cause of any listed finding.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "SignatureRedeemQueue burns shares from recipient but cash goes to recipient - reentrancy/order flaw",
+   "strict": null,
+   "a": {
+    "match": null,
+    "ongeldig": "geen-json",
+    "reden": "",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy/ordering flaw in redeem() involving callHook and balance updates, which is not the same root cause as any listed finding.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "VaultModule._pushAssets calls modifySubvaultBalance then send, but BasicRedeemHook.getLiquidAssets counts vault-balance delta after hook — accounting drift",
+   "strict": null,
+   "a": {
+    "match": null,
+    "ongeldig": "geen-json",
+    "reden": "",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an accounting drift in VaultModule._pushAssets/RedeemQueue.handleBatches ordering, which is not the same root cause as any listed finding.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "BasicRedeemHook.callHook reads vault address as address(this) incompatibly with getLiquidAssets using msg.sender",
+   "strict": null,
+   "a": {
+    "match": null,
+    "ongeldig": "geen-json",
+    "reden": "",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an address-resolution inconsistency in BasicRedeemHook, which is not the root cause of any listed finding.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Oracle.acceptReport recomputes timestamps differently from submitReports and can underflow",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a timestamp recomputation/underflow in Oracle.acceptReport, which is not among the listed known findings (none address this acceptReport timestamp logic).",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "SignatureQueue.validateOrder permits replay/ordering flaw when signed order still valid at call, plus deposit uses order.caller rather than msg.sender enforced but nonces incremented before external calls",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue than the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate is a vague, multi-topic remark about signature replay/ordering and redeem fee bypass, not the same root cause as any listed finding.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "MellowACL.supportedRoles can never be revoked — role removal check uses role member count of enumerable set that is never cleared",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns MellowACL role revocation logic, which is unrelated to any of the listed known findings about queues, fees, signatures, or token handling.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "FeeManager.calculateFee charges protocol fee off stale timestamp without updating minPrice on every asset",
+   "strict": "H-4",
+   "a": {
+    "match": "H-4",
+    "reden": "The candidate finding describes the same root cause in the same function and could lead to the same kind of impact as H-4.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "H-4",
+    "reden": "Both describe protocol fee being accrued multiple times/incorrectly because the timestamp is only updated for the base asset, causing excessive fees for non-base assets in handleReport/calculateFee.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "RedeemQueue.redeem captures timestamp via uint32(block.timestamp) but reuses stale prefixSum index",
+   "strict": null,
+   "a": {
+    "match": "H-2",
+    "reden": "The candidate describes a similar issue with timestamp handling in RedeemQueue leading to accounting inconsistencies.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a prefixSum/index accounting bug in RedeemQueue.redeem, which is not the same root cause as any listed finding (H-2 concerns timestamp boundary mismatch in _handleReport, not p",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "RedeemQueue.claim leaves zero-share batches and iterates past previously processed entries",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a division-by-zero freeze from zero-share batches in RedeemQueue.claim, which is not the same root cause as any known finding (H-2 concerns timestamp boundary accounting mismat",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "SignatureDepositQueue and SignatureRedeemQueue accept ETH (payable) but never refund, and receiveAssets for ETH checks msg.value == assets",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue than the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate is an incoherent, self-contradicting description about payable ETH handling and msg.value checks, not the same root cause as any listed finding.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "ShareModule.hasQueue calls IQueue(queue).asset() on the unchecked caller before verifying membership — DoS on hooks and onlyQueue guards",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an unchecked IQueue.asset() call in ShareModule.hasQueue leading to DoS/hook dispatch, which is not the root cause of any listed finding.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "SignatureQueue.claimableOf and claim are virtual empty stubs that users can call; getLiquidAssets used before state updates",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue than the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes empty virtual stubs and getLiquidAssets ordering in SignatureQueue, which is not the same root cause as any listed finding.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Oracle.acceptReport passes original report.timestamp to vault.handleReport, but uses it for queue timestamps; user could get wrong batch",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a timestamp/batch-window issue in Oracle.acceptReport, which is not the same root cause as any listed finding (H-2 concerns RedeemQueue timestamp boundary logic, not acceptRepo",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`Oracle.acceptReport` subtracts `params.depositInterval`/`redeemInterval` from the report timestamp, which the report stores as `block.timestamp` during submitReports; underflow reverts if intervals > block.timestamp, but intervals can be large",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a potential underflow issue in the Oracle.acceptReport function, which is not the same as any of the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a timestamp re-derivation/underflow concern in Oracle.acceptReport, which is not the same root cause as any listed finding (H-4 concerns protocol fee accrual in submitReports, ",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "DepositQueue initialize creates requests tree but claim/cancel rely on prefix sum length mismatch after extend",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a speculative Fenwick tree length/prefix-sum mismatch in DepositQueue.deposit(), which is a different root cause and function than any listed finding (M-5 concerns cancelDeposi",
+    "model": "deepseek-flash"
+   }
+  }
+ ]
+}

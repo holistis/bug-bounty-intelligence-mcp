@@ -1,0 +1,215 @@
+{
+  "contest": "2025-04-aegis-op-grant",
+  "hypotheses": [
+    {
+      "title": "Untracked collateral double-counted: depositIncome bypasses custody accounting vs redeemable balance",
+      "severity": "High",
+      "file": "AegisMinting.sol",
+      "function": "approveRedeemRequest()",
+      "description": "`approveRedeemRequest` pays out collateral from `_untrackedAvailableAssetBalance`, i.e. `balance - _custodyTransferrableAssetFunds - assetFrozenFunds`. However, `depositIncome` increments `_custodyTransferrableAssetFunds[collateralAsset] += order.collateralAmount` without actually moving any new collateral into the contract: the income already sits in the contract as untracked balance. This makes the same collateral simultaneously part of custody-transferrable funds and previously untracked funds, whereas it never existed twice.",
+      "attackPath": "1) Users mint, collateral lands in contract and is tracked in `_custodyTransferrableAssetFunds`. 2) `depositIncome` is called by FUNDS_MANAGER on income collateral already held (untracked, e.g. added by external transfer). 3) The function moves that untracked amount into custody-tracked funds by adding to `_custodyTransferrableAssetFunds` while the tokens remain in place, effectively double-counting them (or trusts that managers will transfer it out separately). 4) The same tokens also remain partially payable via redeem requests until custody transfer drains the balance. When drained, `_untrackedAvailableAssetBalance` returns 0 and pending redeem requests revert with `NotEnoughFunds`, while managers can still `transferToCustody` the same balance out.",
+      "impact": "Insolvency for redeemers; funds that back redeem requests are paid to custodians while `totalRedeemLockedYUSD` remains locked on-chain, leaving users unable to exit.",
+      "recommendation": "In `depositIncome`, either pull the collateral from an external source into the contract before tracking it, or do not increment `_custodyTransferrableAssetFunds` for income; ensure accounting tracks each unit of collateral exactly once."
+    },
+    {
+      "title": "Claim amounts indexed by loop position can claim/drain unrelated rewards",
+      "severity": "High",
+      "file": "AegisRewards.sol",
+      "function": "claimRewards()",
+      "description": "In `claimRewards`, the loop iterates over `claimRequest.ids` but, when an id fails the eligibility checks (`continue`), the code does not advance the `amounts` index in lockstep. Later iterations use `claimRequest.amounts[i]` where `i` is the original id index, so eligibility skips desynchronize ids and amounts. More importantly, `_rewards[claimRequest.ids[i]].amount -= claimRequest.amounts[i]` trusts a signer-provided amount that is not validated against the reward amount, and `totalAmount` is the sum of arbitrary requested amounts, so the signature is the only bound on value extracted.",
+      "attackPath": "A trusted-signer-signed ClaimRequest whose `amounts` exceed stored reward amounts, or whose ids list contains ineligible ids interleaved with eligible ones (skipping entries shifts the accounting), lets the caller extract more YUSD than the reward ids hold. Anyone in possession of a signer-produced request (e.g. replayed/misissued) can drain the aggregate reward pool since amounts are not clamped to `_rewards[id].amount` per id and the total is bounded only by contract balance.",
+      "impact": "Loss of all YUSD held by AegisRewards to the claimer; underflow/over-claim of other reward ids.",
+      "recommendation": "Clamp per-id claimed amount to `_rewards[id].amount` and ensure the id/amount indices stay aligned (do not `continue` without consistent indexing; pack id+amount pairs)."
+    },
+    {
+      "title": "requestRedeem can be replayed across chain via chainId only, no nonce — same requestId reused blocks only via timestamp, but missing deduplication allows colliding ids with crafted strings",
+      "severity": "Medium",
+      "file": "AegisRewards.sol",
+      "function": "rewardById()",
+      "description": "`_stringToBytes32` truncates strings longer than 32 bytes by taking only the first 32 bytes of the string via `mload(add(source, 32))`. Two distinct strings that share the first 32 bytes will map to the same `bytes32` id. In `AegisMinting.requestRedeem` and `depositIncome`, ids come from `abi.decode(order.additionalData, (string))`; a signer produces them, but any party can craft signatures only via the trusted signer. In `AegisRewards.depositRewards` the same truncation collapses distinct rewards — and crucially `rewardById` will return the same `Reward` for two distinct ids sharing a prefix.",
+      "attackPath": "1) Legit signer creates an id longer than 32 bytes (or two ids differing only after byte 32). 2) Both map to same `bytes32`. 3) Rewards for one id accrue/claim affect the other. A compromised signer isn't needed: any id scheme where user receives two ids as strings differing after byte 32 loses",
+      "impact": "Reward ids collide, causing one reward to be claimable or expirable incorrectly; potential double-claim or loss of funds.",
+      "recommendation": "Reject string ids longer than 32 bytes or hash them with `keccak256(bytes(source))`."
+    },
+    {
+      "title": "Only first 32 bytes of string hashed for request ids causes collisions",
+      "severity": "Medium",
+      "file": "AegisRewards.sol",
+      "function": "_stringToBytes32()",
+      "description": "`_stringToBytes32` reads `mload(add(source, 32))`, i.e. only the first 32 bytes of the string, ignoring length and any remaining bytes. `depositRewards` and `rewardById` use this truncation, so two distinct request ids sharing the same first 32 bytes map to the same `bytes32` slot.",
+      "attackPath": "An attacker (with signer cooperation or colliding ids in ordinary use) creates two requests whose strings share a 32-byte prefix; rewards for one id accrue to the other, and `claimRewards`/`withdrawExpiredRewards` act on the merged amount.",
+      "impact": "Reward amounts merge across distinct ids, enabling over-claim or theft of another request's rewards; incorrect finalization/expiry accounting.",
+      "recommendation": "Use `keccak256(bytes(source))` instead of assembly truncation when converting ids."
+    },
+    {
+      "title": "Mint uses InsuranceFund mint amount from yusdAmount but collateral fee not deducted — loss to protocol",
+      "severity": "Medium",
+      "file": "AegisMinting.sol",
+      "function": "mint()",
+      "description": "`mint` computes `(mintAmount, fee) = _calculateInsuranceFundFeeFromAmount(yusdAmount, mintFeeBP)` and mints `fee` to the insurance fund plus `mintAmount` to the user, for a total of `yusdAmount`. That is the correct total, but `yusdAmount` was chosen as `min(order.yusdAmount, chainlinkYUSDAmount)`. If the order's `slippageAdjustedAmount` was set as the true minimum, and the user collateral prices above, the user receives exactly the signed amount, and the fee is taken from the user's share — this is fine. However there is no check that `mintAmount >= order.slippageAdjustedAmount`; only `yusdAmount >= slippageAdjustedAmount` is checked, so `mintAmount` (after fee) can be below the user's signed minimum payout. This is a slippage accounting bug that harms the user and is exploitable by a compromised/erroneous signer or fee change.",
+      "attackPath": "1) User signs order with `slippageAdjustedAmount = X`. 2) SETTINGS_MANAGER raises `mintFeeBP` between signing and execution. 3) `yusdAmount == X` passes the slippage check, but user receives `X - fee < X`. 4) Similarly for redeem: `approveRedeemRequest` burns `burnAmount = yusdAmount - fee` but transfers collateral equivalent to full `yusdAmount` to user, while `fee` is paid to insurance fund out of user's locked YUSD; the user gets collateral for the full amount but the fee recipient receives YUSD that should have been burned. The user is overpaid relative to the yusd they actually supplied (fee portion), and the system effectively mints value.",
+      "impact": "Fee-based accounting imbalance on redeem — user gets collateral for `yusdAmount` but only `yusdAmount - fee` is burned; insurer fee funds come from YUSD supply that wasn't burned (actually the fee is transferred from request funds and burnAmount burned, which is consistent). On mint the slippage check compares pre-fee amount leading to user receiving less than signed minimum.",
+      "recommendation": "Compare post-fee `mintAmount` against `order.slippageAdjustedAmount` in `mint`; on redeem use `_calculateInsuranceFundFeeFromAmount` consistently."
+    },
+    {
+      "title": "Redeem request approvals ignore per-user claim exclusivity, allowing locked YUSD drain through expiry reset",
+      "severity": "Medium",
+      "file": "AegisMinting.sol",
+      "function": "requestRedeem()",
+      "description": "`requestRedeem()` obtains the request key as `abi.decode(order.additionalData, (string))` and later pairs it with a `RedeemRequest` that is meant to be unauthenticated per user except via `order.additionalData` and `order.userWallet`. The key is only checked for `request.timestamp != 0`, and while `order.verify` requires `_msgSender() == order.userWallet`, nothing ties an `additionalData` requestId to the user beyond the signer's order. Because the `mint`/`depositIncome` order types also use `additionalData` for other purposes (string, bytes), the signer is responsible for requestId uniqueness. If the trusted signer ever signs an order that includes a reused requestId for a different user, `requestRedeem` reverts but signature replay is blocked only via EIP712 inclusion of `additionalData`.",
+      "attackPath": "User A signs a redeem order with `additionalData = \"req1\"`. If the signer signs an identical requestId for user B, B's `requestRedeem` reverts with `InvalidRedeemRequest`. No theft; but this becomes an availability/DoS vector because the signer must reproduce unique strings deterministically and can be griefed into a fixed id.",
+      "impact": "Legitimate redeem requests with a duplicate or colliding id temporarily cannot be created; the user must acquire a new signature.",
+      "recommendation": "Derive requestId as `keccak256(abi.encode(order.userWallet, order.nonce, order.additionalData))` or include userWallet in the storage key so a collision from a different user cannot block one another."
+    },
+    {
+      "title": "Redeem request expiry uses signer-provided value; collateral amount transferred can exceed what YUSD burned covers due to fee ordering",
+      "severity": "Medium",
+      "file": "AegisMinting.sol",
+      "function": "approveRedeemRequest()",
+      "description": "`approveRedeemRequest` first computes `collateralAmount = _calculateRedeemMinCollateralAmount(asset, amount, yusdAmount)` using `amount` (≤ order.collateralAmount) and `request.order.yusdAmount`, then computes `(burnAmount, fee) = _calculateInsuranceFundFeeFromAmount(yusdAmount, redeemFeeBP)` and transfers `fee` YUSD to insurance while transferring `collateralAmount` (based on the full `yusdAmount`, not on `burnAmount`) to the user. The collateral released is priced on the full YUSD amount; the fee is an additional YUSD transfer. Net: the user receives collateral worth `yusdAmount` (after applying the min of chainlink/oracle), while only `burnAmount = yusdAmount - fee` is burned. This leaves the collateral out of balance vs. burned YUSD by the fee fraction.",
+      "attackPath": "Any redeem approval — user supplies collateral effectively for full `yusdAmount` but only `yusdAmount - fee` is burned; the protocol's `totalRedeemLockedYUSD` decreases by the full amount while fewer tokens are burned and collateral leaves based on full amount.",
+      "impact": "Collateral reserves fall faster than YUSD burned; fee should be a haircut on collateral, not an extra YUSD transfer.",
+      "recommendation": "Base collateral amount on `burnAmount` or reduce `collateralAmount` by the fee-equivalent, and keep burn + fee transfers consistent with a single YUSD accounting base."
+    },
+    {
+      "title": "Mint limit check runs before order signature verification, allowing griefing/limit consumption",
+      "severity": "Medium",
+      "file": "AegisMinting.sol",
+      "function": "mint(), requestRedeem()",
+      "description": "In both `mint` and `requestRedeem`, `_checkMintRedeemLimit` mutates `currentPeriodStartTime` and `currentPeriodTotalAmount` *before* `order.verify` checks the signature, sender and expiry. An unauthenticated caller can submit arbitrary `yusdAmount` values to advance the period/reset accounting or consume the period's limit without a valid signed order.",
+      "attackPath": "Attacker calls `mint`/`requestRedeem` with a large `order.yusdAmount` and an invalid signature. The limit accounting is updated (period reset, totals incremented when within limits) before verify reverts. By choosing amounts, the caller can reset `currentPeriodTotalAmount` at period boundaries or exhaust capacity so legitimate orders revert with `LimitReached`.",
+      "impact": "Denial of service of mint/redeem against other users and manipulated limit accounting.",
+      "recommendation": "Perform `order.verify` and deduplication for requestRedeem/mint before calling `_checkMintRedeemLimit`, consistent with the other order-type checks."
+    },
+    {
+      "title": "requestRedeem lacks order deduplication enabling YUSD lock griefing / double-lock",
+      "severity": "Medium",
+      "file": "AegisMinting.sol",
+      "function": "requestRedeem()",
+      "description": "`mint` and `depositIncome` call `_deduplicateOrder(order.userWallet, order.nonce)`, but `requestRedeem` does not. A single signed redeem order can be replayed as long as the `requestId` in `additionalData` differs, since only the requestId is checked for uniqueness. `totalRedeemLockedYUSD` grows with each replay and `approveRedeemRequest`/`_rejectRedeemRequest`/`withdrawRedeemRequest` all decrement it.",
+      "attackPath": "Signer signs a redeem order for user U. Anyone can resubmit it with different `additionalData` (different request id), locking additional YUSD from `order.userWallet` each time (subject to `onlyWhitelisted(order.userWallet)`), or forcing the user's YUSD to be locked repeatedly if the wallet has approvals. Each new request consumes `redeemLimit`.",
+      "impact": "Victim's YUSD locked in multiple pending requests, limit exhaustion, inconsistent `totalRedeemLockedYUSD` accounting.",
+      "recommendation": "Call `_deduplicateOrder` in `requestRedeem`, and/or include the requestId in the signed payload."
+    },
+    {
+      "title": "requestRedeem has no per-user nonce deduplication; replayed order signature creates refundable locked YUSD",
+      "severity": "High",
+      "file": "AegisMinting.sol",
+      "function": "requestRedeem()",
+      "description": "mint() and depositIncome() call _deduplicateOrder(order.userWallet, order.nonce) but requestRedeem() never does. Because the ID comes from order.additionalData and the whole Order (including additionalData) is signed, the same signed order replays only once per requestId. The real problem is the missing nonce consumption lets the user re-use a signed order across any number of fresh requestIds (they control additionalData only if the signer signs it, but the contract does not bind the requestId ordering to the nonce). More directly: withdrawRedeemRequest() returns the full locked yusdAmount to the user when expiry passes and the request is never approved. If an order with a long-lived signature is honoured, or the signer's nonce intent is undermined because requestRedeem never marks it used, the account can hold multiple pending requests against one intended single-use nonce.",
+      "attackPath": "1) User obtains one signed REDEEM order. 2) Because nonce is never consumed, the user can keep submitting requests and the off-chain signer's nonce accounting (which expects requestRedeem to consume nonces like mint) is bypassed. 3) Requests can sit PENDING until expiry; withdrawRedeemRequest() returns yusd — while the trusted signer believes that nonce was already used.",
+      "impact": "Nonce/signature accounting across mint and redeem diverges; a single signed redeem intent can back multiple lifecycles, amplifying locked amounts / allowing users to revert-effecting requests freely.",
+      "recommendation": "Call _deduplicateOrder(order.userWallet, order.nonce) in requestRedeem() before state changes, matching mint() and depositIncome()."
+    },
+    {
+      "title": "Chainlink heartbeat of zero causes permanently stale price reverts and DoS on mint/redeem",
+      "severity": "Medium",
+      "file": "AegisMinting.sol",
+      "function": "_getAssetUSDPriceChainlink()",
+      "description": "`_getAssetUSDPriceChainlink` uses `chainlinkAssetHeartbeat[asset]` in `updatedAt >= block.timestamp - chainlinkAssetHeartbeat[asset]`. `addSupportedAsset` and the constructor pass heartbeat values, but `removeSupportedAsset` sets heartbeat to 0 while leaving the asset out of `_supportedAssets`, so that path is consistent. The real issue is that the constructor and `_addSupportedAsset` allow `heartbeat = 0`, which makes `block.timestamp - 0 == block.timestamp`, so any price with `updatedAt < block.timestamp` (which is normal, since feeds update periodically) reverts. `_getAssetUSDPriceChainlink` thus reverts on ordinary mint/redeem calls for that asset unless the feed updates in the exact block.",
+      "attackPath": "A trusted admin calls `addSupportedAsset(asset, 0)` or deploys with heartbeat 0. All later `mint`, `requestRedeem`, `approveRedeemRequest`, and `depositIncome` calls for that asset revert with \"Stale price\" whenever the feed's `updatedAt` is older than the current block. The attacker (or careless admin) cannot recover without another admin call to `setChainlinkAssetHeartbeat`.",
+      "impact": "Core mint and redeem functions are bricked for the asset, and locked YUSD for pending redeem requests for that asset cannot be approved (the approve flow also calls `_calculateRedeemMinCollateralAmount`, which reverts on stale price or uses 0 price causing approvals to reject).",
+      "recommendation": "Reject zero heartbeats in `_addSupportedAsset`, `addSupportedAsset`, and `setChainlinkAssetHeartbeat`, or require `chainlinkAssetHeartbeat[asset] > 0` when the feed registry is set."
+    },
+    {
+      "title": "`setAegisConfigAddress` allows zero — mints/redeems then call into address(0) and revert, bricking user funds",
+      "severity": "Medium",
+      "file": "AegisMinting.sol",
+      "function": "setAegisConfigAddress()",
+      "description": "`_setAegisConfigAddress` explicitly permits `address(0)` (the `supportsInterface` check is skipped for zero). If DEFAULT_ADMIN sets zero (accidentally or maliciously), every `mint`, `requestRedeem`, `claimRewards`, `withdrawRedeemRequest` reverts via `aegisConfig.isWhitelisted` / `trustedSigner()` calls (external call to zero returns empty → decode failure). Locked `totalRedeemLockedYUSD` becomes irrecoverable until admin restores.",
+      "attackPath": "Admin sets zero (or compromise), pending redeem users cannot withdraw because all redeem path functions call `aegisConfig`.",
+      "impact": "Temporary DoS on all flows; user locks up if the admin is unavailable.",
+      "recommendation": "Revert `_setAegisConfigAddress` when `_config == address(0)`."
+    },
+    {
+      "title": "claimRewards does not check that request amount <= reward amount; underflow or over-claim reverts/blocks",
+      "severity": "Medium",
+      "file": "AegisRewards.sol",
+      "function": "claimRewards()",
+      "description": "In claimRewards(), `_rewards[ids[i]].amount -= claimRequest.amounts[i]` is executed without checking that `claimRequest.amounts[i] <= _rewards[ids[i]].amount`. If a signed request has amount greater than the remaining reward, the subtraction reverts under 0.8 semantics, so the whole claim (which may contain many valid ids) fails. Because the request is signed by the trusted signer and the amount is fixed, a reward that has been partially consumed by an earlier claim of the same id (amount decreased) will make a later legitimate signed request with the original amount revert. This can lock out claims.",
+      "attackPath": "1) User claims part of a reward id (via a signed request reflecting remaining amount). 2) Later the signer issues a claim request for the same id based on stale amounts. 3) The user's claimRewards reverts due to underflow, and any other valid ids in the same request also fail.",
+      "impact": "Users cannot claim otherwise-valid rewards, and legitimate rewards become stuck unless a fresh signature is produced (off-chain dependency / possible permanent lock).",
+      "recommendation": "`if (claimRequest.amounts[i] > _rewards[ids[i]].amount) continue;` (or cap to remaining) before subtracting, similar to other skip conditions."
+    },
+    {
+      "title": "claimRewards marks id claimed even when amount is zero, and burns a user's one-shot claim on empty reward",
+      "severity": "Medium",
+      "file": "AegisRewards.sol",
+      "function": "claimRewards()",
+      "description": "The loop skips ids where `_rewards[id].amount == 0` but sets `_addressClaimedRewards[_msgSender()][id] = true` for any id that passes the skip checks. If a reward id was created with `depositRewards` amount 0 (or the remaining amount is zero due to rounding/partial claims), the check `_rewards[id].amount == 0` catches it and skips — but consider finalizeRewards() on an id where depositRewards has not yet been called: `_rewards[id].finalized = true` while amount == 0. Later depositRewards adds to that finalized id. The claim path is fine. The real issue: `_addressClaimedRewards` is set before `totalAmount` accumulation, so a claim of `amounts[i]==0` (which the library does not forbid) marks the id claimed permanently without transferring anything, denying a later valid claim of that same id by the same user.",
+      "attackPath": "1) Trusted signer or user crafts a claim including an id with amounts[i] == 0 (ClaimRewardsLib only checks array length equality). 2) The id passes finalize/expiry checks and is marked claimed. 3) A later legitimate claim of that id by the same user is skipped forever.",
+      "impact": "Permanent loss of a user's ability to claim a reward id.",
+      "recommendation": "Require `amounts[i] > 0` and `amounts[i] <= reward.amount` before setting `_addressClaimedRewards`; skip zero amounts without marking claimed."
+    },
+    {
+      "title": "`_checkMintRedeemLimit` accepts request when period expired with amount equal to max, but resets total to 0 after — acceptable, but boundary off-by-one allows extra mint",
+      "severity": "Medium",
+      "file": "AegisMinting.sol",
+      "function": "_checkMintRedeemLimit()",
+      "description": "When `currentPeriodEndTime < block.timestamp` the check is `yusdAmount > limits.maxPeriodAmount` (revert). But the reset block uses `currentPeriodEndTime <= block.timestamp`, then sets `currentPeriodStartTime = block.timestamp` and `currentPeriodTotalAmount = 0`. The inconsistency between `<` and `<=` combined with the delayed reset (reset only happens in the tail block after the else-if check) is not itself exploitable in one call, but combined with `currentPeriodStartTime` being `uint32(block.timestamp)` (truncating a `uint256` time to `uint32`), once `block.timestamp >= 2**32` (year 2106) this wraps. More importantly, the current code allows a user to submit a mint whose `yusdAmount` equals `maxPeriodAmount` exactly on the boundary and still get charged even when the period reset should have been triggered earlier.",
+      "attackPath": "Boundary: at time `currentPeriodEndTime` exactly equal to `block.timestamp`, the first condition uses `>=`, so the limit is enforced, then tail resets to 0, then subtracts nothing — the current call's `yusdAmount` is added to fresh budget instead of the old, so up to 2× `maxPeriodAmount` can be minted within a second of boundary.",
+      "impact": "Slight over-mint across boundary; small. No theft.",
+      "recommendation": "Reset period before enforcing limit, and use a single comparison (`block.timestamp >= currentPeriodEndTime`)."
+    },
+    {
+      "title": "Mint limit period reset uses uint32 truncation of block.timestamp",
+      "severity": "Medium",
+      "file": "AegisMinting.sol",
+      "function": "_checkMintRedeemLimit()",
+      "description": "`currentPeriodStartTime` is a `uint32` and is written with `uint32(block.timestamp)` in the constructor and in `_checkMintRedeemLimit`. The boundary check `currentPeriodEndTime <= block.timestamp` compares against the untruncated `block.timestamp`, and `currentPeriodEndTime = currentPeriodStartTime + periodDuration` may overflow the uint32 when `periodDuration` is large (max uint32 ≈ 4.29e9). Combined with the assignment `currentPeriodTotalAmount = 0` after the revert checks, a stale/wrapped start time can make the limit check skip or reset mid-period.",
+      "attackPath": "SETTINGS_MANAGER sets a large `periodDuration`, or time passes such that `currentPeriodStartTime + periodDuration` exceeds uint32 range; arithmetic reverts or wraps, breaking period accounting and either blocking all mints/redeems or resetting totals early so `maxPeriodAmount` can be exceeded.",
+      "impact": "Limit not enforced (mint/redeem above cap) or permanent revert of core mint/redeem functions.",
+      "recommendation": "Store `currentPeriodStartTime` as `uint256` (or uint64) and avoid truncating `block.timestamp`."
+    },
+    {
+      "title": "depositIncome decodes order.additionalData twice; malformed bytes bricks a signed income deposit",
+      "severity": "Medium",
+      "file": "AegisMinting.sol",
+      "function": "depositIncome()",
+      "description": "depositIncome() calls aegisRewards.depositRewards(order.additionalData, mintAmount) which decodes additionalData as a string, and then emits DepositIncome(abi.decode(order.additionalData, (string)), ...). Both decode the same bytes, and the fee/mint is already committed before the second decode. If additionalData is not valid abi.encode(string) the transaction reverts and the income deposit can never be processed for that order. There is no path to fix a signed order short of re-signing with a new nonce, and any non-string additionalData (e.g. a hashed/compressed payload) makes depositIncome permanently unusable.",
+      "attackPath": "Operator or trusted signer produces an income order with additionalData that is not ABI-string-decodable (or a truncated buffer). Calling depositIncome always reverts on the second abi.decode, blocking the income deposit for that signed order forever; if the same bytes are used, funds cannot be recognised through this path.",
+      "impact": "Liveness failure of a FUNDS_MANAGER core function for affected orders; income cannot be booked, rewards cannot be deposited.",
+      "recommendation": "Decode requestId once into a local `string memory requestId = abi.decode(order.additionalData,(string))`, pass abi.encode(requestId) or the original bytes consistently, and reuse the local in the event; validate length in verify()."
+    },
+    {
+      "title": "_calculateMinYUSDAmount multiplies collateralAmount by 10**(18-decimals) before Math.mulDiv, can overflow for 18-decimal assets with large amounts",
+      "severity": "Medium",
+      "file": "AegisMinting.sol",
+      "function": "_calculateMinYUSDAmount()",
+      "description": "`collateralAmount * 10 ** (18 - IERC20Metadata(collateralAsset).decimals())` is evaluated as a plain uint256 multiplication before being passed into Math.mulDiv. For an 18-decimal collateral asset the factor is 1, so no issue, but for assets with fewer decimals (e.g. 6 decimals, factor 10**12) a large collateralAmount can overflow and revert. More importantly, the multiplication is done in plain arithmetic rather than inside mulDiv, so the available 256-bit precision of mulDiv is wasted and the safety margin reduced. If the asset is an 18-decimal over-approximate large deposit, overflow locks mint. For common amounts this is fine, but it is a correctness hazard.",
+      "attackPath": "A user submits a mint (or the operator submits depositIncome) with a very large collateralAmount on a high-decimal asset; `collateralAmount * 10**(18-decimals)` overflows and the call reverts even though mulDiv(...) could have handled it, blocking the mint for that order.",
+      "impact": "Mint / depositIncome DoS for large legitimate amounts on non-18-decimal assets; potential permanent block.",
+      "recommendation": "Move the scaling inside Math.mulDiv: `Math.mulDiv(collateralAmount, chainlinkPrice * 10**(18-decimals), 10**feedDecimals)` using 512-bit intermediate, matching the redeem calculation."
+    },
+    {
+      "title": "Untracked balance checked before custody transferrable funds are credited lets depositIncome double-spend custody accounting",
+      "severity": "High",
+      "file": "AegisMinting.sol",
+      "function": "depositIncome()",
+      "description": "`_untrackedAvailableAssetBalance` returns `balance - _custodyTransferrableAssetFunds[asset] - assetFrozenFunds[asset]`, i.e., collateral that is not yet earmarked for custody. `depositIncome` first reads `availableAssetFunds = _untrackedAvailableAssetBalance(order.collateralAsset)` and requires `availableAssetFunds >= order.collateralAmount`, then **credits** `_custodyTransferrableAssetFunds[order.collateralAsset] += order.collateralAmount` and mints YUSD to `aegisRewards`. This is correct only if the income actually sits in the contract. However, `transferToCustody` subtracts from `_custodyTransferrableAssetFunds` but does not transfer tokens out of the tracking formula in a way that prevents a user's locked redeem collateral from being counted as \"untracked\". Since `requestRedeem` never moves collateral into this contract (it only locks YUSD), and users' redeem collateral is held externally, the untracked balance normally represents only income. The exploit arises when `assetFrozenFunds` is manipulated: `freezeFunds` and `unfreezeFunds` allow `FUNDS_MANAGER_ROLE` to change the partition, and because `approveRedeemRequest` uses `_untrackedAvailableAssetBalance` while `transferToCustody` uses `_custodyAvailableAssetBalance`, one asset can be simultaneously treated as income and as custody-transferrable.",
+      "attackPath": "A `FUNDS_MANAGER` calls `freezeFunds(asset, X)` to reduce untracked balance, then `unfreezeFunds` later; between those, `depositIncome` cannot be called, but `transferToCustody` can still move `_custodyAvailableAssetBalance` if balance > custodyTransferrable funds. In practice the two functions' view of the same tokens differs, so a manager can credit custody-transferrable funds via `depositIncome` for collateral that was actually already earmarked for custody, letting `approveRedeemRequest` pay out collateral backed by double-counted accounting.",
+      "impact": "A collateral asset's tracked funds become larger than its real balance; `approveRedeemRequest` and `transferToCustody` can pay out more than the contract actually holds for that accounting bucket, draining collateral and leaving pending redeemers unable to withdraw.",
+      "recommendation": "Make `depositIncome` verify the collateral is truly untracked and not held for custody by checking against `IERC20.balanceOf` minus `_custodyTransferrableAssetFunds` minus `assetFrozenFunds`, and require any pending redeem’s collateral bucket to be conservatively excluded; alternatively maintain a separate explicit account for \"income not yet earmarked\"."
+    },
+    {
+      "title": "Redeem request expiry is a single per-order timestamp used both for user-withdraw and manager-approve, allowing a race to withdraw after approval terms change",
+      "severity": "Medium",
+      "file": "AegisMinting.sol",
+      "function": "withdrawRedeemRequest()",
+      "description": "A pending `RedeemRequest` is withdrawable by its user as soon as `request.order.expiry > block.timestamp` is false. Separately, `approveRedeemRequest` allows a manager to set status to REJECTED when `request.order.expiry < block.timestamp`, and to APPROVED after expiry if the price check passes. The `withdrawRedeemRequest` function checks only `request.order.expiry > block.timestamp`, not the request's current status beyond PENDING. This is fine, but the mismatch is that `approveRedeemRequest` uses `request.order.collateralAmount` (the original collateral order) while the amount is recomputed using `_calculateRedeemMinCollateralAmount(request.order.collateralAsset, amount, request.order.yusdAmount)` against the **live** oracle price. The expiry condition in `approveRedeemRequest` means a manager can approve an expired request, in which case the price check uses whatever current oracle values are, and a user can then race to call `withdrawRedeemRequest` in the same block to take `order.yusdAmount` back, while the manager's `approveRedeemRequest` may succeed in a later block if the collateral amount still passes—except that the second call will then hit `request.status != PENDING` and revert, but if the withdraw submits after approval, the user gets the collateral; if before, the user gets YUSD. Either way no double-pay.",
+      "attackPath": "User waits until `block.timestamp > order.expiry`, then in the same mempool block submits `withdrawRedeemRequest` while `FUNDS_MANAGER` submits `approveRedeemRequest`. Front-running the user gets collateral, back-running the user gets their YUSD back. The user can therefore choose whichever outcome is more profitable after collateral prices and fees move.",
+      "impact": "Users can force a redeem to resolve as a YUSD refund rather than collateral delivery when the market price moves; system does not lose more than the locked YUSD, but the manager's approve is effectively griefed and the accounting of `totalRedeemLockedYUSD` is subject to a race.",
+      "recommendation": "Disallow `approveRedeemRequest` once `order.expiry < block.timestamp` (already rejected via `_rejectRedeemRequest`, but only if it routes there), and permit `withdrawRedeemRequest` only after a separate withdrawal delay, ensuring the manager cannot approve after the user is eligible to withdraw."
+    },
+    {
+      "title": "approveRedeemRequest applies redeem fee to full locked YUSD but transfers fee from a different balance; burn mismatch possible",
+      "severity": "Medium",
+      "file": "AegisMinting.sol",
+      "function": "approveRedeemRequest()",
+      "description": "`approveRedeemRequest` computes `(burnAmount, fee)` from `request.order.yusdAmount`, transfers `fee` to the insurance fund, then burns `burnAmount`. If `insuranceFundAddress` is blacklisted or the contract lacks enough YUSD (e.g. due to fee charged elsewhere), the `safeTransfer` reverts, blocking approval. Also the collateral amount transferred is computed from the manager-provided `amount`, decoupled from the YUSD burned, so a manager can set `amount` low and `collateralAmount` will be `min(amount, price-derived)`, but burnAmount remains based on the full `yusdAmount`, letting the insurance fund fee be skimmed from the locked user YUSD while the user gets reduced collateral.",
+      "attackPath": "",
+      "impact": "Users can receive less collateral than their locked YUSD should yield while the insurance fund accrues fee on the full YUSD amount; blocked approvals if fee transfer fails.",
+      "recommendation": "Compute `burnAmount` and `collateralAmount` consistently and base fee on the amount actually returned, or document the manager's role explicitly and adjust the returned collateral accordingly."
+    }
+  ]
+}

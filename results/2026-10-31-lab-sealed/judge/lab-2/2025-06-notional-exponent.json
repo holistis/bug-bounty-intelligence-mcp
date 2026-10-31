@@ -1,0 +1,341 @@
+{
+ "audit": "2025-06-notional-exponent",
+ "verdicts": [
+  {
+   "title": "Force-withdraw griefing permanently freezes a borrower's position with no recovery to normal operations",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a griefing attack on a borrower's position, which is not the same as the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes unauthenticated forceWithdraw griefing that freezes a borrower's position; the closest (M-16) concerns unfair liquidation after withdraw requests, a different root cause and",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "RewardManagerMixin fallback delegates to REWARD_MANAGER without restricting selectors, bypassing onlyLendingRouter-mandated share/escrow state",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a fallback delegatecall selector-restriction issue in RewardManagerMixin, which is not the same root cause as any listed finding (H-7 concerns claimAccountRewards param validat",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`CurveConvexLib.checkReentrancyContext` uses `remove_liquidity(1)` in the V2 branch, but the LP_LIB holds no LP tokens (they are delegated to the vault and immediately staked to Convex), so all V2 vault liquidations revert",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes the V2 checkReentrancyContext remove_liquidity(1) underflow/revert due to LP_LIB holding no LP tokens.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`PendlePT._executeInstantRedemption` redeems PT with `params.minPurchaseAmount` only checked at the second leg when `TOKEN_OUT_SY != asset`; first leg (PT → SY) has no slippage protection",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a slippage issue in the PendlePT contract, which is not present in any of the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "H-11",
+    "reden": "Both describe missing slippage protection (minTokenOut=0) in PendlePT redemption causing user fund loss, though candidate focuses on the non-expired instant redemption first leg.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Anyone can trigger a real, permanent freeze of another borrower's position via unauthenticated `forceWithdraw`",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding does not match any of the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes an unauthenticated forceWithdraw causing a permanent freeze via withdraw-request-pending blocking of entry/exit paths.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`BaseLPLib.finalizeAndRedeemWithdrawRequest` divides by `w.sharesAmount` without checking for zero, causing all redeem finalizations to revert for accounts with no request on a token",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a divide-by-zero issue in a different function and contract than the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a divide-by-zero in BaseLPLib.finalizeAndRedeemWithdrawRequest, which is not the same root cause as any listed finding (M-25 concerns getWithdrawRequestValue reverting, a diffe",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Mint shares uses effectiveSupply before fee accrual, over-issuing shares and diluting existing holders",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes a share over-issuance/dilution bug in _mintSharesGivenAssets related to fee accrual and effectiveSupply.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`PendlePT._initiateWithdraw` bypasses escrow fee accrual ordering and can mis-price PT withdrawal",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a PT-rate/escrow ordering mis-pricing in PendlePT._initiateWithdraw, which is not the same root cause as any listed finding (closest M-6/M-14 concern LST withdrawal pricing, no",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`forceWithdraw` can be called by anyone on any account with negative health factor to force early exit, but `_checkExit` cooldown is bypassed and re-entry is unrestricted",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function and contract.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a permissionless forceWithdraw freezing a borrower's position via escrow, which is not the same root cause or impact as any listed finding.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Unauthenticated `forceWithdraw` can permanently lock any borrower's position into legacy withdraw escrow",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function than the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes an unauthenticated forceWithdraw locking a borrower's position into withdraw escrow; the closest findings concern different bugs in withdraw/oracle/liquidation logic.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`AbstractSingleSidedLP.convertToAssets` reverts if the account has a pending request on only one token, because `BaseLPLib.getWithdrawRequestValue` requires `hasRequest` on every manager",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding does not match any of the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "M-25",
+    "reden": "Both describe the same flaw: getWithdrawRequestValue reverts when a token lacks a withdraw request, bricking price()/account valuation.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "AbstractLendingRouter.exitPosition allows assetToRepay path to redeem for arbitrary receiver without migrate check; onMorphoRepay trusts isMigrate to transferFrom arbitrary receiver",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a flawed assetToRepay/profits accounting in the migrate path of _exitWithRepay/onMorphoRepay, which is not the same root cause as any listed finding (M-17 concerns migration re",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`_calculateAdditionalFeesInYieldToken` Taylor approximation can exceed real e^x, under-charging fees and mis-accounting user balances",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a Taylor approximation issue in the _calculateAdditionalFeesInYieldToken function, which is not present in the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding addresses the Taylor approximation in _calculateAdditionalFeesInYieldToken; the candidate describes a distinct fee-accounting bug not covered by any listed finding.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`AbstractLendingRouter._enterOrMigrate` leaves residual infinite allowance to `migrateFrom` on failed/partial migration",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes residual allowance left to migrateFrom in _enterOrMigrate; M-13 concerns USDT approve incompatibility in the same function, a different flaw.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Liquidation reward debt ignores existing liquidator escrow and can revert or mispay",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function and contract.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a liquidation reward-debt underflow/mispay in _postLiquidation, which is not the same root cause as any listed finding (closest, H-7, concerns missing account param check in cl",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`convertSharesToYieldToken` can revert or produce wrong values when `feesAccrued() > _yieldTokenBalance()`",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a fee-accrual underflow/revert in convertSharesToYieldToken, which is not the same root cause as any listed finding (closest, M-25, concerns getWithdrawRequestValue reverting, ",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`AbstractLendingRouter._enterOrMigrate` approves `vault` to spend `assetAmount` but only `mintShares` consumes it; on the `migrateFrom` path the approve is skipped, leaving a stale infinite/`assetAmount` allowance to a previously migrated router",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a stale token allowance left after migration/flash-loan in _enterOrMigrate, which is not the same root cause as any listed finding (M-17 concerns assetToRepay max causing migra",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`t_CurrentAccount`/`t_AllowTransfer`/`t_CurrentLendingRouter` transient state pollutes pricing and can leak between non-lending-router calls",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a transient state pollution issue in the price function of AbstractYieldStrategy.sol, which is not covered by any of the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes transient state pollution in price() via t_CurrentAccount, which is not the same root cause as any listed finding (H-4 concerns direct Morpho borrowing pricing, not transient v",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`AbstractLendingRouter.claimRewards` calls `RewardManagerMixin` cast that can bypass reward manager selector protection",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function than the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "H-7",
+    "reden": "Both describe the same flaw in RewardManagerMixin.claimAccountRewards where the account/shares parameters are not validated, allowing a lending router caller to pass arbitrary account/shares values.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`PendlePT_sUSDe._executeInstantRedemption` sets `limit: 0` on the sUSDe→sDAI swap, then only guards the final asset leg; first hop is MEV-extractable",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate is a speculative MEV/slippage concern about the sUSDe→sDAI swap limit, which does not match any known finding's root cause or impact.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "AbstractLendingRouter.isAuthorized modifier clears t_CurrentAccount after external call enabling cross-account state confusion",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a transient current-account clearing/reentrancy hazard in AbstractLendingRouter.isAuthorized, which is not the root cause of any listed finding.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "DineroWithdrawRequestManager.canFinalizeWithdrawRequest returns true only when outstandingRedemptions() > totalAssets — inverted / wrong liquidation logic",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a logical error in the canFinalizeWithdrawRequest function, which is not covered by any of the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes inverted liquidation logic in DineroWithdrawRequestManager.canFinalizeWithdrawRequest; the closest Dinero findings (H-3, H-6) concern batch ID overlap and nonce overflow, no",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "AbstractSingleSidedLP._checkPoolShare uses _totalPoolSupply for LP token but compares against yieldToken balance in 1:1 — broken for fee/virtual supply LPs",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding does not match any of the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes the _checkPoolShare LP supply vs yieldToken balance comparison flaw; it is a distinct issue not covered by the listed findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`finalizeRequestManual` is griefable — any external caller can advance `s.finalized`, blocking liquidators' larger share conversion",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a griefing vulnerability in the finalizeRequestManual function, which is not covered by any of the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a permissionless finalizeRequestManual griefing issue, which is not the same root cause as any listed known finding.",
+    "model": "deepseek-flash"
+   }
+  }
+ ]
+}

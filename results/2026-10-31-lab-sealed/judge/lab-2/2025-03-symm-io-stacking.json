@@ -1,0 +1,411 @@
+{
+ "audit": "2025-03-symm-io-stacking",
+ "verdicts": [
+  {
+   "title": "SymmVesting addLiquidity debits the entire locked SYMM plan instead of only the SYMM used",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function and contract.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different flaw in SymmVesting's addLiquidity/resetAmount logic, not any of the listed known findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "SymmStaking notifyRewardAmount loses leftover precision by dividing per-notify",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in the same function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes precision loss from per-notify rate truncation, which is a different root cause than the known findings (e.g., M-4 covers reward dilution via extending duration, not truncation",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "User can re-claim SYMM allocation repeatedly because claim() zeroes allocation but mintFactor path allows re-setup",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function and contract.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns SymmAllocationClaimer claim/allocation accounting, not any of the listed SymmStaking or Vesting findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "SymmVesting.addLiquidity double-counts LP tokens, letting users inflate locked LP vesting balance",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a double-counting issue in the SymmVesting contract, which is not the same as any of the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes LP token double-counting/accounting inflation in _addLiquidityProcess, which is not the same root cause as any listed finding (M-3 concerns a reset check preventing liquidity a",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "SymmVesting.addLiquidity double-claims unlocked SYMM via internal reset path",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a double-claim issue in SymmVesting.addLiquidity, which is not the same as any of the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a totalVested/plan accounting divergence in _addLiquidityProcess, which is not the same root cause as any listed finding (M-3 concerns a revert in _resetVestingPlans, M-5 conce",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "SymmAllocationClaimer.setBatchAllocations lets users who already claimed get a new allocation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns SymmAllocationClaimer.setBatchAllocations allowing re-claiming, which is unrelated to any of the listed known findings in SymmStaking or Vesting.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "SymmVesting claimLockedToken resets plan via resetAmount which requires claimable()==0 but claims first, wiping future claimable",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different bug in the same function, not matching any known finding.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "M-5",
+    "reden": "Both describe resetAmount setting claimedAmount to 0 causing previously claimed tokens to be claimable again (double spending) in the Vesting contract.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "SymmStaking claimFor/notifyRewardAmount lack onlyRole(REWARD_MANAGER_ROLE)/(depositor) gating for notifyRewardAmount",
+   "strict": "M-4",
+   "a": {
+    "match": "M-4",
+    "reden": "Both describe a malicious actor exploiting notifyRewardAmount to extend the reward period indefinitely.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "M-4",
+    "reden": "Both describe anyone calling notifyRewardAmount with tiny amounts to repeatedly extend/dilute the reward schedule, same root cause and impact.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "SymmStaking rescueTokens unrestricted—can drain reward and staking tokens",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an unrestricted admin rescueTokens drain, which is not among the known findings about reward distribution, initialization, vesting, or reward dilution.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "_claimLockedToken rebases plan via resetAmount — penalty route re-anchors remaining vesting",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match, the candidate describes a different bug in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes resetAmount re-anchoring startTime/endTime in _claimLockedToken, which is not the same root cause as any listed finding (M-5 concerns double spending via claimedAmount reset in",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "notifyRewardAmount replenishes full duration and lets manager slot skip reward truncation leading to over-distribution across users",
+   "strict": "M-4",
+   "a": {
+    "match": "M-4",
+    "reden": "The candidate describes the same root cause in the same function and could lead to the same kind of impact.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "M-4",
+    "reden": "Both describe that anyone can call notifyRewardAmount with tiny amounts to extend/dilute the reward period, spreading rewards over a longer timeframe.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "SymmVesting._addLiquidity permits SYMM to be pulled implicitly from other users' LP/Vesting balances",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function than the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes stranded SYMM from router using less than requested in _addLiquidityProcess, which is not the same root cause as any listed finding.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "AirdropHelper rescueFunds lets owner pull unstaked airdrop tokens and break in-flight airdrop",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function and contract.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns AirdropHelper.rescueFunds draining airdrop tokens, which is unrelated to any of the listed staking/vesting findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "SymmAllocationClaimer adminClaim has no cap relative to totalMintAmount or MAX_ISSUABLE_TOKEN",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function and contract.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing cap on adminClaim relative to MAX_ISSUABLE_TOKEN in SymmAllocationClaimer, which is unrelated to any of the listed known findings in SymmStaking or Vesting.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "SymmVesting getLiquidityQuote assumes POOL token ordering SYMM,USDC without validation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a token ordering assumption in SymmVesting, which is not the same as any of the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns missing validation of pool token ordering in SymmVesting.getLiquidityQuote/initialize, which is unrelated to any of the listed known findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "addLiquidityByPercentage bypasses mint/credit race with stale locked amount",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a race condition in the addLiquidityByPercentage function, which is not the same as the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a stale locked-amount/race in addLiquidityByPercentage, which is not the same root cause as any listed finding (M-3 concerns a resetVestingPlans check blocking liquidity adds, ",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "addLiquidityByPercentage computes amount from locked amount but resetAmount rebases startTime, allowing repeated slice extraction",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function and contract.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different flaw in addLiquidityByPercentage/resetAmount rebasing, not the _resetVestingPlans check issue in M-3 or any other listed finding.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "AirdropHelper allows owner to re-configure and rescue tokens mid-airdrop, and transferAirdrops can be front-run to drain via rescueFunds",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different contract and function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns owner rescueFunds draining airdrop funds in AirdropHelper, which is unrelated to any of the listed staking/vesting findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "setBatchAllocations allows silent overwriting to a smaller value causing totalAllocation underflow mismatch",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a setBatchAllocations duplicate-entry/totalAllocation accounting concern in SymmAllocationClaimer, which is unrelated to any of the listed known findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "SymmStaking.configureRewardToken allows removal of a token with in-flight reward state causing reward loss",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue in the same function, where rewards become stuck when a token is removed.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes reward loss from removing a token with unclaimed per-user rewards, which is a different root cause and impact than any listed finding (e.g., M-2 concerns re-adding a token caus",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "SymmVesting addLiquidityByPercentage includes already unlocked tokens in the percentage base",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an underflow/percentage-base issue in addLiquidityByPercentage, which is not the same root cause as any listed finding (M-3 concerns a different check in _resetVestingPlans pre",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "SymmVesting._addLiquidity leaks approvals to PERMIT2/ROUTER and may be reused",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue related to token approvals and reuse, which does not match any of the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a Permit2 approval/expiration issue in _addLiquidity, which is unrelated to any of the listed known findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "SymmVesting._addLiquidity trusts router returned amountsIn, allowing resetAmount underflow/griefing of plan",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns trusting router-returned amountsIn in _addLiquidityProcess, which is unrelated to any of the listed known findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Vesting._claimUnlockedToken leaves stale zero-amount transfers and ignores return value of IERC20.transfer",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue related to token transfers and return values, which does not match any of the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes unchecked IERC20.transfer return values in Vesting claim functions, which is not the root cause of any listed known finding.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "SymmVesting allow router to spend SYMM via Permit2 with block.timestamp expiry allowing race between tx and block",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a race condition and approval issue in SymmVesting.sol, which is not related to any of the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns Permit2 approval expiry in SymmVesting._addLiquidity, which is unrelated to any of the listed known findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "transferAirdrops batch loop transfers without updating state first, allowing reentrancy via ERC20 callbacks",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in AirdropHelper.sol, which is not present in the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy/CEI issue in AirdropHelper.transferAirdrops, which is unrelated to any of the listed known findings about staking rewards, vesting initialization, or reward accoun",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "SymmVesting addLiquidity approves PERMIT2 for SYMM without resetting, allowing leftover allowance to be used by lingering approvals",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match, the candidate describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a Permit2 allowance leftover issue in SymmVesting._addLiquidity, which is unrelated to any of the listed known findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Vesting._claimLockedToken resets vesting duration while subtractin only locked portion",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a flaw in _claimLockedToken's resetAmount re-basing logic, which is not the same root cause as any listed finding (M-5 concerns admin resetVestingPlans double spending, not loc",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "SymmAllocationClaimer SETTER_ROLE may zero-out a user's allocation and strand already-claimed state",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns setBatchAllocations in SymmAllocationClaimer, which is not the same code or root cause as any listed finding.",
+    "model": "deepseek-flash"
+   }
+  }
+ ]
+}

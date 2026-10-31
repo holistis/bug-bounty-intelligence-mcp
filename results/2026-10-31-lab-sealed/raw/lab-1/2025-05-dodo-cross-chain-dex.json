@@ -1,0 +1,265 @@
+{
+  "contest": "2025-05-dodo-cross-chain-dex",
+  "hypotheses": [
+    {
+      "title": "Public withdraw() in GatewayTransferNative can drain any ZRC20 held by the contract",
+      "severity": "High",
+      "file": "GatewayTransferNative.sol",
+      "function": "withdraw()",
+      "description": "`withdraw()` is declared `public` (unlike in GatewayCrossChain where it is internal). It calls `gateway.withdraw` with caller-supplied `sender`, `amount` and `outputToken`, spending the contract's ZRC20 balance directly. Any external caller can invoke it, so anyone can sweep every ZRC20 the contract holds — including user refunds stored in `refundInfos`, gas-fee reserves, and tokens received but not yet paid out — to any receiver address.",
+      "attackPath": "(1) Attacker calls `withdraw(anyExternalId, attackerBytes, targetZRC20, contractBalance)`. (2) Gateway pulls the ZRC20 from the contract and withdraws to the attacker-provided sender on the destination chain. (3) The refund/balance accounting is not checked or reduced before the call.",
+      "impact": "Complete theft of the contract's ZRC20 balances.",
+      "recommendation": "Make `withdraw()` internal or `onlyOwner` and ensure it can only be used from within the swap flows where the corresponding amount has been credited to the contract."
+    },
+    {
+      "title": "claimRefund() pays any caller when refund walletAddress is not a 20-byte address",
+      "severity": "High",
+      "file": "GatewayCrossChain.sol",
+      "function": "claimRefund()",
+      "description": "The same logic exists in GatewayTransferNative. `claimRefund` sets `receiver = msg.sender` and only overwrites it with the decoded address when `refundInfo.walletAddress.length == 20`. It then checks `require(bots[msg.sender] || msg.sender == receiver, \"INVALID_CALLER\")`. When the stored `walletAddress` is any length other than 20 (the Bitcoin/Solana refund case, which is exactly why the else-branch of `onRevert`/`onAbort` stores a variable-length `walletAddress`), `receiver` stays equal to `msg.sender`, so the require is trivially satisfied for *any* caller, and the tokens are transferred to `msg.sender`.",
+      "attackPath": "1) A cross-chain swap targeting BTC/Solana reverts or aborts, so `onRevert`/`onAbort` stores a `RefundInfo` whose `walletAddress` is not 20 bytes. 2) The legitimate owner/bot has not yet claimed. 3) Attacker watches for the `EddyCrossChainRefund` event and calls `claimRefund(externalId)`, passing the `msg.sender == receiver` check, and the refunded tokens are sent to the attacker.",
+      "impact": "Front-running theft of every non-EVM refund; the intended recipient/bot loses the refunded amount.",
+      "recommendation": "Never fall back to `msg.sender` as receiver; require the caller to be a whitelisted bot when `walletAddress.length != 20`, and always send funds to the stored/derived destination rather than to the caller."
+    },
+    {
+      "title": "SwapDataHelperLib.decodeCompressedMixSwapParams uses `unchecked` with raw calldata slicing — malformed payload reverts or out-of-bounds reads",
+      "severity": "High",
+      "file": "SwapDataHelperLib.sol",
+      "function": "decodeCompressedMixSwapParams()",
+      "description": "The entire decoder runs inside an `unchecked {}` block and reads `data[offset]` and slices like `data[offset : offset + lens[i]]` without validating that `offset` stays within `data.length`. Length fields (`adapterLen`, `pairLen`, `toLen`, `infoCount`, `lens[i]`, `feeLen`) are attacker-controlled. Since `data` comes from an untrusted cross-chain message (`swapDataZ`, `swapDataB`, or `swapData` in GatewaySend), a crafted message either reverts on slicing (bricking the whole `onCall`/`depositAndCall`, potentially trapping funds already credited) or — because arithmetic is unchecked — passes a wrapped offset. The result is a DoS of the receive path for crafted messages and potential incorrect `params` (e.g. `fromTokenAmount` returned by DODO as 0) since the return of `mixSwap` is not validated against `fromToken`.",
+      "attackPath": "(1) Attacker (cross-chain sender) constructs swapData with an `infoCount` such that `offset` advances past `data.length` but the unchecked math wraps. (2) `data[offset:offset+lens[i]]` reverts or returns wrong slice; `onCall` reverts. (3) Alternatively attacker chooses tiny `fromTokenAmount` values and `mixSwap` returns 0 while fee transfer already moved funds to treasury, potentially causing later accounting mismatch.",
+      "impact": "DoS of legitimate messages on the deposit/withdraw path and potential mis-accounting where the fee transfer happened before the swap returns a small/zero `outputAmount`.",
+      "recommendation": "Remove `unchecked` and add explicit bounds checks after every offset increment; require `offset + lens <= data.length` before each slice."
+    },
+    {
+      "title": "GatewaySend.onCall lets any gateway-authenticated caller pull arbitrary tokens from the gateway and routes output with no accounting",
+      "severity": "High",
+      "file": "GatewaySend.sol",
+      "function": "onCall()",
+      "description": "`onCall` is `onlyGateway`, but its sole authentication assumption is that the message came from the ZetaChain protocol. It decodes `fromToken`, `amount`, and `recipient` from the message and executes `IERC20(fromToken).transferFrom(msg.sender, address(this), amount)` where `msg.sender` is the gateway. Because the gateway holds no per-message token allowance/balance tied to this message, and the function ignores `context`, the returned `outputAmount` of its internal swap is then sent to `evmWalletAddress` without any verification that the decoded `fromToken`/`amount` correspond to what the gateway actually received. The important structural flaw is that the contract accepts arbitrary `fromToken` and `recipient` from the message without validating them against the gateway's supplied context/asset.",
+      "attackPath": "Attacker crafts a cross-chain message where `fromToken` is any token the gateway holds an allowance for (the gateway is the trusted caller and the contract pulls from it), `amount` equal to the gateway's balance, and `recipient` their own address. When the gateway dispatches `onCall`, the transferFrom drains the gateway's approved balance, any swap is performed, and the output is transferred to the attacker's `evmWalletAddress`. No allowance was granted by the attacker.",
+      "impact": "Theft of any ERC20 tokens the gateway has approved to this contract; permanent loss of user funds.",
+      "recommendation": "Do not trust `fromToken`/`amount` from the message alone; validate against the gateway's actual deposit asset and amount passed in `context`, and ensure allowance/balance accounting is tied to the specific deposit."
+    },
+    {
+      "title": "GatewaySend.onCall uses `transfer` instead of `call` for ETH payout — DoS with high-gas receivers and reentrancy via ERC20",
+      "severity": "Medium",
+      "file": "GatewaySend.sol",
+      "function": "onCall()",
+      "description": "`onCall` sends ETH with `payable(evmWalletAddress).transfer(outputAmount)`, a fixed 2300-gas transfer. Any recipient with a non-trivial `receive`/`fallback` will revert, permanently bricking ETH withdrawals to that recipient and trapping funds in `GatewaySend`. Additionally, in the ERC20 path the `toToken` transfer occurs after the swap, and the entire `onCall` is `onlyGateway` but the gateway calls it with user-supplied `recipient`; a smart-contract recipient can revert to make the whole gateway call fail. For ERC20-to-ERC20, a malicious token recipient (if `evmWalletAddress` is a contract) can reenter — but more importantly, `IERC20(fromToken).transferFrom(msg.sender, address(this), amount)` in `onCall` trusts the gateway amount without verifying the token is the expected one, allowing cross-token confusion.",
+      "attackPath": "(1) User's refund destination is a contract wallet or has a `receive` hook that uses >2300 gas. (2) Any cross-chain message arriving with `toIsETH` to that address reverts inside `transfer`, causing the gateway to abort the whole message. (3) The user's funds remain locked; there is no retry path other than another chain interaction.",
+      "impact": "DoS of ETH withdrawals for smart-contract wallets; funds locked in `GatewaySend`.",
+      "recommendation": "Use `(bool ok,) = payable(evmWalletAddress).call{value: outputAmount}(\"\"); require(ok)` (or `TransferHelper.safeTransferETH`) which forwards all gas."
+    },
+    {
+      "title": "GatewaySend.onCall trusts attacker-supplied fromToken/amount and pulls tokens from gateway",
+      "severity": "High",
+      "file": "GatewaySend.sol",
+      "function": "onCall()",
+      "description": "onCall decodes fromToken, amount, recipient and swapData entirely from the gateway message and then executes IERC20(fromToken).transferFrom(msg.sender, address(this), amount) where msg.sender is the gateway. Nothing checks that `amount` corresponds to what the gateway actually delivered for this call, nor that fromToken is a token actually associated with the incoming deposit. An attacker who can get arbitrary data to a contract with a revert/onCall path (e.g. via the depositAndCall payload the sender fully controls) can set fromToken to any token the gateway holds an allowance for and amount to the gateway's entire balance, causing the gateway to transfer funds belonging to other users.",
+      "attackPath": "1) Attacker calls depositAndCall (or crafts the cross-chain payload) with a tiny/zero valuable amount but a payload that decodes to fromToken = victim token, amount = gateway's token balance, recipient = attacker. 2) Gateway invokes onCall; `transferFrom(gateway, this, amount)` pulls the whole gateway balance. 3) If fromToken != toToken, DODO swap runs on the pulled amount, then output is transferred to attacker; if equal, outputAmount = amount is sent directly.",
+      "impact": "Theft of all ERC20 funds held/approved by the GatewayEVM contract.",
+      "recommendation": "Derive `fromToken`/`amount` from the gateway-provided context instead of the message, or explicitly validate against the deposited asset and balance, and restrict onCall data to the trusted cross-chain protocol."
+    },
+    {
+      "title": "GatewayTransferNative.onCall lets arbitrary callers withdraw contract's entire ZRC20 balance to any receiver",
+      "severity": "High",
+      "file": "GatewayTransferNative.sol",
+      "function": "onCall()",
+      "description": "`onCall` is protected by `onlyGateway`, but the gateway forwards whatever message the cross-chain sender supplies. When `decoded.targetZRC20 == zrc20`, the contract calls `TransferHelper.safeTransfer(decoded.targetZRC20, receiver, amount - platformFeesForTx)` where `amount` is the gateway-passed amount for this call, but the contract does not verify that `amount` actually belongs to this message. The receiver is `address(uint160(bytes20(decoded.receiver)))`, fully attacker-controlled. Combined with attacker-supplied `swapDataZ`/`params` in the else branch, a cross-chain message can direct the contract to transfer or swap out contract-held ZRC20 tokens (gas fees, refunds, prior failed transfers) to an arbitrary address. The same pattern exists in `withdrawToNativeChain` where msg.sender-controlled `decoded` is trusted unconditionally.",
+      "attackPath": "(1) Attacker crafts a cross-chain `onCall` message with `targetZRC20 == zrc20` and `receiver` set to attacker address. (2) Gateway delivers the message; `onCall` computes `platformFeesForTx` on `amount` and transfers `amount - platformFeesForTx` to attacker's receiver. (3) If `amount` is less than contract balance held for other users, the shortfall is drawn from those funds. (4) Attacker repeats to drain the contract's balance of any ZRC20 reachable via this path.",
+      "impact": "Theft of ZRC20 tokens held by the contract for pending refunds, fees, or in-flight swaps owned by other users.",
+      "recommendation": "Track per-message accounting so `amount` matches the message payload; do not let the caller-supplied `decoded.receiver` be honored when transferring contract-held balances, or require that `amount` is exactly the gateway-notified amount and that the contract holds no unrelated funds for a given token."
+    },
+    {
+      "title": "GatewayTransferNative.onCall trusts decoded.targetZRC20 and decoded.receiver; no binding to the incoming zrc20/amount",
+      "severity": "High",
+      "file": "GatewayTransferNative.sol",
+      "function": "onCall()",
+      "description": "`onCall` accepts `zrc20` and `amount` from the gateway but then trusts `decoded.targetZRC20`, `decoded.receiver`, and `params.fromToken` decoded from the message. When `decoded.targetZRC20 == zrc20`, it does a direct `safeTransfer(decoded.targetZRC20, receiver, amount - platformFeesForTx)` to an arbitrary `receiver`. When `decoded.targetZRC20 != zrc20`, `_doMixSwap` approves `DODOApprove` on `params.fromToken` for the full `amount` and calls `mixSwap` using caller-controlled `fromToken`/`toToken`/pairs. The `params.fromToken` is not verified equal to the incoming `zrc20`, and the `outputAmount` is forwarded to `receiver` without any check that the output token matches what the message promised.",
+      "attackPath": "An attacker sends a `withdrawToNativeChain` (or cross-chain message) specifying an arbitrary `fromToken` and swap data routing value to a token/pair they control, causing `_doMixSwap` to spend the contract's incoming `amount` but return little or the wrong token, while the residual `outputAmount` is forwarded to an attacker-chosen `receiver`. Alternatively, set `decoded.targetZRC20 == zrc20` but `receiver` = attacker and a large `amount` via `withdrawToNativeChain` with `_ETH_ADDRESS_` zrc20 token to redirect contract-held tokens.",
+      "impact": "Users can redirect contract-held ZRC20 balances to arbitrary receivers and force unfavorable swaps against contract liquidity, draining the contract.",
+      "recommendation": "Require `params.fromToken == zrc20` and `params.fromTokenAmount == amount`, and validate that `decoded.targetZRC20` is the legitimate output token of the swap before transferring."
+    },
+    {
+      "title": "withdrawToNativeChain does not account for ETH sent; swap value can steal contract-held ETH",
+      "severity": "High",
+      "file": "GatewayTransferNative.sol",
+      "function": "withdrawToNativeChain()",
+      "description": "`withdrawToNativeChain` accepts `msg.value` and is payable, but only pulls `zrc20` when `zrc20 != _ETH_ADDRESS_`. When `zrc20 == _ETH_ADDRESS_`, it never requires `msg.value >= amount` (or even checks it), yet `_doMixSwap` passes `msg.value` to the DODO router and `_handleFeeTransfer` and downstream transfers use the `amount` parameter without corresponding ETH inflow. Any attacker-supplied `msg.value` is forwarded into `mixSwap`/router logic, and the output of the swap flows back into the contract and is then used to fund withdrawals of `amount - platformFeesForTx` / `outputAmount`. Because `amount` is a caller-supplied parameter independent of `msg.value`, the attacker can set `amount` larger than what they supplied and drain pre-existing contract balance.",
+      "attackPath": "Attacker calls `withdrawToNativeChain(_ETH_ADDRESS_, hugeAmount, message)` sending `msg.value = 0` or a tiny amount. The contract passes `amount` to fee transfer, swap, and withdraw paths; the withdraw call uses `amount - fee`, so the contract's existing ZRC20/ETH balance is consumed to pay the attacker's withdrawal.",
+      "impact": "Drain of contract-held funds (ZRC20 and ETH) by anyone calling `withdrawToNativeChain` with `_ETH_ADDRESS_` and an inflated `amount`.",
+      "recommendation": "When `zrc20 == _ETH_ADDRESS_`, require `msg.value == amount` and use `msg.value` (not caller `amount`) for downstream accounting; otherwise reject."
+    },
+    {
+      "title": "GatewayCrossChain._handleBitcoinWithdraw leaves extra amount unaccounted (approve outputAmount + gasFee, withdraw outputAmount - gasFee)",
+      "severity": "Medium",
+      "file": "GatewayCrossChain.sol",
+      "function": "_handleBitcoinWithdraw()",
+      "description": "`_handleBitcoinWithdraw` calls `IZRC20(targetZRC20).approve(gateway, outputAmount + gasFee)` but calls `withdraw(..., outputAmount - gasFee)`. The remaining `2*gasFee` is left approved to the gateway but the internal `withdraw` path only uses `amount`. If the gateway (or any contract that can call `transferFrom` acting as the gateway's approval) later pulls the full `outputAmount + gasFee`, the extra `2*gasFee` is pulled from the contract's general balance without being accounted for — effectively a value leak each time. The same pattern appears in `_handleEvmOrSolanaWithdraw` where `approve(outputAmount + gasFee)` is followed by `withdrawAndCall(..., outputAmount - gasFee)`.",
+      "attackPath": "(1) Any Bitcoin withdrawal through `onCall` triggers this. (2) The approval `outputAmount + gasFee` exceeds the actually withdrawn `outputAmount - gasFee` by `2*gasFee`. (3) If the gateway is upgraded or behaves per the approved amount, the contract loses `2*gasFee` per transaction from accumulated funds.",
+      "impact": "Steady drain of user funds held by the contract.",
+      "recommendation": "Approve exactly the amount used in `withdraw`/`withdrawAndCall` (i.e. `outputAmount - gasFee`) instead of `outputAmount + gasFee`; or reset the approval to zero after the call."
+    },
+    {
+      "title": "GatewaySend.depositAndCall(swap variant) deposits msg.value on ETH asset path but only `amount` on ETH token path",
+      "severity": "Medium",
+      "file": "GatewaySend.sol",
+      "function": "depositAndCall()",
+      "description": "In the second `depositAndCall` (target, amount, asset, dstChainId, payload), when `isETH` is true the contract requires `msg.value >= amount` but then calls `_handleETHDeposit(targetContract, msg.value, message, revertOptions)` and emits `amount` as the transferred value. Any `msg.value > amount` is pushed to the gateway while the event and refund message (which carry `externalId` tied to this call) show only `amount`. Combined with `_calcExternalId` including sender and nonce, if the call reverts partway and is retried, `msg.value` may be double-spent. Also if `msg.value > amount` and gateway forwards only part, the excess is silently lost to the gateway.",
+      "attackPath": "(1) User calls `depositAndCall(target, amount, ETH, dstChainId, payload)` with `msg.value = 2*amount`. (2) Contract forwards `msg.value`, not `amount`, to `gateway.depositAndCall`. (3) Excess over `amount` is sent but not reflected in `EddyCrossChainSend` or in the user's refund expectation.",
+      "impact": "Loss of ETH by users; misstated events / accounting.",
+      "recommendation": "Forward exactly `amount` to the gateway and refund any excess `msg.value` to `msg.sender`, and emit the actual forwarded value."
+    },
+    {
+      "title": "GatewayTransferNative._doMixSwap forwards msg.value but only approves params.fromToken, enabling ETH double-spend",
+      "severity": "High",
+      "file": "GatewayTransferNative.sol",
+      "function": "_doMixSwap()",
+      "description": "`_doMixSwap` calls `IDODORouteProxy.mixSwap{value: msg.value}` while only approving `params.fromToken` for `amount`. `msg.value` is not tied to `params.fromToken` (which is attacker-controlled from the cross-chain message). An attacker can send `msg.value > 0` while `params.fromToken` is a ZRC20, causing the route proxy to both spend the contract's ZRC20 approval and the attached ETH — but the same ETH can be re-used across the DODO swap legs, and `msg.value` delivered to the proxy is not credited back to the contract's accounting (returns `outputAmount` from the proxy while contract ETH balance is reduced without any fee accounting). Combined with the `_handleFeeTransfer` done before the swap on `amount` (not on the ETH), the user receives the ETH value from the proxy while paying only a platform fee on `amount`.",
+      "attackPath": "(1) Attacker sets `decoded.swapData` so `params.fromToken` is a ZRC20 and `params.fromTokenAmount` is small, while sending `msg.value` in the onCall. (2) `_handleFeeTransfer` takes a fee on `amount` (ZRC20), not on ETH. (3) `_doMixSwap` approves the small ZRC20 amount and forwards `msg.value` ETH to the proxy. (4) Proxy returns the swap proceeds from ETH, which are transferred to `receiver`. Attacker effectively spends ZRC20-basis fees but captures ETH value.",
+      "impact": "Value extraction from ETH held by the contract or incorrectly attributed fees to users; accounting mismatch.",
+      "recommendation": "In `onCall`, reject non-zero `msg.value` (or ignore it), or make the value forwarded strictly equal to `params.fromTokenAmount` when `params.fromToken == _ETH_ADDRESS_`, and include ETH in the fee calculation."
+    },
+    {
+      "title": "Fixed feePercent with no cap — owner can set feePercent > 1000 and brick every cross-chain swap",
+      "severity": "Medium",
+      "file": "GatewayCrossChain.sol",
+      "function": "setFeePercent() (_handleFeeTransfer)",
+      "description": "`_handleFeeTransfer` computes `(amount * feePercent) / 1000`. If `feePercent > 1000`, the fee exceeds `amount`, and `amount -= platformFeesForTx` underflows (in 0.8.x this reverts). Even if `feePercent == 1000`, all funds go to the treasury and the user gets nothing, and if `amount * feePercent` overflows uint256 for very large amounts this reverts. In `onCall` (GatewayCrossChain / GatewayTransferNative) this reverts the whole withdrawal, so all cross-chain swaps become unusable (DoS on core function).",
+      "attackPath": "(1) Owner (or compromised key) sets `feePercent = 1001`. (2) Every `onCall` / `withdrawToNativeChain` reverts at `amount -= platformFeesForTx`. (3) Users cannot withdraw or swap; funds entering the contract stay stuck.",
+      "impact": "DoS on core swap/withdraw flow, funds locked.",
+      "recommendation": "Cap `_feePercent` at, e.g., 100 (10%) in `setFeePercent` and require `platformFeesForTx <= amount` in `_handleFeeTransfer`."
+    },
+    {
+      "title": "_doMixSwap ignores ETH value flow: GatewaySend and GatewayTransferNative forward msg.value to DODO but msg.value is the whole caller balance, not the swap amount",
+      "severity": "Medium",
+      "file": "GatewayTransferNative.sol",
+      "function": "_doMixSwap()",
+      "description": "`_doMixSwap` forwards `msg.value` to `IDODORouteProxy.mixSwap{value: msg.value}` instead of tying it to the intended input amount (`params.fromTokenAmount` / passed-in `amount`). For ETH-in swaps (`params.fromToken == _ETH_ADDRESS_`), the value sent depends on `msg.value` at the `onCall`/`withdrawToNativeChain` frame, not the deposit amount. The router receives the full `msg.value`, which can be more than the swap requires; any excess ETH forwarded during `onCall` (which is invoked by the gateway with the deposit value) becomes spendable by the router and may be lost.",
+      "attackPath": "A user triggers `onCall` where `msg.value` (the gateway call value) exceeds `params.fromTokenAmount`, causing more ETH to be forwarded into `mixSwap` than needed; leftover ETH is stranded with the route proxy and not returned.",
+      "impact": "ETH loss to the swap router and mismatch between input amount and broadcasted amount, leading to underfunding of downstream withdrawals.",
+      "recommendation": "Pass only the required ETH amount (`params.fromTokenAmount` when `fromToken == _ETH_ADDRESS_`) as the call value and refund/return any excess."
+    },
+    {
+      "title": "_swapAndSendERC20Tokens approves gas/target amounts but relies on stale amountInMax for balance checks, allowing over-withdrawal accounting drift",
+      "severity": "Medium",
+      "file": "GatewayCrossChain.sol",
+      "function": "_swapAndSendERC20Tokens()",
+      "description": "The function computes `amountInMax` from quote + slippage and calls `swapTokensForExactTokens(gasFee, amountInMax, ...)`. It then approves `targetAmount - amounts[0]` to the gateway. However, it never verifies that `amounts[0] <= amountInMax` (it trusts router) and does not reconcile the returned `amounts[0]` against the actual token balance. If the router spends less than `amountInMax` (normal case), approve is for `targetAmount - amounts[0]` where `amounts[0]` could differ from what was debited due to fee-on-transfer or non-standard tokens (ZRC20 rebasing). The `outputAmount` is then reported to the event and the gateway withdrawal honors `targetAmount - amounts[0]`, potentially greater than the contract's remaining balance, causing withdrawal revert (DoS) or under-withdrawal.",
+      "attackPath": "A cross-chain call routes through a token with fee-on-transfer/rebasing behavior; `amounts[0]` reported by router differs from actual balance decrease, so `targetAmount - amounts[0]` exceeds the true balance, making `gateway.withdrawAndCall` revert and locking the message; or, in reverse, loss from over-approval.",
+      "impact": "Locked cross-chain withdrawals (DoS) for affected tokens and accounting mismatch.",
+      "recommendation": "Measure actual balance change (`before/after`) instead of relying on `amounts[0]`, and require `amounts[0] <= amountInMax` and `targetAmount > amounts[0]`."
+    },
+    {
+      "title": "decodeCompressedMixSwapParams has no length checks; crafted short swapData yields out-of-bounds/unsafe reads, and mismatched limits DoS onCall",
+      "severity": "Medium",
+      "file": "SwapDataHelperLib.sol",
+      "function": "decodeCompressedMixSwapParams()",
+      "description": "The function is `unchecked` and reads `data[offset]`, `calldataload(...)` at arbitrary offsets without verifying `data.length` covers the arrays/lengths. If `adapterLen`, `pairLen`, `moreInfo` length fields (`lens[i]`) are large or claims exceed `data.length`, `data[offset:offset+lens[i]]` reverts in the caller (slicing) or the assembly reads zero/garbage; and in `onCall`/`withdrawToNativeChain`, a malformed `swapData` (supplied by user or attacker) will revert after the fee transfer already happened or in the same tx. Combined with `decodeNativeMessage` slicing on `message`, an attacker can force the whole `onCall` to revert only after fee token movement.",
+      "attackPath": "Craft a message with `swapDataZ`/`swapData` whose encoded lengths (adapterLen/moreInfo lens/feeLen) are inconsistent so that `data[offset:offset+lens[i]]` reverts. Since `_handleFeeTransfer` runs before `_doMixSwap`, if the swap decode fails on a subsequent message the incoming funds are tied up in a revert cycle; on reclaim paths the retry also fails.",
+      "impact": "Harassment/DoS of cross-chain messages for edge-case payloads, and revert-after-fee-danger in `onCall`/`withdrawToNativeChain`.",
+      "recommendation": "Add explicit `require(offset + len <= data.length)` bounds checks for every field and reject malformed payloads before performing fee transfers."
+    },
+    {
+      "title": "AccountEncoder.decompressAccounts reads past buffer and trusts attacker length, potentially allocating huge memory or corrupting refund flow",
+      "severity": "Medium",
+      "file": "AccountEncoder.sol",
+      "function": "decompressAccounts()",
+      "description": "`decompressAccounts` is called in `_handleEvmOrSolanaWithdraw` for `dstChainId == SOLANA_EDDY`. The `len` (uint16) and loop read `mload(ptr)`/`mload(ptr+32)` and `mload(ptr+1)` without checking against `input.length`. A caller-controlled `accounts` blob can set `len` large, causing a large `Account[]` allocation, or make `ptr` walk out of the buffer. The `isWritable` read at `ptr+1` misaligns the cursor by 33 bytes per struct (32 + 1) while the struct is 64 bytes, so subsequent accounts are read from shifted/garbage offsets.",
+      "attackPath": "Attacker supplies a message where `decoded.accounts` has `len=65535`; on a Solana-routed withdraw, decompressAccounts allocates a 65535-element array via memory expansion, causing out-of-gas/DoS of the message, while smaller malformed inputs yield wrong accounts/heap corruption feeding into `encodeInput`. Because this path also runs `gateway.withdrawAndCall` with the user's outputAmount, repeated failing calls block withdrawals.",
+      "impact": "Denial of service of Solana-path withdrawals and potentially corrupted account data sent to Solana.",
+      "recommendation": "Validate `accounts.length` against the length prefix and expected 33/64-byte layout, bound `len`, and align cursor increments with the actual serialized struct size."
+    },
+    {
+      "title": "refundInfos keyed only by externalId lets a later refund overwrite an unclaimed one",
+      "severity": "Medium",
+      "file": "GatewayCrossChain.sol",
+      "function": "onRevert() / onAbort()",
+      "description": "refundInfos is keyed by externalId and onRevert/onAbort simply overwrite refundInfos[externalId] with the new RefundInfo. Nothing guarantees externalId uniqueness across separate refund events — collapse flows (e.g. withdrawAndCall revert then abort, or multiple reverts) can map to the same externalId. The earlier refund entry's token/amount is silently replaced, and claimRefund can only ever pay out the last recorded amount.",
+      "attackPath": "1) A swap reverts and records a refund (externalId X, amount A). 2) Before it is claimed, another revert/abort for the same externalId X occurs (same tx/collapse path) and overwrites the record with amount B. 3) The user or bot calls claimRefund(X) and receives only the overwritten amount; the first amount remains stuck in the contract with no refund record.",
+      "impact": "Permanent loss/lock of refunded funds for users; the contract accumulates stranded tokens.",
+      "recommendation": "Use a monotonically unique key (e.g. externalId plus a per-event nonce) or accumulate amounts per (externalId, token) instead of overwriting."
+    },
+    {
+      "title": "_handleEvmOrSolanaWithdraw on the same-token branch uses `withdrawAndCall` with `decoded.contractAddress` — empty bytes revert for plain EVM withdraws; extra tokens stuck",
+      "severity": "Medium",
+      "file": "GatewayCrossChain.sol",
+      "function": "_handleEvmOrSolanaWithdraw()",
+      "description": "When `decoded.targetZRC20 == gasZRC20`, `_handleEvmOrSolanaWithdraw` always calls `withdrawAndCall`, which uses `gateway.withdrawAndCall(contractAddress, ...)`. If `decoded.contractAddress` is empty (the comment in `DecodedMessage` says \"empty for withdraw, non-empty for withdrawAndCall\"), the gateway's withdrawAndCall with an empty contractAddress will revert (or fail silently depending on gateway implementation). The same applies for the `else` branch after `_swapAndSendERC20Tokens` — even when the user intended a plain withdrawal. The result is that EVM/Solana plain withdrawals are non-functional and the approved `targetZRC20` remains in the contract.",
+      "attackPath": "(1) User submits a swap with `dstChainId != BITCOIN_EDDY` and empty `contractAddress`. (2) `onCall` computes `outputAmount` and approves the gateway, then calls `withdrawAndCall` with empty address. (3) Gateway reverts or `withdrawAndCall` fails; the whole tx reverts, but in `withdrawToNativeChain` the fee transfer to treasury happened before the revert — refunds are not done (user loses gas / reverted but transiently treasury transfer rolled back too, so the user can retry — still a permanent lock if the conditions can't be fixed).",
+      "impact": "Users with empty `contractAddress` can never complete an EVM/Solana withdrawal; funds stay in contract.",
+      "recommendation": "Branch on `decoded.contractAddress.length == 0` and call `withdraw()` instead of `withdrawAndCall()`."
+    },
+    {
+      "title": "_handleFeeTransfer transfers fee via safeTransfer without checking contract balance in cross-chain onCall; feePercent unbounded",
+      "severity": "Medium",
+      "file": "GatewayCrossChain.sol",
+      "function": "_handleFeeTransfer()",
+      "description": "`_handleFeeTransfer` computes `platformFeesForTx = amount * feePercent / 1000` and does a `safeTransfer` from the contract. The `feePercent` setter has no upper bound, so it can be set > 1000, making `platformFeesForTx > amount` and causing the subsequent `amount -= platformFeesForTx` to underflow, reverting (or draining unrelated contract balances if the contract holds other funds). Also the fee is taken from the contract's pooled balance rather than restricted to the just-received `amount`; `onCall` assumes the contract already holds `amount`, but GatewayZEVM deposits the zrc20 into this contract before invoking `onCall`, so underfee/overfee can cross-subsidize between users.",
+      "attackPath": "Owner (or a mis-set initialize) sets `feePercent > 1000`; each `onCall`/`withdrawToNativeChain` underflows or transfers more than the user's deposit, consuming other users' pooled balances. Also, if some zrc20 balance rests in the contract, a user with `feePercent` high can move fee out of others' funds.",
+      "impact": "Loss of pooled funds and DoS of all swap/withdraw calls.",
+      "recommendation": "Bound `feePercent` to <= 1000 and compute fees from the specific `amount` before any subtraction; require `platformFeesForTx < amount`."
+    },
+    {
+      "title": "onRevert/onAbort write refundInfos keyed by externalId without checking for existing entry, enabling refund overwrite",
+      "severity": "Medium",
+      "file": "GatewayTransferNative.sol",
+      "function": "onRevert()",
+      "description": "`onRevert` and `onAbort` overwrite `refundInfos[externalId]` unconditionally. If the gateway invokes `onAbort` for one message and then `onRevert` (or another `onAbort`) for the same `externalId` (e.g., retry or multiple messages colliding), the latter overwrites the token/amount/walletAddress. Since `claimRefund` deletes after paying, an attacker able to influence `externalId` in a malicious message (via `decodeMessage` where externalId comes from the gateway-supplied message) can collide with another pending refund id, causing the earlier amount to be destroyed or redirected.",
+      "attackPath": "Attacker crafts a `withdrawToNativeChain`/cross-chain message with an `externalId` that matches a pending refund (or triggers a second `onAbort`/`onRevert` for the same id) so the entry is overwritten; the original amount remains in the contract but becomes unclaimable, or the wrong amount/token gets stored.",
+      "impact": "Permanent lock of the original aborted funds and misdirected refunds.",
+      "recommendation": "Revert if `refundInfos[externalId].externalId != bytes32(0)` and require externalId uniqueness, or accumulate amounts rather than overwrite."
+    },
+    {
+      "title": "claimRefund reads refundInfo.walletAddress after delete, event emits zero / stale values and no check that refundInfo.token is a real token",
+      "severity": "Medium",
+      "file": "GatewayTransferNative.sol",
+      "function": "claimRefund()",
+      "description": "`claimRefund` fetches `refundInfo` from storage, then `delete refundInfos[externalId]` after the transfer, and then emits `EddyCrossChainRefundClaimed` with `refundInfo.token`/`amount`. Emitting after delete still sees values (delete happens after emit) - the emit uses storage values read before delete if inline; here the emit is after delete, so `refundInfo.token`/`amount` read 0 (event only). More importantly, the function does not validate `refundInfo.token` is non-zero or `amount > 0`; if `onRevert` created the entry with `context.asset == address(0)` for a native ETH revert, `safeTransfer(address(0), ...)` reverts and those refunds become permanently stuck (DoS/asset loss). Also native ETH refunds stored with an ERC20 token address are not handled via `safeTransferETH`, so ETH refunds can never be claimed.",
+      "attackPath": "A cross-chain message aborts with native ETH or an asset that is not an ERC20 (e.g., zeta gas token semantics / address(0)); `refundInfos` stores it, but `claimRefund` always executes `TransferHelper.safeTransfer(refundInfo.token, ...)`, which reverts on ETH/non-token, permanently locking the refund.",
+      "impact": "Permanent lock of refunded native ETH or unsupported assets routed via the refund queue.",
+      "recommendation": "Branch on `refundInfo.token == _ETH_ADDRESS_`/native to use `safeTransferETH`, and validate non-zero token/amount on insertion."
+    },
+    {
+      "title": "withdrawToNativeChain refunds use a fresh externalId, so onRevert records nothing under the original id",
+      "severity": "Medium",
+      "file": "GatewayTransferNative.sol",
+      "function": "withdrawToNativeChain() / withdraw() / withdrawAndCall()",
+      "description": "In withdrawToNativeChain a new externalId is computed from _calcExternalId(msg.sender) and passed into _handleBitcoinWithdraw/_handleEvmOrSolanaWithdraw, which embed `bytes.concat(externalId, ...)` in the RevertOptions revertMessage. But the amount that triggered this function was pulled from msg.sender and the fee was already sent to the treasury; if the gateway reverts the withdrawal, onRevert writes refundInfos[externalId] where externalId is an internal nonce id that no external caller knows (it isn't returned to the user, and the emitted event path differs). Users cannot compute the id to claim; refunds become stuck.",
+      "attackPath": "1) User calls withdrawToNativeChain with an amount; fee taken, swap done, gateway.withdraw called with revertMessage = bytes.concat(internal externalId, receiver). 2) The withdrawal reverts (e.g. gas fee not payable, invalid receiver), onRevert stores refund under the internal id. 3) User has no way to learn the internal id; bots may not cover it, so claimRefund can never be invoked with a reachable key.",
+      "impact": "User losses permanently locked in refundInfos.",
+      "recommendation": "Use an id derived from the (caller, swap) that is either the original sender-visible id or expose it via event and use msg.sender as the key; don't use an internal nonce as the refund key."
+    },
+    {
+      "title": "claimRefund cannot be executed twice — but with refundInfos overwritten, earlier refunders lose funds silently",
+      "severity": "Medium",
+      "file": "GatewayTransferNative.sol",
+      "function": "onRevert() / onAbort() / claimRefund()",
+      "description": "`onRevert`/`onAbort` write `refundInfos[externalId] = refundInfo` keyed only by `externalId`. `withdrawToNativeChain` computes `externalId = keccak256(address(this), sender, globalNonce, block.timestamp)` — deterministic. However, `onRevert` is called with a `revertMessage` supplied by the gateway, whose `externalId` is whatever was written in `RevertOptions.revertMessage = bytes.concat(externalId, ...)`. If two refund events happen for the same `externalId` (e.g. retry/redelivery or same-tx nonce reuse in different chains), the second overwrites the first, and only one amount is claimable. The first user's funds stay locked in the contract with no claim path.",
+      "attackPath": "(1) A cross-chain message reverts, generating `RefundInfo` for user A. (2) Later, another revert with the same `externalId` (same tx/nonce if gateway retries, or collisions across `withdrawToNativeChain` calls in the same block since `externalId` uses `block.timestamp` which can repeat) is written, overwriting A's entry. (3) A's claim succeeds only if A calls first; otherwise A's funds are silently transferred to the replacement claimant.",
+      "impact": "Loss of refunds for the original user.",
+      "recommendation": "Include caller/amount in the key, revert on duplicate externalId, or accumulate amounts rather than overwriting."
+    },
+    {
+      "title": "_calcExternalId can collide within a block — same sender, timestamp, nonce can be reused on retry",
+      "severity": "Medium",
+      "file": "GatewayTransferNative.sol",
+      "function": "_calcExternalId()",
+      "description": "`externalId = keccak256(address(this), sender, globalNonce, block.timestamp)` — `globalNonce` is incremented before computing the id, so consecutive calls get distinct ids. But `withdrawToNativeChain` is external and reverts roll back the nonce increment, so a reverting path produces no id. More concerning: the id is exposed in `depositAndCall`/`withdrawToNativeChain` events and used as the refund key. If the same id is regenerated (e.g. after a chain reorg or by matching the counter), pending refund entries could be overwritten. Similarly in GatewaySend, `_calcExternalId` has the same construction, and the same `externalId` may be referenced by two separate refund mappings in different contracts.",
+      "attackPath": "(1) Attacker observes an externalId in a `EddyCrossChainSend`/`EddyCrossChainSwap` event with a pending refund. (2) If the attacker can cause another call to generate the same id, they can overwrite/steal the refund slot.",
+      "impact": "Slot occupancy collisions leading to wrong refund attribution.",
+      "recommendation": "Use a monotonic counter and include `block.number` or a per-user nonce; or include the recipient amount in the key."
+    },
+    {
+      "title": "_swapAndSendERC20Tokens approves `targetAmount - amounts[0]` but withdrawAndCall is called with `amountsOutTarget = targetAmount - amounts[0]`; on revert, leftover approval persists",
+      "severity": "Medium",
+      "file": "GatewayCrossChain.sol",
+      "function": "_swapAndSendERC20Tokens()",
+      "description": "After swapping, the function calls `IZRC20(targetZRC20).approve(address(gateway), targetAmount - amounts[0])`. On the mint/withdraw path, `withdrawAndCall` pulls exactly this amount, so the approval is usually consumed. But if the gateway's `withdrawAndCall` reverts (e.g. the destination chain reverts and `onRevert` is called but the approval is not reset), the approval to the gateway of `targetAmount - amounts[0]` remains set on the contract. A later call or upgrade of the gateway (or any contract impersonating it, or a compromised gateway) can pull that balance, which includes amounts belonging to other users. Also `amountInMax` is approved to `UniswapRouter` but the router may use less; the stale approval is not reset.",
+      "attackPath": "(1) A swap+withdraw transaction reverts after the approve but after the swap (rare but possible if the router returns fewer than requested). (2) The remaining approval is spent by the gateway at a later point against the contract's general balance.",
+      "impact": "Theft of contract ZRC20 balances; stale approvals.",
+      "recommendation": "After the withdraw, call `IZRC20(targetZRC20).approve(address(gateway), 0)` on the failure or use `safeApprove` and reset."
+    }
+  ]
+}

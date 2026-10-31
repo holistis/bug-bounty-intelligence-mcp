@@ -1,0 +1,205 @@
+{
+  "contest": "2025-05-yearn-ybold",
+  "hypotheses": [
+    {
+      "title": "StakerFactory.newStrategy is permissionless — anyone can create unlimited strategies that share the strategy's implementation; weak deployments mapping",
+      "severity": "Medium",
+      "file": "StakerFactory.sol",
+      "function": "newStrategy()",
+      "description": "`newStrategy` has no access gating (`external virtual`, no `onlyManagement`). Contrast with `StrategyFactory.newStrategy` which is `onlyManagement`. Anyone can deploy a `Strategy` via `StakerFactory`, and the factory then sets `performanceFeeRecipient`, `keeper`, `pendingManagement`, and `emergencyAdmin` from factory-configured values. `deployments[_asset]` is overwritten each call, so `isDeployedStrategy` returns true only for the latest strategy per asset — any earlier strategy becomes \"undeployed\" while still holding user funds.",
+      "attackPath": "Attacker calls `newStrategy(_asset, _name)` repeatedly; each call overwrites `deployments[_asset]`. Any off-chain logic relying on `isDeployedStrategy` treats all but the latest as invalid (rejected by a vault relying on the factory's registry, or vice-versa). Separately, if a genuine deployment lives at `deployments[_asset]` and an attacker overwrites it, the attacker-controlled (or attacker-named, same implementation, same admin) strategy now shadows the genuine one.",
+      "impact": "Denial of service on any protocol relying on `isDeployedStrategy` to gate vault deposits/harvest; genuine strategies cannot be resolved. Also attacker can flood factories with strategies sharing the admin config.",
+      "recommendation": "Gate `newStrategy` with `onlyManagement` and require `deployments[_asset] == address(0)` before assigning."
+    },
+    {
+      "title": "Staker strategy _harvestAndReport calls ACCOUNTANT.distribute with no guard; any unaccounted asset drained to feeRecipient",
+      "severity": "High",
+      "file": "Staker.sol",
+      "function": "_harvestAndReport()",
+      "description": "`LV2SPStakerStrategy` holds the vault asset and calls `ACCOUNTANT.distribute(address(asset))` on every harvest. The Accountant's `distribute(token)` with just a token address transfers the Accountant's *entire* token balance to `feeRecipient` and is permissionless. If the staker passes the vault asset and the accountant happens to hold that asset (e.g., a prior fee push, or a confused token), the whole balance is swept. Critically, the Accountant is shared; `distribute` is not scoped to a vault, so a strategy harvest can cause unrelated tokens held by the accountant for other vaults to be swept if they match `asset`.",
+      "attackPath": "Deploy a vault whose `asset` is a token the accountant holds for another vault; call `harvest` on that Staker; accountant's entire balance of that token goes to `feeRecipient`.",
+      "impact": "Cross-vault fund loss; fees earmarked for other vaults stolen/drained.",
+      "recommendation": "Accountant should track owed-per-vault and only allow the vault to distribute its own tracked amount; `distribute(token)` should be restricted or amount-bound."
+    },
+    {
+      "title": "Auction starting price scaled 1e18 too low in _tend (extra /WAD)",
+      "severity": "High",
+      "file": "Strategy.sol",
+      "function": "_tend()",
+      "description": "In _tend the strategy computes the auction's starting price as `AUCTION.setStartingPrice(_available * _price / WAD * _bufferPercentage / WAD / WAD)`. _available is an 18-decimal COLL amount and _price is an 18-decimal price, so `_available * _price / WAD` is already the full BOLD value; multiplying by the WAD-scaled `_bufferPercentage` and dividing once more by WAD yields the buffered total value. The expression contains a third `/WAD`, so the value written as the starting price is 1e18 times smaller than intended (e.g. ~220 wei instead of ~220e18 for 100 COLL at 2 BOLD). The `ORACLE_DOWN_BUFFER_PCT_MULTIPLIER` (1000x) cannot compensate for a 1e18x error.",
+      "attackPath": "A keeper (or anyone calling tend once the trigger conditions hold: collateral above dustThreshold, no live available auction) causes _tend to run. The line above writes a starting price that is effectively zero relative to the collateral value, and then the COLL is transferred to the auction and kicked.",
+      "impact": "The strategy's collateral (depositor reward token) is auctioned at a price orders of magnitude below market, so a buyer can drain essentially all the COLL for dust BOLD, permanently losing the reward value belonging to depositors.",
+      "recommendation": "Remove the extra division so the starting price is `_available * _price / WAD * _bufferPercentage / WAD`, i.e. the buffered total BOLD value of the collateral being sold."
+    },
+    {
+      "title": "Anyone can call distribute() on Accountant via strategy harvest, sweeping any fee balance",
+      "severity": "Medium",
+      "file": "Accountant.sol",
+      "function": "distribute(address)",
+      "description": "`distribute(address token)` is a public function with no access control at all. It computes `ERC20(token).balanceOf(address(this))` and forwards the result to `feeRecipient` via the fee-manager-or-recipient overload. The single-argument overload is called in `Staker.sol`'s `_harvestAndReport()` (via `ACCOUNTANT.distribute(address(asset))`), and the strategy's `claim()`/harvest path is permissionless (e.g. `claim()` is public in `Strategy.sol`). This means any external caller can force a distribution at any time, but more importantly it means the amount distributed is always \"the entire current balance\", not \"the amount the strategy just earned\".",
+      "attackPath": "1) Vault accounting credits gains/fees to the Accountant for any token that accumulates there (e.g. asset transferred to the Accountant by the vault during report). 2) Attacker (or even a keeper) calls `Accountant.distribute(asset)` directly (or via the strategy's harvest which calls it), moving 100% of the Accountant's asset balance to `feeRecipient`. 3) Any accounting that intended fees to accumulate and be distributed later is drained to the recipient address, potentially before it's clear which vault/strategy earned it.",
+      "impact": "Fee tokens intended for a different recipient, or accrued by multiple vaults sharing the Accountant, are pushed entirely to `feeRecipient` in a single call. If `feeRecipient` is later compromised or the config intends accumulation, the entire balance leaves immediately.",
+      "recommendation": "Restrict the zero-arg/amount-agnostic `distribute` to the fee manager (or fee recipient), and have the strategy not call a permissionless function to move tokens."
+    },
+    {
+      "title": "Accountant.report treats totalAssets<totalSupply as loss only vs supply, ignoring loss param",
+      "severity": "Medium",
+      "file": "Accountant.sol",
+      "function": "report()",
+      "description": "The fee logic only checks `assets < supply` to detect a loss, and reduces fees by `needed = supply - assets`. This compares total assets to total supply in raw token units, but does not account for the reported `loss` parameter at all, and ignores debt/strategy shares. More importantly, if `assets >= supply` (e.g., because a vault holds other strategies' value or the strategy's `current_debt` share is misaligned), fees are charged in full even during a loss report. The `loss` argument is validated for the healthcheck but never used to reduce `totalFees`.",
+      "attackPath": "A strategy reports a large `loss` (within maxLoss bounds) while the vault's aggregate `totalAssets` still exceeds `totalSupply` (e.g., other strategies profitable). Accountant charges `totalFees = gain` (or full gain), siphoning value from the vault despite a net loss on this strategy.",
+      "impact": "Fees can be charged during loss events; fee recipient extracts value that should be refunded to vault holders.",
+      "recommendation": "Use the reported `loss` (and strategy-level debt/share semantics) to compute the net position, rather than comparing vault-wide `totalAssets` to `totalSupply`. Ensure fees are only taken on genuine net profit."
+    },
+    {
+      "title": "StakerFactory.newStrategy lacks an access-control modifier, letting anyone deploy and overwrite deployments",
+      "severity": "Medium",
+      "file": "StakerFactory.sol",
+      "function": "newStrategy()",
+      "description": "`newStrategy(address _asset, string calldata _name)` is declared `external` with no `onlyManagement` (or equivalent) modifier, unlike `StrategyFactory.newStrategy` in the same codebase whose signature is guarded by `onlyManagement`. The function deploys a Strategy, calls privileged setters on it, and then writes `deployments[_asset] = address(_newStrategy)` unconditionally, overwriting whatever was previously recorded for that asset. Because the mapping is keyed only by the vault address, any caller can replace the tracked deployment for an existing vault.",
+      "attackPath": "Any external account calls `StakerFactory.newStrategy(vaultAddress, name)` for an already-deployed vault (the constructor only requires the vault to have a non-zero accountant). This overwrites `deployments[vaultAddress]` with the attacker-created strategy. Afterwards `isDeployedStrategy(realStrategy)` returns false and `isDeployedStrategy(attackerStrategy)` returns true.",
+      "impact": "The factory's deployed-strategy registry is corrupted by an unprivileged party, so any on-/off-chain consumer of `isDeployedStrategy`/`deployments` (monitoring, emergency tooling, allowlists) is misled about which strategy is legitimate, and the legitimate deployment record is permanently lost.",
+      "recommendation": "Add `onlyManagement` to `newStrategy` (as in StrategyFactory) and/or key `deployments` by vault+underlying so a strategy cannot silently overwrite an existing valid entry."
+    },
+    {
+      "title": "Accountant.report charges 100% performance fee on gain even when vault totalAssets < totalSupply was already covered by loss",
+      "severity": "Medium",
+      "file": "Accountant.sol",
+      "function": "report()",
+      "description": "`totalFees = gain` is set unconditionally for any positive gain, then only reduced when `assets < supply` (i.e. vault already undercollateralised). It ignores the per-strategy `loss` argument entirely for fee purposes. A strategy that reports a gain while an unrelated strategy reports a loss in the same `report` cycle still pays `gain - needed` fee against the whole vault's shortfall, not against its own contribution. This can overcharge against a gain that merely offsets other strategies' losses, distorting the fee base.",
+      "attackPath": "A keeper triggers a report where one strategy reports a large gain and another vault-underwater state exists; `Accountant.report` deducts the vault's existing `supply - assets` shortfall from the gain and takes 100% of the remainder as fee, even though the gain is partly realised by restoring prior losses that never should have been fee base.",
+      "impact": "Fee overcharge reduces vault shareholders' assets; the vault's report transfers the fee to the Accountant, permanently reducing NAV for depositors.",
+      "recommendation": "Fee should be computed against per-strategy profit after netting that strategy's own loss, e.g. compare pre- and post-report price per share, and only charge on the increment."
+    },
+    {
+      "title": "StrategyAprOracle differs: aprAfterDebtChange divides by zero when SP deposits=0 and _delta<0, and `_delta * -1` overflows on type(int256).min",
+      "severity": "Medium",
+      "file": "StrategyAprOracle.sol",
+      "function": "aprAfterDebtChange()",
+      "description": "`require(uint256(_delta * -1) < _stabilityPoolDeposits, \"!delta\")` uses `_delta * -1`, which reverts on overflow for `_delta == type(int256).min` (Solidity 0.8 checked multiplication), so a caller can force a revert. Additionally, `uint256(int256(_stabilityPoolDeposits) + _delta)` will revert if the sum is negative or `_delta == type(int256).min`; and if `_stabilityPoolDeposits == 0` there's a short-circuit `if (_stabilityPoolDeposits == 0) return 0` before this, but the require is skipped so the return is 0 — inconsistent but not a DoS. The unchecked `_delta * -1` is the concrete overflow path.",
+      "attackPath": "Caller (any external — the function is `external view`) invokes `aprAfterDebtChange(strategy, type(int256).min)` and the multiplication underflows/reverts. In a non-view context this causes revert; the oracle is not usable for that input.",
+      "impact": "Any consumer that must handle extreme negative `_delta` cannot; DoS of the APR oracle for adversarial inputs. Because it's `view`, actual asset loss is limited to callers who depend on it.",
+      "recommendation": "Handle `_delta == type(int256).min` explicitly and use `_delta < 0 ? uint256(-(_delta)) : uint256(_delta)` (or `SafeCast`) for the negation."
+    },
+    {
+      "title": "Strategy `_tend` computes starting price using `_available * _price / WAD * _bufferPercent / WAD / WAD` — dust-size collateral gets zero start price",
+      "severity": "Medium",
+      "file": "Strategy.sol",
+      "function": "_tend()",
+      "description": "The auction starting price is `_available * _price / WAD * _bufferPercentage / WAD / WAD`. With `_available` around `dustThreshold` (default 1e15) and typical `_price * _bufferPercentage / WAD / WAD ≈ price`, the result can be well below 1 wei of value and rounds down to 0. It only proceeds when `_available > dustThreshold`, but `dustThreshold` is user-settable to `MIN_DUST_THRESHOLD = 1e15`, so a low-price collateral or a low value at exactly the threshold yields a near-zero start price.",
+      "attackPath": "Attacker or natural condition builds up collateral just above `dustThreshold`; keeper/`claim()` runs `_tend`; the auction starts at a 0 or near-0 price, letting any buyer sweep the collateral for ~0.",
+      "impact": "Collateral reward is sold for nothing, permanently losing value to LPs. Anyone can trigger `claim()` which can call `_tend`.",
+      "recommendation": "Require the computed starting price to be > 0 (or > dust +1 wei of value) and skip otherwise."
+    },
+    {
+      "title": "StrategyFactory.setAddresses allows a management transfer to a zero/garbage address via chained self-renounce",
+      "severity": "Medium",
+      "file": "StrategyFactory.sol",
+      "function": "setAddresses()",
+      "description": "`setAddresses` requires only that `msg.sender == management`; it does not require the new `_management`, `_performanceFeeRecipient`, or `_keeper` to be nonzero. A compromised or mistaken management account can transfer `management` to an inaccessible/non-controllable address (e.g. `address(0)`), which permanently bricks `newStrategy` and `setAddresses`.",
+      "attackPath": "Malicious or buggy management calls `setAddresses(address(0), ...)` → `management = 0` → no future `newStrategy` can succeed. Any deployed strategies rely on their own management (unaffected), but factory-level operations are bricked.",
+      "impact": "Permanent DoS of the factory's newStrategy and setAddresses. Deployment pipeline (front-run a critical rollout) is broken.",
+      "recommendation": "Require `_management != address(0)` and reject zero `_performanceFeeRecipient`/`_keeper` (or use two-step ownership transfer for management)."
+    },
+    {
+      "title": "Accountant.report fees are never pulled/transferred; distribute() pays from residual balance only",
+      "severity": "Medium",
+      "file": "Accountant.sol",
+      "function": "report()",
+      "description": "`report()` returns `totalFees` to the calling vault but never records a receivable; the accountant relies on the vault to transfer fee tokens into the Accountant after report. `distribute()` then sends `balanceOf(address(this))` to `feeRecipient`. If the vault does not push tokens (e.g., it mints shares to the accountant or transfers elsewhere), fees are silently lost, and if it does push, `distribute()` can be called by anyone to sweep the *entire* balance to the recipient—including any tokens sent for other purposes (refunds, accidental transfers). There is no per-token accounting of what is owed.",
+      "attackPath": "Anyone calls the one-arg `distribute(token)` after any ERC20 lands in the Accountant; the whole balance goes to `feeRecipient`, so balances intended for refunds/deposits are drained.",
+      "impact": "Loss of tokens held by Accountant for non-fee purposes; incorrect fee distribution.",
+      "recommendation": "Track accrued fees per token and distribute only tracked amounts; restrict the one-arg `distribute` or reconcile it against tracked balances."
+    },
+    {
+      "title": "StakerFactory.newStrategy overwrites deployments mapping keyed only by asset; multiple strategies unsupported",
+      "severity": "Medium",
+      "file": "StakerFactory.sol",
+      "function": "newStrategy()",
+      "description": "`deployments[_asset] = _newStrategy` uses only the asset address as the key, while the underlying `LV2SPStakerStrategy`'s accountant/asset pairing is per-vault. Deploying a second strategy for the same asset silently overwrites the first in `deployments`, so `isDeployedStrategy` returns false for the earlier (still functioning) strategy, breaking any on-chain authorization that checks factory membership for that strategy.",
+      "attackPath": "Management deploys strategy A for asset X, then strategy B for asset X. A remains live but is no longer \"deployed\" per factory. Any peripheral relying on `isDeployedStrategy` (e.g., keepers, accounting) misclassifies A.",
+      "impact": "State desync; loss of eligibility/authorization for a live strategy; possible funds stranded if a production/authorization path depends on it.",
+      "recommendation": "Key deployments by (asset, some unique id) or use a set, or revert on duplicate deploy for same asset."
+    },
+    {
+      "title": "Accountant.report healthcheck uses per-strategy current_debt for maxGain/maxLoss — manipulated by strategy",
+      "severity": "Medium",
+      "file": "Accountant.sol",
+      "function": "report()",
+      "description": "`require(gain <= (strategyParams.current_debt * fee.maxGain) / MAX_BPS)` and the analogous loss check derive their bound from `current_debt`, which is set by the vault during the report. If the vault updates `current_debt` before calling the accountant (as `BaseStrategy` does during `report`), a strategy can inflate `current_debt` (e.g. by `_deployFunds`) to bypass the maxGain/maxLoss healthcheck. There is no invariant tying `current_debt` to the strategy's pre-report holdings.",
+      "attackPath": "Strategy in collusion with or without keeper calls report after moving funds such that `current_debt` is large; `maxGain` check passes for arbitrarily large gains; accountant charges full 100% fee on the gain.",
+      "impact": "The intended gain/loss caps are bypassed, and the accountant's fee is taken from mis-scaled bounds; harmful to vault LPs and, if a malicious vault is added as an \"added vault\", to the accountant.",
+      "recommendation": "Use a stable, accountant-side reference (e.g. `estimatedTotalAssets` captured before report, or `strategyParams.totalDebt`) for the bound."
+    },
+    {
+      "title": "StrategyAprOracle._getCollateralIndex is O(n) over all collaterals per call — DoS/gas griefing",
+      "severity": "Medium",
+      "file": "StrategyAprOracle.sol",
+      "function": "_getCollateralIndex()",
+      "description": "`_getCollateralIndex` loops over `COLLATERAL_REGISTRY.totalCollaterals()` and calls `getToken(i)` on each. The APR oracle is called during non-view strategy operations (\"This will potentially be called during non-view functions\"). If `totalCollaterals()` grows (Liquity governance can add collaterals), the loop gas cost grows without bound. Combined with `getMultipleSortedTroves(0, _count)` which loads the entire sorted trove list into memory, the function becomes uncallable for strategies at scale.",
+      "attackPath": "Over time, an increasing number of collaterals (or number of troves) makes `aprAfterDebtChange` revert from out-of-gas, so any non-view caller (e.g. a debt-change path that consults the APR oracle) reverts and cannot proceed.",
+      "impact": "Core functionality (strategy operations that depend on APR oracle) becomes unavailable; users cannot use features that route through the oracle.",
+      "recommendation": "Cache the collateral index at oracle deployment, or accept the index as an arg with bounds check; and cap `_count` with pagination."
+    },
+    {
+      "title": "StrategyAprOracle divide-before-multiply truncates weighted rate to zero",
+      "severity": "Medium",
+      "file": "StrategyAprOracle.sol",
+      "function": "aprAfterDebtChange()",
+      "description": "`_weightedInterestRate / _totalDebt * _totalDebt / (deposits+delta) * _bias / WAD` performs integer division `_weightedInterestRate / _totalDebt` first. If the weighted sum divided by total debt truncates to 0 (which it won't for typical rates in WAD, but if rates are stored per-second or in small units it can), APR becomes zero. More generally the intermediate truncation loses precision and the re-multiplication by `_totalDebt` only happens after truncation, distorting APR by up to one unit per debt of error.",
+      "attackPath": "Normal use with small interest rates or after a governance bias update; APR oracle reports 0 or distorted APR.",
+      "impact": "Vault/strategy may mis-tend based on wrong APR; not direct fund loss. (Lower severity.)",
+      "recommendation": "Reorder to multiply before dividing: `_weightedInterestRate * _bias / ((deposits+delta) * WAD)`."
+    },
+    {
+      "title": "Strategy._tend starting price computes available from auction + strategy but sends only strategy balance; double counts",
+      "severity": "Medium",
+      "file": "Strategy.sol",
+      "function": "_tend()",
+      "description": "`_available = COLL.balanceOf(address(AUCTION)) + _toAuction` then `AUCTION.setStartingPrice(_available * _price / WAD * ... )` and `COLL.safeTransfer(address(AUCTION), _toAuction)`. The starting price is computed for the combined collateral, but the strategy transfers only its own `_toAuction`. If the auction previously held collateral from a prior state (e.g., settled-but-not-withdrawn), or if starting price is per-unit, setting the price using combined available double-counts and then kick may revert or mis-price. Also `setStartingPrice` reverts if there is an active auction, so this path only runs when `AUCTION.available == 0`, i.e., when auction has no active amount; the `balanceOf(AUCTION)` then is likely stale/stranded collateral—inconsistent with the check but relies on it being zero.",
+      "attackPath": "Stranded collateral in auction plus new collateral leads to mispriced auction, causing strategy to sell COLL below value (loss to vault) if state differs from `available == 0` assumption.",
+      "impact": "Collateral sold at wrong starting price; possible failed tend (DoS) or value leakage to bidders.",
+      "recommendation": "Compute starting price only from `_toAuction` actually transferred, and ensure auction collateral is settled/withdrawn before kicking new rounds."
+    },
+    {
+      "title": "Strategy._freeFunds always withdraws with claim=true; claim()/_tend side effects and SP state interactions",
+      "severity": "Medium",
+      "file": "Strategy.sol",
+      "function": "_freeFunds()",
+      "description": "`_freeFunds(_amount)` calls `SP.withdrawFromSP(_amount, true)` unconditionally with `true` (claim collateral). `_emergencyWithdraw` passes `type(uint256).max`, relying on SP to scale down. But `claim()` also calls `_freeFunds(0)`, meaning it requests withdrawal of 0 while claiming. If the Stability Pool implementation does not claim collateral when `_amount == 0` (or reverts on 0), `claim()` becomes a no-op or reverts, blocking `_tend`'s `claim()` call and thus blocking auction collateral sales (liveness). This couples reward claiming to a successful SP withdrawal and depends on SP semantics not guaranteed by the code shown.",
+      "attackPath": "Attacker crafts scenarios (or SP behavior) where withdrawFromSP(0,true) reverts; keeper-callable tend fails, collateral keeps accumulating, auctions never start.",
+      "impact": "Collateral gains cannot be liquidated to asset; inability to realize yield; potential DoS of tend/harvest path.",
+      "recommendation": "Use SP's dedicated claim function for claiming, and only call withdrawFromSP when `_amount > 0`."
+    },
+    {
+      "title": "`_tend` sets starting price based on `_available` including existing AUCTION balance and immediately transfers then calls `kick`, reentrancy of ERC20/auction possible",
+      "severity": "Medium",
+      "file": "Strategy.sol",
+      "function": "_tend()",
+      "description": "`_tend` uses `COLL_PRICE_ORACLE.fetchPrice()` and immediately sets the starting price, then `COLL.safeTransfer(address(AUCTION), _toAuction)` followed by `AUCTION.kick(address(COLL))`. If the collateral token is not strictly ERC20 (or if `AUCTION` transfers collateral on `kick`), a reentrancy into `_tend` can occur while the price is set. Also `_available = COLL.balanceOf(AUCTION) + _toAuction` mixes the strategy's balance with the auction's existing balance; if the auction holds collateral from a previous state without an active auction, the new starting price covers both.",
+      "attackPath": "Attacker calls `claim()` (public) repeatedly or uses a hooking collateral token; during `_tend`, price is set based on stale oracle and the auction balance; through reentrancy or by triggering `_tend` when AUCTION already has idle COLL, the starting price is mismatched and callers can buy at wrong price.",
+      "impact": "Collateral sold below market, loss to vault LPs.",
+      "recommendation": "Follow checks-effects-interactions: `kick` first or use a reentrancy guard; do not include `COLL.balanceOf(AUCTION)` in the newly set start price."
+    },
+    {
+      "title": "Accountant.report for gain path uses vault totalAssets < totalSupply check across all strategies; single gain is used to fill another strategy's cumulative loss",
+      "severity": "Medium",
+      "file": "Accountant.sol",
+      "function": "report()",
+      "description": "`if (assets < supply) { uint256 needed = supply - assets; totalFees = gain < needed ? 0 : gain - needed; }` compares the *vault-wide* asset and supply. When one strategy gains and the vault is underwater from other strategies, this gain is (partially) used to cover global losses, so LPs who lost nothing receive no benefit while the gain-earning strategy's LP share should benefit from their own recovery. There is no per-strategy accounting here; the gain is deducted by the sum of all shortfalls, not the reporting strategy's loss.",
+      "attackPath": "Any report cycle: strategy A gains, strategy B reports a loss in the same block/period. Accountant charges 100% fee on gain only after subtracting the total existing shortfall from all strategies. So A's gain never accrues to its depositors and the fee is zero, whereas correct accounting would have charged a fee on A's gain net of A's own contribution.",
+      "impact": "Fee is not charged, and the LP that would otherwise benefit is diluted by other vault strategies' losses.",
+      "recommendation": "Compute gain/loss per strategy against per-strategy value change and charge the fee only after strategy-specific net profit."
+    },
+    {
+      "title": "Strategy `_tend` uses `block.basefee` for gas gating while keepers pay priority fee; can be free DoS via high-priority-tx even when basefee low",
+      "severity": "Medium",
+      "file": "Strategy.sol",
+      "function": "_tendTrigger()",
+      "description": "`_tendTrigger` returns true when `block.basefee <= maxGasPriceToTend`, but the actual gas cost paid by a keeper includes priority fee which is not accounted for. More importantly, `claim()` is public and calls `_freeFunds(0)`, which calls `SP.withdrawFromSP(0, true)`; if the Stability Pool implementation reverts on zero-amount withdrawals under certain states (claim-only path), `claim()` reverts and blocking `_tend`-related flows. Even if not, the trigger is baseless wrt incentive.",
+      "attackPath": "Attacker calls `claim()` on the strategy in a state where SP.withdrawFromSP(0, true) reverts (implementation-specific), blocking claims and pending tend. Or, with high basefee, keepers are forced off, and any public `claim` path directly triggers `_tend` (with the low start-price risk above).",
+      "impact": "Missed collateral sweeps, delayed reporting, and possible reverts in core functions.",
+      "recommendation": "Base the trigger on a configurable keeper incentive, and pull the claim into a try/catch, or separate `claim` from `_freeFunds` so zero-amount claiming does not call withdraw."
+    }
+  ]
+}

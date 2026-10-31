@@ -1,0 +1,327 @@
+{
+ "audit": "2025-06-notional-exponent",
+ "verdicts": [
+  {
+   "title": "onMorphoRepay callback lacks caller-binding and replay protection",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a lack of caller-binding and replay protection in the onMorphoRepay callback, which is not addressed in any of the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes missing caller-binding/replay protection in onMorphoRepay; the closest Morpho findings concern oracle pricing, liquidation frontrunning, rounding, and market initialization,",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Morpho healthFactor cross-multiplies collateral by price with 1e36 unit mismatch",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a unit mismatch in the healthFactor calculation, which is not covered by any of the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a unit/decimals mismatch in MorphoLendingRouter.healthFactor's collateral valuation, which is not the same root cause as any listed finding (M-7 concerns rounding in debt calcu",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "onMorphoFlashLoan trusts arbitrary data decoded from the caller-triggered callback path",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes the onMorphoFlashLoan callback trusting attacker-supplied data to trigger _enterOrMigrate for arbitrary users.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "AbstractRewardManager._claimVaultRewards uses stale memory state, missing updates",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a stale memory state bug in _claimVaultRewards/updateAccountRewards, which is not the same root cause as any listed finding (M-15 concerns skipped claims during cooldown, not s",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`__postLiquidation` in RewardManagerMixin can be invoked with stale transient state, doubling rewards",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function and contract.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes stale transient state in _postLiquidation for staking vaults; the closest reward-related findings (H-7, M-8, M-11, M-15) concern different root causes.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Dinero `canFinalizeWithdrawRequest` reads upxETH balances for the manager, not per request; any request can consume another request's upxETH",
+   "strict": "H-3",
+   "a": {
+    "match": "H-3",
+    "reden": "The candidate describes the same root cause in the same function and could lead to the same kind of impact.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "H-3",
+    "reden": "Both describe the same root cause: DineroWithdrawRequestManager does not track upxETH balances per withdrawal request, so batch ID overlap lets one request consume another's upxETH.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Missing authorization on getWithdrawRequest(address,address)",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a missing authorization check, which is not the same as the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes missing authorization on getWithdrawRequest; the candidate is a view-only access-control remark not covered by any listed finding.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "setCurrentAccount does not enforce the caller is the same lending router that set it",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function than the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing caller/account binding check in setCurrentAccount, which is not the root cause of any listed known finding.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "DineroWithdrawRequestManager.canFinalizeWithdrawRequest reversed finalization condition",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an inverted finalization condition in DineroWithdrawRequestManager.canFinalizeWithdrawRequest, which is not the same root cause as any listed finding (H-3 concerns batch ID ove",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Liquidation reward hijack via t_CurrentAccount corruption in postLiquidation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a transient storage/account corruption issue in postLiquidation, which is not the same root cause as any listed finding (closest liquidation-related findings M-4 and M-20 conce",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "CurveConvexLib.checkReentrancyContext callable by anyone and mutates pool/balance state",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function than the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes an unauthenticated external checkReentrancyContext that burns LP shares via remove_liquidity; H-9 concerns hardcoded useEth in remove_liquidity, a different flaw.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "AbstractWithdrawRequestManager.finalizeRequestManual bypasses onlyApprovedVault and deletes nothing",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes an unauthenticated finalizeRequestManual that marks requests finalized without transferring tokens; the closest (M-21) concerns stuck funds from unfinalizable requests, a di",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "AbstractLendingRouter.receive not payable; ETH repayments to router revert",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes a missing payable receive/fallback in AbstractLendingRouter causing ETH repayments to revert; M-3/M-10/M-22/M-23 concern ETH/WETH handling in Curve strategies, not the route",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Mint shares math division-by-zero and effectiveSupply inflation due to virtual shares when totalSupply < s_escrowedShares",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a division-by-zero and effectiveSupply inflation issue in the _mintSharesGivenAssets function, which is not covered by any of the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a division-by-zero/underflow in _mintSharesGivenAssets share math, which is not the root cause of any listed known finding.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "setCurrentAccount gate bypass via t_CurrentAccount left set by price(address)",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding does not match any of the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a transient-account clobbering in price(address), which is not the same root cause as any listed finding (H-4 concerns pricing bypass via direct Morpho borrowing, not t_Current",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "claimAccountRewards can be called by anyone for any account and returns the reward array without transferring assets for a caller that isn't the account",
+   "strict": "H-7",
+   "a": {
+    "match": "H-7",
+    "reden": "Both findings describe the same issue in the same function and lead to the same impact.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "H-7",
+    "reden": "Both describe claimAccountRewards being callable by anyone with an arbitrary account parameter and lacking validation of the account/sharesHeld input.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "isAuthorized modifier cannot clear t_CurrentAccount because clearCurrentAccount is onlyLendingRouter",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a transient account-clearing/valuation issue in AbstractYieldStrategy.clearCurrentAccount, which is not the root cause of any listed finding.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Liquidator can steal liquidated shares via reentrancy in postLiquidation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a reentrancy issue in the postLiquidation function, which is not covered by any of the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes a reentrancy in postLiquidation allowing a liquidator to steal shares; the closest reentrancy finding (H-1) concerns a different contract and root cause.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "_calculateAdditionalFeesInYieldToken uses truncated uint32 for timestamp; fees can underflow after 2106 or overflow on pre-2024 state",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns uint32 timestamp truncation in fee accrual, which is unrelated to any listed finding.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Ethena manager reverts finalization when caller is already sUSDe holder with a pending request",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a finalization revert/DoS in EthenaWithdrawRequestManager due to stale request data or zero-address cooldown lookup, which is not the same root cause as any listed finding (M-2",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "MorphoLendingRouter.healthFactor borrows rounding favours borrower but also impacts liquidations",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a rounding issue in the healthFactor function that could lead to liquidation vulnerabilities, but it does not match any of the known findings exactly.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "M-7",
+    "reden": "Both describe the same rounding-down of borrowed assets in MorphoLendingRouter.healthFactor, though the candidate frames it as favoring the borrower while M-7 focuses on migration failures from the di",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "`allowTransfer` transient authorization leaks across calls due to missing reset",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a transient authorization leak in the allowTransfer function, which is not covered by any of the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes transient allowTransfer authorization persisting across calls; the candidate concerns a distinct missing-reset flaw in AbstractYieldStrategy.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Ethena clone `rescueTokens` allows manager to drain funds unintentionally due to missing cooldown state check",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function than the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a rescueTokens/cooldown accounting flaw in EthenaCooldownHolder, which is not the same root cause as any listed finding (M-2 concerns tokensClaimed with zero cooldown duration,",
+    "model": "deepseek-flash"
+   }
+  }
+ ]
+}

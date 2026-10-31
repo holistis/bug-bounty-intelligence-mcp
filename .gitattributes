@@ -9,3 +9,5 @@ results/2026-10-24-sealed/** -text
 PUBLICATION-RULE-scan-results.md text eol=lf
 MEASUREMENT-RULE-two-judge-strict.md text eol=lf
 PREREGISTRATION-next-run-2026-10-26.md text eol=lf
+# Results folders carry SHA256SUMS: keep their bytes exactly as committed, whatever the reader line-ending setting is.
+results/** -text

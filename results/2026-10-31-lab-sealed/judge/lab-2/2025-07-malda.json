@@ -1,0 +1,817 @@
+{
+ "audit": "2025-07-malda",
+ "verdicts": [
+  {
+   "title": "ChainlinkOracle ignores round staleness and answeredInRound, allowing stale prices",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding addresses Chainlink round staleness/answeredInRound validation in ChainlinkOracle; the closest oracle finding (M-14) concerns decimal mismatch in MixedPriceOracleV4, a different bug.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "EverclearBridge.sendMsg returns leftover to _market instead of msg.sender and never pulls tokens from Rebalancer",
+   "strict": "M-6",
+   "a": {
+    "match": "M-6",
+    "reden": "The candidate finding describes the same root cause in the same function and could lead to the same kind of impact.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "M-6",
+    "reden": "Both describe EverclearBridge.sendMsg failing to pull tokens from the Rebalancer via transferFrom, causing rebalancing to fail.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Migrator.migrateAllPositions never repays Malda borrow, leaving permanent debt on user",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes the Migrator failing to repay the Malda borrow; M-3 concerns slippage underestimation in the same contract but a different flaw.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Batch-proof forwarder bypasses per-journal field validation in external ops",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a forwarder bypass of per-journal L1Inclusion validation in external ops, which is not the same root cause as any listed finding (M-8 concerns l1Inclusion being unsettable on E",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "mTokenGateway._outHere overwrites the caller-supplied receiver with the journal sender",
+   "strict": "M-4",
+   "a": {
+    "match": "M-4",
+    "reden": "Both findings describe the same issue in the same function, where the receiver address is overwritten and the blacklist check is bypassed.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "M-4",
+    "reden": "Both describe the outHere endpoint overwriting the caller-supplied receiver with the journal sender, bypassing the receiver blacklist check.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "mTokenGateway._checkSender lets PROOF_FORWARDER/PROOF_BATCH_FORWARDER impersonate any sender",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes proof-forwarder role allowing arbitrary srcSender impersonation in _checkSender; M-4 concerns blacklist bypass on outHere, a different flaw.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "JumpRateModelV4 divides by blocksPerYear in updateJumpRateModel with no zero guard",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a division by zero issue in JumpRateModelV4, which is not present in the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a division-by-zero in JumpRateModelV4's update functions, which is not the same root cause as any listed finding (M-2 concerns borrow rate manipulation via utilization, not zer",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Rebalancer maxTransferSize check uses stale `transferInfo.size` and `<=`/`<` off-by-one allows exceeding limit",
+   "strict": "M-7",
+   "a": {
+    "match": "M-7",
+    "reden": "Both findings describe a stale transfer size check in the Rebalancer contract that can lead to exceeding the transfer limit.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "M-7",
+    "reden": "Both describe the stale `transferInfo` memory copy in Rebalancer.sendMsg causing incorrect transfer-size validation, though the candidate frames it as exceeding the limit rather than a DoS revert.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "JumpRateModelV4.updateBlocksPerYear leaves rate-per-block values stale",
+   "strict": null,
+   "a": {
+    "match": "M-2",
+    "reden": "Both findings describe a stale rate-per-block value in JumpRateModelV4, leading to incorrect interest calculations.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding addresses updateBlocksPerYear leaving per-block rates stale; M-2 concerns a different issue in getBorrowRate.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "liquidateExternal wraps amount and does not verify _accAmountIn in-limit before mutation when receiver overwritten",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function than the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a free-liquidation flaw in _liquidateExternal via receiver overwrite and doTransfer=false, which is not the same root cause as any listed finding (M-11 only notes a missing gat",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "mTokenGateway.outHere permits proof forwarders/relayers to bypass L1Inclusion proof requirement",
+   "strict": null,
+   "a": {
+    "match": "M-4",
+    "reden": "Both findings describe a bypass of the L1-inclusion check in the mTokenGateway contract.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a proof-forwarder role bypass of L1 inclusion verification in outHere, which is not the same root cause as any listed finding (M-4 concerns blacklist bypass, M-8 concerns l1Inc",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Migrator.market minted to migrator, never forwarded to borrower, then drained by next migration",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes borrowed funds being minted to the Migrator and left unforwarded/drainable; M-3 concerns slippage underestimation in the same function but a different flaw.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Rebalancer fails to reset per-window aggregate after deadline, allowing max-transfer bypass",
+   "strict": "M-7",
+   "a": {
+    "match": "M-7",
+    "reden": "Both describe a stale transferInfo variable in Rebalancer::sendMsg leading to incorrect transfer size validation.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "M-7",
+    "reden": "Both describe the stale TransferInfo used in Rebalancer.sendMsg after window reset, causing incorrect transfer size validation.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "OutHere transfers to _sender but batches all results under a single receiver param",
+   "strict": null,
+   "a": {
+    "match": "M-4",
+    "reden": "The candidate finding describes the same root cause in the same function and could lead to the same kind of impact.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a batch forwarder bypassing sender verification in outHere, which is not the same root cause as any listed finding (M-4 concerns blacklist bypass, not sender/receiver verificat",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Rebalancer.sendMsg max-transfer accounting checks the stale stored size and uses strict wrong comparison",
+   "strict": "M-7",
+   "a": {
+    "match": "M-7",
+    "reden": "The candidate finding describes the same root cause in the same function and could lead to the same kind of impact as M-7.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "M-7",
+    "reden": "Both describe the same stale TransferInfo check after time-window reset in Rebalancer.sendMsg causing incorrect transfer-size validation.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Migrator transfers only collateralUnderlyingAmount to v2 market but leaves excess underlying stranded",
+   "strict": null,
+   "a": {
+    "match": "M-3",
+    "reden": "Both findings describe a slippage protection issue in the Migrator contract.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes excess underlying left stranded in Migrator.migrateAllPositions; M-3 concerns slippage underestimation in the same contract but a different flaw.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "MixedPriceOracleV4 delta uses raw signed difference ignoring decimals between api3 and eOracle feeds",
+   "strict": "M-14",
+   "a": {
+    "match": "M-14",
+    "reden": "The candidate finding describes the same root cause in the same function and could lead to the same kind of impact as M-14.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "M-14",
+    "reden": "Both describe MixedPriceOracleV4's _getLatestPrice comparing API3 and eOracle prices with different decimals, causing the delta check to fail and fall back to eOracle.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "ChainlinkOracle getUnderlyingPrice can underflow exponent when feedDecimals > 36",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns ChainlinkOracle decimal underflow, while the closest known finding M-14 is about MixedPriceOracleV4 using mismatched API3/EO oracle decimals, a different contract and root cause",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "mTokenGateway._outHere ignores `receiver` in transfer and hardcodes `_sender` — the transferred beneficiary differs from the passed receiver/emitted receiver",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes _outHere overwriting receiver with _sender; M-4 concerns blacklist bypass in outHere, a different flaw.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "setBorrowRateMaxMantissa accrues interest after updating the variable, defeating its own check",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns setBorrowRateMaxMantissa accrual ordering, which is unrelated to any listed finding about rebalancing, redeem rounding, oracles, or gateway endpoints.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "mErc20Host performs state-changing repay before validation; unused repay made against wrong borrower / accounting cannot be reverted",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a repay accounting/validation ordering issue in mErc20Host._repayExternal, which is not the same root cause as any listed finding.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "mErc20Host mintExternal reads minAmountsOut[i] without length check",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing length check on minAmountsOut in mintExternal, which is not the root cause of any listed finding.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "AcrossBridge uses `msg.sender` as depositor after pulling tokens, allowing wrong depositor identity",
+   "strict": "M-15",
+   "a": {
+    "match": "M-15",
+    "reden": "The candidate describes the same root cause in the same function and could lead to the same kind of impact.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "M-15",
+    "reden": "Both describe AcrossBridge setting the depositor to the Rebalancer, causing failed bridge refunds to be locked/inaccessible.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Pauser._pause loop aborts if any registered contract is not pausable, denying emergencyPauseAll",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function than any of the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns Pauser emergencyPauseAll reverting on non-pausable entries, which is unrelated to any of the listed known findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "AcrossBridge allows funds to be pulled to itself for outputAmount>inputAmount and never checks relayer deadline",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes missing deadline validation and one-directional slippage in AcrossBridge.sendMsg, which is not the same root cause as any listed finding (closest, M-10, concerns unenforced max",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "MixedPriceOracleV4 recursively prices via toSymbol with no cycle/limit check, and deltaBps divides by |eOraclePrice| with no zero guard",
+   "strict": null,
+   "a": {
+    "match": "M-14",
+    "reden": "The candidate finding describes the same root cause in the same function and could lead to the same kind of impact as M-14.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes oracle recursion/cycle and division-by-zero issues, which are distinct from all listed findings (M-14 concerns decimal mismatch in the same oracle but a different root cause).",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Pauser._pause allows a PAUSE_MANAGER-role holder to pause a Host and calls Operator.setPaused as Pauser, not the manager",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a role-based access control issue in the Pauser contract, which does not match any of the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns a role-name mismatch in Pauser._pause causing pause DoS, which is unrelated to any of the listed known findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "ChainlinkOracle.getPrice/getUnderlyingPrice ignore staleness and round validity, and can revert on 18-feeds due to underflow",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns ChainlinkOracle staleness/decimals underflow, which is unrelated to any of the listed findings about rebalancer, mToken, migrator, gateway, or MixedPriceOracle issues.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "MixedPriceOracleV4._getLatestPrice can revert when eOraclePrice is zero or negative ints are mis-handled",
+   "strict": null,
+   "a": {
+    "match": "M-14",
+    "reden": "Both findings describe a division by zero and negative price handling issue in the _getLatestPrice function of MixedPriceOracleV4.sol.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns division-by-zero/negative price handling in MixedPriceOracleV4._getLatestPrice, while the closest known finding M-14 is about mismatched oracle decimals causing DOS, a different",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Operator.liquidateCalculateSeizeTokens uses liquidationIncentiveMantissa of collateral market with no validation, griefed by zero",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding addresses liquidation incentive validation or zero seizeTokens in liquidateCalculateSeizeTokens.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "_repayExternal accrues and checks in wrong order, allowing arbitrary inPerChain accounting",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different bug in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes the _repayExternal ordering/accounting issue in mErc20Host; all listed findings concern rebalancer, redeem rounding, oracle, migration, or gateway bugs.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "_checkSender bypasses direct sender check via broad role permissions",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a role-based sender check bypass in _checkSender, which is not the same root cause as any listed finding (M-8 concerns l1Inclusion flag, not sender authorization).",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "ReferralSigning signature has no referrer binding in EIP-712 domain and no expiry",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns ReferralSigning signature binding/expiry, which is unrelated to any of the listed rebalancer, mToken, oracle, or bridge findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "JumpRateModelV4.utilizationRate divides by cash+borrows-reserves without underflow/zero guard",
+   "strict": null,
+   "a": {
+    "match": "M-2",
+    "reden": "Both findings describe a division by zero or underflow vulnerability in the utilizationRate function of JumpRateModelV4.sol.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a denominator underflow/zero-guard DoS in utilizationRate, which is not the same root cause as any listed finding (M-2 concerns large borrow rate from first depositor, not unde",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "mTokenGateway.supplyOnHost refunds no excess gas and forwarders bypass whitelist/user checks via _checkSender",
+   "strict": "M-4",
+   "a": {
+    "match": "M-4",
+    "reden": "The candidate describes the same root cause in the same function and could lead to the same kind of impact.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "M-4",
+    "reden": "Both describe the same blacklist bypass in mTokenGateway.outHere where the blacklist check applies to the wrong address (receiver vs actual _sender), allowing blacklisted beneficiaries to receive fund",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "BatchSubmitter passes untrusted, forwarder-supplied journal bytes to mintExternal/repayExternal/outHere without re-verifying membership",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function than the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a proof-verification bypass in BatchSubmitter.batchProcess, which is not among the listed known findings (none address BatchSubmitter journal verification).",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "JumpRateModelV4 updateJumpRateModel lacks kink/blocksPerYear zero checks causing divide-by-zero or stuck rates",
+   "strict": null,
+   "a": {
+    "match": "M-2",
+    "reden": "Both findings describe a divide-by-zero or stuck rates issue in the same function and contract.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns missing zero checks and stale per-block rates in JumpRateModelV4._updateJumpRateModel, which is not the same root cause as any listed finding (M-2 concerns first-depositor manip",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "beforeMTokenMint does not enforce whitelist for receiver",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a whitelist bypass issue in the beforeMTokenMint function, which is not covered by any of the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding addresses missing whitelist/blacklist enforcement on the receiver in beforeMTokenMint; M-4 concerns a different blacklist bypass in mTokenGateway.outHere.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Bootstrap mint to accountTokens[address(0)] is never redeemable and burned on first supply",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes the bootstrap mint to address(0) or the 1000 mToken threshold issue in __mint.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Migrator.migrateAllPositions allows anyone to drive a victim's Mendi collateral withdrawal and leaks the repaid Borrow to the migrator",
+   "strict": null,
+   "a": {
+    "match": "M-3",
+    "reden": "Both describe a slippage protection issue in the Migrator contract.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a distinct Migrator.migrateAllPositions issue (excess underlying locked and Borrow leak), not the slippage-underestimation bug in M-3 or any other listed finding.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Migrator transfers cTokens from msg.sender after already computing positions, but collateral underlying minOut allows delta",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "M-3",
+    "reden": "Both describe Migrator's collateral slippage/minOut computed in underlying terms rather than shares, allowing under-delivery of collateral.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Migrator has no access control on migrateAllPositions and assumes operator markets match Mendi 1:1",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue than the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a permissionless migrateAllPositions with a mint/transfer timing window, which is a different root cause than any listed finding (M-3 concerns slippage underestimation in Migra",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "supplyOnHost credits accAmountIn for any receiver without blacklist/whitelist for receiver verified only by modifier",
+   "strict": null,
+   "a": {
+    "match": "M-4",
+    "reden": "Both findings describe a similar issue with the lack of contract checks in the supplyOnHost function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing receiver contract/whitelist check in supplyOnHost, which is not the same root cause as any listed finding (M-11 only mentions supplyOnHost in passing regarding liquid",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "BatchSubmitter uses index-mismatched journals/amounts and ignores verification result mismatch with initHashes",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes array length/index mismatch and journal verification issues in BatchSubmitter.batchProcess, which is not among the listed known findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Pauser._pause relies only on role check inside loop; emergencyPauseMarket does not check the contract is registered and unbounded array loops can DoS",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns Pauser emergency pause DoS via unbounded loops, which is unrelated to any of the listed known findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "ReferralSigning signature does not bind contract address or chain and signs msg.sender+nonce with no expiry, enabling cross-contract/cross-chain replay of referral claims",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns ReferralSigning signature replay, which is unrelated to any of the listed known findings about rebalancing, mToken, oracles, or gateways.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Blacklister.unblacklist/getBlacklistedAddresses array swap removal is O(n) scan and unbounded list can be griefed; initialize lacks roles zero-check",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding does not match any of the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns Blacklister initialize zero-check and unbounded list griefing, which is unrelated to any of the listed known findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "performExtensionCall redeem outflow uses minted-from-nothing path when doTransfer=false and does not cancel total supply",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in the same function as M-13.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a redeem accounting issue in performExtensionCall with doTransfer=false, which is not the same root cause as any listed finding (rounding, rebalancer, bridge, oracle, etc.).",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "liquidation uses _accAmountIn - inPerChain without checking underflow semantics / deduction uses wrong side",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a speculative accounting/underflow concern in _liquidateExternal's inPerChain handling, which is not the same root cause as any listed finding (M-11 concerns a missing gateway ",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Operator.checkOutflowVolumeLimit trusts calling mToken to send its own address; any listed market can drain limit and block others",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an aggregate outflow limit DoS in Operator.checkOutflowVolumeLimit, which is unrelated to any of the listed known findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Rebalancer sends msg.value to bridge but saveEth/save can steal accumulated ETH and bridge receives arbitrary value",
+   "strict": "H-1",
+   "a": {
+    "match": "H-1",
+    "reden": "Both findings describe the same root cause in the same function and could lead to the same kind of impact.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": "H-1",
+    "reden": "Both describe the rebalancer using caller-supplied bridge message data (e.g., Everclear receiver) to route extracted market funds to an attacker-controlled destination.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Rebalancer has no nonce/expiry on sendMsg and allows replay of the same Msg across transactions",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a replay attack vulnerability in the sendMsg function, which is not covered by any of the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes replay/nonce protection issues in Rebalancer.sendMsg; the closest findings concern bridge receiver, destination, fee, and transfer-size bugs, not message replay.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "Repay charged against outflow limit using full repayAmount even though only actualRepayAmount burns",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function than any of the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding addresses repayExternal outflow accounting using full repayAmount versus actualRepayAmount.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "processExtensionCall outflow check bypasses acc.outPerChain accounting and reuses mint SUM limit",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an outflow accounting/limit bypass in performExtensionCall, which is not the same root cause as any listed finding.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "mErc20Host _repayExternal charges outflow before validating journals and repays against wrong sender",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an outflow accounting mismatch in repayExternal using caller-supplied repayAmount vs actualRepayAmount, which is not the same root cause as any listed finding.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "claimMalda allows any caller to claim rewards on behalf of any holder",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns missing caller authorization in claimMalda reward claiming, which is unrelated to any of the listed known findings.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "withdrawGasFees sends full ETH balance regardless of gasHelper minimum, denies refund to other users",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue in a different function than any of the known findings.",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a role-gated withdrawGasFees draining ETH balance, which is not the same root cause as any listed finding.",
+    "model": "deepseek-flash"
+   }
+  },
+  {
+   "title": "RewardDistributor._grantReward reads balanceOf on token == rewardToken meaning MALDA reward token must be an mToken",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "No match found",
+    "model": "codestral"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate is a speculative remark about ImToken casting/ERC-20 compatibility in RewardDistributor, unrelated to any listed finding.",
+    "model": "deepseek-flash"
+   }
+  }
+ ]
+}

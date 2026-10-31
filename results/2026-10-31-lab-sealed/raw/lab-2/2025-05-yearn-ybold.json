@@ -1,0 +1,245 @@
+{
+  "contest": "2025-05-yearn-ybold",
+  "hypotheses": [
+    {
+      "title": "Permissionless distribute() lets anyone drain Accountant's fee balance",
+      "severity": "High",
+      "file": "Accountant.sol",
+      "function": "distribute()",
+      "description": "The single-argument `distribute(address token)` is declared `external virtual` with no access modifier and simply calls `distribute(token, ERC20(token).balanceOf(address(this)))`. The overload it calls is gated by `onlyFeeManagerOrRecipient`, but the one-arg version bypasses that entirely because internal/self calls do not re-enter the modifier logic as a restriction—the restriction is only the outer privileged function. Any address can therefore invoke the one-arg `distribute` and force a transfer of the entire token balance held by the Accountant (all accumulated performance fees, hardcoded to 100% of gains) to `feeRecipient`.",
+      "attackPath": "(1) Fees accumulate in the Accountant as strategies report gains (`totalFees = gain`). (2) Attacker calls `Accountant.distribute(asset)` with the asset address (e.g. BOLD). (3) Balance check returns the full balance and `safeTransfer(feeRecipient, balance)` executes. Attacker cannot steal to themselves but can grief / force distribution timing, and if `feeRecipient` was set to an attacker-controlled or zero-timing-sensitive address this is total loss; regardless it defeats the manager's control over distribution.",
+      "impact": "Any user can trigger distribution of all fee tokens, bypassing the intended `onlyFeeManagerOrRecipient` gate. If feeRecipient is a contract or temporarily mis-set, tokens are permanently drained to that address with no recovery path from the Accountant.",
+      "recommendation": "Add `onlyFeeManagerOrRecipient` to the one-arg `distribute(address token)` overload (or have it read balance and call the gated overload under the same modifier)."
+    },
+    {
+      "title": "distribute(address) is permissionless and sweeps entire balance to feeRecipient",
+      "severity": "Medium",
+      "file": "Accountant.sol",
+      "function": "distribute()",
+      "description": "The single-argument `distribute(address token)` has no access modifier at all and forwards to `distribute(token, ERC20(token).balanceOf(address(this)))`. It thus sends the accountant's full balance of any token to `feeRecipient`. Any external caller (E.g. MEV bot, griefer, or a disgruntled user) can invoke it any time. The two-arg version is guarded by `onlyFeeManagerOrRecipient`, but the overload bypasses that guard entirely.",
+      "attackPath": "Attacker calls `Accountant.distribute(token)` for any token the accountant holds (e.g. accumulated fees, or tokens temporarily held mid-report). Full balance is immediately shipped to `feeRecipient`. Strategy's `_harvestAndReport` also relies on distributing to claim rewards, so this can race/sandwich strategy flows in `Staker.sol`, or drain any reward token that the admin intended to hold elsewhere.",
+      "impact": "Loss of all tokens held by the Accountant to `feeRecipient` regardless of intent, potential disruption of `_harvestAndReport` accounting, and griefing/dosing of the strategy's claim path.",
+      "recommendation": "Add `onlyFeeManagerOrRecipient` (or at least `onlyFeeManager`) to the single-arg overload, or remove it entirely."
+    },
+    {
+      "title": "StrategyAprOracle.aprAfterDebtChange divides before multiplying, returning 0 for most troves",
+      "severity": "Medium",
+      "file": "StrategyAprOracle.sol",
+      "function": "aprAfterDebtChange()",
+      "description": "The expression `_weightedInterestRate / _totalDebt * _totalDebt / (uint256(int256(_stabilityPoolDeposits) + _delta)) * _bias / WAD` divides `_weightedInterestRate` by `_totalDebt` first, then multiplies back by `_totalDebt`, which is mathematically equivalent to `_weightedInterestRate / (SP + delta)`. The first division truncates to 0 whenever `_weightedInterestRate < _totalDebt`, i.e. whenever the average interest rate is below 1 (1e18 units), which is normal since annual interest rates are in WAD (e.g. 5e16 for 5%). Result: for ordinary states, the function returns 0 APR instead of the true weighted APR.",
+      "attackPath": "Any keeper/integrator/strategy that consumes `aprAfterDebtChange` for capital allocation or debt change decisions receives a meaningless 0 APR across the vast majority of realistic interest-rate regimes; when the collateral bias is high, decision logic could be steered into unprofitable debt increases.",
+      "impact": "The strategy's debt/rewards decision logic is silently defeated — instead of optimising interest it will believe the yield is zero, withdrawing or adding debt wrongly and losing yield.",
+      "recommendation": "Reorder operations: return `_weightedInterestRate * WAD * _bias / ((uint256(int256(_stabilityPoolDeposits)) + _delta) * _totalDebt)` with a WAD adjustment."
+    },
+    {
+      "title": "StrategyAprOracle.aprAfterDebtChange reverts on debt decrease due to wrong delta sign",
+      "severity": "High",
+      "file": "StrategyAprOracle.sol",
+      "function": "aprAfterDebtChange()",
+      "description": "The formula computes `_totalDebt / uint256(int256(_stabilityPoolDeposits) + _delta)`. For a debt decrease, `_delta < 0`, but `_stabilityPoolDeposits` (uint256) is cast to int256 while `_delta` is int256; mixing `uint256 + int256` is actually a type error normally, but here `uint256(int256(_stabilityPoolDeposits) + _delta)` casts the *sum of int and int* — with `_delta < 0` the subtraction then either yields a huge uint after reinterpretation or reverts on overflow. Combined with the guard `require(uint256(_delta * -1) < _stabilityPoolDeposits)`, this path is also reachable when `_delta == type(int256).min` where `_delta * -1` overflows and reverts, and the multiplication of `_annualInterestRate * _debt` can overflow for large debts. Most critically, the check only ensures `|delta| < deposits`, not that `deposits + delta > 0` in a safe arithmetic sense; the check passes but the arithmetic then reverts or produces absurd values. Since this is used by the vault's strategy accounting (`_tend`/harvest APR estimation) and by any integration calling into it, a debt decrease makes the oracle revert.",
+      "attackPath": "Any caller querying `aprAfterDebtChange(strategy, -x)` (e.g., vault preview, keeper, or integrator) hits the mis-typed arithmetic and the call reverts. A caller passing `_delta = type(int256).min` triggers the `_delta * -1` overflow regardless of deposit size.",
+      "impact": "Core APR query for debt decreases is broken (DoS of preview/estimation), and extreme negative delta causes an unavoidable revert. Integrators relying on the oracle cannot size deposits/withdrawals.",
+      "recommendation": "Store `_stabilityPoolDeposits` as `int256` and check `deposits + _delta > 0` with `int256` arithmetic, and use `int256(_delta) > -_stabilityPoolDeposits` (handling `type(int256).min`) instead of `uint256(_delta * -1)`."
+    },
+    {
+      "title": "Missing access control on AccountantFactory.newAccountant",
+      "severity": "Medium",
+      "file": "AccountantFactory.sol",
+      "function": "newAccountant()",
+      "description": "`newAccountant` is declared `public` with no restriction on the caller, despite the feeManager/feeRecipient parameters being set on the deployed Accountant. Any address can deploy an Accountant with attacker-chosen feeManager/feeRecipient, or front-run a legitimate deployment. Wherever the factory is registered as a \"trusted\" address (in vaults or governance) downstream consumers may reason \"this Accountant came from the canonical factory\" — but the deployer chose the parameters and could simply deploy a free one. Also, callers can spam deployment, bloating future enumerations relying on `NewAccountant` events.",
+      "attackPath": "Attacker calls `newAccountant(attacker, attacker, ...)`; if any downstream code treats factory-deployed accountants as trusted, the attacker-owned ledger can be wired to a vault with attacker as feeManager/feeRecipient. Independent of downstream trust, this contract's guard is broken in the sense that no permission gate exists despite the factory's implicit role as deployment authority.",
+      "impact": "An unauthorized party can mint Accountant contracts with arbitrary fee manager/recipient, bypassing centralised deployment policy; griefing via spam.",
+      "recommendation": "Restrict `newAccountant` to an authorised `management`/`governance` address set in the constructor, and validate that feeManager/feeRecipient are non-zero."
+    },
+    {
+      "title": "StakerFactory.newStrategy unrestricted lets anyone deploy strategies and reset deployments mapping",
+      "severity": "Medium",
+      "file": "StakerFactory.sol",
+      "function": "newStrategy()",
+      "description": "`newStrategy` is `external` without any modifier, despite the factory mirroring `management/keeper/performanceFeeRecipient/emergencyAdmin` state and enforcing those setters in `setAddresses`. Any caller can deploy a new `LV2SPStakerStrategy`, and `deployments[_asset]` is overwritten with the newest strategy each time. `isDeployedStrategy` then returns false for the previously deployed strategy, breaking any deposit/withdraw/keeper gate that relies on it, and the original withdraw path via revenue-sharing yield accounting can be silently bypassed.",
+      "attackPath": "Attacker calls `newStrategy(asset, \"\")` against the same asset used by a legitimate strategy. The mapping entry `deployments[asset]` is overwritten, so `isDeployedStrategy(legitimate)` returns false. Any external consumer (vault registrar, UI, or keeper bot) relying on this view now treats the real strategy as fake, and trades/deposits may be routed into the attacker's copies.",
+      "impact": "The factory-provided deployment identity check becomes attacker-controllable and can defeat downstream authorisation (e.g. vault module registration, keeper routing, tokenised strategy validation).",
+      "recommendation": "Add `onlyManagement` to `newStrategy` and, when overwriting an existing entry, either revert or emit an explicit replacement action so consumers can't be silently redirected."
+    },
+    {
+      "title": "aprAfterDebtChange uses int256(_stabilityPoolDeposits) + _delta; negative delta can wrap or exceed unsafely",
+      "severity": "Medium",
+      "file": "StrategyAprOracle.sol",
+      "function": "aprAfterDebtChange()",
+      "description": "`uint256(int256(_stabilityPoolDeposits) + _delta)` — `_stabilityPoolDeposits` is coerced with `int256(_stabilityPoolDeposits)`, which reverts in Solidity 0.8 for values above `type(int256).max` but, more importantly, only rejects `_delta < 0` when `|_delta| < _stabilityPoolDeposits` (the `require`). However the require is inside a block gated `if (_delta < 0)` — but the check compares `uint256(_delta * -1) < _stabilityPoolDeposits`; if `_delta == type(int256).min`, multiplying `_delta * -1` reverts inside the `require` and causes the function to be a DoS target for a griefable caller. More practically, an int256 cast of a uint256 stability-deposit balance >2^255 returns 0 silently (wrap), which no one can actually have, so the exploitable issue is the griefable DoS on int256.min.",
+      "attackPath": "Anyone calling `aprAfterDebtChange(strategy, type(int256).min)` causes an arithmetic revert inside the require (or a `_delta * -1` overflow), making it a cheap griefing target for a strategy that checks this oracle before debt ops.",
+      "impact": "The public APR oracle can be made to revert on specific inputs, causing downstream reporting/report paths that call it to revert.",
+      "recommendation": "Validate `_delta > type(int256).min` before negating, or use `_delta == type(int256).min ? revert : uint256(-_delta)`."
+    },
+    {
+      "title": "StrategyAprOracle APR math truncates to zero before scaling, yields wrong APR",
+      "severity": "Medium",
+      "file": "StrategyAprOracle.sol",
+      "function": "aprAfterDebtChange()",
+      "description": "The return expression computes `_weightedInterestRate / _totalDebt` first, then multiplies by `_totalDebt`, then divides by `(pool + delta)`, then `* _bias / WAD`. In Solidity uint division truncates, so `_weightedInterestRate / _totalDebt` is the average rate but the subsequent `* _totalDebt / (pool+delta)` can collapse or round heavily; more importantly the slither-disabled `divide-before-multiply` sequence means the intermediate `_weightedInterestRate / _totalDebt` loses precision and the intended formula (total interest / pool, then scaled to 1e18) is not computed as written. Callers that feed this into vault strategy debt allocation (AprOracle is used for debt-change APR during reports) receive a mathematically wrong APR, not just a rounding-tolerance error. With small pools and `delta` near pool size the result can be dramatically inflated or deflated relative to the true `_weightedInterestRate / (pool+delta)`.",
+      "attackPath": "Any external caller (or keeper flow that calls the APR oracle during strategy reports) calls `aprAfterDebtChange` with a chosen `_delta`. The truncation and divide-before-multiply ordering produce a rate inconsistent with true weighted rate over the post-change pool; with `_stabilityPoolDeposits` small and `_delta` chosen so `(pool+delta)` is small, the `* _totalDebt / (...) ` term amplifies an already-truncated value, and `_bias` further multiplies the error.",
+      "impact": "Incorrect APR signal used for debt allocation / bookkeeping decisions; can cause mis-sized borrowing or deposit moves on the Liquity side and mispriced reports.",
+      "recommendation": "Compute `_weightedInterestRate * 1e18 / (pool + delta)` (after normalizing rate units) with multiplication before division, and compare against `_weightedInterestRate * 1e18 / _totalDebt`; avoid chained truncation."
+    },
+    {
+      "title": "Accountant.report() fee computation uses vault totalAssets vs totalSupply directly, mis-converting when vault decimals differ",
+      "severity": "Medium",
+      "file": "Accountant.sol",
+      "function": "report()",
+      "description": "The \"only take fee if there's no loss\" logic compares `uint256 supply = vault.totalSupply()` with `uint256 assets = vault.totalAssets()`. `totalSupply` is in share decimals and `totalAssets` in asset decimals; for a vault where decimals differ (or after price-per-share deviates), this direct comparison is dimensionally invalid. The intended check is whether share price is below 1 asset/share (`assets < supply`). If the vault's decimals don't match asset decimals (common with non-18-decimal assets), the comparison is systematically wrong: a genuine loss will not be detected (fee charged on top of a loss) or a non-loss will be treated as a loss (fees dropped). Since performance fee is 100% of gain, charging fees on top of a loss further dilutes existing depositors who are already underwater.",
+      "attackPath": "A strategy reports a `gain` when the vault's asset has e.g. 6 decimals (supply in 18-decimal shares). `assets < supply` becomes true almost always, so `needed = supply - assets` is enormous, `totalFees = gain < needed ? 0 : gain - needed` yields 0, and fees are silently never paid. Conversely with reversed setup, fees are paid while in fact the vault has no loss—redistribution between shareholders and feeRecipient.",
+      "impact": "Systematic fee accounting errors: either all performance fees are dropped (feeManager loses income but no theft) or fees are charged on losses, diluting depressed shareholders; both are wrong accounting.",
+      "recommendation": "Convert both quantities to a common unit—compare vault's price-per-share against 1 using `vault.pricePerShare()` scaled by share decimals, or `assets * 10**shareDecimals` vs `supply * 10**assetDecimals`."
+    },
+    {
+      "title": "`StrategyAprOracle` iterates all troves every call with unbounded `_count`",
+      "severity": "Medium",
+      "file": "StrategyAprOracle.sol",
+      "function": "aprAfterDebtChange()",
+      "description": "`_count = _troveManager.sortedTroves().getSize()` and the loop calls `MULTI_TROVE_GETTER.getMultipleSortedTroves(_collateralIndex, 0, _count)` fetching every trove. There is no cap on `_count`. `getMultipleSortedTroves` is likely gas-heavy and may revert if the requested count exceeds a maximum that MultiTroveGetter enforces or simply run out of gas. This view is meant to be called inside non-view functions per the code comment.",
+      "attackPath": "Anyone can open many small troves, growing `_count`. A subsequent strategy APR query (used in keeper/strategy paths or any integrator's non-view call) will revert out-of-gas, causing DoS of that integration.",
+      "impact": "DoS of strategy APR reporting and any reliance on it; cost to attacker is just the minimum trove size per added entry.",
+      "recommendation": "Cap the number of troves sampled and paginate; compute a bounded approximation."
+    },
+    {
+      "title": "aprAfterDebtChange accepts positive delta that inflates denominator and allows negative-delta bound check bypass via int overflow",
+      "severity": "Medium",
+      "file": "StrategyAprOracle.sol",
+      "function": "aprAfterDebtChange()",
+      "description": "For `_delta < 0` the code does `require(uint256(_delta * -1) < _stabilityPoolDeposits)` — `_delta * -1` can overflow for `type(int256).min`, and casting to uint is applied after the negation so the require does not actually enforce that `pool + _delta > 0`. The denominator `uint256(int256(_stabilityPoolDeposits) + _delta)` also performs signed addition between `int256(_stabilityPoolDeposits)` and `_delta`; if `_delta` is a large negative bounded by the weak check (or `int256(_stabilityPoolDeposits)` overflows int256 for huge pools, practically unreachable) the denominator can be smaller than intended or the call reverts. The result is that the APR can be computed against an unintended pool size, upstream of debt sizing and reported APR.",
+      "attackPath": "Caller supplies `_delta = type(int256).min` or a delta close to `-pool`; the overflow/negation makes `_delta * -1` a huge or negative value that passes (or is not) the require, and the denominator becomes inconsistent, distorting the returned APR.",
+      "impact": "Wrong APR fed to strategy/vault debt-decision logic; in extreme cases the call reverts, DoSing a path.",
+      "recommendation": "Check `_delta < 0` using `uint256(-_delta) < _stabilityPoolDeposits` on a safe negation (reject `int256.min`), and compute the denominator with explicit safe arithmetic, e.g. `uint256(int256(_stabilityPoolDeposits) + _delta)` after a `require(pool + _delta > 0)`."
+    },
+    {
+      "title": "Strategy._tend() reverts on zero starting price after oracle-down buffer when COLL not yet priced",
+      "severity": "Medium",
+      "file": "Strategy.sol",
+      "function": "_tend()",
+      "description": "`_tend` calls `AUCTION.setStartingPrice(_available * _price / WAD * _bufferPercentage / WAD / WAD)` where `_price` is fetched from `COLL_PRICE_ORACLE`. When the oracle is down, `_bufferPercentage` is multiplied by 1000x; but the same function is a no-op guard only for `_available > dustThreshold`. For a collateral token whose price feed returns 0 (feed flips to 0 or oracle down reports price 0), the starting price becomes 0 and `AUCTION.setStartingPrice(0)` likely reverts (auction with zero start price). Even if not, `AUCTION.kick` on a zero start price makes the auction settle to zero proceeds, burning collateral. The `_isOracleDown` branch exists precisely to inflate buffer, but there is no check that `_price > 0` and no guard against `_available * _price` overflow for large COLL balances.",
+      "attackPath": "Oracle flips to `priceSource != primary`/down with a zero price; keeper calls `tend()` (or anyone via harvest). `_price == 0` makes `setStartingPrice(0)` revert or `kick` an auction with 0 starting price. A subsequent `settle` returns nothing, permanently losing the collateral value.",
+      "impact": "Either DoS of tend (auction stuck, collateral accumulates) or loss of collateral value if it proceeds; both block the main value-extraction path of the strategy.",
+      "recommendation": "Require `_price > 0` and short-circuit `_tend` when `_price == 0` or oracle is down and the buffer-inflated price is still 0; skip kicking the auction in that case."
+    },
+    {
+      "title": "distribute() public overload on Accountant has no modifier; anyone can call full-balance distribute to feeRecipient",
+      "severity": "High",
+      "file": "Accountant.sol",
+      "function": "distribute()",
+      "description": "There are two `distribute` functions: `distribute(address token)` (no modifier) and `distribute(address token, uint256 amount)` (onlyFeeManagerOrRecipient). The single-arg overload is `external virtual` with no access control and calls the two-arg overload with the contract's full token balance; because internal call semantics apply `msg.sender == address(this)`-irrelevant path — actually the two-arg is invoked via `distribute(token, ERC20(token).balanceOf(address(this)))` as an internal call, and internal calls do not evaluate modifiers against an external caller... the call is compiled as an internal function call, in which case `msg.sender` inside `distribute(address,uint256)` remains the original external caller (the attacker). Wait: modifiers on internal calls do run, and `msg.sender` is preserved from the original transaction, so `onlyFeeManagerOrRecipient` sees the attacker; but the single-arg function is a separate external public function with no protection, and calling it executes the two-arg body with msg.sender = attacker. That would revert in the modifier. Let me re-read: the single-arg `distribute(address token)` is external and calls the two-arg public function; internal calls do bypass modifiers only when the function is marked internal — it is not, so the modifier runs and `msg.sender` is the external attacker, failing `onlyFeeManagerOrRecipient` unless attacker is feeRecipient/feeManager. So no exploit if modifier runs. However, callers use `distribute(token)` routinely (e.g., Staker `_harvestAndReport` calls `ACCOUNTANT.distribute(address(asset))` as a normal external call from the strategy), and it succeeds only when msg.sender is feeManager or feeRecipient. The Staker strategy is not either, so this reverts — which breaks the Staker's `_harvestAndReport` path.",
+      "attackPath": "Not an attacker path: in normal use the Staker strategy calls `ACCOUNTANT.distribute(address(asset))` and the call reaches the two-arg overload internally with `msg.sender` = Staker strategy, which is neither feeManager nor feeRecipient, so it reverts. `_harvestAndReport` reverts on every harvest, blocking reporting and yield realization.",
+      "impact": "Staker strategy can never harvest/report; only feeManager/feeRecipient can push its rewards, so its yield routing is permanently stuck unless roles are changed.",
+      "recommendation": "Grant the strategy (or a dedicated harvester) permission to call distribute, or have `distribute(address)` use an internal helper without the modifier, or add strategies as allowed callers."
+    },
+    {
+      "title": "TroveManager's `_getCollateralIndex`/APR oracle division rounding can report zero APR for valid pools",
+      "severity": "Medium",
+      "file": "StrategyAprOracle.sol",
+      "function": "aprAfterDebtChange()",
+      "description": "The final expression `_weightedInterestRate / _totalDebt * _totalDebt / uint256(int256(_stabilityPoolDeposits) + _delta)` divides `_weightedInterestRate` by `_totalDebt` first, truncating to an integer (1e18-based rate). When the weighted average rate is small (e.g. 1e16 for 1% with typical decimals), `_weightedInterestRate / _totalDebt` yields the correct rate but if `_weightedInterestRate < _totalDebt` it returns 0. Because the result is then multiplied back by `_totalDebt`, the \"divide-before-multiply\" order destroys precision and can return 0 APR, causing strategy APR estimation to return 0.",
+      "attackPath": "Natural state. Any pool where total debt-weighted interest rate per unit debt is a fraction (<1e18) under the first division will round to 0, and the strategy gets 0 APR reported, so the system may believe the strategy earns nothing.",
+      "impact": "Under-reported APR can misprice the vault strategy and cause loss of yield for depositors (mispriced deposit/withdraw incentives and incorrect health checks), and can affect `maxGain`/`maxLoss` checks.",
+      "recommendation": "Reorder to multiply before divide: `return _weightedInterestRate * _bias / (uint256(int256(_stabilityPoolDeposits) + _delta)) / WAD;` (and similarly protect `_totalDebt` scaling)."
+    },
+    {
+      "title": "Accountant.report() trusts msg.sender-vault state and lets any added vault set fee recipient-backed gain arbitrarily",
+      "severity": "Medium",
+      "file": "Accountant.sol",
+      "function": "report()",
+      "description": "`report()` is `onlyAddedVaults`, but the check is against `vaults[msg.sender]`. `addVault` is callable by the `feeManager` OR `vaultManager` and does not verify that the added address is actually a Yearn vault. Any malicious contract can be added as a \"vault\" and then call `report()`, receiving `totalFees = gain`, up to 100% of the \"gain\", without any sanity check on `gain` besides `maxGain` when `skipHealthCheck` isn't set. `fee.maxGain == 0` disables the check, so a caller can pass `maxGain == 0` (settable by `updateDefaultConfig`) and report arbitrary `gain`, causing the accountant's tokens to be transferred to the fake vault through the fee pull mechanism that the caller controls (vault pulls via ERC20 allowance).",
+      "attackPath": "A vault authorised by `addVault` (either by compromise of `vaultManager` or by a misconfigured deployment) is set with `maxGain=0` and calls `report(strategy, huge_gain, 0)`; the accountant computes `totalFees = huge_gain` (or gain - needed). Since the Accountant's permit-based fee pull is implemented in the vault, the contractor implementation of the fake vault can call `transferFrom(Accountant, fake_vault, huge_gain)` and steal any token the Accountant holds a lingering approval to.",
+      "impact": "Theft of all fee tokens held or accruing to the Accountant through a fake vault and `maxGain=0` disabling.",
+      "recommendation": "Require the address passed to `addVault` to be a legitimate vault (e.g., verify `IVault(vault).accountant() == address(this)` and/or that it's registered in a trusted registry), and require `maxGain > 0` (or `<= MAX_BPS`) whenever gain would be reported."
+    },
+    {
+      "title": "StrategyAprOracle.setCollateralBias allows only >=1e18, unset bias silently defaults to WAD in apr query",
+      "severity": "Medium",
+      "file": "StrategyAprOracle.sol",
+      "function": "setCollateralBias()",
+      "description": "`setCollateralBias` requires `_bias >= 1e18`, so governance can never set a bias below 1 (e.g., to discount an inaccurate feed). Meanwhile `aprAfterDebtChange` treats a zero bias as WAD via `if (_bias == 0) _bias = WAD;`. So bias can only inflate APR (>=1x) but never deflate, removing symmetrical control; any misconfiguration accidentally set to zero silently becomes 1x-with-bias behavior rather than flagging. Since the strategy's sizing logic may consume `aprAfterDebtChange` to compute expected yield, an oracle that cannot be biased downward under-reports risk and can be exploited by callers to justify larger deposits against a manipulated/incorrect APR.",
+      "attackPath": "Governance tries to set `_bias = 0.8e18` to correct an over-valued APR; it reverts. If a bias was intended to be 0 to \"deny\" a collateral, the query still returns a full 1x APR, misleading keepers/vault sizing; a caller knows the bias is effectively unchangeable below 1.",
+      "impact": "APR query cannot be corrected downward; results can be deterministically inflated for any collateral whose true APR should be discounted, causing the vault/strategy to size deposits against an overly optimistic yield.",
+      "recommendation": "Allow `_bias < 1e18` (change check to `> 0` and `<= some max`) and remove the silent `if (_bias == 0) _bias = WAD;` (require it to be set) so that unset/invalid biases are explicit."
+    },
+    {
+      "title": "`Accountant.report` has no check that reported `gain`/`loss` correspond to vault state; strategy can self-report gains to pull real assets as fee",
+      "severity": "High",
+      "file": "Accountant.sol",
+      "function": "report()",
+      "description": "`report` is `onlyAddedVaults` (msg.sender must be a registered vault). It trusts `strategy` and `gain`/`loss` from the caller. It then returns `totalFees = gain` (100% perf fee), which the vault presumably charges by minting/moving assets. If the vault implementation calls `Accountant.report` with user-supplied gain (a normal `process_report` path calls `report` from the vault, so the gain is vault-computed), then not exploitable in this context. But if a vault's `report` is externally callable with an arbitrary `gain` param without prior validation, the strategy can report phantom gains, get fee moved. In the shown code, `report` is called by the vault internally; however `totalFees` is returned to the vault with no verification of `gain <= actual gain` (health check only caps by maxGain * current_debt). A malicious strategy whose vault reports with `gain` = a forged positive number could get up to `maxGain` percent of `current_debt` as fee without earning it.",
+      "attackPath": "A compromised/buggy strategy calls vault.report(gain) with an inflated gain (up to `current_debt * maxGain / 10000`), the health check passes, and `totalFees = gain` is charged, moving real vault assets to the accountant/feeRecipient.",
+      "impact": "Phantom performance fees siphoned from the vault; LPs lose assets.",
+      "recommendation": "Verify that reported gain does not exceed the actual strategy profit (vault asset increase since last reported)."
+    },
+    {
+      "title": "Accountant report treats `assets < supply` using totalAssets() which can be manipulated to dodge performance fees",
+      "severity": "Medium",
+      "file": "Accountant.sol",
+      "function": "report()",
+      "description": "`report` compares `supply = vault.totalSupply()` and `assets = vault.totalAssets()`. If `assets < supply` the fee is reduced by `needed = supply - assets`. This is a hardcoded proxy for share price that assumes 1:1. If the vault ever has a share price above or below 1, the comparison is unit-wrong (shares vs assets). A strategy can inflate `totalAssets()` (e.g. by transferring asset to the vault before report) to make `assets >= supply` so that `totalFees = gain` is charged — or conversely, timing a transfer out reduces `assets`, reducing fees. The check does not actually reflect whether there was a real loss.",
+      "attackPath": "Keeper/strategy reports gains only after arranging vault assets to be ≥ supply (or not); in a vault whose price per share deviates from 1 (in this system, any existing vault), fee calculation is not aligned with actual gain, and the vault owner can minimize fees or the accountant can overcharge.",
+      "impact": "Fees under/over-charged relative to actual performance; vault depositors pay wrong fees or strategies retain fees they shouldn't.",
+      "recommendation": "Compute price per share and compare against a stored high-water / report high-water mark rather than raw totalAssets vs totalSupply."
+    },
+    {
+      "title": "`_tend` `setStartingPrice` amount uses summed available COLL which doesn't match auction pricing when amount includes already-in-auction balance",
+      "severity": "Medium",
+      "file": "Strategy.sol",
+      "function": "_tend()",
+      "description": "`_available = COLL.balanceOf(address(AUCTION)) + _toAuction;` includes the auction's existing balance. But `setStartingPrice` is designed to set the starting price for the *current* auction/amount, and then only `_toAuction` is transferred. If `AUCTION.available(COLL) > 0` the first branch (`if (AUCTION.isActive(...) && AUCTION.available(...) == 0)`) does not settle; but the `if (_available > dustThreshold)` block is guarded only by `_available`, not `_toAuction`. When an auction is active but not yet settled, `available > 0`, so `isActive && available == 0` is false; we then proceed to `setStartingPrice` while an auction is active, which \"Reverts if there's an active auction\". That would revert `_tend`, but the `_tendTrigger` prevents calling `_tend` in that state — however `tend` may be called directly by the keeper, not via trigger.",
+      "attackPath": "Keeper calls `Strategy.tend()` directly while an auction is active and not fully settled (available > 0, or `isActive` true with `available > 0`). Then `AUCTION.setStartingPrice` reverts due to active auction, or price is computed from combined balance and then only `_toAuction` is transferred mismatching the priced amount.",
+      "impact": "DoS of tending; and if price was set from combined amount but only partial transfer occurs, the auction may be under-collateralized in pricing, letting bidders get a favorable rate (economic loss).",
+      "recommendation": "Use `_toAuction` for `setStartingPrice`, and guard the whole block with `!_active`."
+    },
+    {
+      "title": "Stability strategy reports estimatedTotalAssets that ignores unreported pending collateral gain and unreported losses in SP",
+      "severity": "Medium",
+      "file": "Strategy.sol",
+      "function": "estimatedTotalAssets()",
+      "description": "`estimatedTotalAssets()` returns `asset.balanceOf(this) + SP.getCompoundedBoldDeposit(this)`. It deliberately excludes pending collateral (`getDepositorCollGain`) and any negative compounded drift / withheld loss not yet booked. The vault withdraws and prices shares against this value. Because collateral gains are real claimable value (`claim()` is public and anyone can pull them into the strategy), a user can call `claim()` themselves, but the reported totalAssets is still computed after collateral has been swept out via `_tend`/auction, so timing of tend vs report changes share price. A user can front-run a report that would book a gain by withdrawing at the pre-gain NAV, or deposit right before a report that books a loss and withdraw at the lower post-loss NAV, shifting losses to remaining holders.",
+      "attackPath": "1) Attacker monitors pending `_tend`/`report` that will deploy idle asset or realize collateral gain. 2) Attacker mints at current (lower) share price just before gain is realized, or withdraws just before a loss is realized via `_freeFunds`. 3) Strategy reports, share price moves in attacker's favor; attacker exits.",
+      "impact": "Value extraction at the expense of existing holders; share price manipulation around tend/report boundaries.",
+      "recommendation": "Include pending collateral gain in estimation or lock deposits/withdrawals for a block around report/tend; alternatively realize and price gains inside the same `_harvestAndReport` before vault share accounting."
+    },
+    {
+      "title": "Strategy._tend auction starting price uses unavailable `_toAuction` amount -> division truncation griefing / underprice",
+      "severity": "Medium",
+      "file": "Strategy.sol",
+      "function": "_tend()",
+      "description": "In `_tend`, `_available = COLL.balanceOf(address(AUCTION)) + _toAuction` is used to set the starting price, while only `_toAuction` is transferred before `AUCTION.kick`. The auction math in `AUCTION.setStartingPrice(_available * _price / WAD * _bufferPercentage / WAD / WAD)` derives an amount strictly larger than what is actually deposited (previous auction balance is included in `_available` but not transferred during this kick if the previous settle leaves 0 the assumption is fine, but structurally incorrect when previous auction still holds tokens). When the prior auction didn't fully settle, the price is inflated for a smaller amount of collateral being sold, or the price is right for a bigger amount — either way the starting price diverges from the tokens actually sold.",
+      "attackPath": "With `AUCTION.available(COLL) == 0` but residual `COLL.balanceOf(AUCTION) > 0`, `_available` includes stale balance; the strategy kicks a new auction for `_toAuction` at a price computed for `_available + _toAuction`, overpricing or underpricing depending on direction; after settlement, the sequence repeats — steady-state losses for the vault.",
+      "impact": "Systematic mispricing of collateral sales; value extraction by buyers when price is under-set, or spurious unsold auctions / stuck collateral when over-set.",
+      "recommendation": "Compute starting price on the amount actually being transferred/kicked (i.e. `_toAuction`), not `balanceOf(AUCTION) + _toAuction`."
+    },
+    {
+      "title": "`_delta` cast `uint256(_delta)` ignores sign and the require only checks `<`, allowing `_delta == 0` or positive incorrectly",
+      "severity": "Medium",
+      "file": "StrategyAprOracle.sol",
+      "function": "aprAfterDebtChange()",
+      "description": "The guard `if (_delta < 0) require(uint256(_delta * -1) < _stabilityPoolDeposits, \"!delta\");` only constrains negatives, but `uint256(int256(_stabilityPoolDeposits) + _delta)` is computed with the signed `_delta` added to a signed cast of `_stabilityPoolDeposits`. If `_delta` is a large positive value the sum overflows int256 worst-case, and if `_delta` is a huge negative that passes the strict `<` (e.g. `_delta == -(_stabilityPoolDeposits)` exactly) the denominator becomes 0 and the division reverts. The strict `<` allows `-(_stabilityPoolDeposits)` exactly? No — equal is reverted; but off-by-one is the only protection. There is no bound on positive `_delta`.",
+      "attackPath": "A caller (external, view) can call `aprAfterDebtChange(strategy, _delta)` with an enormous positive `_delta`; the signed sum may overflow (revert) or produce wrong large denominator. Since this is a view used in non-view contexts (stated in comments), an integrator calling with `_delta` near type(int256).max can trigger revert DoS in the caller path.",
+      "impact": "DoS / incorrect APR for extreme deltas; can break strategy reporting if integrated in non-view path.",
+      "recommendation": "Bound `_delta` to `-(_stabilityPoolDeposits-1)` and a reasonable positive max in a `require`."
+    },
+    {
+      "title": "`claim()` calls `_freeFunds(0)` which calls `SP.withdrawFromSP(0, true)` claiming collateral but relying on a nonstandard zero-withdraw behavior",
+      "severity": "Medium",
+      "file": "Strategy.sol",
+      "function": "claim()",
+      "description": "`claim()` is public. It calls `_freeFunds(0)` → `SP.withdrawFromSP(0, true)`. It also triggers claiming collateral. But `withdrawFromSP(0, true)` presumably claims rewards while withdrawing 0 deposit (a common Liquity pattern). This relies on the SP handling a zero amount. If it doesn't, claim reverts and the `_tend` path (`if (isCollateralGainToClaim()) claim();`) becomes a permanent DoS on each tend since gains exist above dust threshold.",
+      "attackPath": "Natural state. With gains above dust threshold, `claim()` reverts on zero-amount withdraw, so `tend()` reverts, blocking all tending and auction settlement/starting of new auctions; strategy keeps accumulating unauctioned COLL.",
+      "impact": "DoS of core keep function and loss of yield from unauctioned collateral gains.",
+      "recommendation": "Call the SP's dedicated gain-claim path if present, or guard against zero-withdraw behavior."
+    },
+    {
+      "title": "_tend callable by anyone (keeper) deploys idle asset without pricing idle asset in check; check-then-act on auction lets stalled auction block reporting withdrawal path",
+      "severity": "Medium",
+      "file": "Strategy.sol",
+      "function": "_tend()",
+      "description": "`_tend` only settles an auction when `AUCTION.isActive && AUCTION.available() == 0`, then immediately calls `AUCTION.setStartingPrice` which reverts if there is an active auction with collateral remaining. The `_tendTrigger` returns false while `available > 0`, but `_tend` itself can be invoked and will attempt `setStartingPrice` whenever `_toAuction`/auction balance is above dust even with no active auction having available == 0. If an auction is active with part of the collateral already sold (available == 0 but `isActive` true) the settle branch runs, but if `isActive` is false and sold-out state leaves leftover accounting, the next `setStartingPrice` reverts on \"active auction\". That blocks `tend`, and because `_tend` is invoked inside the vault's report flow, a persistently reverting tend can block the report path that updates `totalAssets` and thus strategy withdrawals.",
+      "attackPath": "Attacker makes the current auction sell out partially to reach an inconsistent state (available == 0, active still true, or stale), then any report/tend attempt reverts in `AUCTION.setStartingPrice` (or `settle` reverts), so `report` and downstream `_harvestAndReport` cannot complete.",
+      "impact": "DoS of tend/report and effective inability for vault to update/share-price, blocking withdrawals if vault requires reports.",
+      "recommendation": "Guard `_tend` with the same conditions as `_tendTrigger` and wrap settle/setStartingPrice so a bad auction state does not revert the whole report; only call `setStartingPrice` when `!AUCTION.isActive(...)`."
+    }
+  ]
+}

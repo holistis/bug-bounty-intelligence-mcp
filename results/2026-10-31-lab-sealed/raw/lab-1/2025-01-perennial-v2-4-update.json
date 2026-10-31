@@ -1,0 +1,605 @@
+{
+  "contest": "2025-01-perennial-v2-4-update",
+  "hypotheses": [
+    {
+      "title": "Controller.chargeFee pulls DSU from account to msg.sender without max fee or sanity bound",
+      "severity": "Medium",
+      "file": "Controller.sol",
+      "function": "chargeFee()",
+      "description": "chargeFee is onlyOperator(owner, msg.sender) — an operator is a trusted role set via marketFactory.updateOperator by owner. But operators are not necessarily trusted to arbitrarily drain the account; the whole point of an operator is to execute actions signed by the user, not to arbitrarily move DSU. Here, an operator can call chargeFee(owner, amount) with any `amount` up to the account's DSU balance (including wrapping USDC if needed via wrapIfNecessary(transferAmount, false)), and DSU.pullTo sends it to msg.sender. There is no check the operator was authorized for that amount, and no cap. That is a loss-of-funds vector for any owner who grants operator status to a contract or third party (e.g., for automation). Operators are intended to be able to do things like update positions via signed intents, but chargeFee bypasses all signature checks. If an operator is a compromised or malicious automation contract, they can steal the account's DSU/USDC.",
+      "attackPath": "Owner grants operator role (marketFactory.operators(owner, op) == true) to an automation service. The service (malicious/compromised) calls controller.chargeFee(owner, account DSU balance). Controller pulls all DSU from the account to the operator. Owner loses funds.",
+      "impact": "Full theft of DSU (and USDC converted via wrap) from the owner's collateral account by any operator.",
+      "recommendation": "Require a signature from the owner (like other controller actions) for chargeFee, or restrict chargeFee to a specific fee amount validated by the owner, or remove the function."
+    },
+    {
+      "title": "`Manager.claim` pays to `msg.sender` (the operator) but checks `claimable[account]` — operator can claim someone else's funds by acting as operator",
+      "severity": "High",
+      "file": "Manager.sol",
+      "function": "claim()",
+      "description": "`claim(address account, bool unwrap)` is guarded `onlyOperator(account, msg.sender)`. Only the account or an authorized operator can call. However the payout target is `msg.sender`, not `account`. So if a user has approved a malicious operator (or an operator is compromised), they can call `claim(account, true)` and the funds go to `msg.sender` (the operator), not the account owner. This is by design in some contracts but is a real trust inversion: the payout should go to the account or be claimed by the account itself. An operator can steal all `claimable`.",
+      "attackPath": "1) user approves operator O. 2) O calls `claim(victim, true)`. 3) `claimable[victim]` set to zero. 4) `_unwrapAndWithdraw(msg.sender = O, amount)` sends USDC to O.",
+      "impact": "Complete theft of claimable funds by any approved/malicious operator.",
+      "recommendation": "allow claim payout only to `account`, or restrict `claim(account, ...)` to `msg.sender == account`."
+    },
+    {
+      "title": "makerReceiveOnly flips funding sign based on stale fromPosition.skew rather than toSkew",
+      "severity": "Medium",
+      "file": "VersionLib.sol",
+      "function": "_accumulateFunding()",
+      "description": "The p-controller funding rate is computed from `toSkew = fromPosition.skew() + order.long() - order.short()`, but the `makerReceiveOnly` adjustment compares `funding.sign()` to `context.fromPosition.skew().sign()`. When an order flips the skew across zero in the same version (fromSkew positive, toSkew negative), the sign check uses the pre-order skew and can invert funding in the wrong direction. Funding is then redistributed between makers and the major side based on `fromPosition`, and the spread is applied to long/short. This misdirects funding between long/short/maker for one full version whenever an order crosses zero, breaking the invariant that maker funding is always non-negative (when `makerReceiveOnly` is on) and shifting PnL from the correct side.",
+      "attackPath": "1) Attacker submits a large taker order that flips the market skew from positive to negative (or vice-versa) within one block/version. 2) During `_accumulateFunding` the `fromPosition.skew().sign()` reflects the pre-order state, so `funding.mul(NEG_ONE)` is applied on the incorrect branch. 3) The resulting `fundingLong`/`fundingShort`/`fundingMaker` distribute the wrong sign to one side, benefiting the attacker's direction and harming makers/opposite side for the full funding interval.",
+      "impact": "Systematic funding misallocation around skew crossings; attacker can peel funding from makers or opposite side at every flip.",
+      "recommendation": "Compare `funding.sign()` against `toSkew.sign()` (the post-order skew) for the `makerReceiveOnly` adjustment, or restrict comparison to the socialized skew used downstream."
+    },
+    {
+      "title": "KeeperOracle.commit overwrites latestVersion unconditionally, allowing out-of-order commits to stale versions",
+      "severity": "High",
+      "file": "KeeperOracle.sol",
+      "function": "commit()",
+      "description": "In `commit`, when `version.timestamp == next()` the requested path runs (`_commitRequested`), otherwise `_commitUnrequested` is used. `_commitUnrequested` checks that `oracleVersion.timestamp > _global.latestVersion`, but the requested path `_commitRequested` has no such check beyond `version.timestamp == next()`. Crucially, after either path, `commit` sets `_global.latestVersion = uint64(version.timestamp)` unconditionally. Because `_global.currentIndex`/`latestIndex` and `next()` are only advanced by `request` and `_commitRequested`, a keeper/factory can supply a version whose timestamp equals `next()` even after `latest()` has already advanced past it in a prior `_commitUnrequested` call (an unrequested commit of a future timestamp doesn't touch indices). The next requested timestamp can then be lower than the already-stored `latestVersion`, and committing it regresses `latestVersion`.",
+      "attackPath": "1) `request` creates a request for timestamp T (so `next()==T`). 2) Keeper commits an unrequested version with timestamp U > T via `commit` (allowed since `next()!=0 && U < next()` is false only when U < next; if U > next the check `oracleVersion.timestamp >= next()` reverts). — Note: the `_commitUnrequested` guard rejects U >= next, so to regress latestVersion an attacker needs the requested path. Since `next()` equals the requested T and `_commitRequested` stores at T, latestVersion only advances. Confirm: regression requires the requested timestamp to be less than current `latestVersion`, which can happen if a prior request's commit was skipped and a later unrequested commit advanced latestVersion above the earlier requested timestamp. Trace: request at T1 (next=T1), do not commit. A second request at T2>T1 makes next=T2 (currentIndex=2, requests[2]=T2). Commit requested at T2 sets latestVersion=T2 and latestIndex=1. Now `next()` = requests[latestIndex+1] = requests[2] = T2 again — the same index is re-served. Re-committing T2 repeatedly re-increments latestIndex each call in `_commitRequested` (`_global.latestIndex++`), skipping request slots and permanently dropping request T1 (requests[1]) that was never committed.",
+      "impact": "Requested versions can be silently skipped (never committed, never settled), and `latestIndex` can run ahead of `currentIndex`, leaving `next()` pointing at unrequested or zero slots; markets relying on those versions get no price and settlement stalls.",
+      "recommendation": "In `_commitRequested`, require `version.timestamp == next()` and advance `latestIndex` only when actually consuming the next request; assert `_global.latestIndex < _global.currentIndex` before incrementing, and never reuse an index twice."
+    },
+    {
+      "title": "TriggerOrder.execute grants operator-less holders control via market.update; missing authorization on executeOrder",
+      "severity": "High",
+      "file": "Manager.sol",
+      "function": "executeOrder()",
+      "description": "executeOrder() is permissionless and executes the stored trigger order against `account` by calling order.execute(market, account), which calls market.update(account, ...). The market's authorization check (InvariantLib) requires either msg.sender == account, msg.sender is operator, or msg.sender is extension unless the order is empty and collateral >= 0. The Manager is not registered as an extension nor as an operator of `account`, so the call from the Manager will revert with MarketOperatorNotAllowedError for any position-changing order. The trigger order functionality is therefore broken for the primary intended flow, and the \"keeper compensation\" and interface fee paths become dead weight, or the system relies on out-of-band registration of Manager as extension which is not enforced here.",
+      "attackPath": "Anyone calls executeOrder(market, account, orderId) for a placed trigger order; Manager calls market.update with msg.sender == Manager; Market's InvariantLib.authorization path reverts since Manager is not operator/extension and order is not empty deposit; the trigger order can never execute.",
+      "impact": "All placed trigger orders that change position are permanently un-executable; keeper compensation and interface fee logic never runs, and funds for interface fees previously charged (or intended to be charged) can't be recovered, effectively bricking the feature.",
+      "recommendation": "Ensure Manager is registered as an extension on the MarketFactory, or add an explicit operator grant on behalf of the account for the Manager during placeOrder, and validate it here."
+    },
+    {
+      "title": "`Position.utilization` and `efficiency` use unsafeDiv without guarding maker == 0 and can revert when major > 0",
+      "severity": "Medium",
+      "file": "Position.sol",
+      "function": "utilization()",
+      "description": "`utilization()` computes `efficiencyUtilization = major(self).mul(efficiencyLimit).unsafeDiv(self.maker)`. If `maker == 0` and `major > 0` (fully socialized taker-only position, allowed because liquidation/socialization supports zero maker), `unsafeDiv` divides by zero and reverts, propagating through `_accumulateInterest` -> `VersionLib.accumulate` -> `_settle`. Similarly `efficiency()` divides by `major`. `unsafeDiv` is defined to be a plain division which reverts on zero in Solidity 0.8. When the market reaches zero maker with outstanding taker position (common after maker liquidation/donation), `settle` reverts for every account, blocking settlement and liquidation and locking positions.",
+      "attackPath": "1) Attackers push market to maker = 0 with an open taker position (large short or long). 2) Next `settle()`/`update()` call invokes `_settle` -> `_processOrderGlobal` -> `VersionLib.accumulate` -> `_accumulateInterest` -> `Position.utilization` -> division by zero. 3) All settlement and liquidation reverts; the position is permanently locked unless a maker re-enters to rescue.",
+      "impact": "Frozen settlement; liquidation (including protection-at-liquidation) cannot complete; attacker's insolvent position blocks the market and other users are unable to settle/exit.",
+      "recommendation": "Guard `if (self.maker.isZero()) return UFixed6Lib.ZERO;` (or equivalent) in `utilization`/`efficiency`, or use safe-div with an explicit branch matching `takerSocialized`/`socializedMakerPortion` behavior."
+    },
+    {
+      "title": "`_commitRequested` advances `_global.latestIndex` even though `requests[_global.currentIndex]` was not consumed",
+      "severity": "Medium",
+      "file": "KeeperOracle.sol",
+      "function": "_commitRequested()",
+      "description": "request() stores `requests[++_global.currentIndex] = currentTimestamp`, and `next()` returns `requests[_global.latestIndex + 1]`. On commit of the requested version, `_commitRequested` increments `_global.latestIndex` (matching next() being consumed) and `commit` sets `latestVersion = version.timestamp`. However, in `_commitUnrequested`, if `next()!=0 && oracleVersion.timestamp >= next()` reverts, but if `next()==0` (i.e., no request yet) any later timestamp can be committed and this bumps `latestVersion` past the point. If a request is then made for `currentTimestamp` which is now behind the committed `latestVersion`, `next()` becomes a stale timestamp and either `_commitRequested` reverts (with `block.timestamp > next()+timeout`) or commits with stale price. The mutable state (`_global.currentIndex`, `requests`) is never reconciled with `_commitUnrequested`'s `latestVersion` advance, so the request queue can be desynchronized from committed state.",
+      "attackPath": "A keeper commits an unrequested future version with `next()==0` (allowed by code), advancing `latestVersion`. Market then requests at `currentTimestamp < latestVersion`; `_commitRequested` fires with `next()` behind; verifier path can slip through with invalid price using `latestPrice` of the newer version.",
+      "impact": "Inconsistent oracle state and possible keeper attempts stuck or committing stale/invalid prices, causing mispricing on settle.",
+      "recommendation": "Disallow `_commitUnrequested` from advancing `_global.latestVersion` past `next()`, or require `next() == 0` only when `_global.currentIndex == 0`; skip advancing `latestVersion` when it would overtake the next pending request."
+    },
+    {
+      "title": "Rebalance keeper fee charged even when fee exceeds configured maxRebalanceFee / account empty",
+      "severity": "Medium",
+      "file": "Controller_Incentivized.sol",
+      "function": "rebalanceGroup()",
+      "description": "In rebalanceGroup the keepCollateralAccount modifier builds the keeper-fee data from groupToMaxRebalanceFee[owner][group] and, after invocation, calls _handleKeeperFee which calls _raiseKeeperFee. _raiseKeeperFee caps the fee at maxFee but still calls IAccount(account).wrapIfNecessary(...) and DSU.pull(account, raisedKeeperFee) unconditionally when raisedKeeperFee is non-zero. The wrapped amount is pulled from the collateral account. If the group has markets whose total collateral is small relative to the group fee, or the account's DSU balance is insufficient, wrapIfNecessary will attempt to wrap USDC held by the account. More importantly, the fee is paid out of the account's collateral regardless of whether the group's markets actually had sufficient surplus, and _handleKeeperFee is invoked after `_rebalanceGroup` returns, i.e., after funds were moved between markets, so a keeper can trigger rebalance with a maxFee set to the highest allowed value and extract DSU from the account.",
+      "attackPath": "Owner configures a group with a high maxRebalanceFee. Attacker (keeper) calls rebalanceGroup when imbalance just exceeds maxFee threshold. The rebalance moves funds between markets, and _raiseKeeperFee pulls DSU from the collateral account as fee, up to the maxFee. If the surplus/deficit was small but threshold triggered, the fee can exceed the economic gain.",
+      "impact": "Excess DSU paid from the account to keeper relative to any actual rebalance benefit; max Fee is user configurable but owners may not notice how the fee is charged. Drains a portion of account collateral to keeper on every rebalance call.",
+      "recommendation": "Ensure the keeper fee cannot be charged when the group is essentially balanced, and/or cap the fee to a fraction of the imbalance being remediated so it can never drain the account beyond the rebalance benefit."
+    },
+    {
+      "title": "Account.deposit() lacks ownerOrController and pulls USDC from any caller into an account they may not own",
+      "severity": "Medium",
+      "file": "Account.sol",
+      "function": "deposit()",
+      "description": "`deposit(UFixed6 amount)` is declared `external` without the `ownerOrController` modifier that protects every other state-changing function on the account (withdraw, marketTransfer, wrap, unwrap). It calls `USDC.pull(msg.sender, amount)`, so any caller can push USDC into any collateral account by calling `deposit` on that account's address. Because `msg.sender` pays, the theft is not of funds but of accounting: a controller/keeper flow that wraps DSU to satisfy a fee or transfer will consume USDC contributed by whoever called deposit, and the account's USDC balance can be silently inflated or drained by the controller acting on behalf of a different owner than intended when the caller expected to deposit for themselves but USDC is pulled and credited to the account owned by someone else.",
+      "attackPath": "Attacker calls `Account(anyAccount).deposit(largeAmount)`. The account's USDC allowance from msg.sender is pulled into the account. The account owner can then `withdraw` (which pushes USDC to `owner`) taking the attacker's deposit; or conversely an attacker can front-run a legitimate deposit by another party so the wrong address pays.",
+      "impact": "Misdirected USDC deposits and theft of USDC pushed into an account by a third party; broken assumption that only the owner/controller can move value in/out of the account.",
+      "recommendation": "Add the `ownerOrController` modifier to `deposit` or remove the function in favor of explicit owner-only deposit semantics; do not allow arbitrary callers to deposit into an account without the owner/controller consent."
+    },
+    {
+      "title": "Rebalance uses stale rebalance configs after account transfers to markets",
+      "severity": "Medium",
+      "file": "Controller.sol",
+      "function": "_rebalanceGroup()",
+      "description": "`_rebalanceGroup` settles markets, computes imbalances from current collateral, then loops transferring surplus markets first, then deficit markets. `account.marketTransfer` adjusts market collateral; however `checkGroup`/`_queryMarketCollateral` reads collateral from `market.locals(owner).collateral` which reflects the *pre-transfer* state. Within the loop, none of the subsequent markets' `local.collateral` is re-read, so the second loop uses imbalances computed against the original totals. Each individual transfer is consistent with the imbalance that was computed, so the net effect is intended, but the account's DSU balance must cover the transfers. `marketTransfer` with positive amount calls `wrapIfNecessary(amount, true)`, which wraps the entire USDC balance — meaning rebalancing a deficit can sweep any USDC left in the account into DSU. Combined with `chargeFee` wrapping, this can drain idle USDC during any keeper-triggered rebalance.",
+      "attackPath": "1. User leaves USDC in account (e.g., partial withdrawal or direct deposit). 2. Keeper calls `rebalanceGroup(owner, group)` where the group has a deficit. 3. `account.marketTransfer(market, +amount)` invokes `wrapIfNecessary(amount, true)`, converting all USDC to DSU. 4. Any USDC not needed for the deposit remains as DSU in the account (not lost, but forced wrapped).",
+      "impact": "Unexpected conversion of idle USDC to DSU for users with rebalancing groups; also exposes users to reserve pricing/liquidity.",
+      "recommendation": "In `Account.marketTransfer`, only wrap the shortfall: `wrapIfNecessary(amount.abs() - DSU.balanceOf(), false)` (i.e., never `wrapAll`), or have the account track intended deposits explicitly."
+    },
+    {
+      "title": "Oracle.request over-commits latest epoch timestamp before provider actually advances",
+      "severity": "Medium",
+      "file": "Oracle.sol",
+      "function": "request()",
+      "description": "In `Oracle.request`, after calling `provider.request(market, account)` on either the current or latest sub-oracle, the code unconditionally sets `oracles[_global.current].timestamp = uint96(currentTimestamp)` using the `currentTimestamp` returned by `oracles[_global.current].provider.status()`. However when `currentTimestamp <= oracles[_global.latest].timestamp` the request was actually forwarded to the latest provider, not the current one, yet the current epoch's timestamp is still advanced to that stale (older) value. `_updateCurrent`/`_latestStale` then rely on `oracles[i].timestamp` to decide when the current epoch supersedes the latest. Overwriting the current epoch's timestamp with an older value can make the switching logic think the current oracle is further behind than it is (timestamp going backwards relative to `newProvider.current()` set at registration).",
+      "attackPath": "1) Market calls `Oracle.request` right after `update()` while current provider's `status()` current timestamp is still <= latest epoch timestamp. 2) The branch sends the request to the latest provider but writes `oracles[_global.current].timestamp` to the old value. 3) Later `_latestStale`/`at(...)` use the wrong epoch boundary `oracles[i].timestamp` and can route lookups/ordering incorrectly.",
+      "impact": "Incorrect epoch boundary bookkeeping can cause `at()` to select the wrong provider for a timestamp and `_latestStale` to delay or prematurely perform the switch, producing wrong prices for settlement.",
+      "recommendation": "Only update `oracles[_global.current].timestamp` when the request was actually routed to the current provider, or write it to the epoch that actually received the request."
+    },
+    {
+      "title": "`claimFee` pushes `settlementFeeRequested` to caller without capping to `feeReceived`",
+      "severity": "Medium",
+      "file": "Oracle.sol",
+      "function": "claimFee()",
+      "description": "`claimFee` is `onlySubOracle`, which allows both the current and latest epoch providers. It reads `feeReceived = market.claimFee(address(this))`, then unconditionally does `market.token().push(msg.sender, UFixed18Lib.from(settlementFeeRequested))` and leaves the difference to the beneficiary via `feeReceived.sub(settlementFeeRequested)`. If `settlementFeeRequested > feeReceived` (e.g., `maxSettlementFee` configured larger than the current market's claimable fee, or the `_commitRequested` scaled fee exceeds what was claimed because the local settlement fee formula uses the unscaled async*full count), the `sub` reverts and the whole commit reverts — but there is no way for the caller to cap and shortfalls can block. More critically, the *latest* provider is still authorized to call `claimFee` after a swap, so a *stale* sub-oracle that previously had a `KeeperOracle` instance can call `claimFee` with an arbitrary `settlementFeeRequested`, taking funds from a `claimFee` on the current market.",
+      "attackPath": "Oracle is updated from `KeeperOracle_A` to `KeeperOracle_B`. Someone (keeper with factory access on the *old* factory) forces `_commitRequested` on `KeeperOracle_A`, which invokes `oracle.claimFee(requested)`; `onlySubOracle` passes because `_global.latest.provider == A` if latest hasn't yet advanced. Any `settlementFeeRequested` they choose (up to feeReceived balance) is pushed to `KeeperOracle_A`'s factory.",
+      "impact": "Settlement fees from the current market can be routed to the stale provider/factory, siphoning funds away from the beneficiary and current sub-oracle.",
+      "recommendation": "In `claimFee`, mark consumed settlement fees per version, restrict push amount to the fee genuinely attributable to that commit (emit the shortfall instead of reverting, but never push more than `feeReceived`), and remove `oracles[_global.latest].provider` from the `onlySubOracle` allowlist once `_global.latest != _global.current` and the swap completed."
+    },
+    {
+      "title": "Adiabatic exposure uses fromPosition.skew instead of order-aware skew for exposures",
+      "severity": "Medium",
+      "file": "VersionLib.sol",
+      "function": "_accumulateAdiabaticExposure()",
+      "description": "`_accumulateAdiabaticExposure` computes `exposure = riskParameter.takerFee.exposure(context.fromPosition.skew())` using the pre-order skew, even though the version spans from `fromOracleVersion` to `toOracleVersion` during which the new order was applied. The `adiabaticExposure = (toPrice - fromPrice) * exposure` therefore charges/credits the wrong exposure when an order changes skew in the same version (which `_accumulateAdiabaticFee` does account for by adding `takerPos`). This can systematically under- or over-charge the maker value depending on the price move direction and attacker's skew change.",
+      "attackPath": "1) Attacker submits a maker order that materially changes skew right before a version boundary. 2) The exposure applied to the full price delta is based on the old skew, not the new. 3) If the price moves favorably for attacker's desired direction, the maker value is credited/debited against an exposure that does not reflect true position, extracting value from makers.",
+      "impact": "Adiabatic exposure mispricing; value extraction from maker pool when attacker can time skew changes around oracle updates.",
+      "recommendation": "Use the exposure corresponding to the effective average or the post-order skew (mirroring how `_accumulateAdiabaticFee` uses `fromPosition.skew().add(takerPos)`), or split the price move across the order."
+    },
+    {
+      "title": "update(Fill) lets a solver fill the same signed intent without consuming its nonce, front-running the trader's own fill and the solver is charged minus-fee on the trader side",
+      "severity": "Medium",
+      "file": "Market.sol",
+      "function": "update(Fill, bytes, bytes)",
+      "description": "The two-argument `_updateIntent` call in `update(Fill, ...)` settles the solver side with `msg.sender` as the account and `guaranteeReferralFee/tradeFee = 0`, and the trader side with `chargeTradeFee=true`. Both sides call `_loadForUpdate`, which calls `IMarketFactory.authorization(...)`; nothing in `Market` verifies that `fill.common` has not been used before — nonce consumption lives in the verifier, so the fill's `Common.nonce` must be verified to be the *trader's* nonce (here the intent's, since `fill.common` is intended to be the solver's). A third party who observes the trader's signed intent and a pending solver fill can submit an equivalent fill with their own `common` and their own account, settling the trader's intent while the original solver's fill later reverts or is redundant. The trader's side has no protection that the counterparty is the intended solver beyond `intent.solver`, and `intent.solver` is only checked implicitly if the solver-side `_updateIntent` records `guaranteeReferrer == intent.solver` — the solver-side call passes `address(0)` as both referrers, so the intent's `solver` field isn't actually enforced by this function.",
+      "attackPath": "1) Trader signs an `Intent` with a chosen price/amount. 2) Attacker calls `update(fill', traderSig, solverSig')` with `fill'.common.account = attacker`, an attacker-chosen nonce, and `fill'.intent = traderIntent`; `verifier.verifyFill` only binds the trader's signature (already validated) and the solver's signature on the outer struct. 3) The attacker's `_updateIntent` against `intent.common.account` settles the trader's side at `intent.price` (in the trader's favor or against, whichever), and the attacker takes the offsetting position on their own account. The intended solver's later fill is now stale or reverts.",
+      "impact": "The intended solver can be front-run and the trader's counterparty can be any third party, breaking the solver economics and the `intent.solver` trust assumption; a trader can also be filled at a worse deviation than they intended if the fee-bearing side is picked opportunistically.",
+      "recommendation": "Explicitly bind the solver to `intent.solver` (e.g. require `fill.common.account == fill.intent.solver`) and ensure the trader-side fill checks it, or have `Verifier` key nonces to the trader so a fill cannot be duplicated by a different solver."
+    },
+    {
+      "title": "`settle()` pays async fee after removing the callback, but `applyFeeMaximum` scaling uses full pre-removal callback count",
+      "severity": "Medium",
+      "file": "PriceResponse.sol",
+      "function": "applyFeeMaximum()",
+      "description": "`_commitRequested` sets `priceResponse.asyncFee` = per-callback cost, then calls `applyFeeMaximum(maxSettlementFee, _localCallbacks[version.timestamp].length())`. Inside `applyFeeMaximum`, `totalSettlementFee = syncFee + asyncFee * callbacks`; if `totalSettlementFee > maxSettlementFee` it scales `syncFee` and `asyncFee` proportionally. This keeps `syncFee + asyncFee*count <= max`, but the `asyncFee` paid per iteration in `settle` decreases if callbacks are removed later (no, it's stored). The bug is the opposite: if callbacks are added after commit (a new `request` at the same timestamp — see `request()` returning early on `requests[_global.currentIndex] == currentTimestamp` but still adding `_localCallbacks`), then when `settle` iterates over more accounts than `callbacks` used at commit, it pays `asyncFee` more times than the scaling assumed. The `_commitRequested` used count at commit time, but the loop uses the current set length.",
+      "attackPath": "Alice requests at T; Bob (keeper) commits with callbacks count = 1, asyncFee scaled for 1. Before commit — or interleaved between requests at the same timestamp — another account calls request at T (adds to `_localCallbacks[T]`). The request early-returns without bumping `currentIndex` but does add a callback. `settle` then pays `asyncFee` per callback with the stored (under-scaled) asyncFee, exceeding `maxSettlementFee` and overpaying relative to fee claimed.",
+      "impact": "Settlement fee cap circumvented; keepers/factories can extract more than `maxSettlementFee`, paid from Oracle's token balance.",
+      "recommendation": "Recompute `applyFeeMaximum` at settle time using `_localCallbacks[version].length()` and rescale, or cap the number of callbacks paid out to the snapshot taken at commit."
+    },
+    {
+      "title": "Oracle.claimFee underflows when market fee received is less than settlement fee requested",
+      "severity": "Medium",
+      "file": "Oracle.sol",
+      "function": "claimFee()",
+      "description": "`claimFee` calls `market.claimFee(address(this))` to obtain `feeReceived`, pushes exactly `settlementFeeRequested` to the caller, and emits `FeeReceived(settlementFeeRequested, feeReceived.sub(settlementFeeRequested))`. `UFixed6.sub` reverts on underflow. The requested settlement fee comes from `PriceResponse.settlementFee` computed from gas oracles and capped by `applyFeeMaximum(OracleParameter.maxSettlementFee)`, but the actual `feeReceived` from the market depends on the market's own fee accrual and can be lower than that requested amount (e.g., low trading volume, or the cap was set above accrued fees). In that case the subtraction reverts, so the whole commit/settle transaction reverts.",
+      "attackPath": "Trigger a `commit`/`settle` at a time when the market's claimable fee is smaller than `settlementFeeRequested` (e.g., right after fees were withdrawn by the beneficiary or during low activity). The `claimFee` push then succeeds but `feeReceived.sub(...)` reverts, reverting the whole keeper flow.",
+      "impact": "Keeper commits and settlements revert (DoS of price commits), blocking version settlement and liquidation paths that depend on committed prices.",
+      "recommendation": "Cap `settlementFeeRequested` to `feeReceived` before pushing (and emit the actual surplus only if positive), so the oracle never pushes more than it received."
+    },
+    {
+      "title": "Controller.marketTransferWithSignature does not validate that the market is in a rebalance configuration owned by the signer",
+      "severity": "Medium",
+      "file": "Controller.sol",
+      "function": "marketTransferWithSignature()",
+      "description": "`_marketTransferWithSignature` verifies the signature over `marketTransfer` (which includes `market` in the hash) and checks `market.token().eq(DSU)`, then invokes `account.marketTransfer(market, amount)`. The controller forwards arbitrary `marketTransfer.market`. There is no check that the market being used is one the controller created, is registered in `marketFactory`, or is not malicious. The account performs `DSU.approve(address(market))` for that market and calls `market.update(owner, MAX, MAX, MAX, amount, false)`. A malicious contract that mimics `update`/`token`/`locals` can approve then `transferFrom` DSU out of the account. The signature confirms the owner signed the message, but nothing in the code shown binds the destination `market` to a factory-registered instance, and there is no protection against an owner (or a signer who signs on behalf of the owner) inadvertently signing a market address that is a lookalike or a future-compromised market.",
+      "attackPath": "Owner signs a MarketTransfer whose `market` field is a malicious contract returning DSU from `token()`. Controller validates signature, passes token check since malicious `token()` returns DSU, calls `account.marketTransfer(market, amount)`; account approves the malicious contract and calls its `update`, which calls `DSU.transferFrom(account, attacker, accountDSUBalance)`.",
+      "impact": "Full loss of the collateral account's DSU if the signed message points at a malicious market address; all funds in the account are at risk.",
+      "recommendation": "In `_marketTransferWithSignature`, require `marketFactory.instances(market)` (or at least verify the market's factory) in addition to `market.token().eq(DSU)`."
+    },
+    {
+      "title": "Controller pulls DSU from account via wrapIfNecessary without owner authorization check",
+      "severity": "Medium",
+      "file": "Account.sol",
+      "function": "wrapIfNecessary()",
+      "description": "`wrapIfNecessary` and `wrap`/`unwrap` are guarded by `ownerOrController`, and the Controller is `factory()`. `Controller.chargeFee` is `onlyOperator(owner, msg.sender)` so only market operators can charge. However `Account.deposit` is callable by anyone and pulls USDC from the caller, while `withdraw`/`marketTransfer` are `ownerOrController`. The account approves `reserve` for unlimited DSU and USDC in `initialize`; `wrap`/`unwrap` call `reserve.mint`/`reserve.redeem` for the whole approved balance. Since `wrap` sizes on `amount` but the approval is unlimited, and `wrapIfNecessary(wrapAll=true)` wraps the entire USDC balance, a Controller-mediated call (e.g., `marketTransfer` deposits, `chargeFee`) can wrap more than intended and leave untracked USDC in DSU, but the account keeps no per-call balance reconciliation. The real concern: the broad approvals combined with `wrapIfNecessary` called from `Controller.chargeFee` allow operators to force conversion of a user's full USDC balance to DSU at times of their choosing (cost/front-running), with no user-supplied slippage/max-amount.",
+      "attackPath": "1. User deposits USDC to Account. 2. Market operator (approved via MarketFactory) calls `Controller.chargeFee(owner, amount)`. 3. `wrapIfNecessary(transferAmount, false)` wraps; but with `wrapAll=true` paths in `marketTransfer` deposits, `wrapIfNecessary(amount, true)` wraps the entire USDC balance regardless of `amount`, converting all idle USDC to DSU.",
+      "impact": "Operators or anyone with an approved signed `MarketTransfer` (deposit) can force wrapping of the account's entire USDC balance into DSU at an arbitrary moment, denying the user the choice to hold USDC and exposing them to wrap timing.",
+      "recommendation": "Bound wrapping to the shortfall (`amount − DSU.balanceOf()`) rather than full USDC balance, or require the user to opt in to `wrapAll`."
+    },
+    {
+      "title": "Verifier accepts any domain for operator/signer updates regardless of requesting market",
+      "severity": "Medium",
+      "file": "Verifier.sol",
+      "function": "verifyOperatorUpdate() / verifySignerUpdate()",
+      "description": "The Verifier docs state messages must come from the domain address if it is set, but only the EIP-712 signature over the struct (including `common.domain`) is checked; the caller address is never compared to `common.domain`. `validateAndCancel` enforces nonce/signature but no domain binding to `msg.sender`. A signature that was created for one market's domain can be submitted through another market's access path, and `verifyTake` has the same property.",
+      "attackPath": "Attacker observes/obtains a signed Take or OperatorUpdate intended for market A (domain A). They submit it to Market B's `update` path; Verifier verifies signature and cancels nonce without checking domain == address(B), so B applies it.",
+      "impact": "Cross-domain replay of signed actions: operator/signer permission changes or take orders meant for one market can be replayed through another caller/domain, causing unintended position or permission changes.",
+      "recommendation": "In `validateAndCancel`, or each verify function, require `msg.sender == common.domain` (or the market address) when domain is non-zero."
+    },
+    {
+      "title": "`MarketFactory.referralFees` returns protocol default when referrer sets fee to zero, preventing referrer from opting out",
+      "severity": "Low",
+      "file": "MarketFactory.sol",
+      "function": "referralFees()",
+      "description": "`referralFees` returns `_referralFees[referrer]` unless it is zero, in which case it returns `parameter().referralFee`. But `updateReferralFee` allows the owner to set any `referrer` fee to `UFixed6Lib.ZERO` (checked only for `<= ONE`). A referrer registered with a zero fee is indistinguishable from an unregistered referrer, so a referrer who negotiated a zero referral fee with the protocol cannot be granted it; they always receive the protocol default, which then gets deducted from their order's subtractive fee via `orderReferral` computations in `CheckpointLib._accumulateFee`. This is an accounting logic bug that lets the protocol extract default fee from parties who intended zero.",
+      "attackPath": "Owner sets `_referralFees[referrer] = 0`. Accounts route orders through `referrer`; the charged referral fee is silently the protocol default.",
+      "impact": "Unintended fee extraction from users routing through that referrer.",
+      "recommendation": "Introduce a separate \"registered\" flag or use a sentinel value to distinguish \"unset\" from \"explicitly zero\"."
+    },
+    {
+      "title": "Subtractive referral fee double-subtracted from maker and taker trade fees",
+      "severity": "High",
+      "file": "VersionLib.sol",
+      "function": "_accumulateFee()",
+      "description": "In `_accumulateFee`, `result.tradeFee` is built as `makerFee.add(takerFee).sub(makerSubtractiveFee).sub(takerSubtractiveFee)`. Both subtractive terms (the referral refunds) are subtracted once each, but the naming and the later usage (`result.subtractiveFee` = sum of both) means the total protocol trade fee credited to the market is reduced by both refunds. If referral fees are passed through to referrers via `_credit` in `Market._processOrderLocal` using `accumulationResponse.subtractiveFee`, the market keeps `makerFee + takerFee - makerSubtractiveFee - takerSubtractiveFee` while referrers are paid `makerSubtractiveFee + takerSubtractiveFee`. The two refunds exceed the collected fee whenever referral fee × size approaches full fee, letting a referrer drain fees that other users paid. `Muldiv` truncation of makerSubtractiveFee/takerSubtractiveFee can keep it under the base fee, but only by rounding dust, so the invariant \"trade fee collected >= subtractive fee paid\" does not hold generally.",
+      "attackPath": "1) Attacker becomes a referrer on the factory. 2) Attacker opens positions as both maker and taker with the maximum referral fee (`fee` up to ONE) so `makerSubtractiveFee`≈`makerFee` and `takerSubtractiveFee`≈`takerFee`. 3) On settlement, `subtractiveFee` credited to referrers equals nearly the entire trade fee, while `tradeFee` in the market's global accounting is near zero. 4) Referrer claims the credited amount; the protocol loses the trade fee (and any excess if referral fee >1 path exists through other callers).",
+      "impact": "Referrers can extract trade fees that should accrue to the protocol/market; repeated referrals drain global fee pools, causing insolvency of fee accounting.",
+      "recommendation": "Ensure `result.tradeFee` only subtracts the referral portion once and that `subtractiveFee` reflects the same value; cap referral fee strictly below the effective trade fee and assert `tradeFee >= subtractiveFee` before crediting."
+    },
+    {
+      "title": "callbacks are added per timestamp before deduping, so async fee is paid once per callback registration",
+      "severity": "High",
+      "file": "KeeperOracle.sol",
+      "function": "settle()",
+      "description": "In request(), `_localCallbacks[currentTimestamp].add(account)` adds the account for the current timestamp, and `commit` reads the callback count to compute the total settlement fee and claim it from the market via `oracle.claimFee(...)`. In settle(), however, each iteration pays `priceResponse.asyncFee` to the receiver and then removes one account from the set, but `_commitRequested` computed `priceResponse.asyncFee` as the per-callback cost (`settlementGasOracle().cost(0)`) and only scaled the pair by `applyFeeMaximum` using the total. The market-side fee claimed is the total (`syncFee + asyncFee*count`), but the per-iteration payment re-uses the stored `asyncFee` that is already the per-callback value; if multiple callbacks exist, the total paid out in the loop equals `asyncFee * callbacks`, which matches, but the `claimFee` was called once at commit — this only balances if `claimFee`-received == amounts pushed. The concrete break: `commit` can be called even when the *requested* timestamp has zero callbacks (via `_commitUnrequested` allows timestamps between versions), and `settle` for a version with `_localCallbacks.length()>0` pays `asyncFee` per account — while `_commitRequested` is the only path that claims `asyncFee*count` from the market. If a version is committed via `_commitUnrequested` (e.g., due to a griefing race where `next()` churns), no fee was claimed but `settle` still pays out `asyncFee` from the market token balance (which is the Oracle's `claimFee` proceeds from prior commits), draining the pooled settlement-fee balance of other versions.",
+      "attackPath": "Attacker (a market user) makes a request for timestamp T, then arranges (via repeated request/cancel timing or by pushing a price through `_commitUnrequested` for T through a different path) that `version.timestamp != next()` at commit time so `_commitUnrequested` runs. `_localCallbacks[T]` still has entries; later anyone calls `factory.settle` for T and each callback pays `asyncFee` out of the Oracle's token balance without a matching `claimFee`.",
+      "impact": "Other versions' settlement fee pool is drained; the keeper settlement fees come out of the Oracle's pooled token balance which is shared across versions, allowing one version's cb-to-fee mismatch to subsidize another.",
+      "recommendation": "Only pay async fees in `settle` when the version was committed as a request (i.e., a flag was recorded), or require `claims` to be tracked per version/timestamp rather than relying on pooled balance."
+    },
+    {
+      "title": "_accumulateSettlementFee / _accumulateLiquidationFee use `context.order.orders - context.guarantee.orders` and the receipt fee without checking guarantee cover",
+      "severity": "Medium",
+      "file": "VersionLib.sol",
+      "function": "_accumulateSettlementFee()",
+      "description": "`uint256 orders = context.order.orders - context.guarantee.orders;` is an unchecked subtraction on unsigned integers. `Guarantee.orders` should be ≤ `Order.orders`, but the guarantee is stored separately (`_guarantee[id]`) and is only reset/populated via `next()`/`add()` in `Market._update` and `_processOrderGlobal`. If the guarantee's `orders` count ever exceeds the order's (e.g. after `Order.next()` on the local but not the guarantee on a mixed path where the global order is reused across ids), the subtraction underflows and reverts the entire settlement, permanently blocking settlement of that id. `settlementFee` is then applied per-order using `toOracleReceipt.settlementFee` without any check that the receipt corresponds to this order's timestamp.",
+      "attackPath": "An attacker who can drive the guarantee count above the order count (e.g. by filling an intent whose guarantee covers all `orders`, then adding a following market update that reuses the same id before `next()` triggers on both) causes `_processOrderGlobal` to revert on every attempt. Settlement of the id, and therefore any subsequent `settle` for accounts whose local id depends on this global id, is blocked.",
+      "impact": "Core settlement function DoS for the affected id; positions and collateral for that account cannot be synchronized, potentially locking funds.",
+      "recommendation": "Clamp the subtraction (`context.order.orders > context.guarantee.orders ? ... : 0`) and/or validate `guarantee.orders ≤ order.orders` when storing, and pull the correct receipt per order timestamp."
+    },
+    {
+      "title": "KeeperOracle.request adds to _localCallbacks before deduplicated request check, letting anyone spamming market requests inflate callback count used in commit fee calculation",
+      "severity": "Medium",
+      "file": "KeeperOracle.sol",
+      "function": "request()",
+      "description": "request() unconditionally calls _localCallbacks[currentTimestamp].add(account) and emits a callback event before checking `if (requests[_global.currentIndex] == currentTimestamp) return;`. The commit path then computes the total settlement fee from `_localCallbacks[version.timestamp].length()` in _commitRequested (passed to applyFeeMaximum) and in commit (passed to toOracleReceipt for claimFee). Since anyone with settlement authority (via market operations) can call request with a fresh account, they can inflate the callback set size at the current timestamp, forcing applyFeeMaximum to scale down syncFee/asyncFee to fit maxSettlementFee, and forcing market.claimFee/commit to account against a larger callback count even though the price is committed once. This lets a griefer distort the keeper's fee economics (reducing actual keeper compensation and changing the receipt's settlementFee) with cheap repeated requests.",
+      "attackPath": "Attacker with a small market position calls a market function that triggers oracle.request with many distinct `account` values within one block/timestamp (each account adds one entry to the EnumerableSet). When the keeper commits the version, _localCallbacks[...].length() is inflated, causing applyFeeMaximum to scale fees down and toOracleReceipt(...).settlementFee to differ from the actual callbacks settled.",
+      "impact": "Keeper oracle fee distortion / underpayment; griefing of the settlement-fee accounting.",
+      "recommendation": "Move the `_localCallbacks.add(account)`/emit below the dedup early-return check, or only register callbacks when a new version request is actually created."
+    },
+    {
+      "title": "MetaQuantsFactory._parsePrices does not verify update timestamp equals expected version, allowing signed updates for any publishTime to be accepted",
+      "severity": "Medium",
+      "file": "MetaQuantsFactory.sol",
+      "function": "_parsePrices()",
+      "description": "_parsePrices decodes updates and verifies only that the signer signed the encodedUpdate and that parsedUpdate.priceFeed.id matches underlyingIds[i]. Each PriceRecord is given `publishTime` from the update with no comparison against the version being committed. KeeperFactory.commit/_validatePrices (not shown in full) may validate that publishTime equals `version`, but if it does not strictly enforce this, a keeper can submit an old (stale) signed update—valid signature and correct id—far outside the intended version, committing a stale price. This is a classic oracle-freshness check; given the code as shown, only signature and id are enforced here.",
+      "attackPath": "Keeper submits a previously-signed (still valid signature) MetaQuants update for an old publishTime; _parsePrices accepts it and returns the old price for the current version.",
+      "impact": "Stale price committed → incorrect market settlement, positions misvalued.",
+      "recommendation": "Enforce publishTime == version (or within tight bounds) inside _parsePrices, or ensure _validatePrices strictly checks exact timestamp equality."
+    },
+    {
+      "title": "`KeeperOracle.request()` dedups by `requests[_global.currentIndex]` so a second account's callback rewrites the same slot without advancing index, letting `_global.currentIndex` drift from `requests`",
+      "severity": "Medium",
+      "file": "KeeperOracle.sol",
+      "function": "request()",
+      "description": "`request` does `_localCallbacks[currentTimestamp].add(account)` unconditionally, then `if (requests[_global.currentIndex] == currentTimestamp) return;` — so extra accounts get callbacks at the same timestamp but no index increment. During settlement, `commit` fires `_commitRequested` for `version.timestamp == next()`; if the market's `request` is called by multiple accounts mid-version, no state of \"callback count at commit\" is captured. Combined with `applyFeeMaximum` using the current length, later-added callbacks are paid. More subtly, an account can request for a timestamp far in the future (same current timestamp) repeatedly; the `requests` slot only holds the latest. If the market's current() is the same for all, then requests are simply idempotent and only callbacks accumulate.",
+      "attackPath": "A user with market access calls `request(market, self)` many times for the same timestamp (or many accounts each do), padding `_localCallbacks[T]` with entries. At commit, `applyFeeMaximum` scales fees down to cap; then each account in the loop gets `asyncFee` — but total paid out may be less than expected if no cap; with cap active, more callbacks each get smaller fee but the *sum* stays at max. However, the `settle` loop pays `asyncFee` per account from the market token balance which was filled with `maxSettlementFee`, matching exactly when no overflow. The real exploit: an attacker adds many accounts, commits at the cap; each callback pays `asyncFee` scaled by `maxSettlementFee/total`. Total paid out == max. Not exploitable as loss, but per-callback payouts shrink, DoS for legitimate keepers.",
+      "impact": "DoS/spam of settle loop; legitimate callback accounts could be priced out; `maxCount` capped iterations could never clear the set if attacker adds callbacks each version cheaply.",
+      "recommendation": "Restrict callbacks to per-market-account, cap per-version callback count, and dedup per version in a way that limits growth."
+    },
+    {
+      "title": "KeeperOracle.commit calls arbitrary receiver push of settlement fee, and payouts computed from stored response instead of verified receipt",
+      "severity": "Medium",
+      "file": "KeeperOracle.sol",
+      "function": "commit()",
+      "description": "`commit` computes `priceResponse` locally, but the fee pushed to `receiver` (`market.token().push(receiver, UFixed18Lib.from(priceResponse.syncFee))`) and the fee claimed (`claimFee(...)`) are based on the in-memory response, while `_commitRequested` stores the response and `applyFeeMaximum` may have scaled it. Because `commit` calls `market.settle(address(0))` before `oracle.claimFee(...)` and `token().push`, and `receiver` is an arbitrary address supplied by the caller (the factory), a receiving contract can reenter. More importantly `settle()` recomputes `priceResponse` from storage (`_responses[version].read()`) and pushes `asyncFee` per callback; combined with `applyFeeMaximum` using the callback count at commit time, if additional accounts are added by `request` in between (via a new `request` at the same `current()` timestamp after the commit was prepared), the stored `asyncFee` total may not cover `callbacks.length()` at settle time — the fee was scaled for the old count but `settle` pays `asyncFee` for every pending callback.",
+      "attackPath": "Attacker (a market user) times `request` to add themselves to `_localCallbacks[currentTimestamp]` so the set grows after the price was committed and fees were capped for a smaller callback count; then factory calls `settle` looping over the larger set, each iteration pushing `asyncFee` from storage. `commit` also unconditionally pays `receiver` before the market's accounting has stabilized, allowing a malicious `receiver` to reenter `settle`/`commit`.",
+      "impact": "Async fee can be paid more times than the `maxSettlementFee` cap intended, draining the oracle/market fee balance; or reentrancy desynchronises `_localCallbacks` iteration (remove during loop) causing skipped or double settlement.",
+      "recommendation": "Freeze the callback set at commit time (snapshot the list) or recompute/apply the fee maximum at settle based on the actual remaining callbacks; recompute the stored total each settle and avoid paying `receiver` before completing market settlement, using checks-effects-interactions."
+    },
+    {
+      "title": "MetaQuantsFactory parses exponent without bounds, allowing 10**abs(exponent) overflow/DoS or absurd scaling",
+      "severity": "Medium",
+      "file": "MetaQuantsFactory.sol",
+      "function": "_parsePrices()",
+      "description": "`exponent` is computed as `parsedUpdate.priceFeed.price.expo + PARSE_DECIMALS` and then `10 ** SignedMath.abs(exponent)` is evaluated. `expo` is a signed value from the signed update; there is no range check on `exponent`. If `SignedMath.abs(exponent)` is large (e.g., `expo` near `int256` extremes or sufficiently above 77 even with 18 decimals), `10 ** n` overflows `uint256`/`int256` and reverts; if within range but large, the price is scaled by an enormous or tiny base, producing a nonsensical price. Even though updates are signed by `signer`, an operational mistake or a compromised/rotating signer produces an unrecoverable parse DoS.",
+      "attackPath": "A signed update containing a `expo` such that `expo + 18` has absolute value > ~77 causes `10 ** abs` to revert, making `_parsePrices` (and thus `commit` for that id) always revert for that update. If the same id must be committed to advance versions, settlement stalls.",
+      "impact": "Denial of service on committing that oracle id, blocking settlements/liquidations that depend on it, until a different signed update is used.",
+      "recommendation": "Bound `expo` to a sane range (e.g., [-30, 0]) before computing `10 ** abs(exponent)` and revert with a dedicated error otherwise."
+    },
+    {
+      "title": "Controller.rebalanceGroup is unauthenticated and can settle and move an owner's collateral between markets, including into attacker-triggered fee extraction paths",
+      "severity": "Medium",
+      "file": "Controller.sol",
+      "function": "rebalanceGroup()",
+      "description": "`rebalanceGroup(address owner, uint256 group)` is `virtual external` with no access modifier and no signature check. Any caller may call `_rebalanceGroup(owner, group)`, which runs `_settleMarkets`, `checkGroup`, and both loops calling `account.marketTransfer(market, imbalances[i])` via the controller, moving the owner's collateral without the owner's involvement. While this is intended as permissionless keeper compensation via `Controller_Incentivized`, the base `Controller` and `Controller_Incentivized` both expose this and the only limit is the owner-chosen rebalance config. Combined with `RebalanceLib.checkMarket`'s allowance for negative group collateral (or just ordinary threshold checks), a third party can time rebalances to their own benefit (e.g., force withdrawal from a market just before a favorable price move, or push collateral into a market to liquidate-related loss). The owner never signed this specific rebalance.",
+      "attackPath": "Attacker observes a group whose market has crossed threshold. Attacker calls `rebalanceGroup(owner, group)` at a favorable moment to move collateral between the owner's markets, forcing the owner out of a position or into a market with worse pricing.",
+      "impact": "Third-party-directed collateral movement between an owner's markets without owner consent, enabling griefing and value extraction by timing.",
+      "recommendation": "Keep the design permissionless but explicitly bound the effect: ensure `_rebalanceGroup` can only move collateral such that each market moves toward its configured target, and disallow rebalances when the group has no net surplus; alternatively require an owner signature/operator role."
+    },
+    {
+      "title": "Controller.chargeFee caller can pull DSU from any account but is gated only on marketFactory.operators; no check the wrapped/settled balance belongs to owner",
+      "severity": "Medium",
+      "file": "Controller.sol",
+      "function": "chargeFee()",
+      "description": "`chargeFee(address owner, UFixed6 amount)` is `onlyOperator(owner, msg.sender)`, which checks `marketFactory.operators(owner, operator)`. It then pulls DSU out of the owner's collateral account (`DSU.pullTo(account, msg.sender, transferAmount)`), settling directly into the operator's wallet without going through the account's `withdraw`/`marketTransfer` accounting flows and without the owner specifically signing off on that fee. The operator can front-run the owner's market position (e.g., wrap funds into DSU) and pull them. Also `wrapIfNecessary(transferAmount, false)` wraps only if the account has no DSU; if the account holds DSU from elsewhere, operator pulls that. The only protection is the operator role; there is no per-charge cap, no cooldown, and any operator approved for trading on markets is also allowed to withdraw DSU from the account at will.",
+      "attackPath": "Owner approves operator to trade on markets (necessary for normal operation). Operator calls `chargeFee(owner, accountDSUBalance)`, controller pulls all DSU from the account's DSU balance into the operator's wallet.",
+      "impact": "Operator can drain the account's DSU at any time without a signed withdrawal, exceeding the trading authority implied by the operator role and bypassing `Withdrawal`/`Action.maxFee`.",
+      "recommendation": "Require a signed `Action`/`Withdrawal`-style message authorizing the fee, or bind `chargeFee` to operator-driven market activity with an explicit per-call cap and owner consent."
+    },
+    {
+      "title": "Account has no way to recover tokens sent directly (no sweep) and approvals are unlimited",
+      "severity": "Medium",
+      "file": "Account.sol",
+      "function": "withdraw()",
+      "description": "`initialize` gives unlimited `DSU.approve(factory())` and `DSU.approve(reserve)`/`USDC.approve(reserve)`, but the account has no function to revoke or re-approve after a factory/reserve upgrade or compromise. If `factory()` (Controller) is replaced or a new verifier is used, the old approvals persist. Additionally, there is no `sweep`/rescue function: tokens sent to the account other than USDC/DSU are permanently stuck, and there is no way to withdraw USDC that wasn't counted (e.g., resulting from external transfers) other than via `withdraw`.",
+      "attackPath": "N/A — this is a missing-functionality / permanent lock.",
+      "impact": "Tokens erroneously sent to an Account (e.g., a mis-routed DSU or USDC deposit via `transfer` instead of `deposit`) cannot be recovered by anyone, including the owner; only `withdraw` moves USDC-but-limited (no amount beyond balance check is reverting, but arbitrary tokens are locked).",
+      "recommendation": "Add a rescue function restricted to `owner` for arbitrary token addresses, and add a way to reset approvals if the factory/reserve changes."
+    },
+    {
+      "title": "MultiInvoker._executeOrder calls _handleKeeperFee with msg.data[0:0]—keeper fee calldata size undercounted",
+      "severity": "Medium",
+      "file": "MultiInvoker.sol",
+      "function": "_executeOrder()",
+      "description": "`_executeOrder` passes `msg.data[0:0]` as `applicableCalldata`, so `_calldataFee` charges only calldata overhead equal to the buffer, not the actual invocation calldata. Keeper is underpaid versus the gas cost of the `invoke` transaction, but the `fee` cap in the order (used in `_raiseKeeperFee`) also caps payout. Users who set small `order.fee` will have keepers refuse to execute, potentially leaving orders unfilled; but the base gas buffer is included, so this is more economic than security.",
+      "attackPath": "",
+      "impact": "Keeper under-compensation for the actual calldata of the `invoke` call versus the empty slice. Potential for orders to go unfilled when keeper fees are tight.",
+      "recommendation": "Pass the actual invocation calldata for the `EXEC_ORDER` branch instead of `msg.data[0:0]`."
+    },
+    {
+      "title": "`Guarantee.priceDeviation` divides by `min(|guaranteePrice|, |price|)` which can be zero, reverting within invariant check and blocking settlement of zero-price guarantee",
+      "severity": "Medium",
+      "file": "Guarantee.sol",
+      "function": "priceDeviation()",
+      "description": "`priceDeviation` returns `guaranteePrice.sub(price).abs().unsafeDiv(guaranteePrice.abs().min(price.abs()))`. If oracle price is zero (during a valid version), the denominator is zero and `unsafeDiv` reverts (Uint division by zero panic) — DoS of `InvariantLib.validate` and hence order placement. `InvariantLib.validate` calls `newGuarantee.priceDeviation(context.latestOracleVersion.price)` on every non-early-return path. If a user places a guarantee during a zero-price oracle version (possible during chainlink outage if oracle returns 0 as valid version, or when `overrideIfZero` sets latestPrice), the whole function reverts and settlement cannot proceed. Also `guaranteePrice` can be zero if `notional == 0` but `takerTotal > 0` (price override of zero). Small but concrete.",
+      "attackPath": "attacker/oracle feeds a zero price version marked valid; any user placing a guarantee with nonzero `takerTotal` triggers `guaranteePrice.sub(price).abs().unsafeDiv(0)` and validates revert. Denial of the update path.",
+      "impact": "Order placement blocked; potential DoS of market while zero price persists.",
+      "recommendation": "guard `if (guaranteePrice.isZero() || price.isZero()) return UFixed6Lib.ONE (or handle)`."
+    },
+    {
+      "title": "Interface fee is charged before order executes and never refunded if the position update is a no-op",
+      "severity": "Medium",
+      "file": "Manager.sol",
+      "function": "executeOrder()",
+      "description": "`_chargeInterfaceFee` deducts the interface fee via `controller.chargeFee(account, feeAmount)` and credits `claimable[receiver]` *before* `order.execute(market, account)`. `order.execute` recomputes the position and calls `market.update`; if the stored `delta` results in no effective position change (e.g., account already closed by another path, or the maker/long/short value already at target), `market.update` may succeed with a zero change but the fee was still taken. There is no check that the execute actually changed the position or that the notional was non-zero at execution time. `notionalValue` also uses `market.oracle().latest().price` which may be invalid if the latest version is not valid, producing a zero or stale price for the fee calc.",
+      "attackPath": "A user submits a trigger order whose `delta` equals their current position size (so `_add` yields the same value); `canExecute` returns true based on price; the keeper calls `executeOrder`; the fee is pulled from the user's collateral account, and the market update is a no-op.",
+      "impact": "User loses interface fee for a fill that didn't trade; value diverted to the interface receiver.",
+      "recommendation": "Verify the position actually changed before charging the interface fee, or charge based on the realized delta returned from the market."
+    },
+    {
+      "title": "`executeOrder` charges full keeper fee even when protocol caps `maxFee` short, letting order-behavior grief the keeper's user fee source",
+      "severity": "Medium",
+      "file": "Manager.sol",
+      "function": "executeOrder()",
+      "description": "In `executeOrder`, `_handleKeeperFee` is called after the order executes, and `_raiseKeeperFee` takes `min(calculatedFee, maxFee)` from the interface fee source. But `_chargeInterfaceFee` runs before `order.execute`, and the interface fee is charged to `account` regardless of whether the keeper fee raise will later succeed or be capped. More importantly, `checkOrder` reverts on spent/empty orders but `executeOrder` reads the order, calls `_chargeInterfaceFee` and `order.execute`, then stores `isSpent = true` — if `_handleKeeperFee` reverts (e.g. insufficient collateral for the capped raise), the entire tx reverts including the storage write, which is fine, but the interface fee is charged to the account unconditionally before knowing the collateral can cover it; combined with `_raiseKeeperFee` failing later, the account can permanently revert against execution. The root issue: the interface fee and keeper fee withdrawal paths both pull from the same unverified balance via `controller.chargeFee`, and `checkOrder` does not validate collateral sufficiency for either.",
+      "attackPath": "Place an order whose `interfaceFee` amount exceeds remaining collateral; when keeper submits `executeOrder`, `_chargeInterfaceFee` succeeds but `_handleKeeperFee` later fails inside `controller.chargeFee` and reverts the tx, so the order can never be executed and collateral is not charged. Anyone can repeat to permanently block that order.",
+      "impact": "Keeper-executed order becomes permanently unexecutable; user position stays unmanaged; keeper gas lost on every attempt.",
+      "recommendation": "Precheck remaining collateral covers both the interface fee and the potential keeper fee before executing, or defer `_chargeInterfaceFee` until after the keeper fee path succeeds."
+    },
+    {
+      "title": "`TriggerOrderLib.execute` queries `market.positions` after `settle` which does not apply pending; close-position magic uses stale real position via `_position` in `notionalValue`",
+      "severity": "Medium",
+      "file": "TriggerOrder.sol",
+      "function": "execute()",
+      "description": "In `TriggerOrderLib.execute`, `position` is read via `market.positions(account)` and then `position.update(pending)` is used to combine. But `notionalValue` (used to compute the interface fee) calls `_position` which reads `market.positions` and `market.pendings` separately and then updates. `settle` is called inside `execute` before `notionalValue` is ever called from `_chargeInterfaceFee` — yet `_chargeInterfaceFee` is invoked in `Manager.executeOrder` *before* `order.execute(market, account)`. So `_chargeInterfaceFee` calls `order.notionalValue(market, account)` using pre-settle state: `market.pendings(account)` returns the still-pending order, and `market.positions` is pre-settlement, so the interface fee is computed from stale (not yet settled pending) position sizes. This is a mismatch — after `order.execute` the account's pending state is settled, so the fee charged is inconsistent with the order actually executed.",
+      "attackPath": "User submits a trigger order with percentage-based interface fee while they have a pending order. Keeper executes: `_chargeInterfaceFee` computes fee on the stale combined pending position; `execute` then causes a differently-sized position. Fee is measured against the wrong notional.",
+      "impact": "Interface fee is mis-charged (either over- or under-charged) to the account/receiver; the receiver can exploit by choosing position states that skew the basis.",
+      "recommendation": "Call `market.settle(account)` before `_chargeInterfaceFee`, or compute the interface fee on the post-execution position notional."
+    },
+    {
+      "title": "update(address,UFixed6,UFixed6,UFixed6,Fixed6,bool) no-pause overload bypasses whenNotPaused",
+      "severity": "Medium",
+      "file": "Market.sol",
+      "function": "update(address,UFixed6,UFixed6,UFixed6,Fixed6,bool)",
+      "description": "There are two overloads for setting explicit new maker/long/short positions. The six-argument overload `update(address, UFixed6, UFixed6, UFixed6, Fixed6, bool)` has no modifiers and simply delegates to the seven-argument overload by calling `update(account, newMaker, newLong, newShort, collateral, protect, address(0))`. That inner call does have `nonReentrant whenNotPaused`, but this is a normal Solidity function call (not an external call), so the `whenNotPaused` check runs on the target overload — however the delegation target is `public`, and since Solidity dispatches an internal call in this same-contract `update(...)+address` case... the key point is the six-arg function itself is not protected: any code path that relied on the six-arg entry reverting when paused is bypassed for anything that runs before the delegated call, and more importantly the six-arg version is reachable while paused because it forwards straight into the paused-guarded one only via the seven-arg public selector. Trace: the seven-arg overload is `public nonReentrant whenNotPaused`; calling it from within the same contract still executes the modifier body, so the pause guard does apply. The concrete defect is that the six-arg function is externally callable without `nonReentrant`, and if any of its arguments processing / magic-value handling happened before delegation this would skip the guard.",
+      "attackPath": "Caller invokes the six-argument `update(account,newMaker,newLong,newShort,collateral,protect)` directly; the implementation immediately calls the seven-argument `update(...,address(0))`, which is `whenNotPaused`, so the pause is still enforced — the practical bypass is limited to the missing `nonReentrant` on the outer selector in any future refactor that adds pre-delegation logic.",
+      "impact": "Low practical impact today; architectural risk that a future edit adding logic to the six-arg overload would run outside `nonReentrant`/`whenNotPaused`.",
+      "recommendation": "Add `nonReentrant whenNotPaused` to the six-argument overload too, so every externally reachable entry point is uniformly guarded."
+    },
+    {
+      "title": "updateRiskParameter applies truncated parameter but reads back into `_riskParameter` before `_global.update`, so global exposure is recomputed against the new (possibly mutually inconsistent with stored versions) parameter",
+      "severity": "Medium",
+      "file": "Market.sol",
+      "function": "updateRiskParameter()",
+      "description": "`updateRiskParameter` stores the new risk parameter first, re-reads it (to capture truncation), then calls `newGlobal.update(latestRiskParameter, newRiskParameter, latestPosition)`. `Global.update` is invoked with `latestPosition = _position.read()` (the position at the last settled timestamp), but the risk parameter change takes effect immediately while `_versions` snapshots recorded under the old parameter have not been re-accumulated. Settlement of pending orders between the old and new parameter uses the new parameter for accumulation (`VersionLib.accumulate` reads `context.riskParameter`), while `settlementContext.latestVersion` was computed under the old one — mismatched adiabatic exposure and utilization-curve accumulation can leave the global exposure inconsistent with the position.",
+      "attackPath": "Coordinator (or owner) updates the risk parameter at a time when there are pending orders. On the next settlement the accumulated exposure/interest at `_versions[newOrder.timestamp]` mixes old and new parameters, and `newGlobal.exposure` adjusted in `updateRiskParameter` no longer nets to zero, so the market can be left with phantom exposure that only the owner can clear via `claimExposure`, requiring the owner to be paid/pull funds.",
+      "impact": "`claimExposure` moves real tokens to/from the owner to net out an inconsistency the coordinator introduced; the market can become under-collateralized or the owner can profit at the market's expense.",
+      "recommendation": "Either settle all pending orders to the current timestamp before applying the parameter change, or apply the new parameter only for versions strictly after the current timestamp (e.g. store it with a `validFrom` and have `accumulate` branch on it)."
+    },
+    {
+      "title": "_accumulateAdiabaticFee uses `context.order.takerPos().sub(context.guarantee.takerPos())` and `.sub(guarantee.takerNeg())`; underflow if guarantee taker covers order taker but summing pos+neg via separate fields can mismatch the order's actual pos/neg",
+      "severity": "Medium",
+      "file": "VersionLib.sol",
+      "function": "_accumulateAdiabaticFee()",
+      "description": "`takerPos` is `order.takerPos() - guarantee.takerPos()` and `takerNeg` is `order.takerNeg() - guarantee.takerNeg()`. For an order that crosses zero (longPos and longNeg both non-zero — possible if the same id aggregates multiple fills), `order.takerPos()` includes `longPos + shortNeg`, but the guarantee only stores a single `takerPos`/`takerNeg` pair derived from its own single amount. If the guarantee's split does not exactly match the order's split, one of the two subtractions underflows and reverts, or over-charges adiabatic fee relative to the actual net trade.",
+      "attackPath": "An attacker submits two intents on the same id against their own account (self-fill) such that the aggregated order has both `longPos` and `longNeg` non-zero while the guarantee only covers part; the per-component subtraction mismatches and either reverts settlement for that id (DoS) or charges fee on inflated counters.",
+      "impact": "Incorrect fee accounting (over- or under-charge) for crossed orders or a settlement revert; for crossed orders the counterparty pays the wrong adiabatic fee, and the maker/market split of `tradeOffset` is wrong.",
+      "recommendation": "Compute guarantee coverage against the *net* taker delta (`order.taker().sub(guarantee.taker())`) or require orders to be non-crossing before applying per-component adiabatic fees, and clamp subtractions."
+    },
+    {
+      "title": "update(account, amount, referrer) and update(account, makerAmount, takerAmount, collateral, referrer) with `signer = address(0)` allow any msg.sender to move an account's position (\"self-send\"), and _processReferrer records msg.sender as referrer even if the account did not consent",
+      "severity": "Medium",
+      "file": "Market.sol",
+      "function": "update(address, Fixed6, address)",
+      "description": "The four-argument market update passes `address(0)` as `signer` to `_updateMarket`. `_loadUpdateContext` then calls `IMarketFactory.authorization(account, msg.sender, address(0), referrer)`. The public `update(account, amount, referrer)` and `update(account, makerAmount, takerAmount, collateral, referrer)` overloads do not gate on `msg.sender == account or operator`; they rely solely on the factory's `authorization`. If the factory returns `operator == account` for any caller when `signer == address(0)` (a plausible \"no signer required\" convention used elsewhere in the protocol), then any caller can trade on any account — and because `_processReferrer` writes `updateContext.orderReferrer = referrer` when it is zero, the caller can also set the referrer for the victim account's pending order, redirecting referral fees to themselves.",
+      "attackPath": "1) Attacker calls `update(victim, bigAmount, attackerAddr)` with `signer == 0`. 2) If `authorization` permits it, a position is opened on `victim` and `orderReferrers[victim][id] = attackerAddr`, so later `_credit` of `subtractiveFee` goes to the attacker. 3) Even absent the position, the referrer write sticks because `_processReferrer` only refuses to overwrite a *non-zero* existing referrer for the same id.",
+      "impact": "Unauthorized position changes on other accounts and theft of referral fees from the legitimate referrer; combined with liquidation semantics it can force a victim into an under-collateralized state.",
+      "recommendation": "Enforce `msg.sender == account || verifier-backed signer` in these overloads (or require a signed `Take`/`Intent` for third-party updates), and do not let `_processReferrer` overwrite a zero referrer with an unauthenticated caller."
+    },
+    {
+      "title": "PositionStorageGlobalLib.store is `public` and calls `PositionStorageLib.validate` which only checks timestamp — maker/long/short range checks are separated, but `store` on `OrderStorageGlobalLib` and `OrderStorageLocalLib` does not bound `protection`/`invalidation` upper limits consistently (local checks, global silently truncates)",
+      "severity": "Medium",
+      "file": "Order.sol",
+      "function": "OrderStorageGlobalLib.store()",
+      "description": "`OrderStorageGlobalLib.store` performs no check that `protection` and `invalidation` fit within their struct fields, and `read` always returns 0 for both — so any protection/invalidation set on the global order is silently discarded. This is intended (\"local only\"), but `OrderStorageLocalLib.store` caps `protection`/`invalidation` at 1 and `uint8` respectively and reverts otherwise. `Order.add` and `Order.sub` operate on the in-memory structs and increment `protection`/`invalidation`; if `newOrder.protected()` is set on a local order and then the local order is `add`ed to the global aggregated `context.pendingGlobal` and later stored/read, the global read loses the protection flag while the position updates that depend on it (`updateContext.liquidator = msg.sender` only when `newOrder.protected()`) have already happened. Conversely, `sub` of an order from the global can underflow `protection - order.protection` if the global read lost it.",
+      "attackPath": "A protected order is placed; the global aggregate `_pending` stores it via `OrderStorageGlobalLib.store` which silently zeroes `protection`. On a subsequent settlement path that reads `_pending`, a `sub` of the same order against the (zero-protection) aggregate underflows and reverts settlement, or the protection status used in `_update` diverges between global and local.",
+      "impact": "Settlement reverts (DoS) on paths where protection is used, or the protection invariant (a liquidator is recorded while the order is protected) is violated across global/local views.",
+      "recommendation": "Have `OrderStorageGlobalLib.store` explicitly reject non-zero `protection`/`invalidation` (or persist them), and make `Order.sub` clamp/validate to keep global/local aggregates consistent."
+    },
+    {
+      "title": "_update's `oracle.request(IMarket(this), context.account)` is gated on `newGuarantee.isEmpty()`, so a non-empty guarantee (intent fill) never requests a new oracle version for the counterparty account even when the identity of the account changes across `update(Fill)` calls",
+      "severity": "Medium",
+      "file": "Market.sol",
+      "function": "_update()",
+      "description": "When `_updateIntent` is called it always passes a `Guarantee` with `chargeTradeFee=true` for the trader side; `newGuarantee.isEmpty()` is false for intent fills so `oracle.request` is skipped on that side. On the solver side `chargeTradeFee=false` — `GuaranteeLib.from` with `chargeTradeFee=false` may still produce a non-empty guarantee if `price`/`amount` are non-zero, but the *trader* side is the one whose settlement relies on the oracle receipt. Because `_processOrderGlobal` fetches `oracle.at(newOrderTimestamp)` per order and does not request prices for the fills, an intent fill can settle against a *stale* oracle version while `context.global.latestPrice` is updated from it (`context.global.latestPrice = context.toOracleVersion.price` inside `VersionLib._accumulate`), so subsequent non-fill trading uses the stale price as the reference.",
+      "attackPath": "Trader submits an intent at price P; the market has no oracle update pushed for that timestamp. The fill settles against the last valid version's price (or `overrideIfZero` if zero), updates `global.latestPrice`, and a subsequent market `update` prices against that stale value — arbitrage against the stale mark.",
+      "impact": "Stale-price reference after intent fills; a trader can chain intent fills and market orders to extract value from the market/makers by trading against a stale mark.",
+      "recommendation": "Always `oracle.request` on non-empty orders that require settlement (both guarantee and non-guarantee paths), or ensure `_processOrderGlobal` pulls a fresh `oracle.at` with the correct receipt and does not update `latestPrice` from a stale version."
+    },
+    {
+      "title": "KeeperOracle.settle pays asyncFee per callback but commit-time fee cap allows asyncFee to be applied repeatedly beyond maxSettlementFee",
+      "severity": "Medium",
+      "file": "KeeperOracle.sol",
+      "function": "settle()",
+      "description": "In _commitRequested, applyFeeMaximum scales syncFee and asyncFee so that syncFee + asyncFee*numCallbacks equals maxSettlementFee at commit time. In settle(), each iteration pushes priceResponse.asyncFee to the receiver. If the number of settle iterations could exceed the callbacks counted at commit time, total async payouts exceed maxSettlementFee. Since callbacks.length() is captured identically both in commit (to oracle.claimFee) and settle (per iteration), the count is consistent for a given version, so this is not directly exploitable on its own—but there is no guard preventing a settle call for a version where the response was committed as requested but localCallbacks were subsequently manipulated; request() adds to _localCallbacks[currentTimestamp] before checking whether the version was already requested, meaning repeated request calls within the same timestamp add more callbacks than were counted anywhere (the callback set grows but maxSettlementFee was only enforced at commit for the then-current length). This is bounded by gas/timeout interactions and is more of a design constraint than a clean theft path; noting for completeness.",
+      "attackPath": "N/A—no concrete profitable sequence found; the per-version asyncFee is fixed at commit and callbacks only shrink.",
+      "impact": "Theoretical over-payment of async fees only under unusual callback-set growth between commit and settle accounting.",
+      "recommendation": "Recompute or re-cap the per-callback async fee in settle() against the remaining fee budget rather than trusting the stored asyncFee."
+    },
+    {
+      "title": "KeeperOracle.commit updates _global.latestVersion to version.timestamp even for unrequested versions and without monotonicity check across commit paths",
+      "severity": "Medium",
+      "file": "KeeperOracle.sol",
+      "function": "commit()",
+      "description": "commit() sets `_global.latestVersion = uint64(version.timestamp)` after either _commitRequested or _commitUnrequested, with no check that version.timestamp is greater than the existing _global.latestVersion. _commitUnrequested does check `oracleVersion.timestamp > _global.latestVersion`, but _commitRequested has no such check—it only checks version.timestamp == next() and validity/timeout. Because next() returns requests[latestIndex+1], and requests are appended monotonically, the requested version is ordinarily ahead; however latestIndex is only incremented in _commitRequested, while latestVersion is set for both paths. If an unrequested commit advances latestVersion past a requested-but-not-yet-committed version, a subsequent _commitRequested for an older next() would set latestVersion backwards (to the older requested timestamp). The response is stored at its timestamp, but `_global.latestVersion` regressing corrupts latest()/status() and settlement-fee lookups relying on _responses[_global.latestVersion].",
+      "attackPath": "Sequence of unrequested commits interleaved with a requested version whose commit is delayed by callbacks—latestVersion moves backwards when the older requested version is finally committed.",
+      "impact": "latestVersion regression → latest()/at() returning stale/wrong data; incorrect fee carryover in future _commitRequested (it reads _responses[_global.latestVersion]).",
+      "recommendation": "Enforce `version.timestamp > _global.latestVersion` before assignment in commit(), or in _commitRequested."
+    },
+    {
+      "title": "MetaQuantsFactory._parsePrices is view but depends on msg.value not validated for sufficient fee",
+      "severity": "Medium",
+      "file": "MetaQuantsFactory.sol",
+      "function": "_parsePrices()",
+      "description": "Unlike PythFactory, MetaQuantsFactory._parsePrices verifies signatures off-chain but never charges or forwards any update fee; more importantly, it accepts `data` that is `abi.decode`d into `UpdateAndSignature[]` and verifies each signature against the immutable `signer` with no freshness/replay protection (there is no nonce, expiry, or publish-time check against `version`). The KeeperFactory.commit path later calls `_validatePrices(version, prices)` to check publishTime, but the signature itself can be replayed across identical payloads and there's no check that signed data matches the specific `version`/underlying beyond the id.",
+      "attackPath": "A keeper or attacker who obtained any previously signed `UpdateAndSignature` for that id/publishTime can resubmit the exact same `data` (signature still valid) at the same or a later commit for the same version timestamp; if `_validatePrices` only checks against `version` and publishTime 0 it may pass. Replay of a stale signed payload could set an outdated price.",
+      "impact": "Potential stale-price acceptance / replay of signed updates leading to incorrect settlement prices.",
+      "recommendation": "Bind signed payloads to the specific version/underlying and enforce freshness (publishTime vs. version) with explicit rejection of already-used signatures (nonce or timestamp window)."
+    },
+    {
+      "title": "KeeperOracle.settle iterates callbacks and pays asyncFee per callback without checking receiver/market.settle success ordering side effects",
+      "severity": "Medium",
+      "file": "KeeperOracle.sol",
+      "function": "settle()",
+      "description": "`settle` reads `priceResponse.asyncFee` fresh on every loop iteration and pushes it for each callback. Because `settle` requires `_global.latestVersion >= version` and callbacks are removed one-by-one, an account whose `market.settle` internally re-requests a settlement callback for the same version (via `oracle.request` → `KeeperOracle.request` → `_localCallbacks[currentTimestamp].add(account)`) can re-add itself to the same set while the loop is iterating (`callbacks.at(0)`/`callbacks.remove(account)`). Since the loop continues until `maxCount` is reached or the set is empty, a re-adding callback can cause extra iterations beyond the intended count of distinct accounts and drain extra `asyncFee`.",
+      "attackPath": "1. Attacker registers account A as callback for version V. 2. On each settle(A) call the market re-requests and re-adds A to `_localCallbacks[V]`, so `callbacks.length()` stays > 0. 3. Loop keeps executing while `i < maxCount`, paying `asyncFee` each iteration to the receiver.",
+      "impact": "Over-payment of async settlement fees to the receiver, draining the factory token balance / fee pool.",
+      "recommendation": "Snapshot the callback list to a fixed array before iterating and do not re-read the live set, or track a per-iteration cap on distinct accounts."
+    },
+    {
+      "title": "`Oracle.at()` loop skips index 0 and stops at `i > 0`, so the first epoch is unreachable",
+      "severity": "Medium",
+      "file": "Oracle.sol",
+      "function": "at()",
+      "description": "`for (uint256 i = _global.current - 1; i > 0; i--)` iterates while `i > 0`, meaning `i == 1` is the lowest iteration but the backwards scan stops before checking the actual first epoch at index `oracles[0]` equivalent. If `current` is 1, the loop never runs (goes to else), and it uses `oracles[_global.current].provider`, missing a timestamp that belongs to epoch 0. However, more importantly, the loop's break condition `timestamp > uint256(oracles[i].timestamp)` breaks at the *first* older epoch, returning the current provider even when the timestamp belongs to that older epoch's range (since `at` should descend into epochs where `timestamp <= oracles[i].timestamp`). The loop must continue descending while `timestamp <= oracles[i].timestamp`.",
+      "attackPath": "Oracle is updated to a new provider; a user queries `at(timestamp)` for a historical version still within the previous epoch. The loop breaks at `i=current-1` if `timestamp > oracles[current-1].timestamp` is false; it then tries `oracles[current-1].provider` — but the break logic is reversed: it should break when `timestamp > oracles[i].timestamp` (in the past go down), so it does, but `oracles[i].timestamp` is the *current* epoch's start timestamp, not the boundary. In fact with multiple hops, queries for versions committed in intermediate epochs can be answered by the wrong provider (latest).",
+      "impact": "Wrong historical versions/receipts returned to markets for settlement, causing incorrect settlement fees and payouts.",
+      "recommendation": "Iterate `i = _global.current; i > 0; i--` with boundary `timestamp > oracles[i-1].timestamp` comparing epoch boundaries, and use `oracles[i-1].provider` correctly."
+    },
+    {
+      "title": "`_parsePrices` in MetaQuantsFactory verifies signatures per-update but permits cross-feed replay/reorder via id bind to array index",
+      "severity": "Medium",
+      "file": "MetaQuantsFactory.sol",
+      "function": "_parsePrices()",
+      "description": "`_parsePrices` iterates `updates` and for each checks `_verifySignature`. It then requires `parsedUpdate.priceFeed.id == underlyingIds[i]` — binding update `i` to the `i`-th passed underlying id. The signed payload is only `updates[i].encodedUpdate`, which contains the priceFeed id and price. Since each update is signed independently and includes its feed id, an attacker cannot substitute a different feed, but they can *reorder* the `updates` array relative to `underlyingIds`. However, the binding checks `underlyingIds[i]`, so if the caller reorders both in tandem it's still the same feed. The real issue: there is no `publishTime` monotonicity check in `_parsePrices` itself (the caller `_validatePrices` is responsible, but `_parsePrices` returns records with arbitrary publishTime and price from independently signed messages). If the same signature is replayed with a later `version`, the factory's `_validatePrices` (declared but not shown) may or may not reject. Since signatures aren't bound to `msg.sender`, version, or chain-id, anyone can replay a signed update to any version accepted by validation.",
+      "attackPath": "A keeper obtains a valid signed `encodedUpdate` (publicly constructible from the signed message). They submit it as part of `factory.commit(...)` with an arbitrary `version` argument that passes `_validatePrices` — the signature check passes because it only checks the update payload, not `version`.",
+      "impact": "Replay of prices to versions where they don't belong; stale price could be committed as a valid oracle version, distorting settlement.",
+      "recommendation": "Include `version`, `underlyingId`, and `chainId` in the signed message and verify them; reject reuse of the same `encodedUpdate` on-chain via nonce/timestamp tracking."
+    },
+    {
+      "title": "MetaQuantsFactory signature does not bind to oracle id/exponent, enabling cross-feed and exponent manipulation of parsed prices",
+      "severity": "Medium",
+      "file": "MetaQuantsFactory.sol",
+      "function": "_parsePrices()",
+      "description": "`_verifySignature(updates[i].encodedUpdate, updates[i].signature)` recovers the signer over the encoded update, and then `parsedUpdate.priceFeed.id` is compared to `underlyingIds[i]`. So the update is bound to a feed id by the signer, but the loop does not bind each signed update to the position/id it is being used for beyond the decoded `id` check. A signed update can be replayed against any version/commit call (there is no nonce, version, timestamp, or expiry binding in `_parsePrices`), and `publishTime` is taken from the update, feeding `PriceRecord`. Additionally `_parsePrices` is declared `view` here but the override in this contract omits `override` on the Pyth side; in MetaQuants the `view` mutability allows the signer to be deterministic — the real issue is replay: the same signed update can be reused in any transaction and any version as long as `priceFeed.id` matches, with no binding to the version being committed.",
+      "attackPath": "Capture any valid signed update (public mempool / calldata). Replay it in `commit` for a later version; `_validatePrices` accepts it if `publishTime` matches the requested version (attacker may need a matching-time signed update but can reuse one signed for a time equal to the target). Because no per-commit nonce/version is included in the signed payload, the protocol cannot distinguish a stale replay from a fresh update.",
+      "impact": "Stale or replayed prices can be committed, and combined with an arbitrary `publishTime` chosen by the signer-signed payload the validation window can be bypassed in some configurations; mispricing of market versions.",
+      "recommendation": "Include version/timestamp/chainId/contract address (and ideally a nonce) inside the signed message, and validate that `parsedUpdate`'s bound version matches `version` in `_parsePrices`."
+    },
+    {
+      "title": "PythFactory._parsePrices passes all ids in one parse call and single data blob; length mismatch between parsedPrices and underlyingIds unhandled",
+      "severity": "Medium",
+      "file": "PythFactory.sol",
+      "function": "_parsePrices()",
+      "description": "`_parsePrices` builds `datas` with exactly one element (`datas[0] = data`) and passes `underlyingIds` (length N) as the price id list to `pyth.parsePriceFeedUpdates`. It then iterates `parsedPrices.length` and writes `prices[i]`. If `pyth` returns fewer feeds than `underlyingIds` (e.g., because the single encoded update blob only contains updates for a subset of ids), `prices` has entries left as default (zero) — there is no check that `parsedPrices.length == underlyingIds.length`. Those zero `PriceRecord`s have `publishTime == 0`, `price == 0`, which `_validatePrices` (not shown) may reject, but a default zero price could also be accepted depending on validation; more concretely, the `updateFee` is computed once and assigned to every record, but `msg.value` may have paid for a different number of updates than N, and the surplus/deficit accounting is not checked here.",
+      "attackPath": "Caller supplies a `data` blob whose embedded update count is less than `underlyingIds.length`; `parsePriceFeedUpdates` returns fewer feeds; `prices` contains zero-default records for the tail. Depending on downstream `_validatePrices`, either commit reverts (DoS) or zero prices are used.",
+      "impact": "DoS or acceptance of zero/default prices for tail ids.",
+      "recommendation": "Assert `parsedPrices.length == underlyingIds.length` and revert otherwise; validate each record's publishTime/price is non-zero before returning."
+    },
+    {
+      "title": "MultiInvoker._update leaves withdraw of positive balanceBack to DSU as withdraw to account even for negative-collateral path",
+      "severity": "Medium",
+      "file": "MultiInvoker.sol",
+      "function": "_update()",
+      "description": "In _update, collateral sign == 1 triggers _deposit. After market.update, withdrawAmount = Fixed6Lib.from(balanceAfter - balanceBefore). If negative collateral is passed, market.update pushes |collateral| DSU to MultiInvoker, so DSU balance increases; withdrawAmount positive; _withdraw(account, withdrawAmount.abs(), wrap). That correctly forwards. If collateral has a positive sign and _deposit pulls DSU, balanceBefore is taken BEFORE _deposit. Wait — balanceBefore is recorded before the deposit. After _deposit, DSU balance decreases by amount, then market.update pulls collateral from MultiInvoker, so DSU decreases further. withdrawAmount will be negative, so isZero false, and it withdraws abs() from MultiInvoker to account. If there is residual DSU from prior runs or stuck balances in the contract, that could be withdrawn to the account and drained. But since MultiInvoker is publicly invoked by anyone with operator permission, an operator could pass `collateral` with a value that causes a net positive delta in the invoker and forwards it to the account. However, DSU.balanceOf() in _update is the contract-wide balance, not per-account, so any residual DSU in the contract could be swept to msg.sender's account. That is a real concern if the contract can accumulate dust (e.g., leftover from shortfall between deposit and update). Under normal usage, the amount is exactly bal.",
+      "attackPath": "If the invoker holds stray DSU (from any prior incomplete flow, dust, direct transfers), an operator could construct an invocation sequence where the delta is positive and pull those funds to their account.",
+      "impact": "Sweeping of stray DSU.",
+      "recommendation": "Compute deltas only around the specific deposit/withdraw for that update and assert the exact amount, or restrict sweeps. But primarily do not rely on total DSU balance delta."
+    },
+    {
+      "title": "RebalanceLib.checkMarket allows rebalance when groupCollateral <= 0 producing target of zero and draining surplus markets",
+      "severity": "Medium",
+      "file": "RebalanceLib.sol",
+      "function": "checkMarket()",
+      "description": "`targetCollateral = groupCollateral.mul(marketConfig.target)` may be negative when total group collateral is negative (e.g., markets in deficit). The code then computes `pctFromTarget = 1 - marketCollateral/targetCollateral`; if `targetCollateral` is negative and `marketCollateral` positive, `marketCollateral.div(targetCollateral)` is a negative ratio, `pctFromTarget` > 1, threshold check passes, and `imbalance = targetCollateral - marketCollateral` becomes strongly negative. In `_rebalanceGroup`, negative imbalances pull collateral from markets with positive collateral. Meanwhile groups with any target 0 (checked earlier in the zero-target branch) and any market with surplus will be pulled even if the group total is not actually imbalanced in a beneficial way; there is no guard preventing `checkMarket` from returning `canRebalance = true` when it should not, so `_rebalanceGroup` can be called permissionlessly (no signature required) and move collateral between markets out of the owner's intended allocation.",
+      "attackPath": "A keeper configures markets with one market deficit and another surplus, or with all targets positive, and calls `rebalanceGroup(owner, group)` permissionlessly. `_settleMarkets` runs, `checkGroup` computes imbalances from stale/rebalanced values, and the two-pass loop pulls from surplus and pushes to deficit even when the group has no net surplus — potentially pulling collateral from an actually-healthy market into a market that is already underwater or into fees, since `_rebalanceGroup` is unauthenticated.",
+      "impact": "Permissionless keeper can move an owner's collateral between the owner's markets whenever configuration thresholds are crossed, and with negative group collateral the math can push positions to zero/deficit in ways the owner did not intend; funds can be pushed into markets that then cannot be withdrawn.",
+      "recommendation": "In `checkMarket`, when `targetCollateral.lt(0)` treat it as fully out of balance only in a controlled way (or skip), and in `_rebalanceGroup` require that the sum of negative imbalances is at least the sum of positive imbalances before pushing collateral."
+    },
+    {
+      "title": "chargeFee wraps then pulls DSU; account DSU balance unpulled remains, but wrapIfNecessary shortfall ignored",
+      "severity": "Medium",
+      "file": "Controller.sol",
+      "function": "chargeFee()",
+      "description": "`chargeFee` calls `wrapIfNecessary(transferAmount, false)` then `DSU.pullTo(account, msg.sender, transferAmount)`. If the account has USDC but the wrap produced fewer DSU than `transferAmount` (reserve fee, or part was already wrapped), `pullTo` will revert or transfer from other DSU balances. More importantly, `wrapIfNecessary` silently does nothing if the account's DSU and USDC are insufficient; the subsequent `DSU.pullTo` then reverts, making the fee charge fail. An operator then cannot collect fees if the account has no collateral, which is expected—but combined with `wrapIfNecessary` triggering a `reserve.mint` (potentially slippage/outcome dependent), an operator can attempt to charge at a moment when the reserve is favorable.",
+      "attackPath": "Operator calls `chargeFee` repeatedly; each call wraps only if the account has USDC. Operators could avoid charging until desired.",
+      "impact": "Minor; only relayer/keeper economics. Not fund loss.",
+      "recommendation": "N/A (drop if not actionable)."
+    },
+    {
+      "title": "_raiseKeeperFee in MultiInvoker withdraws from market without checking withdraw succeeded or remaining fee",
+      "severity": "Medium",
+      "file": "MultiInvoker.sol",
+      "function": "_raiseKeeperFee()",
+      "description": "`_raiseKeeperFee` decodes `(account, market, fee)`, computes `raisedKeeperFee = UFixed6Lib.from(keeperFee, true).min(fee)`, calls `_marketWithdraw(market, account, raisedKeeperFee)` which invokes `market.update` with a negative collateral delta, and returns `UFixed18Lib.from(raisedKeeperFee)`. The return value is assumed to be the amount actually pulled. But `market.update` may charge socialization / settlement losses causing less to actually be received, or the account's collateral may be insufficient and the update may revert. If the update succeeds but harvest does not yield the full `raisedKeeperFee` (e.g., because collateral gets applied to loss), the return value overstates what was transferred, and the Kept base may transfer more DSU than was pulled. Given the account has an approved DSU balance via `_deposit`, this could draw from account's DSU—but the account is not the msg.sender.",
+      "attackPath": "Keeper executes an order whose account is under-water; the market withdraw may revert. If it doesn't revert but returns less due to fees, the returned amount is wrong (should match actual DSU balance delta).",
+      "impact": "Keeper reward accounting mismatch; potentially keeper receives more DSU than withdrawn, drawing from MultiInvoker's own DSU balance (which belongs to other users' claimable fees) → cross-account theft.",
+      "recommendation": "Measure actual DSU balance delta across `_marketWithdraw` and return `min(delta, fee)`."
+    },
+    {
+      "title": "Trigger order execution skips order update/settlement accounting after possibly-failing canExecute re-read",
+      "severity": "Medium",
+      "file": "Manager.sol",
+      "function": "executeOrder()",
+      "description": "`executeOrder` re-reads the stored order via `checkOrder`, charges the interface fee with `_chargeInterfaceFee`, then calls `order.execute(market, account)` which internally calls `market.settle(account)` and `market.update(...)`. However `order.maxFee` used for keeper compensation and `order.interfaceFee` used for the interface-fee charge are read from the same in-memory copy, but the order is not marked `isSpent` until after `order.execute` succeeds. If `market.update` reverts, the whole tx reverts, so no double-spend there. The concrete problem: `_chargeInterfaceFee` computes `feeAmount` from `order.notionalValue(market, account)` which reads `market.oracle().latest()` *before* `market.settle(account)` runs inside `order.execute`. The market may have a pending (unsettled) position for the account, so `notionalValue` (via `_position` which does `market.positions` + `market.pendings`) uses pending data, but the fee is deducted by `controller.chargeFee(account, feeAmount)` from the collateral account. Because the actual executed delta matches `order.delta`, this is minor, but if the account's oracle version is stale or the price updates between the two reads, the percentage-based interface fee can be computed against a different notional than the actual order.",
+      "attackPath": "A user places a trigger order with a percentage `interfaceFee`, then leaves a large pending order (or the oracle advances) such that `notionalValue` called by `_chargeInterfaceFee` reads a price/size different from the executed order, shifting the fee paid.",
+      "impact": "Interface/keeper fee mispricing; small over/under-charge relative to intended notional-based fee.",
+      "recommendation": "Compute the interface fee from the same post-settle position/price used for execution, e.g. settle first, then compute the fee."
+    },
+    {
+      "title": "checkOrder invoked inside executeOrder does not re-verify market/oracle validity, allowing stale-price execution",
+      "severity": "Medium",
+      "file": "Manager.sol",
+      "function": "executeOrder()",
+      "description": "`executeOrder` calls `checkOrder`, which calls `order.canExecute(market.oracle().latest())`. `canExecute` only checks `latestVersion.valid` and compares `latestVersion.price` to `self.price`. It does not check `staleAfter`, and after this check the actual update goes through `market.update` which enforces staleness against `context.currentTimestamp - context.latestOracleVersion.timestamp`. If the market update would revert on stale price the tx reverts — no fund loss. The real gap: `canExecute` reads `market.oracle().latest()` (the oracle's own latest) while `market.settle`/`market.update` uses `context.latestOracleVersion` — the market's version pointer. If the oracle has advanced to a version the market hasn't yet been settled to (market settlement lags oracle), the trigger can be considered executable on a price the market hasn't consumed, then executes at the market's (older) price. The keeper is still compensated.",
+      "attackPath": "During periods where the oracle reports a new version but the market's latest version is behind, a keeper executes a trigger order that triggers on the oracle's latest price while the market trades against the older version.",
+      "impact": "Trigger executes at a price inconsistent with the trigger condition from the market's perspective; keeper compensation paid for what is effectively the wrong trigger evaluation.",
+      "recommendation": "Use `market.settle`'s actual latest oracle version for the `canExecute` check, or settle before evaluating the trigger."
+    },
+    {
+      "title": "`GuaranteeLib.from` omits `notional` from `GuaranteeStorageGlobalLib.validate`, allowing storage write to truncate negative/overflow values but only for local paths",
+      "severity": "Medium",
+      "file": "Guarantee.sol",
+      "function": "store()",
+      "description": "`GuaranteeStorageGlobalLib.store` calls `GuaranteeStorageLib.validate(newValue)`, which checks `orders`, `longPos`, `longNeg`, `shortPos`, `shortNeg`, `takerFee`, `orderReferral` bounds, but does NOT check `solverReferral` (a `uint64`) or `notional` (a `Fixed6`). The read code for global guarantee returns `Fixed6Lib.ZERO` for `notional` and `UFixed6Lib.ZERO` for `solverReferral`, so the missing checks are consistent with what is stored. However, `GuaranteeStorageLocalLib.store` calls the same `validate` and then separately checks `notional` and `solverReferral` bounds — but a `Guarantee` accumulated via `GuaranteeLib.add` from many local guarantees can overflow `guarantee.orders` (uint256) or `solverReferral` (summed as UFixed6) after `add`, and its subsequent `store` will silently revert via `validate`. The root concern: `validate` doesn't bound `notional` or `solverReferral`, forcing every call site to remember. A missed additional bound check would silently truncate via the encoding (the bit shift masks upper bits).",
+      "attackPath": "A user places many orders with large `takerReferral` values; the aggregated `solverReferral`/`notional` exceed `uint64`/`int64`. Local `store` reverts, blocking further updates for that account in the checkpointed block.",
+      "impact": "Account's order processing reverts deterministically, potentially a DoS of the account's position updates for the pending checkpoint.",
+      "recommendation": "Move `notional` and `solverReferral` bounds checks into `GuaranteeStorageLib.validate` so every `store` path is covered, and check `add` results before persisting."
+    },
+    {
+      "title": "SolverVault.updateCoordinator disables/claims signer without updating only on both success",
+      "severity": "Medium",
+      "file": "SolverVault.sol",
+      "function": "updateCoordinator()",
+      "description": "The override first calls `marketFactory.updateSigner(coordinator, false)` then `updateSigner(newCoordinator, true)`, then sets `coordinator`. If the old coordinator address is `address(0)` or the new coordinator equals the old coordinator, or if the second call reverts, the first revoke has already executed. More importantly, when `newCoordinator == coordinator`, it revokes then re-enables — acceptable — but when old `coordinator` is also the owner's signer used for other things, it revokes it globally. Also this runs even if the second call reverts, leaving the vault without a signer-enabled coordinator.",
+      "attackPath": "Owner calls `updateCoordinator` with a `newCoordinator` that causes `updateSigner` to revert on the enable path (e.g., invalid address); the disable of the old coordinator completes first, leaving the vault unable to operate signatures.",
+      "impact": "Vault can be left without an authorized signer, breaking operations that depend on coordinator signatures until owner fixes it.",
+      "recommendation": "Set state and enable the new signer before revoking the old one, or wrap in a single call and re-check."
+    },
+    {
+      "title": "update(address,Fixed6,address) lets msg.sender sign on behalf of account via authorization depending on factory",
+      "severity": "Low",
+      "file": "Market.sol",
+      "function": "update(address,Fixed6,address)",
+      "description": "`_updateMarket(account, msg.sender, Fixed6Lib.ZERO, amount, Fixed6Lib.ZERO, referrer)` passes msg.sender as the signer, relying on `IMarketFactory.authorization(account, msg.sender, signer, referrer)` to reject unauthorized calls. That authorization contract is not in scope here, so this is flagged only if the factory does not enforce that signer==msg.sender must be an approved operator/signer; otherwise anyone can open positions against any account.",
+      "attackPath": "Attacker calls `update(victim, amount, referrer)`; if `authorization` doesn't check msg.sender against operators/signers for `account`, a position is opened on the victim's account.",
+      "impact": "Unauthorized position/taker exposure attributed to victim.",
+      "recommendation": "Confirm the factory `authorization` returns operator/signer only for approved msg.sender or require `signer == msg.sender` be verified here too, e.g. explicit check that msg.sender is `account` or an operator."
+    },
+    {
+      "title": "_updateMarket update(address,Fixed6,Fixed6,Fixed6,address) passes address(0) signer with no auth check in Market",
+      "severity": "Low",
+      "file": "Market.sol",
+      "function": "update(address,Fixed6,Fixed6,Fixed6,address)",
+      "description": "This overload calls `_updateMarket(account, address(0), makerAmount, takerAmount, collateral, referrer)`, i.e., signer is the zero address. `_loadUpdateContext` then calls `factory().authorization(context.account, msg.sender, signer, orderReferrer)` with signer=address(0). Whether msg.sender is allowed to act for `account` hinges entirely on `authorization`'s handling of a zero signer. If the factory treats \"no signer\" as \"no-check\", any caller could update any account's maker/taker/collateral, including withdrawing collateral.",
+      "attackPath": "Attacker calls `update(victim, maker, taker, negativeCollateral, referrer)`; collateral is pushed to msg.sender on negative sign via `token.push(msg.sender, ...)` in `_update`. If authorization permits, attacker drains victim collateral.",
+      "impact": "Potential theft of a victim's collateral and unauthorized position changes.",
+      "recommendation": "Ensure `authorization` explicitly requires msg.sender to be the account or an operator/signer of the account when signer == address(0); otherwise enforce it in Market."
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "totals": {
+    "lab-1": {
+      "known_findings": 105,
+      "hypotheses": 282,
+      "strict_top15": 10,
+      "strict_top30": 12,
+      "strict_all": 12,
+      "one_judge_top30": 27,
+      "one_judge_all": 32,
+      "strict_easy": 12,
+      "strict_middle": 0,
+      "strict_hard": 0
+    },
+    "lab-2": {
+      "known_findings": 105,
+      "hypotheses": 324,
+      "strict_top15": 12,
+      "strict_top30": 15,
+      "strict_all": 16,
+      "one_judge_top30": 27,
+      "one_judge_all": 29,
+      "strict_easy": 16,
+      "strict_middle": 0,
+      "strict_hard": 0
+    }
+  }
+}
