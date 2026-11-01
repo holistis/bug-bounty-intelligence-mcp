@@ -1,0 +1,5 @@
+{
+ "detected": true,
+ "reasoning": "Yes. The audit report’s finding “Zero-balance share entries accumulate until reward distribution exceeds gas limits” matches the described vulnerability exactly. Both cite Cred._updateCuratorShareBalance leaving zero-balance entries in the EnumerableMap (shareBalance), causing the per-cred map to grow monotonically and forcing _getCuratorData/getCuratorAddresses and CuratorRewardsDistributor.distribute to iterate over an ever-increasing set, leading to gas exhaustion/DoS. The attack pattern (cycling new addresses to bloat entries) and the fix (remove the key when balance reaches zero) are the same. Evidence pointers in the audit reference the same code paths (Cred._updateCuratorShareBalance, _getCuratorData, CuratorRewardsDistributor.distribute) discussed in the description, so fixing it in the report would fix the described issue.",
+ "cost_usd": 0.01532325
+}

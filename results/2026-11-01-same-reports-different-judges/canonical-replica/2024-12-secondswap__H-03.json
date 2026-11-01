@@ -1,0 +1,5 @@
+{
+ "detected": true,
+ "reasoning": "Yes. The audit’s finding “Transferring partially claimed vesting inflates the grantor’s future claims” is the same issue. It pinpoints StepVesting.transferVesting recalculating the grantor’s releaseRate as totalAmount/numOfSteps without accounting for amountClaimed or stepsClaimed, allowing the sender (grantor) to claim more than legitimately remaining. This matches the vulnerability description’s mechanism, code path, impact, and would be fixed by recalculating releaseRate based on remaining amount and remaining steps ((total-claimed)/(numSteps-stepsClaimed)).",
+ "cost_usd": 0.01797925
+}

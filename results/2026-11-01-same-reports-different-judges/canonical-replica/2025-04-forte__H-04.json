@@ -1,0 +1,5 @@
+{
+ "detected": true,
+ "reasoning": "Yes. The audit report’s finding “Equality comparisons depend on packed representation rather than numeric value” explicitly states that Float128.eq compares the raw packed words, so two numerically equal values with different M/L encodings are deemed unequal. It cites eq (line 1070) and gives the same scenario (M vs L representations of 1). This is the same root cause, same function/code path, and same fix direction (normalize/compare numeric value rather than raw bits) as the described H-04 issue about eq failing due to the L_MANTISSA_FLAG.",
+ "cost_usd": 0.015158
+}

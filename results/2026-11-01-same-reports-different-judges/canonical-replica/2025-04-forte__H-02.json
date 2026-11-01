@@ -1,0 +1,5 @@
+{
+ "detected": true,
+ "reasoning": "Yes. The audit report explicitly flags the same issue: in Float128.sqrt, passing zero executes the EVM STOP opcode, which terminates the enclosing call instead of returning 0. This matches the described vulnerability in function, mechanism (STOP on zero), impact (silent termination/logic bypass), and fix (return 0 instead of STOP). Evidence pointer also references the same code location.",
+ "cost_usd": 0.0103955
+}

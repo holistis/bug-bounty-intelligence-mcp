@@ -1,0 +1,5 @@
+{
+ "detected": true,
+ "reasoning": "Yes. The audit’s “Basefee calculation repeatedly credits the same L1-block issuance interval” is the same issue as the described “[H-01] Gas issuance is inflated and will halt the chain or lead to incorrect base fee.” Both point to TaikoL2.anchor/_calc1559BaseFee using lastSyncedBlock (only updated after a 5-block threshold) so each anchor subtracts issuance for (_l1BlockId - lastSyncedBlock) repeatedly before lastSyncedBlock advances, inflating issuance and deflating basefee. Evidence points to the same functions/lines in TaikoL2.sol. Fixing the repeated issuance/lastSyncedBlock logic would fix both. The impact wording differs (halt vs underpriced basefee), but the root cause and code path are identical.",
+ "cost_usd": 0.0347325
+}

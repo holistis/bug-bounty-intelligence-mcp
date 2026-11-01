@@ -1,0 +1,248 @@
+{
+  "perAudit": [
+    {
+      "audit": "2023-10-nextgen",
+      "known": 2,
+      "theirScore": 2,
+      "replica": 2,
+      "sameVerdict": 2
+    },
+    {
+      "audit": "2024-01-renft",
+      "known": 6,
+      "theirScore": 6,
+      "replica": 6,
+      "sameVerdict": 6
+    },
+    {
+      "audit": "2024-03-taiko",
+      "known": 5,
+      "theirScore": 4,
+      "replica": 4,
+      "sameVerdict": 5
+    },
+    {
+      "audit": "2024-06-size",
+      "known": 4,
+      "theirScore": 3,
+      "replica": 3,
+      "sameVerdict": 4
+    },
+    {
+      "audit": "2024-08-phi",
+      "known": 6,
+      "theirScore": 4,
+      "replica": 3,
+      "sameVerdict": 5
+    },
+    {
+      "audit": "2024-12-secondswap",
+      "known": 3,
+      "theirScore": 3,
+      "replica": 3,
+      "sameVerdict": 3
+    },
+    {
+      "audit": "2025-04-forte",
+      "known": 5,
+      "theirScore": 4,
+      "replica": 4,
+      "sameVerdict": 5
+    }
+  ],
+  "perFinding": [
+    {
+      "audit": "2023-10-nextgen",
+      "finding": "H-01",
+      "replica": true,
+      "theirGrader": true
+    },
+    {
+      "audit": "2023-10-nextgen",
+      "finding": "H-02",
+      "replica": true,
+      "theirGrader": true
+    },
+    {
+      "audit": "2024-01-renft",
+      "finding": "H-01",
+      "replica": true,
+      "theirGrader": true
+    },
+    {
+      "audit": "2024-01-renft",
+      "finding": "H-02",
+      "replica": true,
+      "theirGrader": true
+    },
+    {
+      "audit": "2024-01-renft",
+      "finding": "H-03",
+      "replica": true,
+      "theirGrader": true
+    },
+    {
+      "audit": "2024-01-renft",
+      "finding": "H-05",
+      "replica": true,
+      "theirGrader": true
+    },
+    {
+      "audit": "2024-01-renft",
+      "finding": "H-06",
+      "replica": true,
+      "theirGrader": true
+    },
+    {
+      "audit": "2024-01-renft",
+      "finding": "H-07",
+      "replica": true,
+      "theirGrader": true
+    },
+    {
+      "audit": "2024-03-taiko",
+      "finding": "H-01",
+      "replica": true,
+      "theirGrader": true
+    },
+    {
+      "audit": "2024-03-taiko",
+      "finding": "H-02",
+      "replica": false,
+      "theirGrader": false
+    },
+    {
+      "audit": "2024-03-taiko",
+      "finding": "H-03",
+      "replica": true,
+      "theirGrader": true
+    },
+    {
+      "audit": "2024-03-taiko",
+      "finding": "H-04",
+      "replica": true,
+      "theirGrader": true
+    },
+    {
+      "audit": "2024-03-taiko",
+      "finding": "H-05",
+      "replica": true,
+      "theirGrader": true
+    },
+    {
+      "audit": "2024-06-size",
+      "finding": "H-01",
+      "replica": true,
+      "theirGrader": true
+    },
+    {
+      "audit": "2024-06-size",
+      "finding": "H-02",
+      "replica": false,
+      "theirGrader": false
+    },
+    {
+      "audit": "2024-06-size",
+      "finding": "H-03",
+      "replica": true,
+      "theirGrader": true
+    },
+    {
+      "audit": "2024-06-size",
+      "finding": "H-04",
+      "replica": true,
+      "theirGrader": true
+    },
+    {
+      "audit": "2024-08-phi",
+      "finding": "H-01",
+      "replica": true,
+      "theirGrader": true
+    },
+    {
+      "audit": "2024-08-phi",
+      "finding": "H-02",
+      "replica": true,
+      "theirGrader": true
+    },
+    {
+      "audit": "2024-08-phi",
+      "finding": "H-03",
+      "replica": true,
+      "theirGrader": true
+    },
+    {
+      "audit": "2024-08-phi",
+      "finding": "H-04",
+      "replica": false,
+      "theirGrader": false
+    },
+    {
+      "audit": "2024-08-phi",
+      "finding": "H-06",
+      "replica": false,
+      "theirGrader": true
+    },
+    {
+      "audit": "2024-08-phi",
+      "finding": "H-07",
+      "replica": false,
+      "theirGrader": false
+    },
+    {
+      "audit": "2024-12-secondswap",
+      "finding": "H-01",
+      "replica": true,
+      "theirGrader": true
+    },
+    {
+      "audit": "2024-12-secondswap",
+      "finding": "H-02",
+      "replica": true,
+      "theirGrader": true
+    },
+    {
+      "audit": "2024-12-secondswap",
+      "finding": "H-03",
+      "replica": true,
+      "theirGrader": true
+    },
+    {
+      "audit": "2025-04-forte",
+      "finding": "H-01",
+      "replica": true,
+      "theirGrader": true
+    },
+    {
+      "audit": "2025-04-forte",
+      "finding": "H-02",
+      "replica": true,
+      "theirGrader": true
+    },
+    {
+      "audit": "2025-04-forte",
+      "finding": "H-03",
+      "replica": true,
+      "theirGrader": true
+    },
+    {
+      "audit": "2025-04-forte",
+      "finding": "H-04",
+      "replica": true,
+      "theirGrader": true
+    },
+    {
+      "audit": "2025-04-forte",
+      "finding": "H-05",
+      "replica": false,
+      "theirGrader": false
+    }
+  ],
+  "totals": {
+    "audits": 7,
+    "known": 31,
+    "theirScore": 26,
+    "replica": 25,
+    "sameVerdict": 30
+  }
+}

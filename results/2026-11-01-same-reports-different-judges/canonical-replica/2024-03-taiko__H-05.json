@@ -1,0 +1,5 @@
+{
+ "detected": true,
+ "reasoning": "Yes. The audit contains “Withdrawal signature can be replayed against future unlocked grant tranches,” explicitly referencing TimelockTokenPool.withdraw and explaining the lack of nonce/amount/deadline/domain in the signed message. This is the same replay vulnerability as described: signatures for withdraw() can be reused to withdraw later-unlocked tokens beyond the user’s original intent. Same root cause (missing replay protection), same code path (TimelockTokenPool.withdraw), and same fix (add nonce/amount/deadline/domain binding).",
+ "cost_usd": 0.0097385
+}

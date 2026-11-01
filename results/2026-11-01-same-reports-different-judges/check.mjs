@@ -64,6 +64,28 @@ if (fs.existsSync(path.join(HERE, 'table-control.json'))) {
   console.log(`control on the raw report file, ${ctl.rows.length} audits, ${k} known findings: gpt-oss ${a} (our rendering: ${ma}), codestral ${b} (${mb}), both ${both} (${mboth})`)
 }
 
+if (fs.existsSync(path.join(HERE, 'table-canonical.json'))) {
+  // The copy of the benchmark's own grader (gpt-5, reasoning high) on the raw reports of 7 audits, against the grader answers kept in their run logs.
+  const tc = JSON.parse(fs.readFileSync(path.join(HERE, 'table-canonical.json'), 'utf8'))
+  const calc = {}
+  let files = 0
+  for (const f of fs.readdirSync(path.join(HERE, 'canonical-replica')).filter((x) => x.endsWith('.json')).sort()) {
+    const [audit, id] = f.replace('.json', '').split('__')
+    calc[audit + '__' + id] = JSON.parse(fs.readFileSync(path.join(HERE, 'canonical-replica', f), 'utf8')).detected
+    files++
+  }
+  if (files !== tc.perFinding.length) fail('number of canonical-replica files')
+  let replica = 0, theirs = 0, same = 0
+  for (const r of tc.perFinding) {
+    const v = calc[r.audit + '__' + r.finding]
+    if (typeof v !== 'boolean' || v !== r.replica) fail('canonical ' + r.audit + ' ' + r.finding + ': file says ' + v + ', table says ' + r.replica)
+    replica += r.replica ? 1 : 0; theirs += r.theirGrader ? 1 : 0; same += r.replica === r.theirGrader ? 1 : 0
+  }
+  const t = tc.totals
+  if (replica !== t.replica || theirs !== t.theirScore || same !== t.sameVerdict || tc.perFinding.length !== t.known) fail('canonical totals')
+  console.log('copy of the benchmark grader on ' + t.audits + ' audits, ' + t.known + ' known findings: replica ' + replica + ', their grader ' + theirs + ', the same verdict on ' + same + ' of ' + t.known + ' findings')
+}
+
 const argClone = process.argv[2]
 if (argClone) {
   const tsv = Object.fromEntries(fs.readFileSync(path.join(argClone, 'RESULTS.tsv'), 'utf8').split(/\r?\n/).slice(1).filter(Boolean).map((r) => { const [a, s, m] = r.split('\t'); return [a, [Number(s), Number(m)]] }))
@@ -71,6 +93,10 @@ if (argClone) {
   for (const r of table) if (!tsv[r.audit] || tsv[r.audit][0] !== r.theirScore || tsv[r.audit][1] !== r.known) fail(`${r.audit}: RESULTS.tsv says ${tsv[r.audit]}, table says ${r.theirScore} of ${r.known}`)
   for (const [, [s]] of Object.entries(tsv)) theirAll += s
   console.log(`RESULTS.tsv of the clone: ${theirAll} in all ${Object.keys(tsv).length} audits`)
+  if (fs.existsSync(path.join(HERE, 'table-canonical.json'))) {
+    const tc = JSON.parse(fs.readFileSync(path.join(HERE, 'table-canonical.json'), 'utf8'))
+    for (const a of tc.perAudit) if (!tsv[a.audit] || tsv[a.audit][0] !== a.theirScore || tsv[a.audit][1] !== a.known) fail('canonical ' + a.audit + ': RESULTS.tsv says ' + tsv[a.audit] + ', table says ' + a.theirScore + ' of ' + a.known)
+  }
 }
 console.log(bad === 0 ? 'every count matches the verdict files' : `${bad} mismatches`)
 process.exit(bad === 0 ? 0 : 1)

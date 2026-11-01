@@ -1,0 +1,5 @@
+{
+ "detected": true,
+ "reasoning": "Yes. The audit’s finding “Merged vesting transfers discard the source schedule progress” is the same vulnerability. Both describe a logic error in StepVesting._createVesting/transferVesting whereby, once a recipient (Marketplace custody or a buyer) has any vesting record, merges ignore the transferred allocation’s _stepsClaimed and instead use only the recipient’s existing stepsClaimed. This causes the recipient’s/buyer’s claimable amount to depend on listing/transfer order (first incoming transfer sets the baseline stepsClaimed; subsequent merges inherit that and discard the source’s progress), letting buyers overclaim or underclaim based on order. The code path and fix are the same (correctly account for source steps when merging or redesign aggregation), so fixing the audit’s issue would fix the described problem.",
+ "cost_usd": 0.03789875
+}

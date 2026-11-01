@@ -1,0 +1,5 @@
+{
+ "detected": true,
+ "reasoning": "Yes. The audit report’s finding “Art creation signature does not bind artist, payout, or edition configuration” (High) is the same vulnerability as H-02. Both identify that PhiFactory.createArt validates only (expiry, URI, credData), does not bind CreateConfig (artist/receiver/etc.) nor the executor, and lacks nonce/digest consumption. This allows an attacker to frontrun/replay a valid signature with attacker-chosen CreateConfig to set themselves as artist/royalty recipient and steal royalties; the audit even notes the same replay aspect and control over update rights. The code path (PhiFactory.createArt, _validateArtCreationSignature) matches, and fixes (bind config and submitter and add nonce) would address both. Therefore the report detected the described issue.",
+ "cost_usd": 0.0232745
+}

@@ -1,0 +1,5 @@
+{
+ "detected": false,
+ "reasoning": "Not detected. The report’s closest item is “Top-tier override rewards are transferred to a non-withdrawable guardian prover,” which flags that rewards paid to GuardianProver become stranded due to no withdrawal path. The submitted vulnerability, however, centers on wrongful slashing of earlier validity/contest bonds when a proof is overridden and the ultimately correct transition is later verified (history not preserved, ts overwritten, refund path only for liveness bonds, and final bond returns sent to the last prover). Fixes differ: adding a withdrawal or redirecting the guardian reward does not address the core wrongful-slashing/incorrect bond accounting or the need to let guardians refund earlier validity/contest bonds. Therefore, the audit did not identify the same vulnerability, although it touches a related side effect (funds stuck in GuardianProver).",
+ "cost_usd": 0.04596725
+}

@@ -1,0 +1,5 @@
+{
+ "detected": false,
+ "reasoning": "Not detected. The described issue is a race condition between repay and liquidateWithReplacement caused by repay identifying a position only by ID (missing borrower check), allowing a user to repay after the borrower was replaced and thus overpay. The audit report contains no finding about liquidateWithReplacement or a borrower-binding in repay. The only repay-related item (“Downward scaling lets cash transfers and repayments settle for less than the requested amount”) concerns rounding in NonTransferrableScaledToken and underpayment, a different mechanism, code path, and fix. Therefore, the audit did not cover this vulnerability.",
+ "cost_usd": 0.0210855
+}

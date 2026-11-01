@@ -1,0 +1,5 @@
+{
+ "detected": true,
+ "reasoning": "Yes. The audit report’s finding “ERC20 assignment fee payer is not bound to the prover authorization” describes the same issue: a proposer can set BlockParams.coinbase to an arbitrary victim, and AssignmentHook.onBlockProposed uses safeTransferFrom(_meta.coinbase, ...) in the ERC20-fee branch, causing an unauthorized allowance spend by the victim. It cites the same code path (LibProposing.proposeBlock coinbase handling and AssignmentHook.onBlockProposed transferFrom). The mechanism, impact, and fix direction (binding coinbase to msg.sender or to the signed assignment) match the vulnerability description. Fixing the report’s issue would also fix the described vulnerability.",
+ "cost_usd": 0.01338975
+}

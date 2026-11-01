@@ -1,0 +1,5 @@
+{
+ "detected": true,
+ "reasoning": "Yes. The report’s issue “Safe-mint callback precedes per-address mint accounting” describes the same reentrancy in the same path: NextGenMinterContract.mint -> NextGenCore.mint -> ERC721._safeMint -> onERC721Received, where Core updates per-address mint counters only after the safeMint/receiver callback. This allows reentrant calls to observe stale mint counts and bypass maxCollectionPurchases, potentially minting the entire supply. The mechanism, functions involved, and fix (apply CEI/move accounting before external call) match the described vulnerability.",
+ "cost_usd": 0.02854375
+}

@@ -1,0 +1,5 @@
+{
+ "detected": true,
+ "reasoning": "Yes. The audit’s item “Exact-output sell-credit pricing undercharges the swap fee” describes the same bug: in sellCreditMarket with exactAmountIn=false (selling credit for a specific cash amount), AccountingLibrary.getCreditAmountIn computes fees as cashAmountOut * fee / PERCENT instead of charging on the grossed amount (i.e., dividing by PERCENT - swapFeePercent). It cites the same function/lines and mechanism, and fixing the fee formula there would fix the issue described in the vulnerability report.",
+ "cost_usd": 0.02148625
+}

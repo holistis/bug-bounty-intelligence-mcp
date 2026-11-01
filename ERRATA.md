@@ -2,6 +2,14 @@
 
 Every public statement of ours that turned out to be wrong or too strong, with the date, where it was said, what was wrong, how it was found, and what we did. Newest first. We keep the wrong wording quoted here instead of deleting it. If you find something that belongs on this list, open an issue on this repository and we add it with your name.
 
+## 1 November 2026, we said the benchmark's own grader was out of reach
+
+Where: results/2026-10-26-evmbench/README.md ("The one judge row is the closest we can offer to their way of counting"), the note "The ruler and the misses" on tokenizen.nl, 26 October 2026 ("the closest we can get to how the benchmark counts"), and the first version of results/2026-11-01-same-reports-different-judges/README.md ("We did not run the canonical grader's model").
+What the texts said: that one free judge was the closest we could get to how the benchmark counts, and that we could not run its grader.
+What was wrong: the grader of the EVMbench runner is gpt-5 with reasoning effort high (the default in evmbench/nano/runtime.py of openai/frontier-evals), and it can be called through OpenRouter for about 0.03 dollars per verdict. We assumed it was out of reach and had not read the benchmark's code for it.
+How found: while looking for a way to measure on the benchmark's own grader, we read evmbench/nano/runtime.py.
+What we did: ran a copy of the grader on the raw reports of 7 audits. It finds 25 of 31 known findings where their score is 26, with the same verdict on 30 of 31 findings (README section "The benchmark's own grader", folder canonical-replica/). The older sentences stay as written; this entry is the correction. Our own published runs were judged with our free judges and have not been judged again with the copy.
+
 ## 31 October 2026, a hash that no longer matched in the EVMbench results
 
 Where: results/2026-10-26-evmbench/SHA256SUMS, from 26 October until 31 October.

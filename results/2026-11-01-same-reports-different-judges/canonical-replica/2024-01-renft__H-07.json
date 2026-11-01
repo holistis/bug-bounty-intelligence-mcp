@@ -1,0 +1,5 @@
+{
+ "detected": true,
+ "reasoning": "Yes. The audit’s issue “Equal same-block partial fills share one rental order identifier” describes the same flaw: multiple partial fills of the same Seaport order can produce an identical RentalOrder hash (via Signer._deriveRentalOrderHash), Storage.addRentals increments balances twice under one orders[hash] boolean, and the first stop clears that flag so the second stop reverts (OrderDoesNotExist), leaving assets/accounting locked. It references the same code path (Create._rentFromZone, Signer._deriveRentalOrderHash, Storage.addRentals/removeRentals) and the same fix class (introduce a unique per-fill identifier/nonce or disallow partial orders) would resolve both. The scenario and impact match the user’s description of locking lender NFTs/ERC20 when partial fills are used.",
+ "cost_usd": 0.0263655
+}
