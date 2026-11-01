@@ -1,0 +1,5 @@
+{
+ "detected": true,
+ "reasoning": "Yes. The audit’s issue “Unsigned consideration tips are forwarded as indistinguishable rental items” describes the same flaw and attack: Seaport allows consideration “tipping” beyond totalOriginalConsiderationItems, the zone’s callback passes the full consideration array without indicating which items were original, and Create.validateOrder/recording accepts those items. An attacker can append a malicious ERC20 to the consideration that later reverts during settlement/stop, preventing rental termination and locking assets. This matches the reported vulnerability’s mechanism, code path (Seaport order hash derivation ignoring tips; ZoneParameters lacking original count; Create.validateOrder converting callback data), and impact (locking rented assets). A fix that binds or rejects extra consideration items (or otherwise disallows tipping) would resolve both.",
+ "cost_usd": 0.02890875
+}

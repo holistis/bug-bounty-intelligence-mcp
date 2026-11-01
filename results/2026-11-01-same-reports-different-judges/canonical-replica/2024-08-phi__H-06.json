@@ -1,0 +1,5 @@
+{
+ "detected": false,
+ "reasoning": "No. The report’s reentrancy finding targets buyShareCred’s refund enabling reentry into sellShareCred to bypass the post-buy lock (lastTradeTimestamp written after refund). The described vulnerability hinges on reentering createCred during the initial buy (refund path) to overwrite creds[credIdCounter] (e.g., switch bonding curves) before the counter increments, then selling. It specifically involves createCred/_createCredInternal and the credIdCounter ordering, which the report does not mention. Fixes also differ: adding nonReentrant to createCred or changing createCred’s CEI/counter ordering is required for the described issue, while the report’s issue can be addressed by guarding/reordering the buy path. These are distinct code paths and attacks, so the report did not detect the same vulnerability.",
+ "cost_usd": 0.06523325
+}

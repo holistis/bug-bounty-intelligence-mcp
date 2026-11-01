@@ -1,0 +1,5 @@
+{
+ "detected": true,
+ "reasoning": "Yes. The audit’s “Merged vesting transfers discard the source schedule progress” finding describes the same flaw: when transferring vesting, StepVesting._createVesting ignores the source’s stepsClaimed and merges into the recipient using only the recipient’s existing stepsClaimed. Because VestingManager aggregates listings under one address, new buyers can inherit an old/low (often zero) stepsClaimed and immediately claim too many tokens. The code path and fix align with the description (VestingManager.listVesting -> StepVesting.transferVesting/_createVesting -> claimable), and fixing _createVesting to propagate the per-transfer stepsClaimed (or track per-allocation) would resolve both issues.",
+ "cost_usd": 0.0215505
+}

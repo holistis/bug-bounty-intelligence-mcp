@@ -1,0 +1,5 @@
+{
+ "detected": true,
+ "reasoning": "Yes. The audit’s item “Square-root normalization loses a factor of ten for large positive odd exponents” describes the same bug in Float128.sqrt’s 512-bit (Uint512) branch as the report: the exponent is halved after the 73→72 digit mantissa adjustment (+1 to rExp), so the +1 is truncated by integer division, yielding an off‑by‑one exponent (a 10x error). Both point to the same code path/lines in sqrt, the same order-of-operations flaw (digit adjustment before rExp halving), demonstrate a 10x-too-small result, and would be fixed by moving the rExp halving before the mantissa-digit adjustment. Fixing the audit’s issue fixes the described issue, so they are the same vulnerability.",
+ "cost_usd": 0.04165875
+}

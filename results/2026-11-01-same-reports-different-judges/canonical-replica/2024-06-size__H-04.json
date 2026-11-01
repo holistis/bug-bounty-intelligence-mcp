@@ -1,0 +1,5 @@
+{
+ "detected": true,
+ "reasoning": "Yes. The audit report’s finding “Liquidation reward cap uses borrow-token units as collateral-token units” describes the same bug as H-04. Both identify that in Liquidate.executeLiquidate the liquidator reward is computed using debtPosition.futureValue (borrow-token units, e.g., 6 decimals) while other terms are in collateral-token units (e.g., 18 decimals), causing the reward to be negligibly small and disincentivizing liquidations. Both occur in the profitable-liquidation branch of executeLiquidate and propose the same fix: compute the reward in collateral-token units (e.g., use debtInCollateralToken or convert via debtTokenAmountToCollateralTokenAmount). Fixing the report’s issue would fix H-04.",
+ "cost_usd": 0.01513425
+}

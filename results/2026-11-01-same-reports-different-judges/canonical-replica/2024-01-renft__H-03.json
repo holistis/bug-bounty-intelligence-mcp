@@ -1,0 +1,5 @@
+{
+ "detected": true,
+ "reasoning": "Yes. The report’s finding “Token callback can move a rental before its guard state is recorded” describes the same root cause and code path: Seaport transfers assets before the Create zone records the rental (Create._rentFromZone/Storage.addRentals), leaving a window where a callback can move the NFT out before the guard is active. The user’s writeup uses ERC1155 safeTransferFrom → onERC1155Received via a Safe fallback handler; the report’s example uses an ERC777 sender hook to trigger a Safe execTransaction. Despite different callback vectors, both exploit the same post-transfer, pre-registration gap in the restricted-order flow and would be fixed by the same remedy (register/lock before delivering assets or otherwise close that window). Thus, fixing the report’s issue would also fix the described ERC1155 hijack.",
+ "cost_usd": 0.04169925
+}

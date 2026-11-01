@@ -1,0 +1,5 @@
+{
+ "detected": true,
+ "reasoning": "Yes. The audit item “Logarithm omits non-positive input validation” describes the exact same issue: Ln.ln accepts zero and negative packed floats, ignores MANTISSA_SIGN_MASK, and computes ln(|x|) instead of reverting. It cites the same function and lines (Ln.sol ln at ~63), same mechanism (sign ignored; zero passes through ln_helper), same impact (domain error becomes a valid-looking value), and would be fixed by adding a positivity check/revert as proposed. Therefore, the audit detected the same vulnerability.",
+ "cost_usd": 0.0098055
+}

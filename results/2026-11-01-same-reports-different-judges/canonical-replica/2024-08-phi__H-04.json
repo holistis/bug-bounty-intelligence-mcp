@@ -1,0 +1,5 @@
+{
+ "detected": false,
+ "reasoning": "The reported issue is a time-window reopening bug: updateArtSettings forces endTime >= block.timestamp, while _validateAndUpdateClaimState only checks block.timestamp > endTime, allowing backrun mints exactly at endTime. The audit findings do not mention updateArtSettings, endTime handling, or the strict > vs >= check. Closest items address different flaws (e.g., quantity not bound, repeat claims), which amplify impact but are distinct root causes with different fixes. Fixing the audit’s issues would not fix the forced endTime reopening, and changing the time check/flow would not fix the quantity/replay issues. Therefore, the specific vulnerability was not detected.",
+ "cost_usd": 0.032622
+}

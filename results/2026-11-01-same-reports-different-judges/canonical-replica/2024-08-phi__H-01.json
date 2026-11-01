@@ -1,0 +1,5 @@
+{
+ "detected": true,
+ "reasoning": "Yes. The audit report explicitly includes “Signature claims authenticate but do not enforce the signed chain ID,” describing PhiFactory.signatureClaim decoding the chainId field but not checking it, allowing cross-chain signature replay when called directly. It references the same function (PhiFactory.signatureClaim) and mechanism (ignored chainId in signed data), and mentions the Claimable wrapper behavior—exactly matching the provided vulnerability description. Fixing the chainId enforcement in signatureClaim would resolve both issues.",
+ "cost_usd": 0.01826875
+}

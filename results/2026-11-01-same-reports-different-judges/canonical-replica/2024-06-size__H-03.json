@@ -1,0 +1,5 @@
+{
+ "detected": true,
+ "reasoning": "Yes. The audit’s issue “Overdue liquidation remainder cap double-counts repaid collateral” describes the same bug in Liquidate.executeLiquidate: the cap on the remaining collateral is incorrectly set to debtInCollateralToken * crLiquidation (effectively 130%) instead of only the surplus above debt (e.g., 30%), causing excess collateral/fees to be taken from healthy-but-overdue borrowers. This matches the report’s H-03 scenario and code path, and the proposed fix (using the surplus, e.g., crLiquidation - PERCENT, or equivalently threshold minus amounts already paid) would remediate both.",
+ "cost_usd": 0.03713925
+}

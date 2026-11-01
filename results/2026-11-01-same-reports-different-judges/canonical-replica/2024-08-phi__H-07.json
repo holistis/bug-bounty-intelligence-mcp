@@ -1,0 +1,5 @@
+{
+ "detected": false,
+ "reasoning": "Not detected. The described issue is broad: PhiFactory.updateArtSettings lets the artist arbitrarily change multiple critical post-mint parameters (URI, receiver, maxSupply, mintFee, start/end times, soulBounded, and royalties) without constraints, enabling toggling soulbound, arbitrary royalty hikes, and URL changes. The report’s closest item (“Uncapped royalty basis points can exceed the sale price”) is a narrower royalty-specific bug in CreatorRoyaltiesControl/PhiNFT1155.updateRoyalties that allows BPS > 10,000, leading to ERC-2981 DoS/overcharge. Fixing that (capping BPS to ≤10,000) would not address the broader unrestricted-update problem (soulBounded toggling, URI changes, etc.) nor the governance/timing limits implied in H‑07. Different scope/root cause and not the same fix, so it’s a different vulnerability.",
+ "cost_usd": 0.05024575
+}
