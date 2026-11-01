@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": false, \"reasoning\": \"The audit report describes a vulnerability in the NukeFund contract where approved NFT operators can receive the owner's nuke proceeds, while the described vulnerability is about the seller's airdrop benefits being reduced by burning or nuking a transferred token.\"}\n```",
+ "kosten": 0
+}

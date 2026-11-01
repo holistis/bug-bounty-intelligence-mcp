@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report contains a high‑severity finding titled “Equal same‑block partial fills share one rental order identifier” that describes identical RentalOrder hashes for partial fills causing assets to be locked, which matches the described vulnerability.\"}",
+ "kosten": 0.00038125
+}

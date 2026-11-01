@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a high severity issue stating that Float128.sqrt calls STOP for a zero input, terminating the call, which matches the described vulnerability.\"}",
+ "kosten": 0
+}

@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": false, \"reasoning\": \"The audit report describes a reentrancy vulnerability in the trade callbacks, while the vulnerability description discusses a honey pot attack on CurveSubjects, which are distinct issues.\"}\n```",
+ "kosten": 0
+}

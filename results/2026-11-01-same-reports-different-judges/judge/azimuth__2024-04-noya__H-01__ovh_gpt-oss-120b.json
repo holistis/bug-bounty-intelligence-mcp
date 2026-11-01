@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": false, \"reasoning\": \"The audit report lists numerous TVL and accounting bugs, but none describe the Chainlink oracle decimal mismatch issue for ETH/USD price routes, so the specific vulnerability was not detected.\"}",
+ "kosten": 0
+}

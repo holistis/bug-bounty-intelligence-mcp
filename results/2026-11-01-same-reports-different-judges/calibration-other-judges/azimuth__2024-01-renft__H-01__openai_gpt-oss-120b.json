@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a Medium issue titled 'Unsigned consideration tips are forwarded as indistinguishable rental items' that describes exactly the same flaw: extra consideration items (tips) can be added without affecting the order hash, allowing a malicious ERC20 that reverts on transfer to be injected and block rental stop, matching the described vulnerability.\"}",
+ "kosten": 0.0005547
+}

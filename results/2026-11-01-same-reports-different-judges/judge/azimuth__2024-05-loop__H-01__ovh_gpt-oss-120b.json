@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a low‑severity issue where direct ETH sent to the contract (via receive()) is not accounted for and can be claimed by lockers, matching the described deposit‑invariant bypass via ETH donation and claim.\"}",
+ "kosten": 0
+}

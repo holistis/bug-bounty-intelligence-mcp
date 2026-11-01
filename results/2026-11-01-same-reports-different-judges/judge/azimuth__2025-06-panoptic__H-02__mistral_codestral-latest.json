@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": false, \"reasoning\": \"The vulnerability description discusses NAV calculation inconsistency due to underlying token position in pool configuration, which is not mentioned in the audit report.\"}\n```",
+ "kosten": 0
+}

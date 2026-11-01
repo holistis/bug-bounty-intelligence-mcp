@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a high severity issue titled 'Missing reward-index checkpoint grants historical gauge profits to new voters' which describes the same flaw of userGaugeProfitIndex not being initialized, allowing attackers to claim rewards without waiting, matching the vulnerability description.\"}",
+ "kosten": 0
+}

@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": true, \"reasoning\": \"The audit report describes the same vulnerability as the description, as both involve the lack of clearing the lockerAddr in the erc721DecreaseIsolateSupplyOnLiquidate function, which allows users to deposit NFTs that were previously liquidated and are still locked.\"}\n```",
+ "kosten": 0
+}

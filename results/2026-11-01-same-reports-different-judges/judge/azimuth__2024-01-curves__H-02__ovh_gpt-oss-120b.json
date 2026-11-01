@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a high severity issue where Curve-token transfers allow repeated claims of historical holder fees because transfers do not trigger FeeSplitter balance updates, which is the same vulnerability described.\"}",
+ "kosten": 0
+}

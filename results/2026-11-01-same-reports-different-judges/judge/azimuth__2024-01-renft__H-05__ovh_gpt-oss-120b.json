@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a high‑severity issue where the rental order hash omits the rentalWallet, allowing an attacker to craft a RentalOrder with a different wallet that still matches the stored hash—exactly the flaw described in the vulnerability.\"}",
+ "kosten": 0
+}

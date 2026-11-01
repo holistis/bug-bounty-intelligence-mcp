@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a denial-of-service issue where zero-balance share entries accumulate and cause reward distribution to exceed gas limits, matching the described shareBalance bloating vulnerability.\"}",
+ "kosten": 0
+}

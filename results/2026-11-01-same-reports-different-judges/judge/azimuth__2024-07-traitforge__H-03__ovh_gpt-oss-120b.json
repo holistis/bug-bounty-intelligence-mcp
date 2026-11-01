@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": false, \"reasoning\": \"The audit report does not mention any issue with taxCut percentage calculations in NukeFund or EntityForging, so it did not detect the described vulnerability.\"}",
+ "kosten": 0
+}

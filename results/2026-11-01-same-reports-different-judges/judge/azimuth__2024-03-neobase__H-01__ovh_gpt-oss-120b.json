@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a medium severity finding titled 'Removed gauges permanently trap users' allocated voting power' in GaugeController.vote_for_gauge_weights, which describes exactly the loss of voting power after a gauge is removed, matching the described vulnerability.\"}",
+ "kosten": 0
+}

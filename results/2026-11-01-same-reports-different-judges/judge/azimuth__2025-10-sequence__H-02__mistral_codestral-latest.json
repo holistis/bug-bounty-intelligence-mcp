@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": false, \"reasoning\": \"The audit report describes a vulnerability in the session signature validation process, while the vulnerability description focuses on partial signature replay and frontrunning attacks on session calls.\"}\n```",
+ "kosten": 0
+}

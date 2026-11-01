@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": false, \"reasoning\": \"The vulnerability description discusses unrestricted changes to token settings, which is different from the audit report's findings about specific issues like replayed art creation or unpausable transfers.\"}",
+ "kosten": 0
+}

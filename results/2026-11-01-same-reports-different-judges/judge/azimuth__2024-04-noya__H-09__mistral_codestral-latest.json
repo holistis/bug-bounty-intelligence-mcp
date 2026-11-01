@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": false, \"reasoning\": \"The audit report describes a missing claimCollateral function in PrismaConnector, while the vulnerability description discusses the inability to claim surplus collateral in recovery mode. These are different vulnerabilities because they occur in different contracts and involve different mechanisms.\"}\n```",
+ "kosten": 0
+}

@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": true, \"reasoning\": \"The vulnerability description matches the audit report's finding on owner and manager modifiers not enforcing caller authorization, as both involve missing require or revert statements in modifiers.\"}\n```",
+ "kosten": 0
+}

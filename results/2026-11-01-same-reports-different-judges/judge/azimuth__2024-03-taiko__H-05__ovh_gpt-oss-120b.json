@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a medium severity issue titled 'Withdrawal signature can be replayed against future unlocked grant tranches' in TimelockTokenPool.sol withdraw, which matches the described replayable signature vulnerability.\"}",
+ "kosten": 0
+}

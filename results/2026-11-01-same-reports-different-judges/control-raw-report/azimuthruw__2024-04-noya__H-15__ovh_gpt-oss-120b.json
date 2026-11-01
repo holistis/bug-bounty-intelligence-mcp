@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a high‑severity accounting_error titled “Silo collateral and debt shares are valued as underlying token amounts,” which describes exactly the same flaw of treating Silo share tokens as if they were the underlying assets and summing collateralToken and collateralOnlyToken balances without conversion. This matches the vulnerability description, so it was detected.\"}",
+ "kosten": 0
+}

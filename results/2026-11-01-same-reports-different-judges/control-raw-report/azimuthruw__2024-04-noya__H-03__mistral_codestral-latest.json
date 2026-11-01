@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The vulnerability description matches the audit report's finding about the incorrect price calculation in NoyaValueOracle.getValue when using multi-token routes.\"}",
+ "kosten": 0
+}

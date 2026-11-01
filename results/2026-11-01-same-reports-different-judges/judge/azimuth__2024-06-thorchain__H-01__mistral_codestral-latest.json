@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": false, \"reasoning\": \"The vulnerability description does not match the audit content. The audit content does not describe a theft of funds from the vault or other users using a rebasing token like AMPL.\"}\n```",
+ "kosten": 0
+}

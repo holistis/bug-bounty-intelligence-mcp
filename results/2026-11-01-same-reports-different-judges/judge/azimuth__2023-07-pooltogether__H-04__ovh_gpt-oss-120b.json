@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a High severity issue titled 'Permissionless yield-fee minting allows arbitrary fee recipient' describing that anyone can call Vault.mintYieldFee with an arbitrary _recipient, matching the described vulnerability.\"}",
+ "kosten": 0
+}

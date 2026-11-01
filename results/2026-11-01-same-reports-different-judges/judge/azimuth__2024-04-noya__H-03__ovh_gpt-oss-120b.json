@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a high severity issue titled 'Multi-hop oracle routes repeatedly quote the original asset' in NoyaValueOracle.sol, which describes the same bug of using the original asset instead of the intermediate quoting token in multi‑token price routes, matching the described vulnerability.\"}",
+ "kosten": 0
+}

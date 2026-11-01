@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a high severity issue in transferVesting where the releaseRate is recomputed without considering already claimed steps, matching the described vulnerability of incorrect releaseRate calculation leading to extra token unlocks.\"}",
+ "kosten": 0
+}

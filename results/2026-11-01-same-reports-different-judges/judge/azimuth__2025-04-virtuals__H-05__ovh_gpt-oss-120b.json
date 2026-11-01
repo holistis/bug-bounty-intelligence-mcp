@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": false, \"reasoning\": \"The audit report lists issues about unrestricted validator registration and score inflation, but it does not mention the initialization of validator scores to total proposals via _initValidatorScore, which is the specific vulnerability described.\"}",
+ "kosten": 0
+}

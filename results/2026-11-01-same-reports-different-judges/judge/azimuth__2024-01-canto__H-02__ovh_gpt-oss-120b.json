@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a High severity issue where update_market uses `i + BLOCK_EPOCH` instead of aligning to the next epoch boundary, causing reward parameters to be applied across epoch boundaries—exactly the same flaw described in the vulnerability.\"}",
+ "kosten": 0
+}

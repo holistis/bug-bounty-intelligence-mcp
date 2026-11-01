@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a high‑severity logic error titled “Failed native transfers bounce to the vault but are emitted as completed recipient outbounds,” which describes exactly the issue of emitting a TransferOut event with the original ‘to’ address even when the ETH transfer fails and funds are returned to the vault.\"}",
+ "kosten": 0
+}

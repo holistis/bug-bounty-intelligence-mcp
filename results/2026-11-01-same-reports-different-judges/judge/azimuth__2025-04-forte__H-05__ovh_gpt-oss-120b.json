@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": false, \"reasoning\": \"The audit report lists many bugs in Float128, but none describe the precision‑loss issue in toPackedFloat caused by choosing M vs L format solely based on exponent without considering mantissa size, which is the vulnerability described.\"}",
+ "kosten": 0
+}

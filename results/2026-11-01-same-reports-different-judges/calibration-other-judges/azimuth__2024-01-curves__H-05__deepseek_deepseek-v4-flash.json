@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a finding that Security.onlyOwner and Security.onlyManager evaluate boolean comparisons without reverting, which is the same vulnerability as the description about malformed equate statements.\"}",
+ "kosten": 0.00036775
+}

@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a high‑severity logic_error titled 'Forced unwind operates on the bot's account instead of the position account', which describes exactly the bug where _unstake and _repay use msg.sender to fetch the yield account, causing botAdmin calls to fail. This matches the described vulnerability.\"}",
+ "kosten": 0
+}

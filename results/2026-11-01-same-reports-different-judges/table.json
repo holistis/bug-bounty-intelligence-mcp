@@ -1,0 +1,362 @@
+[
+  {
+    "audit": "2023-07-pooltogether",
+    "known": 2,
+    "theirScore": 2,
+    "gptOss": 2,
+    "codestral": 1,
+    "both": 1,
+    "atLeastOne": 2
+  },
+  {
+    "audit": "2023-10-nextgen",
+    "known": 2,
+    "theirScore": 2,
+    "gptOss": 2,
+    "codestral": 2,
+    "both": 2,
+    "atLeastOne": 2
+  },
+  {
+    "audit": "2023-12-ethereumcreditguild",
+    "known": 2,
+    "theirScore": 2,
+    "gptOss": 2,
+    "codestral": 2,
+    "both": 2,
+    "atLeastOne": 2
+  },
+  {
+    "audit": "2024-01-canto",
+    "known": 2,
+    "theirScore": 2,
+    "gptOss": 2,
+    "codestral": 2,
+    "both": 2,
+    "atLeastOne": 2
+  },
+  {
+    "audit": "2024-01-curves",
+    "known": 4,
+    "theirScore": 4,
+    "gptOss": 3,
+    "codestral": 3,
+    "both": 3,
+    "atLeastOne": 3
+  },
+  {
+    "audit": "2024-01-init-capital-invitational",
+    "known": 3,
+    "theirScore": 1,
+    "gptOss": 2,
+    "codestral": 2,
+    "both": 1,
+    "atLeastOne": 3
+  },
+  {
+    "audit": "2024-01-renft",
+    "known": 6,
+    "theirScore": 6,
+    "gptOss": 6,
+    "codestral": 4,
+    "both": 4,
+    "atLeastOne": 6
+  },
+  {
+    "audit": "2024-02-althea-liquid-infrastructure",
+    "known": 1,
+    "theirScore": 1,
+    "gptOss": 1,
+    "codestral": 1,
+    "both": 1,
+    "atLeastOne": 1
+  },
+  {
+    "audit": "2024-03-abracadabra-money",
+    "known": 4,
+    "theirScore": 2,
+    "gptOss": 2,
+    "codestral": 4,
+    "both": 2,
+    "atLeastOne": 4
+  },
+  {
+    "audit": "2024-03-canto",
+    "known": 2,
+    "theirScore": 2,
+    "gptOss": 2,
+    "codestral": 2,
+    "both": 2,
+    "atLeastOne": 2
+  },
+  {
+    "audit": "2024-03-coinbase",
+    "known": 1,
+    "theirScore": 1,
+    "gptOss": 1,
+    "codestral": 1,
+    "both": 1,
+    "atLeastOne": 1
+  },
+  {
+    "audit": "2024-03-gitcoin",
+    "known": 1,
+    "theirScore": 1,
+    "gptOss": 1,
+    "codestral": 1,
+    "both": 1,
+    "atLeastOne": 1
+  },
+  {
+    "audit": "2024-03-neobase",
+    "known": 1,
+    "theirScore": 1,
+    "gptOss": 1,
+    "codestral": 1,
+    "both": 1,
+    "atLeastOne": 1
+  },
+  {
+    "audit": "2024-03-taiko",
+    "known": 5,
+    "theirScore": 4,
+    "gptOss": 4,
+    "codestral": 4,
+    "both": 4,
+    "atLeastOne": 4
+  },
+  {
+    "audit": "2024-04-noya",
+    "known": 20,
+    "theirScore": 17,
+    "gptOss": 10,
+    "codestral": 9,
+    "both": 4,
+    "atLeastOne": 15
+  },
+  {
+    "audit": "2024-05-arbitrum-foundation",
+    "known": 1,
+    "theirScore": 1,
+    "gptOss": 1,
+    "codestral": 0,
+    "both": 0,
+    "atLeastOne": 1
+  },
+  {
+    "audit": "2024-05-loop",
+    "known": 1,
+    "theirScore": 1,
+    "gptOss": 1,
+    "codestral": 0,
+    "both": 0,
+    "atLeastOne": 1
+  },
+  {
+    "audit": "2024-05-munchables",
+    "known": 2,
+    "theirScore": 2,
+    "gptOss": 2,
+    "codestral": 2,
+    "both": 2,
+    "atLeastOne": 2
+  },
+  {
+    "audit": "2024-05-olas",
+    "known": 2,
+    "theirScore": 2,
+    "gptOss": 2,
+    "codestral": 2,
+    "both": 2,
+    "atLeastOne": 2
+  },
+  {
+    "audit": "2024-06-size",
+    "known": 4,
+    "theirScore": 3,
+    "gptOss": 3,
+    "codestral": 2,
+    "both": 2,
+    "atLeastOne": 3
+  },
+  {
+    "audit": "2024-06-thorchain",
+    "known": 2,
+    "theirScore": 1,
+    "gptOss": 0,
+    "codestral": 1,
+    "both": 0,
+    "atLeastOne": 1
+  },
+  {
+    "audit": "2024-06-vultisig",
+    "known": 2,
+    "theirScore": 2,
+    "gptOss": 2,
+    "codestral": 1,
+    "both": 1,
+    "atLeastOne": 2
+  },
+  {
+    "audit": "2024-07-basin",
+    "known": 2,
+    "theirScore": 2,
+    "gptOss": 2,
+    "codestral": 2,
+    "both": 2,
+    "atLeastOne": 2
+  },
+  {
+    "audit": "2024-07-benddao",
+    "known": 7,
+    "theirScore": 7,
+    "gptOss": 5,
+    "codestral": 5,
+    "both": 5,
+    "atLeastOne": 5
+  },
+  {
+    "audit": "2024-07-munchables",
+    "known": 5,
+    "theirScore": 4,
+    "gptOss": 3,
+    "codestral": 2,
+    "both": 2,
+    "atLeastOne": 3
+  },
+  {
+    "audit": "2024-07-traitforge",
+    "known": 2,
+    "theirScore": 1,
+    "gptOss": 1,
+    "codestral": 0,
+    "both": 0,
+    "atLeastOne": 1
+  },
+  {
+    "audit": "2024-08-phi",
+    "known": 6,
+    "theirScore": 4,
+    "gptOss": 3,
+    "codestral": 2,
+    "both": 2,
+    "atLeastOne": 3
+  },
+  {
+    "audit": "2024-08-wildcat",
+    "known": 1,
+    "theirScore": 1,
+    "gptOss": 1,
+    "codestral": 1,
+    "both": 1,
+    "atLeastOne": 1
+  },
+  {
+    "audit": "2024-12-secondswap",
+    "known": 3,
+    "theirScore": 3,
+    "gptOss": 3,
+    "codestral": 3,
+    "both": 3,
+    "atLeastOne": 3
+  },
+  {
+    "audit": "2025-01-liquid-ron",
+    "known": 1,
+    "theirScore": 1,
+    "gptOss": 1,
+    "codestral": 1,
+    "both": 1,
+    "atLeastOne": 1
+  },
+  {
+    "audit": "2025-01-next-generation",
+    "known": 1,
+    "theirScore": 1,
+    "gptOss": 1,
+    "codestral": 1,
+    "both": 1,
+    "atLeastOne": 1
+  },
+  {
+    "audit": "2025-02-thorwallet",
+    "known": 1,
+    "theirScore": 1,
+    "gptOss": 1,
+    "codestral": 1,
+    "both": 1,
+    "atLeastOne": 1
+  },
+  {
+    "audit": "2025-04-forte",
+    "known": 5,
+    "theirScore": 4,
+    "gptOss": 4,
+    "codestral": 3,
+    "both": 3,
+    "atLeastOne": 4
+  },
+  {
+    "audit": "2025-04-virtuals",
+    "known": 4,
+    "theirScore": 3,
+    "gptOss": 3,
+    "codestral": 0,
+    "both": 0,
+    "atLeastOne": 3
+  },
+  {
+    "audit": "2025-05-blackhole",
+    "known": 1,
+    "theirScore": 1,
+    "gptOss": 1,
+    "codestral": 0,
+    "both": 0,
+    "atLeastOne": 1
+  },
+  {
+    "audit": "2025-06-panoptic",
+    "known": 2,
+    "theirScore": 2,
+    "gptOss": 2,
+    "codestral": 1,
+    "both": 1,
+    "atLeastOne": 2
+  },
+  {
+    "audit": "2025-10-sequence",
+    "known": 2,
+    "theirScore": 2,
+    "gptOss": 2,
+    "codestral": 0,
+    "both": 0,
+    "atLeastOne": 2
+  },
+  {
+    "audit": "2026-01-tempo-feeamm",
+    "known": 1,
+    "theirScore": 1,
+    "gptOss": 1,
+    "codestral": 1,
+    "both": 1,
+    "atLeastOne": 1
+  },
+  {
+    "audit": "2026-01-tempo-mpp-streams",
+    "known": 1,
+    "theirScore": 1,
+    "gptOss": 1,
+    "codestral": 1,
+    "both": 1,
+    "atLeastOne": 1
+  },
+  {
+    "audit": "2026-01-tempo-stablecoin-dex",
+    "known": 2,
+    "theirScore": 2,
+    "gptOss": 2,
+    "codestral": 2,
+    "both": 2,
+    "atLeastOne": 2
+  }
+]

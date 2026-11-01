@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a Critical finding that emergencyWithdraw calls _processWithdrawal which uses unchecked subtraction without balance checks, allowing underflow and withdrawal beyond the caller's balance—the same issue described in the vulnerability.\"}",
+ "kosten": 0
+}

@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": false, \"reasoning\": \"The audit report flags denial‑of‑service via a token‑subject rejecting fee transfers, but the described honeypot exploits the referral fee destination call reverting on sells, a different code path and flaw not covered by the audit findings.\"}",
+ "kosten": 0
+}

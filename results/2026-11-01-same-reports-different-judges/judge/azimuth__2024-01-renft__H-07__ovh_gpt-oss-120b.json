@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a high‑severity issue where equal partial fills produce the same rental order hash, causing duplicate rentals to share one identifier and leading to locked assets—exactly the same flaw described in the vulnerability.\"}",
+ "kosten": 0
+}

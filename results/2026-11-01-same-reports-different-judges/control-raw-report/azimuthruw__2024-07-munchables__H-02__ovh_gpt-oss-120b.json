@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a high‑severity accounting_error titled 'Out-of-range plot check permits farming after collateral withdrawal' which describes exactly the same invalid validation in _farmPlots (using < instead of <=) that allows plotId 0 to be farmed after funds are unlocked, matching the described vulnerability.\"}",
+ "kosten": 0
+}

@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists high‑severity findings for AuctionDemo where claimAuction can be re‑entered via cancelBid (both for the winning bidder and for losing bidders) due to the same timestamp check, matching the described double‑refund/ETH‑drain issue.\"}",
+ "kosten": 0
+}

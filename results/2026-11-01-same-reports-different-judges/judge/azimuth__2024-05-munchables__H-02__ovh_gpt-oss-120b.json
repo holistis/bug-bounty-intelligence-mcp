@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a Medium severity issue titled 'Lock-duration update can move unlock time into the past' in LockManager.sol's setLockDuration function, which describes the same invalid validation that lets users reduce unlock time and unlock early, matching the described vulnerability.\"}",
+ "kosten": 0
+}

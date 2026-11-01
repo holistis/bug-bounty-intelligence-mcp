@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": true, \"reasoning\": \"The audit report describes a vulnerability in MagicLpAggregator._getReserves where fetched reserves are discarded, which is the same as the vulnerability described in the description.\"}\n```",
+ "kosten": 0
+}

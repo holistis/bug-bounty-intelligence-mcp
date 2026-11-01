@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a high‑severity validation bypass titled “Art creation signature does not bind artist, payout, or edition configuration\\\", which describes exactly the signature replay issue in PhiFactory.createArt that lets an attacker reuse a valid signature with their own CreateConfig to impersonate the artist and steal royalties.\"}",
+ "kosten": 0
+}

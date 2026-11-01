@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": false, \"reasoning\": \"The audit report describes a vulnerability in the sqrt function where the exponent adjustment occurs before the digit adjustment, while the vulnerability description describes a different issue in the same function where the digit adjustment occurs before the exponent adjustment.\"}\n```",
+ "kosten": 0
+}

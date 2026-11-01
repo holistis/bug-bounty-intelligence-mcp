@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\n  \"detected\": true,\n  \"reasoning\": \"The audit report describes the same vulnerability as the description, as both exploit the lack of binding between the signature and the CreateConfig parameters in the createArt function, allowing an attacker to impersonate the artist and steal royalties.\"\n}\n```",
+ "kosten": 0
+}

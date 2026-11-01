@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a finding titled 'Multi-hop oracle routes repeatedly quote the original asset' describing the same NoyaValueOracle._getValue bug where the asset is used instead of the quoting token in each hop, matching the described vulnerability.\"}",
+ "kosten": 0
+}

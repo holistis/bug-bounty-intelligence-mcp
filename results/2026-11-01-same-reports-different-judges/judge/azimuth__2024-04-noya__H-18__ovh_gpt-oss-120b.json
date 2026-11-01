@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a High severity issue titled 'Opening a Dolomite borrow account removes rather than registers its holding' which describes the same bug of using removePosition=true on openBorrowPosition, causing the holding never to be registered. This matches the described vulnerability.\"}",
+ "kosten": 0
+}

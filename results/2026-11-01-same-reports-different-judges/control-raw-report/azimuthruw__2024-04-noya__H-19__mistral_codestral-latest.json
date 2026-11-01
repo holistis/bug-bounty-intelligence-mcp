@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": true, \"reasoning\": \"The audit report describes the same vulnerability as the description, exploiting the same underlying issue of incorrect TVL calculation in the MorphoBlue connector due to decimal mismatches, incorrect borrow/subtract operations, and missing token updates.\"}\n```",
+ "kosten": 0
+}

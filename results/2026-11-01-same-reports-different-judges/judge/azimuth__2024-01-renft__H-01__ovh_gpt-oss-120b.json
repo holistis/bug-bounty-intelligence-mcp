@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report’s Medium finding about unsigned consideration tips being forwarded matches the described tipping exploit, both stem from the zone not validating extra consideration items and allowing malicious ERC20 tokens to lock rentals.\"}",
+ "kosten": 0
+}

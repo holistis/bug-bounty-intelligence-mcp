@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": false, \"reasoning\": \"The audit report lists a different access control issue (cross‑position order modification) but does not mention the lack of tokenOut validation in updateOrder, so it did not detect the described vulnerability.\"}",
+ "kosten": 0
+}

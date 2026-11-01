@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a medium severity issue titled \\\"Exact prelaunch spot-price equality permits permissionless launch denial\\\" affecting ILOManager.launch, which matches the described attack of manipulating the Uniswap pool price (including via single-sided liquidity) to cause the launch price check to revert, indicating the same vulnerability was detected.\"}",
+ "kosten": 0
+}

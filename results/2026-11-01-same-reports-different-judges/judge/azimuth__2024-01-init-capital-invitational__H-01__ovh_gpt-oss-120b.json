@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a High severity issue titled 'Missing order ownership check permits cross-position order modification' for MarginTradingHook.updateOrder, which matches the described vulnerability of lacking access control.\"}",
+ "kosten": 0
+}

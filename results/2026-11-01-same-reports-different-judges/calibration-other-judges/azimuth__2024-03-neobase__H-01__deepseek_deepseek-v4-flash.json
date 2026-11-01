@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report contains the finding 'Removed gauges permanently trap users' allocated voting power', which describes the same root cause and code path: after remove_gauge zeroes gauge_types_, vote_for_gauge_weights reverts zero-weight withdrawals due to the gauge_type >= 0 check, permanently trapping users' voting power.\"}",
+ "kosten": 0.000588861
+}

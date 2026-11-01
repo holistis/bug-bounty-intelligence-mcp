@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a High severity finding about the caller‑supplied domainSeparator enabling replay attacks in the Forwarder, which matches the described cross‑chain signature replay issue caused by a user‑controlled domainSeparator (and also notes missing deadline checks).\"}",
+ "kosten": 0
+}

@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": false, \"reasoning\": \"The audit report does not mention a vulnerability where the order creator can front‑run fillOrder by changing limitPrice_e36 to steal the executor's assets; it only lists other access‑control and logic issues unrelated to this specific limitPrice manipulation.\"}",
+ "kosten": 0
+}

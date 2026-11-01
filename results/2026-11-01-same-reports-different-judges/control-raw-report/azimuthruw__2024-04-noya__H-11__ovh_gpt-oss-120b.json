@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a high‑severity accounting_error titled “Synthetix minted USD debt is omitted from connector TVL,” which matches the described issue of SNXConnector’s TVL calculation ignoring minted SUSD debt and double‑counting assigned collateral.\"}",
+ "kosten": 0
+}

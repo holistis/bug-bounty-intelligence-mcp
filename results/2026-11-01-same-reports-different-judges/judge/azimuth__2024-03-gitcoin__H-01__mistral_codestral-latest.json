@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": true, \"reasoning\": \"The audit report describes the same vulnerability as the description, as both involve the userTotalStaked invariant being broken due to missing updates in the release function.\"}\n```",
+ "kosten": 0
+}

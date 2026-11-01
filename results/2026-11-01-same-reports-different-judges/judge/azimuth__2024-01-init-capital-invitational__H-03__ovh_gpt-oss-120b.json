@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit reports a missing order ownership check that lets anyone modify an existing order's parameters, including limitPrice_e36, which matches the described front‑run attack where the order creator changes limitPrice before fillOrder execution.\"}",
+ "kosten": 0
+}

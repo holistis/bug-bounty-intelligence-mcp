@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": false, \"reasoning\": \"The audit report does not mention the incorrect TransferOut event emission when an ETH transfer fails, so it did not detect this specific vulnerability.\"}",
+ "kosten": 0
+}

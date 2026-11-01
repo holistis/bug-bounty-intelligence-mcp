@@ -1,0 +1,11 @@
+{
+  "audits": 40,
+  "known": 117,
+  "gptOss": 89,
+  "codestral": 73,
+  "both": 64,
+  "atLeastOne": 98,
+  "theirScore": 101,
+  "unreadableVerdicts": 0,
+  "verdictFiles": 234
+}

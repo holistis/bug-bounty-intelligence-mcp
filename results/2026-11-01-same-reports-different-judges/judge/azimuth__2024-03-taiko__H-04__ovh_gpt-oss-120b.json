@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a High severity issue in LibProposing.proposeBlock where the ERC20 assignment fee payer is not bound to the proposer, matching the described vulnerability of forcing another address to pay the prover's fee.\"}",
+ "kosten": 0
+}

@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": true, \"reasoning\": \"The audit report describes the same vulnerability as the description, as it involves the incorrect calculation of the releaseRate in the transferVesting function, leading to the sender being able to unlock more tokens than initially locked.\"}\n```",
+ "kosten": 0
+}

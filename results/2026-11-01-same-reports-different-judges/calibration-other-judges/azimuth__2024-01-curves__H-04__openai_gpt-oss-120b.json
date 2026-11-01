@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a high‑severity issue titled 'Permissionless Curves rebinding allows forged fee claims' for FeeSplitter.setCurves, describing exactly the missing access control that lets anyone change the Curves reference and manipulate fee calculations, which matches the described unauthorized setCurves vulnerability.\"}",
+ "kosten": 0.00019851
+}

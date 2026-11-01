@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": true, \"reasoning\": \"The audit report describes the same vulnerability as the description, as both identify the missing authorization check in the cancel() function that allows anyone to cancel any order.\"}\n```",
+ "kosten": 0
+}

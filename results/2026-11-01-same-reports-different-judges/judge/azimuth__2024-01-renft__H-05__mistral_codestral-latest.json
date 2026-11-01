@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": true, \"reasoning\": \"The audit report describes the same vulnerability as the description, exploiting the same underlying security flaw and occurring in the same code path/function.\"}\n```",
+ "kosten": 0
+}

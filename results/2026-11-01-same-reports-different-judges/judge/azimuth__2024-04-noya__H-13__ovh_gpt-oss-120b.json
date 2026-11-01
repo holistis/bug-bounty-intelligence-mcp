@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a high severity finding that BalancerConnector._getPositionTVL misuses pool token weights, causing undervalued TVL, which matches the described vulnerability.\"}",
+ "kosten": 0
+}

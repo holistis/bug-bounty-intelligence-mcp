@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The vulnerability description and the audit report both describe the same issue: an isolate liquidation can be called by anyone, allowing them to take the collateral NFT token without bidding. Both involve the same code path and can be fixed by adding a check to ensure that msg.sender is the lastBidder.\"}",
+ "kosten": 0
+}

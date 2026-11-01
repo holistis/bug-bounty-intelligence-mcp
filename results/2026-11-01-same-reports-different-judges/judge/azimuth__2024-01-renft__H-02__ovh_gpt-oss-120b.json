@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a high‑severity issue in Guard.sol _checkTransaction stating that the fallback handler can be set without validation, allowing a rental Safe to originate token transfers, which matches the described missing validation on setFallbackHandler leading to token hijacking.\"}",
+ "kosten": 0
+}

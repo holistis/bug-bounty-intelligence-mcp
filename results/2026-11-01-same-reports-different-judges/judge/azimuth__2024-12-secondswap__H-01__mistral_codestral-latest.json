@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": true, \"reasoning\": \"The vulnerability description and the audit report's [High] Merged vesting transfers discard the source schedule progress issue are the same vulnerability.\"}\n```",
+ "kosten": 0
+}

@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": false, \"reasoning\": \"The audit report describes a privilege escalation vulnerability where a keeper can steal funds from another vault, but the vulnerability description is about a different issue.\"}\n```",
+ "kosten": 0
+}

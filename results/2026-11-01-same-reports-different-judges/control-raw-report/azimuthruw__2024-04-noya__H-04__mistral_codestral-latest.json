@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": false, \"reasoning\": \"The audit report describes a denial-of-service vulnerability due to blacklisted addresses in the withdrawal queue, while the vulnerability description focuses on a different issue related to blacklisted addresses in the baseToken. These are distinct vulnerabilities with different root causes and impacts.\"}\n```",
+ "kosten": 0
+}

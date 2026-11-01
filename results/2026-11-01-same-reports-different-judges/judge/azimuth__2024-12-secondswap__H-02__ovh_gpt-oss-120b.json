@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a high‑severity issue titled “Merged vesting transfers discard the source schedule progress” which describes transferVesting ignoring the transferred vesting’s stepsClaimed and using the recipient’s value, allowing premature token unlocks—exactly the flaw described in the vulnerability description.\"}",
+ "kosten": 0
+}

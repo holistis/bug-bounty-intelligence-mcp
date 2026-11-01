@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": false, \"reasoning\": \"The audit report lists a different validation bypass about missing URI binding, but does not mention the missing chain‑id check in signatureClaim, so it did not detect the described replay vulnerability.\"}",
+ "kosten": 0
+}

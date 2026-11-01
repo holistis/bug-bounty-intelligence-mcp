@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a finding titled “Price-driven plot reduction can underflow farming and block NFT withdrawal” which describes the same underflow in _farmPlots caused by plot count changes due to PRICE_PER_PLOT adjustments, matching the reported vulnerability.\"}",
+ "kosten": 0
+}

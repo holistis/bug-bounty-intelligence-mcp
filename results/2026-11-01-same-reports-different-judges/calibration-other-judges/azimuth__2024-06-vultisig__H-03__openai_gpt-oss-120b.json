@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a finding titled 'Exact prelaunch spot-price equality permits permissionless launch denial' that describes manipulating the Uniswap V3 pool price before launch, causing ILOManager.launch's exact price equality check to revert, which matches the described DOS via price manipulation and single‑sided liquidity.\"}",
+ "kosten": 0.000257314
+}

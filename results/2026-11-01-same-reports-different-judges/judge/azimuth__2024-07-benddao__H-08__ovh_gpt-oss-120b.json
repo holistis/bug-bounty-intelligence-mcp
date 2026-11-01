@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a high severity finding that forced unwind (unstake/repay) uses the bot's account instead of the position's account, matching the described bug.\"}",
+ "kosten": 0
+}

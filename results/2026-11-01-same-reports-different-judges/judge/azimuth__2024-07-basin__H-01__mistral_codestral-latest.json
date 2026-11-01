@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": true, \"reasoning\": \"The audit report describes the same vulnerability as the description, as both identify the lack of owner check in the _authorizeUpgrade function, allowing anyone to upgrade the WellUpgradeable contract.\"}\n```",
+ "kosten": 0
+}

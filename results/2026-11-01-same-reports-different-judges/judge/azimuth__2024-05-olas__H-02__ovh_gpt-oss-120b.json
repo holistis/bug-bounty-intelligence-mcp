@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a high severity finding for GnosisTargetDispenserL2.onTokenBridged accepting unrelated token transfers as authenticated staking batches, which matches the described arbitrary token and data bridging vulnerability.\"}",
+ "kosten": 0
+}

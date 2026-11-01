@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": true, \"reasoning\": \"The audit report describes a vulnerability in the eq function where it fails to account for the L_MANTISSA_FLAG, which is the same vulnerability described in the vulnerability description.\"}\n```",
+ "kosten": 0
+}

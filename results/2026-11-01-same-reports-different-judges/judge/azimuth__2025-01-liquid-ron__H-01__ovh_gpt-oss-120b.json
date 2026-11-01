@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a Medium issue titled 'Harvested operator fees remain included in ERC4626 total assets' which matches the described flaw of totalAssets() counting operatorFeeAmount, and proposes the same fix of subtracting operatorFeeAmount.\"}",
+ "kosten": 0
+}

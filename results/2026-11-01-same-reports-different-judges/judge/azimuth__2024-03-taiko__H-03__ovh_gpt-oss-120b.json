@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a medium severity issue in ERC20Airdrop2.sol's ongoingWithdrawals modifier that the withdrawal window closes immediately when fully vested, which is the same vulnerability described.\"}",
+ "kosten": 0
+}

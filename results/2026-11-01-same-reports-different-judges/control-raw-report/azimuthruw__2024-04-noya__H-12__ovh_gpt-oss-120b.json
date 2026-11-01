@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a finding titled 'Holding-position removal reindexes the moved entry under the wrong connector' which describes the same incorrect use of calculatorConnector instead of ownerConnector in updateHoldingPosition, matching the described vulnerability.\"}",
+ "kosten": 0
+}

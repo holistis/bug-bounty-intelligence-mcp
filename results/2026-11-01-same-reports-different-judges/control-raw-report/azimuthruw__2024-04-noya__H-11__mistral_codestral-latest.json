@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": true, \"reasoning\": \"The vulnerability description matches the SNXConnector.sol TVL calculation issue, which involves incorrect TVL calculation due to missing debt accounting and incorrect collateral calculation.\"}\n```",
+ "kosten": 0
+}

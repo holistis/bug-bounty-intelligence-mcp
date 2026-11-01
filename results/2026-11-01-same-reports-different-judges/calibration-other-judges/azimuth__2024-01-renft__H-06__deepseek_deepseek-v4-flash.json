@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report's first High finding describes the same underlying flaw: Seaport filters self-transfers from totalExecutions, so Create's execution-recipient invariant checks are bypassed and rentals can be recorded without the required asset transfers, enabling fraudulent rental/escrow manipulation.\"}",
+ "kosten": 0.0003907904
+}

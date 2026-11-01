@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a High severity finding titled \\\"Uncapped TGT intake can create TITN liabilities exceeding the fixed reserve\\\" for MergeTgt.deposit, which describes exactly the same flaw of allowing TGT deposits beyond the hard‑coded TGT_TO_EXCHANGE limit, leading to claim failures and overflow issues. Fixing this by capping TGT intake would also resolve the described vulnerability.\"}",
+ "kosten": 0
+}

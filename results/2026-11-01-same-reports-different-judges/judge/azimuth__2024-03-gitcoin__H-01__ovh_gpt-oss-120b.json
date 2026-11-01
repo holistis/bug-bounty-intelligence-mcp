@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a Medium severity finding titled 'Released stake is omitted from aggregate user stake accounting' which describes exactly the missing userTotalStaked update in release(), matching the described vulnerability.\"}",
+ "kosten": 0
+}

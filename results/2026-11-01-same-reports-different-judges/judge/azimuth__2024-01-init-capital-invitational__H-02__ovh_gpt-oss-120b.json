@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": false, \"reasoning\": \"The audit report does not mention the ability to change order.tokenOut to an arbitrary token; it only flags missing order ownership checks, which is a different issue.\"}",
+ "kosten": 0
+}

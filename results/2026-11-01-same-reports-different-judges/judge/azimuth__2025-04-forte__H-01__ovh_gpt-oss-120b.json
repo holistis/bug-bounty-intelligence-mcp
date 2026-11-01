@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a high severity issue in Float128.sqrt where exponent handling for large odd exponents is incorrect, matching the described off‑by‑one exponent bug caused by improper ordering of digit adjustment and exponent halving.\"}",
+ "kosten": 0
+}

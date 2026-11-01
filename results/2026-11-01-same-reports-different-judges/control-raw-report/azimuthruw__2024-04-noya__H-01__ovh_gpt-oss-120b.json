@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a high‑severity finding about ChainlinkOracleConnector using token decimals instead of the feed’s decimals, which matches the described issue of incorrect asset valuation when ETH/USD oracle is used indirectly.\"}",
+ "kosten": 0
+}

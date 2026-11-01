@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a low‑severity issue titled “Transferred NFT burn removes another user's airdrop weight\\\" which describes exactly the griefing attack where a token’s initialOwner loses airdrop benefits when the token is burned or nuked after transfer, matching the described vulnerability.\"}",
+ "kosten": 0
+}

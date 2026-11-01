@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\n  \"detected\": false,\n  \"reasoning\": \"The audit report describes a vulnerability where a decrease in the required stake can make honest parties unable to retrieve their assertion stakes, while the vulnerability description focuses on the base stake decrease creating an undercollateralized inactive-staker refund path. These are distinct vulnerabilities with different mechanisms and code locations.\"\n}\n```",
+ "kosten": 0
+}

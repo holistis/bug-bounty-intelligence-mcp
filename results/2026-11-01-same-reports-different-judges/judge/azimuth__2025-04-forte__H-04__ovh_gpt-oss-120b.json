@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a High severity issue where Float128.eq compares raw packed words and fails for numerically equal values with different mantissa formats, which is the same flaw described in the vulnerability description.\"}",
+ "kosten": 0
+}

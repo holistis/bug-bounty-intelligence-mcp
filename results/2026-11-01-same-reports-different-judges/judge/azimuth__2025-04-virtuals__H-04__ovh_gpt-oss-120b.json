@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists several findings on ContributionNft.mint being public and allowing arbitrary coreId, parentId, isModel, datasetId, leading to reward, impact, and governance inconsistencies, matching the described vulnerability.\"}",
+ "kosten": 0
+}

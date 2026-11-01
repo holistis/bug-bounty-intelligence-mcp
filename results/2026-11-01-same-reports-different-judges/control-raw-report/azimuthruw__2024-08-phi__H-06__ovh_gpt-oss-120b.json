@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": false, \"reasoning\": \"The audit report lists a reentrancy issue in the buyShareCred refund path, but it does not identify the reentrancy during cred creation that allows overwriting cred data before credIdCounter increments. The described vulnerability is a different code path and fix, so it was not detected.\"}",
+ "kosten": 0
+}

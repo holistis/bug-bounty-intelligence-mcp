@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a Critical finding that WellUpgradeable lacks an onlyOwner check in _authorizeUpgrade, matching the described vulnerability.\"}",
+ "kosten": 0
+}

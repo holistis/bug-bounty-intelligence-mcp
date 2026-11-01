@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": true, \"reasoning\": \"The audit report describes the same vulnerability as the description, as both involve the lack of a check for onBehalf == nftOwner in isolateRepay() and isolateRedeem(), which can lead to underflow and prevent liquidation or repayment.\"}\n```",
+ "kosten": 0
+}

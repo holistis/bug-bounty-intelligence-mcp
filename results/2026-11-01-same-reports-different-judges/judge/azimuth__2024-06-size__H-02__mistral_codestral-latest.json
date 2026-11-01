@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": false, \"reasoning\": \"The audit report does not describe a race condition between repay and liquidateWithReplacement transactions.\"}\n```",
+ "kosten": 0
+}

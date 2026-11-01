@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": true, \"reasoning\": \"The audit report describes a vulnerability in the sqrt function where it silently reverts the entire control flow when a packed float of 0 value is passed, which matches the vulnerability description.\"}\n```",
+ "kosten": 0
+}

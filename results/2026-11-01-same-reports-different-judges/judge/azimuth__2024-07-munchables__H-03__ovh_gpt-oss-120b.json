@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a high severity issue titled 'Land bonus formula converts negative percentage results into oversized unsigned rewards' describing the same miscalculation in _farmPlots that causes negative finalBonus to overflow and block unstaking, matching the described vulnerability.\"}",
+ "kosten": 0
+}

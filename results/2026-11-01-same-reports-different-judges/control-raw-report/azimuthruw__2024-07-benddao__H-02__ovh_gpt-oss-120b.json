@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists an 'Isolate repayment can reduce a different account's aggregate debt than the repaid NFT loan' finding, which matches the described missing onBehalf==owner check in isolateRepay, indicating the vulnerability was detected.\"}",
+ "kosten": 0
+}

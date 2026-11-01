@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": false, \"reasoning\": \"The audit report describes a signature replay vulnerability in signatureClaim, while the vulnerability description focuses on a chain ID validation issue in signatureClaim. These are different vulnerabilities.\"}\n```",
+ "kosten": 0
+}

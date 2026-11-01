@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": false, \"reasoning\": \"The audit report lists many issues but none describe the underflow in IsolateLogic.executeIsolateLiquidate where totalBidAmount is reduced incorrectly, so this specific vulnerability was not detected.\"}",
+ "kosten": 0
+}

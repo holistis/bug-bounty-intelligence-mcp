@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report contains a high‑severity finding titled 'Rebasing self-transfer materializes unearned distribution rewards' for ERC20RebaseDistributor.sol's transfer function, which describes the same self‑transfer caching bug that lets an attacker steal unminted rewards.\"}",
+ "kosten": 0.00030428
+}

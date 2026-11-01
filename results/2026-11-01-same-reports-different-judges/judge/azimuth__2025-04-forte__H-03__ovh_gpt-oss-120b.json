@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a high severity issue titled 'Logarithm omits non-positive input validation' describing that Ln.ln accepts zero and negative inputs without checks, which matches the described vulnerability.\"}",
+ "kosten": 0
+}

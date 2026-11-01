@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a finding titled “Isolate liquidation leaves a stale locker on the auctioned NFT” which describes the same missing clearing of lockerAddr after liquidation, matching the described vulnerability.\"}",
+ "kosten": 0
+}

@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": false, \"reasoning\": \"The audit report describes a logic error in NoyaValueOracle._getValue where the asset parameter is incorrectly used instead of quotingToken in the loop, causing incorrect multi-hop price conversions. The vulnerability description matches this specific issue, including the incorrect conversion path and the example of SOL to UNI conversion. However, the audit report does not describe the same vulnerability as the one in the description, which is about Aerodrome position TVL omitting accrued gauge rewards.\"}\n```",
+ "kosten": 0
+}

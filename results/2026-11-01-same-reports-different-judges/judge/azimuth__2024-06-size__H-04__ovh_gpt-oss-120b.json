@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a Medium severity issue stating that the liquidation reward cap uses borrow-token units instead of collateral-token units, which matches the described incorrect liquidator profit calculation.\"}",
+ "kosten": 0
+}

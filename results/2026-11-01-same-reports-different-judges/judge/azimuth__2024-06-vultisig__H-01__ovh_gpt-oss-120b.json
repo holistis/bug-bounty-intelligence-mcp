@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a high severity issue in ILOPool.claim where the function collects all fees (using type(uint128).max) and diverts them, preventing other token holders from claiming their share—exactly the vulnerability described.\"}",
+ "kosten": 0
+}

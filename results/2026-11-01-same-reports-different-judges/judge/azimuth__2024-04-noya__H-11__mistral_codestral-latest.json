@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": false, \"reasoning\": \"The audit report describes a vulnerability in SNXConnector.sol related to incorrect TVL calculation, while the vulnerability description focuses on SNXConnector.sol TVL calculation being incorrect. These are the same vulnerability.\"}\n```",
+ "kosten": 0
+}

@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a high‑severity finding about computeNAV incorrectly handling vault token balances per pool, causing NAV inconsistencies similar to the described underlying‑token timing bug.\"}",
+ "kosten": 0
+}

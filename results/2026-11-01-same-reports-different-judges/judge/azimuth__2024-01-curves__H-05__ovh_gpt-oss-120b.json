@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a finding that the onlyOwner and onlyManager modifiers do not enforce authorization, which matches the described malformed equate statement vulnerability.\"}",
+ "kosten": 0
+}

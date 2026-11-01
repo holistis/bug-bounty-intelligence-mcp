@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\n  \"detected\": true,\n  \"reasoning\": \"The audit report's [High] Uncapped TGT intake can create TITN liabilities exceeding the fixed reserve vulnerability matches the vulnerability description's [H-1] MergeTgt has no handling if TGTTOEXCHANGE is exceeded during the exchange period, as both describe the same issue of uncapped TGT intake leading to TITN liabilities exceeding the fixed reserve.\"\n}\n```",
+ "kosten": 0
+}

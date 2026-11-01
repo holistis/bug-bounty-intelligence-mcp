@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": false, \"reasoning\": \"The audit report describes a vulnerability where artists can modify critical settings, while the description focuses on a different issue where artists can alter token settings without restrictions.\"}\n```",
+ "kosten": 0
+}

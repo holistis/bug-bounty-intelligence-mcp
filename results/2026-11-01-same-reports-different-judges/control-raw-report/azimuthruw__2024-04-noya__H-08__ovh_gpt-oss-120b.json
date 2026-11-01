@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a critical privilege escalation finding titled “Global flash‑loan authorization permits cross‑vault connector asset transfers,” which describes exactly the same flaw where BalancerFlashLoan can call sendTokensToTrustedAddress on other connectors, allowing a keeper of one vault to steal funds from another vault. This matches the described vulnerability.\"}",
+ "kosten": 0
+}

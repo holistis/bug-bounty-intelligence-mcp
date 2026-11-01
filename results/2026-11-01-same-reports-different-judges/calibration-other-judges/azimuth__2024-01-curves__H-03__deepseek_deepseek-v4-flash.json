@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": false, \"reasoning\": \"The audit report does not contain a finding about the referral fee destination call reverting on sells; the closest finding is about subject fee call reverting, which is a different code path and root cause.\"}",
+ "kosten": 0.00095395
+}

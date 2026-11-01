@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": true, \"reasoning\": \"The audit report describes the same vulnerability as the description, as both exploit the same underlying issue of not updating the holding position in the registry when opening a Dolomite borrow position, which can lead to the position being omitted from TVL calculations and potentially causing liquidations and bad debt.\"}\n```",
+ "kosten": 0
+}

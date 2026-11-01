@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a high severity issue titled \\\"Token1 premium exposure uses the opposite sign from token0\\\" which matches the described bug of poolExposure1 being calculated with reversed premium signs.\"}",
+ "kosten": 0
+}

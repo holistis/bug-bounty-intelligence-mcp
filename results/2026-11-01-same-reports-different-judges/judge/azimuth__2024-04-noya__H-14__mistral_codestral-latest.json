@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report describes the same vulnerability as the description, as both involve incorrect implementation of totalSupply in BalancerConnector, leading to invalid position TVL and total TVL calculations.\"}",
+ "kosten": 0
+}

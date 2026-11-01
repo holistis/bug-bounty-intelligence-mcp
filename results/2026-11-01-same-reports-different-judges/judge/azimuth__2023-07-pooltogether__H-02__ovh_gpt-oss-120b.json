@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a critical issue where Vault._burn casts shares to uint96, allowing redemption of assets without burning the full share amount, which is the same flaw described in the vulnerability.\"}",
+ "kosten": 0
+}

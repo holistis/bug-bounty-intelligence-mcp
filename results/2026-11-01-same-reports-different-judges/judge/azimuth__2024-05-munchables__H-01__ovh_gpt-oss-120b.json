@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a high severity issue titled 'Permissionless zero-value deposits can indefinitely extend another user's lock' affecting LockManager.lockOnBehalf, which matches the described vulnerability of malicious users repeatedly calling lockOnBehalf to extend a user's unlockTime.\"}",
+ "kosten": 0
+}

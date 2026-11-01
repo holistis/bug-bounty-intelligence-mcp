@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": true, \"reasoning\": \"The audit report describes the same reentrancy vulnerability in the burn function as the vulnerability description, with the same root cause (external calls before state updates) and fix (applying CEI pattern or adding a reentrancy guard).\"}\n```",
+ "kosten": 0
+}

@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": true, \"reasoning\": \"The audit report describes the same vulnerability as the description, as both involve invalid validation in the setLockDuration function that allows users to reduce their unlock time.\"}\n```",
+ "kosten": 0
+}

@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a high‑severity accounting_error titled 'Opening a Dolomite borrow account removes rather than registers its holding', which describes the same issue of using the removePosition flag on openBorrowPosition causing the registry entry never to be created, matching the vulnerability description.\"}",
+ "kosten": 0
+}

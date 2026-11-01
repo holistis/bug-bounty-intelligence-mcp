@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a critical access_control issue where Isolate liquidation transfers the NFT to an arbitrary caller without checking msg.sender, matching the described vulnerability of anyone receiving the NFT after auction due to missing sender verification.\"}",
+ "kosten": 0
+}

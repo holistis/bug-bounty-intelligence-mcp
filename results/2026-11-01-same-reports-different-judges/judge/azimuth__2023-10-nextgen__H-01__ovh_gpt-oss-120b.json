@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a medium severity issue where the safe‑mint callback occurs before per‑address mint accounting, allowing re‑entrancy to bypass the maxCollectionPurchases limit, which matches the described re‑entrancy mint‑all‑supply vulnerability.\"}",
+ "kosten": 0
+}
