@@ -23,7 +23,7 @@ Where: the scoreboard on tokenizen.nl, the row for version 3.1 on the sealed eig
 What the row said: that the version was not tuned on this set, and that a scan takes about 20 to 45 seconds.
 What was wrong: version 3.1 was built after the results of these 8 contests were public on 24 October, so the label should have said partly. The README of the folder says 20 to 50 seconds per scan, not 20 to 45.
 How found: while preparing the rows for the two development runs of 31 October, we read the older row against its README and the dates of the commits.
-What we did: the row now says partly, and both language versions carry a correction line that keeps the old wording. The sealed series on the scoreboard is unchanged.
+What we did: the row now says partly, and both language versions carry a correction line that keeps the old wording. The sealed series on the scoreboard is unchanged. Added on 1 November 2026: the note "The scan now finds 8 of 105 on the same contests" (25 October) carried the same 20 to 45 seconds; it now has an update line at the top.
 
 ## 30 October 2026, a run missing from the scoreboard
 
