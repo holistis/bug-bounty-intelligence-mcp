@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\n  \"detected\": false,\n  \"reasoning\": \"The audit report describes a vulnerability related to incorrect yield tracking in Etherfi and Lido integrations, while the vulnerability description focuses on a mismatch between yield amount deposited in shares calculation and getAccountYieldBalance(). These are different vulnerabilities with distinct root causes and code locations.\"\n}\n```",
+ "kosten": 0
+}

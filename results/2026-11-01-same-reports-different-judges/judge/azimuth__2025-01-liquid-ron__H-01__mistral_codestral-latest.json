@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\n  \"detected\": true,\n  \"reasoning\": \"The audit report describes the same vulnerability as the description, as both highlight the incorrect calculation of totalAssets() when operatorFeeAmount > 0, leading to potential loss for new depositors.\"\n}\n```",
+ "kosten": 0
+}

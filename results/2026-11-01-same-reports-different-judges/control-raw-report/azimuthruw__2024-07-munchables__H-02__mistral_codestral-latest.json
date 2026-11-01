@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": false, \"reasoning\": \"The audit report describes a vulnerability in the LandManager._farmPlots function where a plot with ID 0 can continue to be farmed after the landlord unlocks funds, while the vulnerability description focuses on a different issue in the same function related to invalid validation.\"}\n```",
+ "kosten": 0
+}

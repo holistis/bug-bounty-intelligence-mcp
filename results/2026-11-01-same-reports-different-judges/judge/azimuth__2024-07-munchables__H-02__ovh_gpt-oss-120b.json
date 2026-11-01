@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a High severity issue in LandManager._farmPlots where the check uses '<' instead of '<=' allowing plotId 0 to remain farmable after unlocking, matching the described vulnerability.\"}",
+ "kosten": 0
+}

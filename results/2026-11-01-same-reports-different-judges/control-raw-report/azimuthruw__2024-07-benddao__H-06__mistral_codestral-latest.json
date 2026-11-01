@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": true, \"reasoning\": \"The audit report describes the same vulnerability as the description, as both involve the incompatibility between YieldAccount and ether.fi's WithdrawRequestNFT, which prevents users from unstaking their funds.\"}\n```",
+ "kosten": 0
+}

@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": false, \"reasoning\": \"The audit report describes a vulnerability where a keeper can steal funds from another vault by exploiting the flash loan contract. The vulnerability description describes a different vulnerability where a vault can steal funds from another vault through the registry's flash loan contract due to insufficient access control in Connector.sendTokensToTrustedAddress(). These are different vulnerabilities because they exploit different mechanisms and have different impacts.\"}",
+ "kosten": 0
+}

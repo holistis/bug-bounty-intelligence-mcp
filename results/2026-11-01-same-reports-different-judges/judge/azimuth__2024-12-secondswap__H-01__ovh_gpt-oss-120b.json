@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a high‑severity issue titled “Merged vesting transfers discard the source schedule progress” (function transferVesting) which describes exactly the stepsClaimed inheritance flaw that the description flags, so the same vulnerability was detected.\"}",
+ "kosten": 0
+}

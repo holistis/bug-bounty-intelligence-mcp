@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a finding titled 'Permissionless Curves rebinding allows forged fee claims' that describes FeeSplitter.setCurves being unrestricted and allowing an attacker to replace the Curves contract, matching the unauthorized access to setCurves vulnerability.\"}",
+ "kosten": 0
+}

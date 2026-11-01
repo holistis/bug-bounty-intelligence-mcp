@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": false, \"reasoning\": \"The audit report lists many validation and accounting issues, but none describe a mismatch between deposited yield shares and the getAccountYieldBalance calculation in YieldStakingBase, which is the specific vulnerability described.\"}",
+ "kosten": 0
+}

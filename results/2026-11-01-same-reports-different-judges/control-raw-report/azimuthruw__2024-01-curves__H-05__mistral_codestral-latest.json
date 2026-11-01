@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": true, \"reasoning\": \"The audit report describes the same vulnerability as the description, as both involve the lack of proper enforcement in the onlyOwner and onlyManager modifiers, which can be exploited to bypass access control.\"}\n```",
+ "kosten": 0
+}

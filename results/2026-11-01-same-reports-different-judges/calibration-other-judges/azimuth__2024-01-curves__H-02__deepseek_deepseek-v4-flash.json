@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes finding #17 which describes the same vulnerability: transfers not updating fee offsets in FeeSplitter, allowing repeated claims of historical holder fees.\"}",
+ "kosten": 0.0009307
+}

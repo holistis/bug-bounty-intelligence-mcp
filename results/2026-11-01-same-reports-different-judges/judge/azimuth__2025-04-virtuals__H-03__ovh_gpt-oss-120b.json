@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a high severity issue titled 'Unrestricted impact recomputation accepts an unrelated agent ID' for ServiceNft.updateImpact, which matches the described public updateImpact vulnerability.\"}",
+ "kosten": 0
+}

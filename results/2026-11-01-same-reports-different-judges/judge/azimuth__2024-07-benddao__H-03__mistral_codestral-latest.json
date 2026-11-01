@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report describes a missing lockerAddr clear in the erc721DecreaseIsolateSupplyOnLiquidate function, which is the same vulnerability as the description.\"}",
+ "kosten": 0
+}

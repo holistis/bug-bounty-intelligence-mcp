@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes findings describing the exact same vulnerability: partial fills of the same Seaport order produce identical rental order hashes, causing Storage to record a single boolean order flag while incrementing rented amounts multiple times, so one stop removes only one fill and the remaining assets are locked. This matches the partial-fill hash collision and locking issue in the vulnerability description.\"}",
+ "kosten": 0.0004051684
+}

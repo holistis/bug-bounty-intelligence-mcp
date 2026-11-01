@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": false, \"reasoning\": \"The audit report lists various issues but none describe the unrestricted ability for artists to modify URI, royalty rates, or soulbound status via updateArtSettings, so this specific vulnerability was not detected.\"}",
+ "kosten": 0
+}

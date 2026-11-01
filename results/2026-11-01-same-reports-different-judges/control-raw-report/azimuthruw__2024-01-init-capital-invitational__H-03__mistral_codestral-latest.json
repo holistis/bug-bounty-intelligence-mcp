@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": false, \"reasoning\": \"The audit report describes a vulnerability in the updateOrder function, while the description focuses on the fillOrder function. They are different vulnerabilities.\"}\n```",
+ "kosten": 0
+}

@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": false, \"reasoning\": \"The audit report describes a vulnerability in the ContributionNft contract, while the vulnerability description focuses on the ServiceNft contract. They are different vulnerabilities.\"}\n```",
+ "kosten": 0
+}

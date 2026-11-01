@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": true, \"reasoning\": \"The audit report describes the same vulnerability as the description, as both highlight the cross-chain signature replay attack due to user-supplied domainSeparator and missing deadline check in the Forwarder.sol contract.\"}\n```",
+ "kosten": 0
+}

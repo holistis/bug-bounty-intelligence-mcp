@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit’s high‑severity issue about filtered self‑transfers bypassing rental execution‑recipient validation describes the same flaw where self‑transfers are filtered, execution invariants are not checked, and fake rentals can be created to drain the escrow, matching the described vulnerability.\"}",
+ "kosten": 0
+}

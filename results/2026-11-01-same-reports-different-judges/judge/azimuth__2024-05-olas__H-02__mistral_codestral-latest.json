@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": true, \"reasoning\": \"The vulnerability description matches the audit report's [High] Gnosis token callback accepts unrelated transfers as authenticated staking batches, as both exploit the same mechanism and code location.\"}\n```",
+ "kosten": 0
+}

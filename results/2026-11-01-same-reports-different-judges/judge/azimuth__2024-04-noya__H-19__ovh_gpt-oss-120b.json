@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": false, \"reasoning\": \"The audit only flags a Morpho TVL issue related to using stale totals and a separate bug where borrow balance is added instead of subtracted; it does not address the decimal‑conversion error or the missing _updateTokenInRegistry call on loan token withdrawal, which are part of the described vulnerability.\"}",
+ "kosten": 0
+}

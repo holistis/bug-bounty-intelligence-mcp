@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a high‑severity finding about the land bonus formula in _farmPlots converting negative finalBonus values into huge unsigned numbers, causing overflows that block unstaking—exactly the miscalculation described.\"}",
+ "kosten": 0
+}

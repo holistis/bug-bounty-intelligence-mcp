@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": true, \"reasoning\": \"The audit report describes a missing check on msg.sender in the isolate liquidation flow, which allows anyone to take the collateral NFT token, matching the vulnerability description.\"}\n```",
+ "kosten": 0
+}

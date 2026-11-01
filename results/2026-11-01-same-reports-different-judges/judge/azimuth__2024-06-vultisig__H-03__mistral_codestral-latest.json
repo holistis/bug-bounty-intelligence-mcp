@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": false, \"reasoning\": \"The audit report describes a vulnerability where an attacker can manipulate the price and add single-sided liquidity to prevent a launch, while the vulnerability description focuses on the exact prelaunch spot-price equality requirement and the potential to revert the launch.\"}\n```",
+ "kosten": 0
+}

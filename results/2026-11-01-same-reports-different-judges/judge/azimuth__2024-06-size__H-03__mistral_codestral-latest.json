@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\n  \"detected\": false,\n  \"reasoning\": \"The vulnerability description discusses an incorrect collateral remainder cap calculation during liquidation, which is not mentioned in the audit report.\"\n}\n```",
+ "kosten": 0
+}

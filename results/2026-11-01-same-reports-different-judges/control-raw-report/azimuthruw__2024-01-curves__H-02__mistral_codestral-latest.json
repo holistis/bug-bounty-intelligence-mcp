@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": true, \"reasoning\": \"The audit report describes the same vulnerability as the description, as it involves the unrestricted claiming of fees due to missing balance updates in FeeSplitter, which can be exploited by transferring tokens to new accounts and claiming fees multiple times.\"}\n```",
+ "kosten": 0
+}

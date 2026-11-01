@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": true, \"reasoning\": \"The audit report describes the same vulnerability as the description, as both involve the PendleConnector's decreasePosition function failing to account for staked LP tokens in the Penpie pool, which can lead to the connector removing its holding position for a market while still retaining a stake in the Penpie pool.\"}\n```",
+ "kosten": 0
+}

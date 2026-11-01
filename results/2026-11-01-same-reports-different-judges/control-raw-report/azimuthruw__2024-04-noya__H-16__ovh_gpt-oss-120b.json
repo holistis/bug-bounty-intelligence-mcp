@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a finding titled 'Silo borrowing bypasses the connector health-factor requirement' which describes the missing solvency check in SiloConnector.borrow, matching the described vulnerability.\"}",
+ "kosten": 0
+}

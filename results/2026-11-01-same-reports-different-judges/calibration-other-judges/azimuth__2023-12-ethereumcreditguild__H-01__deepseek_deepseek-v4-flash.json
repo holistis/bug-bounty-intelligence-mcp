@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report's final finding describes the same uninitialized userGaugeProfitIndex when claiming rewards from a gauge, allowing late voters to instantly claim historical gauge profits, matching the vulnerability description.\"}",
+ "kosten": 0.0002324686
+}

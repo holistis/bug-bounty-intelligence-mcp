@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a High severity issue about zero-value transfers creating duplicate holder entries and breaking reward accounting, which matches the described vulnerability of manipulating the holders array via zero transfers or burns to steal rewards or cause DoS.\"}",
+ "kosten": 0
+}

@@ -1,0 +1,4 @@
+{
+ "tekst": "{\n  \"detected\": true,\n  \"reasoning\": \"The audit’s high‑severity finding about filtered self‑transfers bypassing rental execution‑recipient validation directly matches the described escrow drain where totalExecutions can be empty, allowing rentals to be created without asset transfers and later drain the escrow.\"\n}",
+ "kosten": 0.000335781
+}

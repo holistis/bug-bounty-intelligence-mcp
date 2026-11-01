@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": false, \"reasoning\": \"The audit report describes a vulnerability in the Vault.sol contract where a malicious user can steal other users' deposits by exploiting the uint96 narrowing in the _burn function. The vulnerability description focuses on the same issue, but it is not explicitly mentioned in the audit report.\"}\n```",
+ "kosten": 0
+}

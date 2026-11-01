@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a High severity issue where PendleConnector.burnLP sends PT tokens to the market instead of the connector, matching the described vulnerability.\"}",
+ "kosten": 0
+}

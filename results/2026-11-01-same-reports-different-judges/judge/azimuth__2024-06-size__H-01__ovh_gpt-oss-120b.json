@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a Low severity issue titled 'Exact-output sell-credit pricing undercharges the swap fee' in AccountingLibrary.getCreditAmountIn, which matches the described vulnerability of sellCreditMarket receiving a lower swapping fee than expected.\"}",
+ "kosten": 0
+}

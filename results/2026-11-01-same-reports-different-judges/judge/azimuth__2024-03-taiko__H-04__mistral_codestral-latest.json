@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": true, \"reasoning\": \"The vulnerability description matches the audit report's [High] ERC20 assignment fee payer is not bound to the prover authorization, which exploits the same mechanism and code path.\"}\n```",
+ "kosten": 0
+}

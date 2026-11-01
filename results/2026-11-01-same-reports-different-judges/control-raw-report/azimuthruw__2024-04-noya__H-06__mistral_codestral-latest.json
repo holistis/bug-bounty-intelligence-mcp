@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": true, \"reasoning\": \"The audit report describes the same vulnerability as the description, as both identify the incomplete TVL calculation in AerodromeConnector::_getPositionTVL that omits staked liquidity tokens in the gauge pool.\"}\n```",
+ "kosten": 0
+}

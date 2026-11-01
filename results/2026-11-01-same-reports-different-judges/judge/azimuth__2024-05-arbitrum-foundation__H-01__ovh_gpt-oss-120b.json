@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a High severity issue titled 'Base-stake decrease creates an undercollateralized inactive-staker refund path' in RollupAdminLogic.setBaseStake, which matches the described vulnerability of decreasing required stake leading to insolvent refunds.\"}",
+ "kosten": 0
+}

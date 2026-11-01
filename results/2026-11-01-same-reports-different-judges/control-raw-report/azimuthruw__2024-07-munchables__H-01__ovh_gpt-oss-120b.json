@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a finding titled 'Plot transfer leaves the toiler's plot identifier stale' describing that transferToUnoccupiedPlot fails to update the plotId, leading to multiple renters occupying the same plot, which matches the described vulnerability.\"}",
+ "kosten": 0
+}

@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The vulnerability description and audit report both describe the same issue in the same function, with the same root cause and fix.\"}",
+ "kosten": 0
+}

@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report’s High severity issue about unauthenticated lzCompose calls allowing arbitrary token transfers matches the described vulnerability of permissionless lzCompose enabling fund theft.\"}",
+ "kosten": 0
+}

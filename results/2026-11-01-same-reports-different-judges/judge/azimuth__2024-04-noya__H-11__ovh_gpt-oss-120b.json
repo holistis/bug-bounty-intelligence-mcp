@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a Medium issue that Synthetix minted USD debt is omitted from TVL and a High issue that assigned collateral is counted twice in TVL, matching both aspects of the described vulnerability.\"}",
+ "kosten": 0
+}

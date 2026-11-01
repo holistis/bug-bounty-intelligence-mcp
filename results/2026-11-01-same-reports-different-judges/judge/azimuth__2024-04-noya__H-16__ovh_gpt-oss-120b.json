@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a Medium severity issue titled \\\"Silo borrowing bypasses the connector health-factor requirement\\\" describing the missing solvency check in SiloConnector.borrow, which matches the vulnerability description.\"}",
+ "kosten": 0
+}

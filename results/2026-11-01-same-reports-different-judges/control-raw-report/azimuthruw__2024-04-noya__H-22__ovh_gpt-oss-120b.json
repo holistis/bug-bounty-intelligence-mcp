@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": false, \"reasoning\": \"The audit report does not contain a finding about PendleConnector misusing getLpToAssetRate/getPtToAssetRate for SY pricing; it lists other Pendle-related issues but not this specific accounting error, so the vulnerability was not detected.\"}",
+ "kosten": 0
+}

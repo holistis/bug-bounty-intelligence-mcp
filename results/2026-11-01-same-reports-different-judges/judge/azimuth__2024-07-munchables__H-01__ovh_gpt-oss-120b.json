@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a Medium severity issue titled 'Plot transfer leaves the toiler's plot identifier stale' in LandManager.transferToUnoccupiedPlot, which matches the described vulnerability of plotId not being updated, allowing multiple renters on a single plot.\"}",
+ "kosten": 0
+}

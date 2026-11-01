@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a high‑severity finding titled “Curve-token transfers allow repeated claims of historical holder fees” which describes exactly the missing FeeSplitter balance update on token transfers that enables unrestricted fee claims, matching the described vulnerability.\"}",
+ "kosten": 0.0012495
+}

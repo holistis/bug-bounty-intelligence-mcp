@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a High finding 'Rebasing self-transfer materializes unearned distribution rewards' in ERC20RebaseDistributor.transfer, describing the exact same root cause and exploit as the submitted vulnerability: a self-transfer with msg.sender == to uses stale cached rebasing state to mint extra tokens from unminted rebase rewards. The same code path and fix (prevent self-transfer) apply.\"}",
+ "kosten": 0.0002724904
+}

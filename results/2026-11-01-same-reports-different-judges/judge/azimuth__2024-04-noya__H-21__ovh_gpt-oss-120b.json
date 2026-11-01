@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a high severity finding titled “Pendle decrease check ignores LP tokens staked through the market deposit helper,” which describes exactly the same flaw where decreasePosition removes the holding without checking the Penpie stake, matching the described vulnerability.\"}",
+ "kosten": 0
+}

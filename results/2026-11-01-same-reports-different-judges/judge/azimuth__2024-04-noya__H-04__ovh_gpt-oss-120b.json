@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": false, \"reasoning\": \"The audit report lists numerous TVL and accounting issues but does not mention the executeWithdraw blacklisting/DOS vulnerability in AccountingManager, so it was not detected.\"}",
+ "kosten": 0
+}

@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": false, \"reasoning\": \"The audit report describes a vulnerability in the _farmPlots function where a plot with plotId 0 can continue to be farmed after the landlord has unlocked funds, while the vulnerability description focuses on a more general issue of invalid validation in the _farmPlots function allowing repeated farming without locked funds. The mechanisms, code locations, and fixes are different.\"}",
+ "kosten": 0
+}

@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a medium severity issue in VoteWeighting.removeNominee where pointsSum.slope is not updated after nominee removal, which matches the described vulnerability about pointsSum.slope not being updated.\"}",
+ "kosten": 0
+}

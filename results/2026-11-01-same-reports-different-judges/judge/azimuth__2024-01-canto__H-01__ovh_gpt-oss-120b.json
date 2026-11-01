@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a High severity issue where update_market uses block numbers as the epoch passed to gauge_relative_weight_write, causing incorrect weight queries, which matches the described vulnerability.\"}",
+ "kosten": 0
+}

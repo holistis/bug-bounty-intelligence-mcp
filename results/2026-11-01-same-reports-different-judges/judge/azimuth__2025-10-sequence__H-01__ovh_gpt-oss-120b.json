@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a High severity issue in BaseSig.recover where chained signatures can skip checkpointer validation, which is the same flaw described in the vulnerability description.\"}",
+ "kosten": 0
+}

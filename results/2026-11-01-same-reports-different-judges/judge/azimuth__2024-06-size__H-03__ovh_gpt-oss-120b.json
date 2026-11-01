@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a Medium issue titled 'Overdue liquidation remainder cap double-counts repaid collateral' which describes the same incorrect collateral remainder cap calculation during liquidation as the vulnerability description.\"}",
+ "kosten": 0
+}

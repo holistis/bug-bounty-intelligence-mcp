@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": false, \"reasoning\": \"The audit report describes a different vulnerability involving the manipulation of the totalLpETH to totalSupply ratio and the ability to claim lpETH without explicit locking, while the vulnerability description focuses on the availability of deposit invariant being bypassed through sandwich attacks and bundled transactions.\"}\n```",
+ "kosten": 0
+}

@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a High severity issue titled 'Unrestricted CL gauge creation approves factory-held tokens to a caller-selected farming contract' in GaugeFactoryCL.createGauge, which matches the described lack of access control allowing token draining.\"}",
+ "kosten": 0
+}

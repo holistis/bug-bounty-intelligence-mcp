@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": false, \"reasoning\": \"The audit report describes a vulnerability in the BalancerConnector contract regarding the incorrect use of totalSupply instead of totalActualSupply for calculating position TVL. However, the vulnerability description provided does not match the same vulnerability as described in the report.\"}\n```",
+ "kosten": 0
+}

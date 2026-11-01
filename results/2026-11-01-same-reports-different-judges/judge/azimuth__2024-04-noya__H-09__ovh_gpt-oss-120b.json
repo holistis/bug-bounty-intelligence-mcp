@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": false, \"reasoning\": \"The audit report lists multiple PrismaConnector issues, but none describe the missing claimCollateral function or the inability to claim surplus balances in recovery mode, so this specific vulnerability was not detected.\"}",
+ "kosten": 0
+}

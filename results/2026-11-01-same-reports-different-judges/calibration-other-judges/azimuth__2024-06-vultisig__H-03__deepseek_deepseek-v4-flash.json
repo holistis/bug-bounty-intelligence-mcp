@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report's finding 'Exact prelaunch spot-price equality permits permissionless launch denial' describes the same underlying flaw: an attacker can manipulate the Uniswap V3 pool's sqrtPriceX96 before launch, causing the strict equality check in ILOManager.launch to fail and permanently blocking the ILO pool launch.\"}",
+ "kosten": 0.00063115
+}

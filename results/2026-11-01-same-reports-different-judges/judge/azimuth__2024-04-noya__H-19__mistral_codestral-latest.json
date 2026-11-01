@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": true, \"reasoning\": \"The audit report describes the same vulnerability as the description, both are related to the MorphoBlueConnector._getPositionTVL function and the same issues.\"}\n```",
+ "kosten": 0
+}

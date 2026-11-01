@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": false, \"reasoning\": \"The audit report lists many DolomiteConnector issues, but none describe the missing registry update for transferBetweenAccounts causing stale holding positions, so this specific vulnerability was not detected.\"}",
+ "kosten": 0
+}

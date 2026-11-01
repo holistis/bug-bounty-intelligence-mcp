@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a high‑severity accounting_error titled “Pendle close check ignores LP tokens staked through the market deposit helper\\\" which describes exactly the same flaw where decreasePosition’s isMarketEmpty check omits the Penpie stake, causing the holding to be removed despite remaining LP.\"}",
+ "kosten": 0
+}

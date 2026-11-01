@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": false, \"reasoning\": \"The audit report lists many issues but none describe the forced endTime extension in updateArtSettings that enables post‑event minting; thus the specific vulnerability is not detected.\"}",
+ "kosten": 0
+}

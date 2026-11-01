@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a high severity issue where createArt signatures do not bind artist, royalty recipient, or configuration, allowing replay and impersonation, which matches the described signature replay vulnerability.\"}",
+ "kosten": 0
+}

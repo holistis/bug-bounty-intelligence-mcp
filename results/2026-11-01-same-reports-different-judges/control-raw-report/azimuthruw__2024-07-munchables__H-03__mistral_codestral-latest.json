@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": true, \"reasoning\": \"The audit report describes the same vulnerability as the description, as both involve the same miscalculation in the _farmPlots function leading to a denial of service when unstaking NFTs.\"}\n```",
+ "kosten": 0
+}

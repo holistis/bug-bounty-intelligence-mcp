@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report's 'Unsigned consideration tips are forwarded as indistinguishable rental items' finding describes the same vulnerability as the submission: Seaport permits fulfiller-added consideration items (tips) that bypass the signed order hash, and Create records them as rental items, allowing a malicious ERC20 that reverts during settlement to block rental stop and lock assets.\"}",
+ "kosten": 0.0003474016
+}

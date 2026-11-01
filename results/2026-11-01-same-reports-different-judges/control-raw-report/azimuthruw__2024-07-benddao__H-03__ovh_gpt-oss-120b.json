@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a critical access_control finding titled 'Isolate liquidation leaves a stale locker on the auctioned NFT', which matches the described missing lockerAddr reset in erc721DecreaseIsolateSupplyOnLiquidate.\"}",
+ "kosten": 0
+}

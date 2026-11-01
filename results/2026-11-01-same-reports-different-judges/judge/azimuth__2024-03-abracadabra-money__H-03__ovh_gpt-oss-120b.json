@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a high severity issue in Router.createPool where initial liquidity imbalance allows excess reserves to be captured, which is the same flaw described in the vulnerability description.\"}",
+ "kosten": 0
+}

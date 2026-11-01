@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a finding 'Permissionless Curves rebinding allows forged fee claims' in FeeSplitter.sol's setCurves function, which describes the same unrestricted access vulnerability that allows an attacker to replace the Curves contract and manipulate fee claims.\"}",
+ "kosten": 0.0005265
+}

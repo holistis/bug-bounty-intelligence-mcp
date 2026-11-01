@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": false, \"reasoning\": \"The audit report does not describe a vulnerability that matches the described issue of ValidatorRegistry::validatorScore/getPastValidatorScore allowing validators to earn full rewards without actual engagement.\"}\n```",
+ "kosten": 0
+}

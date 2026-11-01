@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a finding that AerodromeConnector._getPositionTVL does not include liquidity tokens staked in the gauge, matching the described incomplete TVL calculation vulnerability.\"}",
+ "kosten": 0
+}

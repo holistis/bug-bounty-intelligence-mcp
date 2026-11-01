@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a medium severity issue where session signatures can authorize truncated or recombined call batches, which matches the described partial signature replay/frontrunning attack on session calls.\"}",
+ "kosten": 0
+}

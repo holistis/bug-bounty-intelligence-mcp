@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": false, \"reasoning\": \"The vulnerability description discusses a mismatch between yield amount deposited and shares calculation, which is not mentioned in the audit report.\"}\n```",
+ "kosten": 0
+}

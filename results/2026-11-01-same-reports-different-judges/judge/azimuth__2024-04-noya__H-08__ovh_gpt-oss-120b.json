@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a Critical issue titled 'Global flash-loan authorization permits cross-vault connector asset transfers' which describes exactly the insufficient access control in BaseConnector.sendTokensToTrustedAddress allowing a vault keeper to steal funds from another vault via the flash loan contract, matching the described vulnerability.\"}",
+ "kosten": 0
+}

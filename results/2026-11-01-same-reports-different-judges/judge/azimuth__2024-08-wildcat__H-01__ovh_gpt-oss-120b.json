@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit lists a Medium issue titled “Mixed-time batch payments redistribute value between withdrawal participants” which describes batch withdrawals accepting new shares after some have been paid, causing rounding‑related value redistribution—matching the described vulnerability where closed markets let withdrawals be executed before all requests are added, breaking the invariant and allowing later users to lose funds.\"}",
+ "kosten": 0
+}

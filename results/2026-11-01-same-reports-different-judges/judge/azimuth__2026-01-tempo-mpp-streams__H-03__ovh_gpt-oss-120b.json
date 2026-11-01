@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a Low severity issue titled 'Zero authorized signer makes invalid voucher signatures pass authentication' in openChannel/settle, which matches the described zero address signer bypass vulnerability.\"}",
+ "kosten": 0
+}

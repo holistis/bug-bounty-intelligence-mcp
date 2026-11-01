@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": true, \"reasoning\": \"The audit report describes the same vulnerability as the description, as it occurs in the same function and can be fixed by adding a buffer window to the ongoingWithdrawals modifier.\"}\n```",
+ "kosten": 0
+}

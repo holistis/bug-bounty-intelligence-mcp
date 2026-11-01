@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": false, \"reasoning\": \"The audit report describes a different vulnerability related to incorrect percentage calculations in NukeFund and EntityForging, which is not the same as the described vulnerability.\"}\n```",
+ "kosten": 0
+}

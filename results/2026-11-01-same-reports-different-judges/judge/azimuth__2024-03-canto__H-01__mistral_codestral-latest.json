@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": true, \"reasoning\": \"The vulnerability described in the audit report and the vulnerability description both involve native gas tokens becoming stuck in the ASDRouter contract during successful ASD redemption flows, and can be fixed by refunding the remaining value.\"}\n```",
+ "kosten": 0
+}

@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a finding titled 'Per-token claim collects and diverts fees owed to all aggregate positions' that describes the same root cause: the claim function collects all fees using type(uint128).max, causing subsequent claims to fail, which matches the vulnerability description.\"}",
+ "kosten": 0.0007233
+}

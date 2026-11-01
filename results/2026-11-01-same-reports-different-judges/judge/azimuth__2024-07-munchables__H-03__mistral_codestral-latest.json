@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": true, \"reasoning\": \"The audit report describes a vulnerability in the _farmPlots function where a negative finalBonus leads to a negative schnibblesTotal, which when converted to uint256 results in a near-max value and causes an overflow when calculating schnibblesLandlord. This matches the vulnerability description exactly, as both describe the same issue in the same function with the same root cause and fix.\"}\n```",
+ "kosten": 0
+}

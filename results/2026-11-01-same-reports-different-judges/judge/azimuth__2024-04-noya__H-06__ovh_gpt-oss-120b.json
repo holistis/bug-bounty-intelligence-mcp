@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": false, \"reasoning\": \"The audit report flags a missing gauge reward accounting, while the described issue is the omission of staked liquidity tokens (principal) in the TVL calculation; these are distinct flaws.\"}",
+ "kosten": 0
+}

@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a Medium severity issue titled 'Missing maker authorization allows arbitrary order cancellation' that matches the described missing authorization in cancel(), indicating the same vulnerability was detected.\"}",
+ "kosten": 0
+}

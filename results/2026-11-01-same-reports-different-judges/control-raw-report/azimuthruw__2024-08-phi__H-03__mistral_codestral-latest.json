@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": true, \"reasoning\": \"The audit report describes the same vulnerability as the description, as both involve the same underlying issue of zero-balance share entries accumulating in the shareBalance mapping, which eventually blocks curator rewards distribution due to gas limits.\"}\n```",
+ "kosten": 0
+}

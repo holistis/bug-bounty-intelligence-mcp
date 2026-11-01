@@ -1,0 +1,55 @@
+{
+  "rows": [
+    {
+      "audit": "2024-01-curves",
+      "known": 4,
+      "gptOss": 3,
+      "codestral": 3,
+      "both": 3
+    },
+    {
+      "audit": "2024-01-init-capital-invitational",
+      "known": 3,
+      "gptOss": 1,
+      "codestral": 2,
+      "both": 1
+    },
+    {
+      "audit": "2024-04-noya",
+      "known": 20,
+      "gptOss": 14,
+      "codestral": 11,
+      "both": 8
+    },
+    {
+      "audit": "2024-06-thorchain",
+      "known": 2,
+      "gptOss": 1,
+      "codestral": 2,
+      "both": 1
+    },
+    {
+      "audit": "2024-07-benddao",
+      "known": 7,
+      "gptOss": 4,
+      "codestral": 4,
+      "both": 3
+    },
+    {
+      "audit": "2024-07-munchables",
+      "known": 5,
+      "gptOss": 4,
+      "codestral": 2,
+      "both": 2
+    },
+    {
+      "audit": "2024-08-phi",
+      "known": 6,
+      "gptOss": 2,
+      "codestral": 1,
+      "both": 1
+    }
+  ],
+  "unreadableVerdicts": 0,
+  "verdictFiles": 94
+}

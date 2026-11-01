@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": false, \"reasoning\": \"The audit report describes a vulnerability where an attacker can mint more tokens after the event ends by backrunning an artist's updateArtSettings() call, while the vulnerability description focuses on a forced endTime extension in updateArtSettings() that allows an attacker to mint more tokens. These are different vulnerabilities because they exploit different code paths and have different root causes.\"}",
+ "kosten": 0
+}

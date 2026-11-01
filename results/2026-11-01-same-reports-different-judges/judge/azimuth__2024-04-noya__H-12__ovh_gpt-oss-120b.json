@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a high severity issue titled 'Holding-position removal reindexes the moved entry under the wrong connector' in Registry.sol's updateHoldingPosition, which matches the described bug of using calculatorConnector instead of ownerConnector when recalculating holdingPositionId.\"}",
+ "kosten": 0
+}

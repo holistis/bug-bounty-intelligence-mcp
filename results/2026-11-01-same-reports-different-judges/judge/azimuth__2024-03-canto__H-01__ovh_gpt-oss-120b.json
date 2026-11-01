@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a Low severity issue titled 'Successful compose paths permanently retain unused native value' in _sendASD, which describes exactly the same problem of msg.value not being refunded and native tokens becoming stuck in ASDRouter.\"}",
+ "kosten": 0
+}

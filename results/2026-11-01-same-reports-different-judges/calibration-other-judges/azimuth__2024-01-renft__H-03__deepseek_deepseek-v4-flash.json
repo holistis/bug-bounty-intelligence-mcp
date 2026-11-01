@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report's 'Token callback can move a rental before its guard state is recorded' finding describes the same underlying vulnerability as H-03: the rented asset is transferred to the Safe before rental registration, allowing a callback during transfer to move the asset out while the guard's rental checks are inactive. The specific callback mechanism differs (ERC777/ERC20 hook vs ERC1155 safeTransferFrom fallback handler), but it exploits the same pre-registration timing flaw and is fixed by the same mitigation.\"}",
+ "kosten": 0.000698334
+}

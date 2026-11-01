@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a finding titled “Balancer LP TVL extrapolates total value from one manipulable pool reserve” which describes BalancerConnector using a token’s weight to compute TVL, exactly the mis‑calculation described in the vulnerability.\"}",
+ "kosten": 0
+}

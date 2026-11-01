@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a High severity finding that the onlyOwner and onlyManager modifiers only evaluate a condition without reverting, allowing any user to call owner/manager restricted functions, which matches the described malformed equate statement vulnerability.\"}",
+ "kosten": 0.00013527
+}

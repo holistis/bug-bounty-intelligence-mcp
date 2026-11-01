@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a Medium severity issue titled 'Signature claims authenticate but do not enforce the signed chain ID' for PhiFactory.signatureClaim, which matches the described chain‑ID replay vulnerability.\"}",
+ "kosten": 0
+}

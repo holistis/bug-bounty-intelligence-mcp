@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": true, \"reasoning\": \"The audit report describes the same vulnerability as the description, as it involves a caching error in the transfer function when transferring tokens to oneself while in rebase, allowing an attacker to steal all distributed rewards.\"}\n```",
+ "kosten": 0
+}

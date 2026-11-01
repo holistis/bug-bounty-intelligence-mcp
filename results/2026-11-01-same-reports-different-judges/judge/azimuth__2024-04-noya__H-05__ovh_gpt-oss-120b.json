@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a High severity issue titled 'Pendle liquidity minting donates unused SY or PT inputs to the market treasury' describing that PendleConnector.depositIntoMarket calls market.mint with full amounts then market.skim, causing unused tokens to be sent to the treasury. This matches the described vulnerability of lost funds due to incorrect skim usage.\"}",
+ "kosten": 0
+}

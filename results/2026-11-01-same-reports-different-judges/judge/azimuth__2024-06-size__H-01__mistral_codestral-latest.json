@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": true, \"reasoning\": \"The audit report describes the same vulnerability as the description, as both involve incorrect fee calculation in the sellCreditMarket function.\"}\n```",
+ "kosten": 0
+}

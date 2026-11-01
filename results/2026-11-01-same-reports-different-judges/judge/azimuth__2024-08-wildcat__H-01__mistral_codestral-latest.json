@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The vulnerability described in the audit report and the vulnerability description are the same, as they both involve the same issue with withdrawal execution in closed markets and the same code path in the WildcatMarket.sol contract.\"}",
+ "kosten": 0
+}

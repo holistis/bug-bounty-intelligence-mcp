@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a Medium issue titled 'Basefee calculation repeatedly credits the same L1-block issuance interval' in TaikoL2.anchor, which matches the described over‑inflated gas issuance and incorrect base fee calculation.\"}",
+ "kosten": 0
+}

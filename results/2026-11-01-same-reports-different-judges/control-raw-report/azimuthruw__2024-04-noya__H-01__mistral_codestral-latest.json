@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": false, \"reasoning\": \"The audit report does not describe the same vulnerability as the vulnerability description. The report describes a variety of accounting errors and denial of service issues, while the description focuses on a specific oracle manipulation issue.\"}\n```",
+ "kosten": 0
+}

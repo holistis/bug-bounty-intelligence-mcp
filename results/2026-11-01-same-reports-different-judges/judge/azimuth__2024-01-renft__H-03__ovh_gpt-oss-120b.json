@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a high‑severity finding about an unguarded fallback‑handler replacement that lets a Safe transfer rented tokens before rental registration, which matches the described reentrancy via fallback handler and ERC1155 safeTransferFrom.\"}",
+ "kosten": 0
+}

@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a High severity issue where Ether.fi withdrawals safe‑mint to a non‑ERC721‑receiver account, matching the described incompatibility of YieldAccount with Ether.fi's WithdrawRequestNFT safeMint.\"}",
+ "kosten": 0
+}

@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": true, \"reasoning\": \"The audit report describes the same vulnerability as the description, which is the Pendle LP burn function sending PT tokens to the market instead of the connector.\"}\n```",
+ "kosten": 0
+}

@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a vulnerability titled \\\"Missing reward-index checkpoint grants historical gauge profits to new voters\\\" describing exactly the uninitialized userGaugeProfitIndex in claimGaugeRewards, which matches the described issue.\"}",
+ "kosten": 0.00023715
+}

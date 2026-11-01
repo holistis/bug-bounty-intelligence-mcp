@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": true, \"reasoning\": \"The audit report describes the same vulnerability as the description, as both highlight the lack of access control in the updateOrder function, allowing any user to update another user's order.\"}\n```",
+ "kosten": 0
+}

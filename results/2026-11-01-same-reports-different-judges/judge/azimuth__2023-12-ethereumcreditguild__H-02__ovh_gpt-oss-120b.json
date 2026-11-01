@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a 'Rebasing self-transfer materializes unearned distribution rewards' issue in ERC20RebaseDistributor.transfer, which matches the described self-transfer reward theft vulnerability.\"}",
+ "kosten": 0
+}

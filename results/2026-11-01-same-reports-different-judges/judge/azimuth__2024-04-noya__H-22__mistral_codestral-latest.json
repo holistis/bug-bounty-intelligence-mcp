@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": true, \"reasoning\": \"The vulnerability description matches the audit report's [H-22] Invalid calculation of position TVL in Pendle connector, as both exploit the same underlying issue and occur in the same code path/function.\"}\n```",
+ "kosten": 0
+}

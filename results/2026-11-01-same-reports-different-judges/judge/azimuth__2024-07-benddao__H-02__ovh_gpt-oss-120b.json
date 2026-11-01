@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a medium issue in ValidateLogic.validateIsolateRepayBasic where repay reduces a different account's debt via onBehalf, matching the described onBehalf ownership check flaw.\"}",
+ "kosten": 0
+}

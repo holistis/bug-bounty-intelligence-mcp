@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a Medium severity issue titled 'Permissionless Curves rebinding allows forged fee claims' stating that FeeSplitter.setCurves is unrestricted, allowing attackers to replace the Curves contract and forge fee claims, which matches the described unauthorized access vulnerability.\"}",
+ "kosten": 0
+}

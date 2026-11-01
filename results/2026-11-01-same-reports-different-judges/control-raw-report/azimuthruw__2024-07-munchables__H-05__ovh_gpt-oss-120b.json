@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": false, \"reasoning\": \"The audit report lists a different issue with transferToUnoccupiedPlot (stale plot identifier) but does not mention the missing dirty‑flag reset, so the specific vulnerability described was not detected.\"}",
+ "kosten": 0
+}

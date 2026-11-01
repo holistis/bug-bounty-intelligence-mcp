@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a Medium severity issue about unrestricted validator registration in AgentNftV2.addValidator, matching the described lack of access control and its reward accounting impact.\"}",
+ "kosten": 0
+}

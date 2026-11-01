@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a medium‑severity issue titled “Removed gauges permanently trap users' allocated voting power” in GaugeController.vote_for_gauge_weights, which describes exactly the same flaw where removing a gauge prevents users from withdrawing their allocated vote weight, causing loss of voting power.\"}",
+ "kosten": 0.00028218
+}

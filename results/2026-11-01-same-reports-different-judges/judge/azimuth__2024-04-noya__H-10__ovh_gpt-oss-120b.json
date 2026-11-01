@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": false, \"reasoning\": \"The audit report lists numerous connector and accounting issues but does not mention the resetMiddle function or the missing reset of currentWithdrawGroup.totalCBAmount, so it did not detect the described vulnerability.\"}",
+ "kosten": 0
+}

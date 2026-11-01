@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": false, \"reasoning\": \"The audit report describes a different vulnerability (loss of funds in PendleConnector.depositIntoMarket) than the described vulnerability (Pendle liquidity minting donates unused SY or PT inputs to the market treasury).\"}\n```",
+ "kosten": 0
+}

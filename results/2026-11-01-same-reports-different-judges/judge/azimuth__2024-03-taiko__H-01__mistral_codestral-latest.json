@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": true, \"reasoning\": \"The audit report describes a vulnerability in the base fee calculation in TaikoL2.sol, which is the same as the vulnerability described in the issue.\"}\n```",
+ "kosten": 0
+}

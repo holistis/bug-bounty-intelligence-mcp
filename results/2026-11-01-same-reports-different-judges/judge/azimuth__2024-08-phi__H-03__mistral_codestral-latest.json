@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": true, \"reasoning\": \"The audit report describes the same vulnerability as the description, as both address the bloating of shareBalance entries and its impact on curator rewards distribution.\"}\n```",
+ "kosten": 0
+}

@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a finding titled “Recalculating withdrawals double-counts the group's required assets,” which describes exactly the resetMiddle issue where totalCBAmount isn’t reset, leading to double‑counting of withdrawal amounts.\"}",
+ "kosten": 0
+}

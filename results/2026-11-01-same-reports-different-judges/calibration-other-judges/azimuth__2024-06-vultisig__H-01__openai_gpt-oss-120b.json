@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a high‑severity issue for ILOPool.claim that describes collecting all aggregate fees with max amounts, diverting excess to the fee taker and causing subsequent NFT claims to revert—exactly the flaw detailed in the vulnerability description.\"}",
+ "kosten": 0.00023851
+}

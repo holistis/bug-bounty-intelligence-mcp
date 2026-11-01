@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes a High finding describing the same vulnerability: Guard._checkTransaction does not restrict Safe.setFallbackHandler, allowing a rental Safe owner to set the fallback handler to a rented ERC-721 and then have the Safe forward a transferFrom call to that token, bypassing the guard and stealing the rented asset.\"}",
+ "kosten": 0.0002924922
+}

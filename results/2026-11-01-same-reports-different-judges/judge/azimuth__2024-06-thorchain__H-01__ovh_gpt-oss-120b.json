@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": false, \"reasoning\": \"The audit report lists many unrelated issues but does not mention the rebasing token approval flaw or AMPL-related theft, so it did not detect the described vulnerability.\"}",
+ "kosten": 0
+}

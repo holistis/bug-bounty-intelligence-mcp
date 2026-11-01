@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": true, \"reasoning\": \"The audit report describes the same vulnerability as the description, as it also involves the resetMiddle function not resetting the withdrawal amount requested currentWithdrawGroup.totalCBAmount, causing problems in the withdrawal process and resulting in a loss of funds for the protocol and all other users.\"}\n```",
+ "kosten": 0
+}

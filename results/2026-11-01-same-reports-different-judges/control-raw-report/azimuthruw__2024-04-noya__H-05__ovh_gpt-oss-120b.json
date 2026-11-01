@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a high‑severity accounting error where PendleConnector.depositIntoMarket ignores netSyUsed/netPtUsed and calls market.skim(), causing unused SY/PT to be sent to the treasury—exactly the loss‑of‑funds issue described.\"}",
+ "kosten": 0
+}

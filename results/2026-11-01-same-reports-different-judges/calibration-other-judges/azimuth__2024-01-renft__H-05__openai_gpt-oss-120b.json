@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report includes high‑severity findings about the rental order hash not binding the custodial wallet and allowing cross‑wallet asset reclamation, which directly correspond to the described flaw where stopRent can be called with a fabricated order and the rentalWallet is omitted from the hash, enabling NFT theft and payment freezing.\"}",
+ "kosten": 0.000697747
+}

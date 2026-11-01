@@ -1,0 +1,4 @@
+{
+ "tekst": "```json\n{\"detected\": true, \"reasoning\": \"The audit report describes a reentrancy vulnerability in MinterContract::mint, which matches the vulnerability description's mechanism and code location.\"}\n```",
+ "kosten": 0
+}

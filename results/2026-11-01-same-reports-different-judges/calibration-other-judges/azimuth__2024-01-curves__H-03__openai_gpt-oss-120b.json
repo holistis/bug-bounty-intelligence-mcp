@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": false, \"reasoning\": \"The audit report lists a related issue where subject fee transfers can be rejected to block exits, but it does not identify the referral fee transfer being always called (even when zero) and its ability to revert, which is the core of the described honey‑pot vulnerability.\"}",
+ "kosten": 0.0007438
+}

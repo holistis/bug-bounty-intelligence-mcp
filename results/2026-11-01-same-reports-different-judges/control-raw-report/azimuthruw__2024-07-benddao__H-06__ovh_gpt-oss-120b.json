@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": false, \"reasoning\": \"The audit report lists many validation and accounting issues but does not mention the ERC721 safeMint incompatibility of YieldAccount causing unstake failures, so it did not detect this specific vulnerability.\"}",
+ "kosten": 0
+}

@@ -1,0 +1,4 @@
+{
+ "tekst": "{\"detected\": true, \"reasoning\": \"The audit report lists a Medium severity issue titled 'Chain-agnostic owner removal is not bound to the owner stored at the index' in CoinbaseSmartWallet.sol validateUserOp, which matches the described replayable removeOwnerAtIndex vulnerability.\"}",
+ "kosten": 0
+}
