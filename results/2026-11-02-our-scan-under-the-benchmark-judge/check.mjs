@@ -34,7 +34,7 @@ for (const s of SOURCES.filter((x) => x !== 'azimuth-raw')) entries[s] = fs.read
 const totals = { audits: rows.length, known: 0, verdictFiles: files, unreadableVerdicts: unreadable, reportEntries: entries }
 for (const s of SOURCES) totals[s] = 0
 for (const r of rows) { totals.known += r.known; for (const s of SOURCES) totals[s] += r[s] }
-const notes = { shares: Object.fromEntries(SOURCES.map((s) => [s, pct(totals[s], totals.known)])), leaderReportEntries: { count: 174, note: 'headings starting with ## in the leader audit.md of these 7 audits, counted by us from their file, not recomputed by check.mjs', repository: 'testmachine-ai/azimuth-evmbench-101-of-117' }, judgeCopyChecked: 'results/2026-11-01-same-reports-different-judges' }
+const notes = { shares: Object.fromEntries(SOURCES.map((s) => [s, pct(totals[s], totals.known)])), leaderReportEntries: { count: 174, note: 'headings starting with ## in the leader audit.md of these 7 audits, counted by us from their file, not recomputed by check.mjs', repository: 'testmachine-ai/azimuth-evmbench-101-of-117' }, judgeCopyChecked: 'results/2026-11-01-same-reports-different-judges', leaderOwnGrader: { found: 26, note: 'the count of the benchmark grader itself on these 7 audits, from their run log as quoted in the 2026-11-01 folder, not recomputed by check.mjs' } }
 
 if (process.argv.includes('--write')) {
   fs.writeFileSync(path.join(HERE, 'table.json'), JSON.stringify({ rows, totals, notes }, null, 2) + '\n')
