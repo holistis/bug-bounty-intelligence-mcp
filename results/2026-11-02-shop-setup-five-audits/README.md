@@ -31,6 +31,8 @@ By audit, strict: nextgen 8 of 35, phi 6 of 22, forte 2 of 9, secondswap 1 of 14
 
 The two open judges are stricter than the benchmark-grader copy: they find 9 of the 20 known findings strictly (13 with one judge) where the copy found 14. The files are hypotheses/ (the 90 hypotheses as written), hypothesis-verdicts/ (each judge's answer per hypothesis) and OPEN-JUDGES-PROMPT.txt, and check.mjs recounts them. Another vendor's precision cannot be set next to these numbers, because the audits, the judges and the counting rules differ.
 
+Correction on 2 November 2026: OPEN-JUDGES-PROMPT.txt first held the text of the grader copy's prompt instead of the prompt the open judges received. It now holds the prompt the two open judges actually got. Their answers were not affected, because the files with their answers were always the real ones.
+
 ## What this does and does not say
 
 - Five audits and one run each. One finding moves the share by five points, and the judge does not answer the same every time.
