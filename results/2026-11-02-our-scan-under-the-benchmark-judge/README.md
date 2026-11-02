@@ -39,6 +39,8 @@ Five audits and one run each: one finding moves the share by five points.
 
 First text, kept: "The deep scan in the shop runs a cheaper route than the research runs: one run per audit through a paid API, with a cost cap. We judged it on 1 November 2026, with the settings of the shop at that time, on 5 of the 7 audits (20 known findings). It found 8 of 20 (40.0 percent). The shop has changed since this measurement and has not been judged again."
 
+Update, later on 2 November 2026: the current setup of the deep scan has now been measured on these same five audits, 14 of 20 (70.0 percent), with its limits and a recount script, in results/2026-11-02-shop-setup-five-audits. The text above stays as it was written.
+
 ## Recomputed by someone else
 
 Tom Smart (smartflowproai-lang), outside our team, recounted this folder on 2 November 2026 and wrote his result in issue 41. Fresh clone at commit 363819e, Node 24: 7 audits, 31 known findings, 139 verdict files, 0 unreadable, azimuth-raw 25, ag12 22, ag15 23, ag16 24, and "all counts and hashes match". A separate recount in Python, written after reading check.mjs, reproduces the rows and totals of table.json and all 166 hashes in SHA256SUMS. Three checks that check.mjs does not make also pass: each of the four sources has a verdict on all 31 findings, no finding is detected for ag12 but not for ag15, or for ag15 but not for ag16, and no shop verdict file exists for forte, whose 5 findings are counted as zero. From the leader's own repository he also reports that RESULTS.tsv gives 26 of 31 on these 7 audits and that the 7 audit.md files have 174 headings starting with ##.
