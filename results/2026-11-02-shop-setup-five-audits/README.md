@@ -15,7 +15,7 @@ Five audits, 20 known findings, all High. One run per audit.
 | 2025-04-forte | 2,199 | 5 | 4 | 1.24 |
 | Together | | 20 | 14 (70.0 percent) | 5.88 |
 
-On the same five audits, from results/2026-11-02-our-scan-under-the-benchmark-judge: the leader's own report finds 15 of 20, one run of our research agents 14 of 20, a union of six research runs 16 of 20, and the earlier shop route 8 of 20 (40.0 percent). The research runs are not the product; the shop scan is the one measured here.
+On the same five audits, from results/2026-11-02-our-scan-under-the-benchmark-judge: the leader's own report finds 15 of 20 under our judge copy (16 of 20 with the benchmark's own verdict on phi H-06, see below), one run of our research agents 14 of 20, a union of six research runs 16 of 20, and the earlier shop route 8 of 20 (40.0 percent). The research runs are not the product; the shop scan is the one measured here.
 
 Where the gain over 8 of 20 comes from: the earlier route was stopped by its cost cap on forte and delivered nothing there, so forte counted as 0 of 5. On the other four audits the earlier route found 8 of 15 and this setup 10 of 15. Four of the six extra findings are forte finishing within its limit.
 
@@ -29,7 +29,7 @@ The scan cost is what our provider's counter showed per run, in dollars, without
 - Our cost limit of 1.50 dollars stopped two runs: 2024-06-size at 1.58 dollars after 10 hypotheses, and 2023-10-nextgen at 1.58 dollars with 48 of its 76 source files read. Both are counted with what they had found by then. The shop's own cost limits depend on the size of the repository and we have not measured what they would do on these two, so we do not say whether the figure for them is high or low.
 - When the guard stops a shop scan, the remaining parts are skipped and the customer receives the report with what was found so far, marked as partial.
 - The runs did not read every source file: 14 of 20 on phi, 48 of 76 on nextgen, 37 of 39 on size, all files on secondswap and forte. A finding in a file that was not read cannot be found.
-- The leader is ahead by one finding here, and on 2024-08-phi our run found H-06, which the leader's report does not.
+- The leader is ahead by one finding here under our judge copy. The one finding where our copy and the benchmark's own grader disagree is 2024-08-phi H-06: our run found it, our copy says the leader's report does not, and the benchmark's grader counts it as found there (see the 2026-11-01 folder). With their verdict the leader would be at 16 of 20 on these five audits, ahead by two.
 - The cheaper shop routes at 1 and 5 USDC are older and are not measured here.
 - The judge is a copy running through OpenRouter, not the benchmark's own run. It gave the same verdict as the benchmark's answer on 30 of 31 findings when we checked it on the leader's report (see the other folder).
 - The model, prompts and settings of the scan are not published. Outputs, judge and counting are.
