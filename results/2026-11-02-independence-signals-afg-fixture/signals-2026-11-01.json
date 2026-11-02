@@ -1,0 +1,11 @@
+{
+  "rows": 840,
+  "raters": 23,
+  "agents": 75,
+  "shareOfLargestRater": 0.529,
+  "shareOfThreeLargestRaters": 0.883,
+  "agentsWithOneRater": 68,
+  "medianPaymentUsd": 0.03,
+  "smallestPaymentUsd": 0.002,
+  "largestPaymentUsd": 6
+}
