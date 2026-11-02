@@ -1,0 +1,10 @@
+{
+ "detected": false,
+ "reden": "Not detected. H-02 is about wrongful slashing of validity and contest bonds when proofs are overridden and the ultimately correct transition differs, due to LibProving overwriting ts fields and LibVerifying only refunding to ts.prover, with no mechanism to refund earlier correct provers/contesters (only liveness bond can be optionally returned). The audit items about bonds concern different issues: liveness bond being paid to GuardianProver (and stuck), the last guardian deciding liveness-bond refund, and a top-tier re-proof assert. None describe the history-aware refund problem for validity/contest bonds or propose the same fix (guardian-directed refund of those bonds).",
+ "kosten": 0.03572725,
+ "tokens": {
+  "prompt": 15457,
+  "completion": 3167,
+  "reasoning": 3008
+ }
+}

@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The report repeatedly flags the exact issue: the VestingManager pools listed tokens into a single StepVesting entry whose stepsClaimed is set once (typically by the first lister) and then reused for all subsequent listings and purchases. transferVesting/_createVesting only copy stepsClaimed when the receiver’s totalAmount is zero, so buyers inherit the escrow’s stale stepsClaimed rather than the seller’s. This lets new buyers claim too early (often from step 0). The report describes this under items like “Buyers inherit the VestingManager’s stale stepsClaimed…”, “Pooled escrow entry … gives every buyer the stepsClaimed of the first lister”, “Escrow entry stepsClaimed is set once and reused…”, and similar variants, citing the same functions (SecondSwap_StepVesting._createVesting and transferVesting, and VestingManager.completePurchase). Fixing the pooled/stale stepsClaimed propagation as the report suggests would fix the described vulnerability as well.",
+ "kosten": 0.02200425,
+ "tokens": {
+  "prompt": 13109,
+  "completion": 1685,
+  "reasoning": 1408
+ }
+}

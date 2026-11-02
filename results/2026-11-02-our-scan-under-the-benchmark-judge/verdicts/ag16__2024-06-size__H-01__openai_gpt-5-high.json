@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The report explicitly flags that in AccountingLibrary.getCreditAmountIn (used by sellCreditMarket with exactAmountIn=false), the swap fee is charged on the net cash (cashAmountOut) instead of the gross amount, leading to systematic under-collection of protocol fees. This matches the described issue where selling credit for a specified cash amount yields a lower fee than expected. Both reference the same function/code path, the same mechanism (fee computed on net vs gross), the same scenario (sellCreditMarket exact cash out), and would be fixed by correcting the fee formula to charge on the gross/adjusted amount as proposed. Severity differences don’t matter; it’s the same vulnerability.",
+ "kosten": 0.0219115,
+ "tokens": {
+  "prompt": 11654,
+  "completion": 1296,
+  "reasoning": 1088
+ }
+}

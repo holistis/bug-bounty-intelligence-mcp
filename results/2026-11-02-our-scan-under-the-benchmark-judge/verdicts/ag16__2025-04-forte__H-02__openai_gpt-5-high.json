@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The audit content explicitly reports that Float128.sqrt() uses `stop()` on zero input (e.g., “[High] sqrt(0) runs stop() and halts the caller’s entire transaction instead of returning zero” and similar entries). It explains that STOP halts the whole call frame, skipping subsequent logic and returning empty data, and states the intended behavior is to return 0. This is the same function, same code path (the `if iszero(a) { stop() }` assembly), same impact, and the same fix (return 0 instead of STOP). Fixing what the report describes would fix the vulnerability in the description.",
+ "kosten": 0.0138145,
+ "tokens": {
+  "prompt": 11114,
+  "completion": 1101,
+  "reasoning": 896
+ }
+}

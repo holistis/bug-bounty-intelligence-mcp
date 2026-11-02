@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The report explicitly flags the Safe fallback handler issue and its ERC1155 creation-time drain. In multiple High findings (e.g., “Guard never blocks setFallbackHandler…”) it explains that setFallbackHandler is not blocked, Safe’s fallback forwards calls, and specifically that for ERC1155 the safe’s onERC1155Received is routed to the attacker-controlled handler before validateOrder/addRentals has registered the rental, enabling the renter to transfer the token out while isRentedOut is still false. This matches the described exploit path (custom fallback handler implementing onERC1155Received, tokens sent to the safe before registration, reentrancy/drain during receipt). Fixing the audit’s issue (blocking setFallbackHandler/ensuring fallback calls are checked) would also prevent the described ERC1155 hijack, so it’s the same vulnerability and code path.",
+ "kosten": 0.05685125,
+ "tokens": {
+  "prompt": 15073,
+  "completion": 5241,
+  "reasoning": 4992
+ }
+}

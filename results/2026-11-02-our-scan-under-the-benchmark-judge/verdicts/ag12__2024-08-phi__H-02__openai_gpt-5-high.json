@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The audit report explicitly flags that createArt’s signature is only over (expiresIn, uri, credData), is not bound to msg.sender, doesn’t include CreateConfig (artist, receiver, royalties/mint params), and lacks a nonce/consumption. It explains an attacker can frontrun/replay the same signature with their own CreateConfig to set themselves as artist/receiver and control royalties and settings. This matches the described vulnerability’s mechanism, code path (PhiFactory.createArt and _validateArtCreationSignature), attack scenario, and impact (impersonation and royalty theft). Fixes (binding to submitter, including CreateConfig in signed data, adding nonce) would address both. Severity labeling differences don’t affect equivalence.",
+ "kosten": 0.01264825,
+ "tokens": {
+  "prompt": 5933,
+  "completion": 984,
+  "reasoning": 768
+ }
+}

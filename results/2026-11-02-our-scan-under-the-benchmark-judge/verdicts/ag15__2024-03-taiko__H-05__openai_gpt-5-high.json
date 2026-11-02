@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The audit explicitly flags TimelockTokenPool.sol withdraw(address, bytes) for using a replayable signature (hashing only the '_to' string without nonce/deadline/contract/chain binding or used-sig tracking). It notes anyone can call withdraw(_to, sig) repeatedly (even across pool instances), withdrawing all currently unlocked tokens each time. This matches the described vulnerability’s root cause, function, and attack path; the same fix (add nonce/deadline/contract/chain binding and/or mark signatures as used) would resolve both.",
+ "kosten": 0.012181,
+ "tokens": {
+  "prompt": 7732,
+  "completion": 1058,
+  "reasoning": 896
+ }
+}

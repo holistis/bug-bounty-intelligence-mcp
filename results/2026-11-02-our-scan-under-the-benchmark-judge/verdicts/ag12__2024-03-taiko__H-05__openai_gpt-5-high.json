@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The audit report’s “[Medium] TimelockTokenPool withdraw-by-signature is replayable” is the same issue: in TimelockTokenPool.sol’s withdraw(), the signature is over a static message plus _to without nonce/expiry/contract/chain binding, enabling replay. Both descriptions cite the same function and mechanism (ECDSA.recover on a hash lacking replay protection), same attack path (repeated calls to withdraw using the same sig to pull additional/unintended tokens), and share the same fix class (add nonce/domain separation or used-signature tracking). Severity difference doesn’t affect equivalence.",
+ "kosten": 0.01134675,
+ "tokens": {
+  "prompt": 5455,
+  "completion": 1000,
+  "reasoning": 832
+ }
+}

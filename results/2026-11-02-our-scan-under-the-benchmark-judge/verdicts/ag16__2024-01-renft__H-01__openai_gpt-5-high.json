@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The report explicitly flags a High severity issue where the fulfiller appends ERC20 “tip” consideration items in Seaport, Create._processBaseOrderConsideration accepts them, and PaymentEscrow._settlePayment later transfers those ERC20s. A malicious ERC20 that reverts on transfer causes stopRent to revert permanently, locking the rented NFT. This matches the described vulnerability in mechanism, code path (Create._processBaseOrderConsideration/_rentFromZone and PaymentEscrow._settlePayment), attack steps, and impact. The suggested mitigation (restrict/whitelist or disallow tips) would address both.",
+ "kosten": 0.02341875,
+ "tokens": {
+  "prompt": 14951,
+  "completion": 1337,
+  "reasoning": 1152
+ }
+}

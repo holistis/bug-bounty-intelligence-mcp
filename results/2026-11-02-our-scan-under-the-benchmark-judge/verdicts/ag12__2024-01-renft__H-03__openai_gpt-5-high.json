@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The audit’s first High finding (“Guard never blocks setFallbackHandler…”) explicitly covers the same ERC1155 hijack during rental creation via the Gnosis Safe fallback handler. It states that a renter can set a fallback handler, that fallback calls bypass the Guard, and specifically that when Seaport transfers ERC1155 via safeTransferFrom, onERC1155Received is routed to the attacker-chosen handler before validateOrder/addRentals registers the rental, allowing the tokens to be moved out while isRentedOut is false. This matches the described reentrancy-based drain (tokens are sent before registration, fallback handler’s onERC1155Received enables exfiltration). While the report also notes broader abuse (post-registration bypass), it clearly detects the same creation-time ERC1155 drain mechanism described in H-03.",
+ "kosten": 0.07497575,
+ "tokens": {
+  "prompt": 6355,
+  "completion": 7164,
+  "reasoning": 6976
+ }
+}

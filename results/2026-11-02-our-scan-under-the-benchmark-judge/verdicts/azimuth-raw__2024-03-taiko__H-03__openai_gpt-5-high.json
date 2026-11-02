@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The audit report’s item “Withdrawal window closes immediately when the airdrop becomes fully vested” describes the same bug: in ERC20Airdrop2, the ongoingWithdrawals modifier blocks withdraw() after claimEnd + withdrawalWindow, forcing users to hit the exact endpoint timestamp to get the final tranche. This matches the user’s description of the strict boundary check preventing full withdrawals once fully unlocked. Same contract, same functions (ongoingWithdrawals/withdraw), same root cause (faulty time-window condition), and would be fixed by the same change to the modifier’s logic.",
+ "kosten": 0.01148975,
+ "tokens": {
+  "prompt": 9683,
+  "completion": 889,
+  "reasoning": 704
+ }
+}

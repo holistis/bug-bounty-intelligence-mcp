@@ -1,0 +1,10 @@
+{
+ "detected": false,
+ "reden": "The described issue is a Create/Seaport integration flaw where rentals can be created with zero executions (offers and considerations from the same address), causing _executionInvariantChecks to run over an empty executions array. Storage is updated and escrow ‘deposits’ are recorded without any actual token transfers, enabling later stopRent calls to drain the escrow. The audit report does not identify this specific zero-execution bypass. The closest findings concern: (1) tip items enabling malicious ERC20 that makes stop revert (not a drain and different root cause), (2) fee-on-transfer/rebasing tokens causing escrow/accounting mismatch (insolvency/lock, different mechanism), and (3) unavailable/skipped orders leaving zeroed entries that cause a revert (again different mechanism and outcome). None mention the matchOrders/to==from behavior, zero-length executions, or rentals being recorded without transfers. Fixes for the reported items would not necessarily fix the zero-execution drain. Therefore, the audit did not detect the same vulnerability.",
+ "kosten": 0.04581375,
+ "tokens": {
+  "prompt": 8995,
+  "completion": 4321,
+  "reasoning": 4096
+ }
+}

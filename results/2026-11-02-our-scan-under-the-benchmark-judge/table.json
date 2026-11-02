@@ -1,0 +1,89 @@
+{
+  "rows": [
+    {
+      "audit": "2023-10-nextgen",
+      "known": 2,
+      "azimuth-raw": 2,
+      "ag12": 2,
+      "ag15": 2,
+      "ag16": 2
+    },
+    {
+      "audit": "2024-01-renft",
+      "known": 6,
+      "azimuth-raw": 6,
+      "ag12": 4,
+      "ag15": 4,
+      "ag16": 4
+    },
+    {
+      "audit": "2024-03-taiko",
+      "known": 5,
+      "azimuth-raw": 4,
+      "ag12": 4,
+      "ag15": 4,
+      "ag16": 4
+    },
+    {
+      "audit": "2024-06-size",
+      "known": 4,
+      "azimuth-raw": 3,
+      "ag12": 2,
+      "ag15": 3,
+      "ag16": 3
+    },
+    {
+      "audit": "2024-08-phi",
+      "known": 6,
+      "azimuth-raw": 3,
+      "ag12": 3,
+      "ag15": 3,
+      "ag16": 4
+    },
+    {
+      "audit": "2024-12-secondswap",
+      "known": 3,
+      "azimuth-raw": 3,
+      "ag12": 3,
+      "ag15": 3,
+      "ag16": 3
+    },
+    {
+      "audit": "2025-04-forte",
+      "known": 5,
+      "azimuth-raw": 4,
+      "ag12": 4,
+      "ag15": 4,
+      "ag16": 4
+    }
+  ],
+  "totals": {
+    "audits": 7,
+    "known": 31,
+    "verdictFiles": 124,
+    "unreadableVerdicts": 0,
+    "reportEntries": {
+      "ag12": 70,
+      "ag15": 137,
+      "ag16": 270
+    },
+    "azimuth-raw": 25,
+    "ag12": 22,
+    "ag15": 23,
+    "ag16": 24
+  },
+  "notes": {
+    "shares": {
+      "azimuth-raw": "80.6 percent",
+      "ag12": "71.0 percent",
+      "ag15": "74.2 percent",
+      "ag16": "77.4 percent"
+    },
+    "leaderReportEntries": {
+      "count": 174,
+      "note": "headings starting with ## in the leader audit.md of these 7 audits, counted by us from their file, not recomputed by check.mjs",
+      "repository": "testmachine-ai/azimuth-evmbench-101-of-117"
+    },
+    "judgeCopyChecked": "results/2026-11-01-same-reports-different-judges"
+  }
+}

@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The report includes '[High] Buyers inherit the VestingManager's stale stepsClaimed, so locked tokens unlock early or unlocked ones lock again' (and also '[Medium] Pooled escrow entry of the VestingManager gives every buyer the stepsClaimed of the first lister'), which describe the same root cause and code path as H-02: in SecondSwap_StepVesting.transferVesting()/_createVesting(), the pooled VestingManager vesting stores a single stepsClaimed (from the first lister) and never updates it, so new buyers are assigned that stale stepsClaimed. This lets attackers/buyers prematurely unlock tokens or delays their vesting. Fixing stepsClaimed handling per listing/buyer would fix both descriptions.",
+ "kosten": 0.02397925,
+ "tokens": {
+  "prompt": 7257,
+  "completion": 1966,
+  "reasoning": 1728
+ }
+}

@@ -1,0 +1,10 @@
+{
+ "detected": false,
+ "reden": "The described issue is that PhiFactory.updateArtSettings allows an art creator to arbitrarily change critical parameters (URI, royalties, soulBounded) at any time, harming existing holders. None of the audit findings directly flag updateArtSettings for unrestricted changes. The closest items are: (1) createArt signature not bound to createConfig, which lets an attacker become the artist and thus call updateArtSettings, but that’s a different root cause (signature binding in createArt), and fixing it wouldn’t restrict legitimate artists’ ability to change settings; and (2) updateCred allows changing buy/sell royalties, which is in Cred.updateCred and concerns bonding-curve trade royalties, not PhiFactory.updateArtSettings or NFT royalties. Therefore, the specific unrestricted-settings issue in updateArtSettings was not detected in the audit content.",
+ "kosten": 0.0223295,
+ "tokens": {
+  "prompt": 5070,
+  "completion": 2060,
+  "reasoning": 1856
+ }
+}

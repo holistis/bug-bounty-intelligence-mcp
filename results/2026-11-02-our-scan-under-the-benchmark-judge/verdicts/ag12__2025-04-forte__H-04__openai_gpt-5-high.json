@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The report’s “[Medium] eq/le/ge give false for equal values stored as M and as L” explicitly states that eq is a raw uint256 (bit-pattern) comparison, causing equal numeric values encoded with different mantissa sizes (M vs L, i.e., with the L flag set) to compare unequal. This matches H-04’s root cause (eq unwraps and compares packed words, ignoring the L_MANTISSA_FLAG), the same function (Float128.eq), same code path/mechanism, same attack scenario (two encodings of the same value), and would be fixed by normalizing/decoding before comparison as suggested. Severity labeling differences don’t matter; it’s the same vulnerability.",
+ "kosten": 0.01699425,
+ "tokens": {
+  "prompt": 4181,
+  "completion": 1436,
+  "reasoning": 1216
+ }
+}

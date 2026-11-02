@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The audit report explicitly flags the same issue in PhiFactory.signatureClaim multiple times (e.g., “Factory signatureClaim ignores the signed chainId: signatures replayable across chains” and “PhiFactory.signatureClaim ignores the signed chain id… enabling cross-chain replay”). It describes that signatureClaim decodes encodeData including a chainId slot but never checks it, allowing direct calls to PhiFactory.signatureClaim to replay a signature across chains. The attack path and impact (cross-chain unauthorized mints/claims) match, and the implied fix (bind or enforce chainId like Claimable does) would resolve both. Same function, same root cause, same exploit path, same fix.",
+ "kosten": 0.02325225,
+ "tokens": {
+  "prompt": 15285,
+  "completion": 1221,
+  "reasoning": 1024
+ }
+}

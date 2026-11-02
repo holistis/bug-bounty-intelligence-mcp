@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The audit report explicitly flags in Liquidate.executeLiquidate that collateralRemainderCap is computed as mulDivDown(debtInCollateralToken, crLiquidation, PERCENT) instead of using only the excess above debt, i.e., (crLiquidation - PERCENT) * debt. It explains that this overcharges overdue but solvent borrowers and matches the same code path, mechanism, and fix (change to crLiquidation - PERCENT) described in the vulnerability. Differences in severity labeling do not affect that it’s the same issue.",
+ "kosten": 0.0149565,
+ "tokens": {
+  "prompt": 11530,
+  "completion": 1120,
+  "reasoning": 960
+ }
+}

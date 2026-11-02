@@ -1,0 +1,10 @@
+{
+ "detected": false,
+ "reden": "The described vulnerability relies on constructing Seaport matches so totalExecutions is zero (to==from), thereby bypassing Create._executionInvariantChecks; Create still records a rental and calls ESCRW.increaseDeposit without any transfers, letting the attacker later drain Escrow with a fake rental. None of the audit findings describe this “zero-execution/phantom rental” path or the to==from matchOrders behavior. The closest items concern: (1) fee-on-transfer/rebasing tokens causing deposit mismatches (Create calling increaseDeposit with nominal amounts), and (2) array sizing/zeroed entries in totalExecutions that cause reverts, plus tip-injection causing stop reverts. These are different mechanisms and attack paths. The report does not identify the specific bypass where no executions occur and invariant checks are skipped, allowing storage updates with no asset movement and subsequent escrow draining.",
+ "kosten": 0.056185,
+ "tokens": {
+  "prompt": 14156,
+  "completion": 5289,
+  "reasoning": 5056
+ }
+}

@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The report contains two High findings titled “Reentrancy through _safeMint bypasses per-address allowlist and public mint limits” for NextGenCore.mint/MinterContract.mint. They describe exactly the same mechanism: NextGenCore.mint calls _safeMint (triggering onERC721Received) before incrementing tokensMintedAllowlistAddress/tokensMintedPerAddress, allowing re-entry into MinterContract.mint so the per-address/maxCollectionPurchases checks read stale counters and pass repeatedly. The attack path (malicious ERC721Receiver re-calling mint) and impact (one address can mint an unbounded share, up to total supply) match the vulnerability description. The fix (apply CEI by updating counters before the external call) is the same. Thus, the audit detected the same vulnerability in the same code path.",
+ "kosten": 0.02717875,
+ "tokens": {
+  "prompt": 10047,
+  "completion": 1462,
+  "reasoning": 1216
+ }
+}

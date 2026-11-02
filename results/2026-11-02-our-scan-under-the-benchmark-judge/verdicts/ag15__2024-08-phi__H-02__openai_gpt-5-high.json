@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The report explicitly flags PhiFactory.createArt for verifying a signature only over (expiresIn, uri, credData) while leaving CreateConfig (artist/receiver/etc.) and the caller unbound, with no nonce/used-signature and no chainId, enabling a frontrunner/replayer to set themselves as artist/receiver and steal rewards. This is the same function, same root cause, same attack path (impersonation via reused signature with attacker-supplied config), and would be fixed by binding CreateConfig and/or the executor/nonce—so fixing the report’s issue would fix the described vulnerability.",
+ "kosten": 0.01919725,
+ "tokens": {
+  "prompt": 8993,
+  "completion": 1602,
+  "reasoning": 1408
+ }
+}

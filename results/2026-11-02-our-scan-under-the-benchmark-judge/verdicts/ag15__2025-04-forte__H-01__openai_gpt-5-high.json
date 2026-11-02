@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The report explicitly describes the same sqrt bug in Float128’s high-precision branch: rMan is trimmed to 72 digits and rExp is incremented before rExp is halved (rMan /= BASE; ++rExp; rExp /= 2), which causes the +1 compensation to be lost for non-negative exponents and yields a result 10x too small for large inputs (odd exponent ≥ 73). The code path, mechanism, impact, and fix are the same. The report even proposes the equivalent fix (do the halving before the 72-digit adjustment or, equivalently, add +2 before halving). Fixing the report’s issue would fix the described vulnerability.",
+ "kosten": 0.03204625,
+ "tokens": {
+  "prompt": 6093,
+  "completion": 2443,
+  "reasoning": 2240
+ }
+}

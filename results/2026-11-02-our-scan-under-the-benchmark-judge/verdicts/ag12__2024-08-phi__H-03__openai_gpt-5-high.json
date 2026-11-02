@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The audit report’s “Zero-balance holders are never removed from the curator map, so distribute() can be bricked by gas and the pot stuck” is the same issue. Both identify that Cred._updateCuratorShareBalance sets a curator’s balance to 0 without removing the key from the EnumerableMap, causing unbounded growth of shareBalance[credId]. CuratorRewardsDistributor.distribute then iterates all entries, leading to gas DoS and stuck rewards. The attack path (creating many zero-balance holders) and impact (distribution becomes impossible) match. The specific fix (remove the entry when balance reaches zero) would resolve both descriptions.",
+ "kosten": 0.014407,
+ "tokens": {
+  "prompt": 5764,
+  "completion": 1181,
+  "reasoning": 1024
+ }
+}

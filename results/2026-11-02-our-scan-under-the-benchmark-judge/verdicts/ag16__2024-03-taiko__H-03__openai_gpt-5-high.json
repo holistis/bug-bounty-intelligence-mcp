@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The report’s “[High] ERC20Airdrop2 users can only withdraw full allocation in the single second at window end” describes the same bug: in ERC20Airdrop2.sol, withdraw() is gated by the ongoingWithdrawals modifier which reverts after claimEnd + withdrawalWindow, while getBalance() unlocks linearly and only reaches 100% exactly at claimEnd + withdrawalWindow. This makes full withdrawal effectively impossible except at that exact second, and any remainder becomes unwithdrawable thereafter. Same contract, same functions/modifier (withdraw()/getBalance()/ongoingWithdrawals), same root cause and impact, and the same fix (adjust the time check) would resolve both.",
+ "kosten": 0.01432975,
+ "tokens": {
+  "prompt": 14731,
+  "completion": 1118,
+  "reasoning": 896
+ }
+}

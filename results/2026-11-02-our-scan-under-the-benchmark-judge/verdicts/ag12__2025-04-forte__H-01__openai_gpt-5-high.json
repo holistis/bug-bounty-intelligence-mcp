@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The report’s Medium issue about sqrt returning a result 10x too small for large inputs with odd exponent >= 73 pinpoints the same bug in Float128.sqrt’s large-number branch: the 73-digit mantissa trimming (rMan/=BASE; ++rExp) is performed before halving the exponent (rExp = rExp/2), so the compensation is lost due to truncation. The vulnerability description (H-01) describes the same code path and mechanism (lines around rMan > MAX_L_DIGIT_NUMBER, ++rExp then halving) and proposes moving the halving before the digit adjustment. The report proposes an equivalent fix (use rExp += 2 before halving). Both fixes are functionally the same (yielding final rExp = floor(rExp0/2) + 1 when rMan has 73 digits). Impact in both is an off-by-one exponent leading to a 10x error. Thus, the audit report detected the same vulnerability.",
+ "kosten": 0.035585,
+ "tokens": {
+  "prompt": 4252,
+  "completion": 3027,
+  "reasoning": 2752
+ }
+}

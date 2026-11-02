@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The report repeatedly flags in SecondSwap_StepVesting.transferVesting that grantorVesting.releaseRate is reset to totalAmount/numOfSteps, ignoring amountClaimed and stepsClaimed, while claimable() pays releaseRate*claimableSteps without an early cap. This lets a partially claimed seller over-claim beyond totalAmount after listing, draining the shared pool. It is the same function, mechanism, attack path (via marketplace listVesting/transferVesting), and the same fix (use (totalAmount - amountClaimed) / (numOfSteps - stepsClaimed)). Fixing the report’s issue would fix H-03.",
+ "kosten": 0.016163,
+ "tokens": {
+  "prompt": 12604,
+  "completion": 1164,
+  "reasoning": 960
+ }
+}

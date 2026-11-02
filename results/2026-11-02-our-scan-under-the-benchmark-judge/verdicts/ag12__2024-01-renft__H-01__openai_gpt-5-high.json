@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The audit’s [High] “Seaport tip items let the renter inject an attacker ERC20 payment item that makes stopRent revert forever” is the same vulnerability. Both describe that Seaport allows arbitrary “tipping” by appending ERC20 consideration items not covered by the order hash or the protocol’s signature, which the Zone (Create) accepts and records. Later, during stopRent, PaymentEscrow._settlePayment attempts to transfer all recorded ERC20 items; a malicious ERC20 that reverts causes stopRent to revert, permanently locking the NFT and escrowed funds. They reference the same mechanism (Seaport consideration extensions/tips), same code path (Create processing of consideration and PaymentEscrow._settlePayment), and would be fixed by prohibiting or constraining tips (e.g., validating consideration length/whitelisting).",
+ "kosten": 0.02620125,
+ "tokens": {
+  "prompt": 6233,
+  "completion": 1841,
+  "reasoning": 1600
+ }
+}

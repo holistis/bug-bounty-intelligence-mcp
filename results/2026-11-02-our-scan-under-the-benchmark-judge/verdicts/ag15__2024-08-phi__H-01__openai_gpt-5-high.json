@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The audit report explicitly flags the same issue in PhiFactory.signatureClaim: the chainId in the signed payload is decoded but ignored, allowing signatures issued for one chain to be replayed on others by calling the factory directly (bypassing Claimable’s chainId substitution). It describes the same function, mechanism (missing chainId binding in signature verification), attack path (cross-chain replay/unauthorized claims), and suggests the same fix (bind/verify chainId). Fixing the audit-reported issue would fix the vulnerability described.",
+ "kosten": 0.0223175,
+ "tokens": {
+  "prompt": 8374,
+  "completion": 1185,
+  "reasoning": 1024
+ }
+}

@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The report’s “[Medium] Pooled escrow entry of the VestingManager gives every buyer the stepsClaimed of the first lister” is the same issue as H-02. Both describe that sold vestings are pooled under the VestingManager, _createVesting only sets stepsClaimed on first creation (totalAmount == 0), and transferVesting then propagates that single pooled stepsClaimed to new buyers. This allows a new buyer (often inheriting stepsClaimed = 0) to prematurely claim tokens. It’s the same code path (SecondSwap_StepVesting::_createVesting and transferVesting via VestingManager), same mechanism (shared stepsClaimed across all sales), and would be fixed by tracking/propagating the seller’s correct stepsClaimed per listing. Severity label differences don’t affect equivalence.",
+ "kosten": 0.025015,
+ "tokens": {
+  "prompt": 5620,
+  "completion": 2087,
+  "reasoning": 1856
+ }
+}
