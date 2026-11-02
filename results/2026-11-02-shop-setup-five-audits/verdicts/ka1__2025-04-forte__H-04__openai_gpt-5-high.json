@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The audit report’s finding “Non-canonical float encodings: L/M boundary off-by-one and inconsistent normalization break raw eq()” is the same issue. It explicitly states that eq() compares raw packed words and relies on a unique encoding, which is violated due to L/M encoding differences and normalization inconsistencies. As a result, numerically equal values encoded with different mantissa sizes (and the L flag) compare unequal—exactly the problem described in the vulnerability report. Both point to eq()’s raw unwrap-based equality as the root cause and would be fixed by normalizing/canonicalizing or decoding before comparison. The report even provides the same style of example (e.g., values like toPackedFloat(10**71, -71) vs toPackedFloat(1,0)) showing equality failures due to L vs M encodings.",
+ "kosten": 0.0292975,
+ "tokens": {
+  "prompt": 5046,
+  "completion": 2659,
+  "reasoning": 2432
+ }
+}

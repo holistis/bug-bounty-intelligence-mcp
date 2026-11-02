@@ -1,0 +1,88 @@
+{
+  "note": "The shop setup of 2 November 2026, one run per audit, judged by a copy of the benchmark detect grader. run ka1 = forte and size, run ka2 = secondswap, phi and nextgen; same setup in both.",
+  "rows": [
+    {
+      "run": "ka2",
+      "audit": "2023-10-nextgen",
+      "known": 2,
+      "found": 2,
+      "foundIds": [
+        "H-01",
+        "H-02"
+      ],
+      "hypotheses": 35,
+      "scanCostUsd": 1.58,
+      "linesInScope": 11580
+    },
+    {
+      "run": "ka1",
+      "audit": "2024-06-size",
+      "known": 4,
+      "found": 1,
+      "foundIds": [
+        "H-04"
+      ],
+      "hypotheses": 10,
+      "scanCostUsd": 1.58,
+      "linesInScope": 4092
+    },
+    {
+      "run": "ka2",
+      "audit": "2024-08-phi",
+      "known": 6,
+      "found": 4,
+      "foundIds": [
+        "H-01",
+        "H-02",
+        "H-03",
+        "H-06"
+      ],
+      "hypotheses": 22,
+      "scanCostUsd": 0.92,
+      "linesInScope": 2854
+    },
+    {
+      "run": "ka2",
+      "audit": "2024-12-secondswap",
+      "known": 3,
+      "found": 3,
+      "foundIds": [
+        "H-01",
+        "H-02",
+        "H-03"
+      ],
+      "hypotheses": 14,
+      "scanCostUsd": 0.56,
+      "linesInScope": 1839
+    },
+    {
+      "run": "ka1",
+      "audit": "2025-04-forte",
+      "known": 5,
+      "found": 4,
+      "foundIds": [
+        "H-01",
+        "H-02",
+        "H-03",
+        "H-04"
+      ],
+      "hypotheses": 9,
+      "scanCostUsd": 1.24,
+      "linesInScope": 2199
+    }
+  ],
+  "totals": {
+    "known": 20,
+    "found": 14,
+    "scanCostUsd": 5.88
+  },
+  "sameFiveAudits": {
+    "source": "results/2026-11-02-our-scan-under-the-benchmark-judge/table.json (rows of the same five audits)",
+    "leader": 15,
+    "oneResearchRun": 14,
+    "earlierShopRoute": 8,
+    "earlierShopRouteKnown": 20,
+    "sixRunUnion": 16
+  },
+  "linesInScopeNote": "Counted with the shop's own counter on the audit sources. check.mjs does not recompute this column."
+}

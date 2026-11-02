@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The report’s finding “Liquidator reward is computed from futureValue in borrow-token units but added to collateral-token amounts” in Liquidate.executeLiquidate() is the same issue. Both describe that liquidatorReward is calculated using futureValue (borrow-token decimals) while assignedCollateral and debtInCollateralToken are in collateral-token units, causing a severe under/over reward (e.g., USDC vs WETH → ~1e12 mismatch). Both impacts cite poor liquidation incentives. The specific fix is the same: compute the reward using the collateral-denominated amount (debtInCollateralToken) instead of futureValue. Same function, same mechanism, same remediation.",
+ "kosten": 0.01556175,
+ "tokens": {
+  "prompt": 5267,
+  "completion": 1229,
+  "reasoning": 1024
+ }
+}

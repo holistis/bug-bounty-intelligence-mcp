@@ -1,0 +1,10 @@
+{
+ "detected": false,
+ "reden": "The described issue is an incorrect swap fee calculation in AccountingLibrary.getCreditAmountIn used by sellCreditMarket (exact-out path), causing the protocol to collect less fee than intended. The provided audit content does not mention sellCreditMarket fee math or getCreditAmountIn. The closest items concern multicall cap checks, liquidity checks against Aave Pool, ETH deposit handling, liquidation reward units, decimals assumptions, fragmentation fee handling in compensate, and mixed ETH/ERC20 deposits—but none address the swap fee formula or its denominator. Fixing any reported issues would not fix the getCreditAmountIn fee undercollection; thus the report did not detect this vulnerability.",
+ "kosten": 0.01848375,
+ "tokens": {
+  "prompt": 5147,
+  "completion": 1205,
+  "reasoning": 1024
+ }
+}

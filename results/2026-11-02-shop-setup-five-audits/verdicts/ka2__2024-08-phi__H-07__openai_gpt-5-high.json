@@ -1,0 +1,10 @@
+{
+ "detected": false,
+ "reden": "The described issue targets PhiFactory.updateArtSettings letting artists arbitrarily change critical art parameters (soulBounded, URI, and royalties) post-mint. The audit report does not flag this. The closest findings are: (1) Cred.updateCred allowing buy/sell share royalty changes (different contract/function and context—bonding curve shares, not art settings), and (2) unbounded royalty BPS in CreatorRoyaltiesControl (about lack of caps, not about unrestricted ability to toggle soulBounded/URI or time-of-change constraints). Fixes for those would not fix the unrestricted updateArtSettings risk, so this specific vulnerability was not detected.",
+ "kosten": 0.027816,
+ "tokens": {
+  "prompt": 7512,
+  "completion": 2577,
+  "reasoning": 2368
+ }
+}

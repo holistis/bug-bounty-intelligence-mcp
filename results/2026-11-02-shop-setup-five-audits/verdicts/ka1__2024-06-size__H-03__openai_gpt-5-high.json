@@ -1,0 +1,10 @@
+{
+ "detected": false,
+ "reden": "No. The audit’s only issue in Liquidate.executeLiquidate is a unit/decimals mismatch when computing liquidatorReward from futureValue (borrow-token units) and adding it to collateral-token amounts. The described vulnerability concerns a different logic error: the collateral remainder cap is calculated using crLiquidation (e.g., 130%) instead of the excess over 100% (crLiquidation - PERCENT), causing unfair loss scaling with higher CR. These have different root causes, affect different lines/variables in the same function, and require different fixes (unit conversion vs. subtracting PERCENT from crLiquidation). Fixing the audited issue would not fix the incorrect remainder cap, so the report did not detect H-03.",
+ "kosten": 0.02481675,
+ "tokens": {
+  "prompt": 5023,
+  "completion": 2185,
+  "reasoning": 1984
+ }
+}

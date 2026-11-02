@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The audit report’s “[Medium] sqrt() high-exponent path halves an odd pre-exponent after incrementing it, giving a result off by 10x” is the same issue as the described [H-01]. Both point to Float128.sqrt’s large-exponent/Uint512 path where rExp is set (rExp = aExp - 72), then rMan is normalized (if rMan > MAX_L_DIGIT_NUMBER then rMan /= BASE; ++rExp), and only afterwards rExp is halved (rExp /= 2). Both explain this ordering causes the increment to be effectively lost due to integer division, yielding an exponent off-by-one and a result ~10x too small for certain large inputs (notably when the pre-halving exponent is odd / 73-digit case). Both propose equivalent fixes: perform the halving before the digit-adjustment, or equivalently add 2 before halving. Thus, same code path, same root cause, same impact, same specific fix.",
+ "kosten": 0.03390625,
+ "tokens": {
+  "prompt": 5117,
+  "completion": 2751,
+  "reasoning": 2496
+ }
+}

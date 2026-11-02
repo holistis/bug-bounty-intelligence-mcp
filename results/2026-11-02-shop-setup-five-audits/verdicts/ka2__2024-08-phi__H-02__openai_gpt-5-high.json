@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The audit report’s “[Medium] createArt signature does not cover CreateConfig and is replayable…” finding is the same issue. Both describe that PhiFactory.createArt’s signed payload omits CreateConfig and is not bound to the caller/nonce/chain, enabling a frontrunner/replayer to submit the same signature with attacker-chosen CreateConfig (artist, receiver, fees, etc.). The attack path (front-run/replay createArt with own artist/receiver) and impact (unauthorized arts created; attacker becomes artist; can direct royalties and call updateArtSettings) match. Fixes that bind CreateConfig and caller/nonce to the signature would address both. Thus, the report detected the same vulnerability.",
+ "kosten": 0.01658475,
+ "tokens": {
+  "prompt": 8375,
+  "completion": 1346,
+  "reasoning": 1152
+ }
+}
