@@ -37,6 +37,12 @@ On the same 5 audits the leader's report finds 15 of 20 and one of our research 
 
 Five audits and one run each: one finding moves the share by five points. The shop has changed since this measurement and has not been judged again.
 
+## Recomputed by someone else
+
+Tom Smart (smartflowproai-lang), outside our team, recounted this folder on 2 November 2026 and wrote his result in issue 41. Fresh clone at commit 363819e, Node 24: 7 audits, 31 known findings, 139 verdict files, 0 unreadable, azimuth-raw 25, ag12 22, ag15 23, ag16 24, and "all counts and hashes match". A separate recount in Python, written after reading check.mjs, reproduces the rows and totals of table.json and all 166 hashes in SHA256SUMS. Three checks that check.mjs does not make also pass: each of the four sources has a verdict on all 31 findings, no finding is detected for ag12 but not for ag15, or for ag15 but not for ag16, and no shop verdict file exists for forte, whose 5 findings are counted as zero. From the leader's own repository he also reports that RESULTS.tsv gives 26 of 31 on these 7 audits and that the 7 audit.md files have 174 headings starting with ##.
+
+What this covers: the arithmetic and the consistency of the files. It does not cover whether the judge's verdicts are right, and nobody has checked the 31 against the benchmark's own configs yet. Anyone can add a line the same way, see issue 41.
+
 ## Check it
 
     node check.mjs
