@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The audit report flags the same issue: in AccountingLibrary.getCreditAmountIn (used by sellCreditMarket with exactAmountIn=false), the swap fee is computed on the net cash amount (cashAmountOut) instead of the gross basis, resulting in a lower fee than the exactAmountIn=true path. Both descriptions pinpoint the same function/code path and root cause (incorrect fee formula leading to under-collection when selling for a specific cash amount). Fixing the fee calculation in getCreditAmountIn (charging s/(1−s) or equivalent) would resolve both.",
+ "kosten": 0.01927,
+ "tokens": {
+  "prompt": 4792,
+  "completion": 1328,
+  "reasoning": 1152
+ }
+}

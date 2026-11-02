@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The audit report explicitly flags that zero-balance curators are not removed from shareBalance (Cred._updateCuratorShareBalance sets 0 instead of remove), causing the EnumerableMap to grow unbounded and CuratorRewardsDistributor.distribute() to run out of gas when iterating holders. It describes the same code path, impact (permanent DoS of rewards distribution), and fix (remove zero entries). Two findings cover this: “Shares holders map never removes zero-balance curators: distribute() loops can be made to run out of gas” and “Zero-balance holders are never removed… so distribute() can be bricked…”. Fixing by removing zero-balance entries would resolve both, so it’s the same vulnerability.",
+ "kosten": 0.013986,
+ "tokens": {
+  "prompt": 8824,
+  "completion": 1102,
+  "reasoning": 896
+ }
+}

@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The audit explicitly reports that TimelockTokenPool.withdraw(address,bytes) signs only a static message without nonce/contract/chain binding, making signatures replayable. It explains that anyone can call withdraw(_to, sig) repeatedly (and even across pools), withdrawing additional unlocked tokens over time—exactly the same root cause and attack path as the described issue. The same fix (adding nonce/replay protection and proper domain binding) would resolve both.",
+ "kosten": 0.0149985,
+ "tokens": {
+  "prompt": 14130,
+  "completion": 1260,
+  "reasoning": 1088
+ }
+}

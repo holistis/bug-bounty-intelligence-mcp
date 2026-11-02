@@ -1,0 +1,10 @@
+{
+ "detected": false,
+ "reden": "Not detected. The described issue concerns LibProving/LibVerifying slashing/refund logic: when a higher-tier/guardian proof overrides earlier proofs, ts.prover and bonds are overwritten so earlier correct provers/contesters lose validity/contest bonds, and guardians can only trigger liveness-bond refunds (RETURN_LIVENESS_BOND). The final refund in LibVerifying goes to ts.prover (often the guardian), leaving earlier bonds unrecoverable. None of the audit findings matches this mechanism. The closest items are (1) “Guardian re-prove branch always panics” (an assert logic bug preventing re-prove) and (2) “GuardianProver approval hash omits proof data” (allows a single guardian to decide liveness bond refund). Both are different root causes and fixes; they do not address wrongful slashing/refunding of validity/contest bonds or history-insensitive refunding. Therefore the specific vulnerability was not reported.",
+ "kosten": 0.0300555,
+ "tokens": {
+  "prompt": 6782,
+  "completion": 2705,
+  "reasoning": 2432
+ }
+}

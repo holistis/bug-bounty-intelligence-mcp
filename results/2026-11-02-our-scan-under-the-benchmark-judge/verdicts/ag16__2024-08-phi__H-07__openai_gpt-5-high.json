@@ -1,0 +1,10 @@
+{
+ "detected": false,
+ "reden": "The described issue targets PhiFactory.updateArtSettings: the artist can arbitrarily change critical parameters (soulBounded, royalties, URI, etc.) at any time, with no caps/timelock/constraints, enabling transfer lock-ins, royalty hikes, and URL swaps. In the provided audit content, no finding directly flags updateArtSettings as being overly permissive or recommends restricting those changes. Mentions of updateArtSettings appear only tangentially in createArt signature-binding issues (attacker can become artist and then use updateArtSettings), but those findings focus on missing signature binding/replay in createArt, not on the unrestricted nature of updateArtSettings itself. Separate findings about royalty changes concern Cred.updateCred (bonding curve royalties) and are a different function, mechanism, and fix. Therefore, fixing the reported findings would not fix the unrestricted updateArtSettings vulnerability. They are not the same issue.",
+ "kosten": 0.02381125,
+ "tokens": {
+  "prompt": 15041,
+  "completion": 2085,
+  "reasoning": 1856
+ }
+}

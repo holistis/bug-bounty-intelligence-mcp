@@ -1,0 +1,10 @@
+{
+ "detected": false,
+ "reden": "Not detected. The described issue is that validity and contest bonds are wrongfully slashed (and later unrecoverable) when a higher-tier proof overwrites history and a subsequent guardian proof ultimately confirms the correct transition; additionally, rewards can be sent to the Guardian contract and get stuck. The audit report’s related findings discuss (1) the guardian re‑prove branch always panicking due to contestBond being set to 1, and (2) liveness bond refund being unilaterally decided by the last guardian approval. Neither addresses wrongful slashing/non‑refund of validity or contest bonds nor the misallocation/lockup of those bonds to the Guardian contract. Fixing the reported items would not fix H‑02, so the specific vulnerability was not detected.",
+ "kosten": 0.03304975,
+ "tokens": {
+  "prompt": 9059,
+  "completion": 2979,
+  "reasoning": 2752
+ }
+}

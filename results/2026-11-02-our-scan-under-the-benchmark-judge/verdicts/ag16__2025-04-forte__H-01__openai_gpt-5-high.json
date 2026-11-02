@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. Multiple findings in the audit report precisely describe the same sqrt bug in Float128.sol’s high-precision (Uint512) branch: after computing rMan, the code performs the 73-digit overflow adjustment (rMan /= 10; ++rExp) before halving the exponent (rExp = rExp/2), which yields an off-by-one exponent and returns a result 10x too small for affected large inputs. The report cites the exact code path, mechanism, impact, and even suggests equivalent fixes (halve first or add +2 before halving). This matches H-01’s description and proposed diff (move halving before the 72→73 digit adjustment). Fixing the report’s issue would fix H-01 and vice versa.",
+ "kosten": 0.03034175,
+ "tokens": {
+  "prompt": 11739,
+  "completion": 2042,
+  "reasoning": 1856
+ }
+}

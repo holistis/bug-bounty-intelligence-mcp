@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The audit report’s “Reentrancy through _safeMint in NextGenCore.mint bypasses allowlist and public per-address mint limits” is the same issue. Both describe that NextGenCore.mint updates per-address/allowlist counters only after calling _safeMint, which triggers onERC721Received and allows reentrancy back into MinterContract.mint while the counters still reflect the old values. This bypasses maxCollectionPurchases/allowlist limits and lets one address mint repeatedly up to the collection supply. The code path (NextGenCore.mint -> _safeMint -> onERC721Received -> reenter MinterContract.mint) and root cause (CEI violation/order of effects vs external call) match, and the same fix (move counter updates before the external call/apply CEI) would resolve both.",
+ "kosten": 0.02499,
+ "tokens": {
+  "prompt": 7432,
+  "completion": 1570,
+  "reasoning": 1344
+ }
+}

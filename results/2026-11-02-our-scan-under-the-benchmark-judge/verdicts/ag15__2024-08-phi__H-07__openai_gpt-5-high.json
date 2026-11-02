@@ -1,0 +1,10 @@
+{
+ "detected": false,
+ "reden": "No. The described issue targets PhiFactory.updateArtSettings allowing the ARTIST to arbitrarily change critical parameters (URI, mintFee, timing, soulBounded, royalties) at any time, harming existing holders, and calls for limits/caps. The audit content does not report this. It mentions createArt signature weaknesses (letting an attacker become artist and thus control updateArtSettings) and separate Cred.updateCred royalty changes for shares, but neither is the same flaw or code path. Fixing the audit’s findings would not prevent a legitimate artist from later toggling soulBounded or raising royalties via updateArtSettings, and vice versa.",
+ "kosten": 0.0200185,
+ "tokens": {
+  "prompt": 8130,
+  "completion": 1792,
+  "reasoning": 1600
+ }
+}

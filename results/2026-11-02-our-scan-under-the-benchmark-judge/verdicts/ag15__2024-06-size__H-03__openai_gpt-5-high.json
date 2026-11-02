@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The audit report contains: “Liquidation remainder cap uses crLiquidation instead of (crLiquidation - 100%), over-charging overdue healthy borrowers” in Liquidate.sol::executeLiquidate. It explains collateralRemainderCap is computed as mulDivDown(debtInCollateralToken, crLiquidation, PERCENT) and that the intended cap should be the excess above debt, i.e., (crLiquidation - PERCENT) * debt. This matches the vulnerability description’s issue, code path, impact, and proposed fix (subtract PERCENT from crLiquidation). Fixing the report’s issue would fix the described vulnerability.",
+ "kosten": 0.015499,
+ "tokens": {
+  "prompt": 7060,
+  "completion": 1229,
+  "reasoning": 1024
+ }
+}

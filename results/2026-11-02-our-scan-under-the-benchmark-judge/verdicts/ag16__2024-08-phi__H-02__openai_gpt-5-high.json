@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The audit report explicitly flags the same issue multiple times for PhiFactory.createArt: the art-creation signature does not bind CreateConfig (artist/receiver/fees/etc.) or the caller, lacks a nonce/used-sig tracking (and sometimes chainId), enabling front‑running/replay so an attacker can set themselves as artist/receiver and capture royalties. The attack path and impacts (impersonation, fee/royalty theft, control over settings) match the vulnerability description. The proposed fixes (bind CreateConfig and/or caller in the signed payload, add nonce/consumption, chainId) would fix both, so it is the same vulnerability and code path.",
+ "kosten": 0.01643,
+ "tokens": {
+  "prompt": 15904,
+  "completion": 1239,
+  "reasoning": 1024
+ }
+}

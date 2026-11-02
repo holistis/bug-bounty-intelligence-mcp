@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The audit report’s [High] issue precisely matches H-03. Both reference SecondSwap_StepVesting.transferVesting and identify that releaseRate is reset to totalAmount/numOfSteps without accounting for amountClaimed and stepsClaimed. Both explain that this allows the seller to overclaim before the final step (where claimable caps at remaining amount), potentially draining pooled funds and making later claims revert. The suggested correct formula ( (totalAmount - amountClaimed) / (numOfSteps - stepsClaimed) ) is the same fix. Fixing the audit’s issue would fix the described vulnerability.",
+ "kosten": 0.01137375,
+ "tokens": {
+  "prompt": 5115,
+  "completion": 786,
+  "reasoning": 640
+ }
+}

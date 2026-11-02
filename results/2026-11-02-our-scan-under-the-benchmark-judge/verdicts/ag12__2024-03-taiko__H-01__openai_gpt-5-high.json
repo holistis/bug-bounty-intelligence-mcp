@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The audit report’s “TaikoL2 basefee re-applies L1 gas issuance since stale lastSyncedBlock for every L2 block” is the same issue. Both point to TaikoL2._calc1559BaseFee (called from anchor) and explain that lastSyncedBlock is only updated on a threshold, so issuance is repeatedly subtracted using _l1BlockId - lastSyncedBlock on every anchor, inflating issuance and producing an incorrect basefee (either collapsing to minimum or mismatching block.basefee, potentially halting). The root cause, code path, and fix (compute issuance only once per L1 block/update tracking of lastSyncedBlock appropriately) are identical.",
+ "kosten": 0.02387875,
+ "tokens": {
+  "prompt": 7175,
+  "completion": 1491,
+  "reasoning": 1280
+ }
+}

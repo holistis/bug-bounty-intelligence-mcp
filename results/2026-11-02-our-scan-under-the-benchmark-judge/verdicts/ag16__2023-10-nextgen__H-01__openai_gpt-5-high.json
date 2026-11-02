@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The audit report repeatedly flags the same reentrancy in the mint path: NextGenCore.mint calls _safeMint (triggering onERC721Received) before incrementing tokensMintedPerAddress / tokensMintedAllowlistAddress, allowing re-entry into MinterContract.mint where the per-wallet/maxCollectionPurchases checks read stale counters. See: “[High] Reentrancy through _safeMint bypasses per-address allowlist and public mint limits” and “[High] Reentrancy through _safeMint in NextGenCore.mint bypasses allowlist and public per-address mint limits.” The attack path and impact (a single address minting far more, potentially the whole collection) match exactly, and the fix (apply CEI / increment counters before the external call) would resolve both. Thus the report detected the same vulnerability in the same code path with the same root cause and fix.",
+ "kosten": 0.0304295,
+ "tokens": {
+  "prompt": 18534,
+  "completion": 1619,
+  "reasoning": 1408
+ }
+}

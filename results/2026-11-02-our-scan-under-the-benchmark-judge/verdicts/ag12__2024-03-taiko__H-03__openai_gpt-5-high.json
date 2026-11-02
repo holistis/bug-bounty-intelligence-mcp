@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The audit report includes “[Medium] ERC20Airdrop2.withdraw reverts after the vesting window, forfeiting unwithdrawn tokens,” which is the same issue as [H-03]. Both describe ERC20Airdrop2.sol’s withdraw() being blocked after claimEnd + withdrawalWindow due to the ongoingWithdrawals modifier using a strict ‘<’ check, making fully unlocked amounts practically unclaimable unless timed exactly. Same file/function, same root cause, same impact, and would be fixed by relaxing the modifier (e.g., allowing post-window withdrawals/buffer).",
+ "kosten": 0.010508,
+ "tokens": {
+  "prompt": 6056,
+  "completion": 841,
+  "reasoning": 640
+ }
+}

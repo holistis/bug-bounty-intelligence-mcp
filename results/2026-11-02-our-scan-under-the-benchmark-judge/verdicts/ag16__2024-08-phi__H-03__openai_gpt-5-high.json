@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The audit repeatedly flags the exact issue: zero-balance curator entries in Cred.shareBalance are not removed (set to 0 instead of remove) in _updateCuratorShareBalance, causing CuratorRewardsDistributor.distribute (via _getCuratorData/getCuratorAddresses) to iterate over every historical holder and eventually run out of gas, permanently freezing rewards. The attack path (creating many one-share holders who later sell) and the specific fix (remove the key when balance reaches zero) match the vulnerability description. Different severities aside, the mechanism, code paths, impact, and remedy are the same.",
+ "kosten": 0.01659875,
+ "tokens": {
+  "prompt": 15735,
+  "completion": 1277,
+  "reasoning": 1088
+ }
+}

@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The audit report’s finding “[Medium] Pooled escrow entry of the VestingManager gives every buyer the stepsClaimed of the first lister” describes the same bug as H-01. Both identify that SecondSwap_StepVesting::_createVesting sets stepsClaimed only when the VestingManager’s pooled entry is first created (totalAmount==0), causing subsequent listings with different stepsClaimed to inherit the first lister’s stepsClaimed. transferVesting then propagates this incorrect stepsClaimed to buyers, so listing order determines how much buyers can claim at a given step. The mechanism, code path (_createVesting and transferVesting with the pooled VestingManager entry), impact (early or delayed claims depending on who listed first), and fix direction (ensure correct per-seller/per-purchase stepsClaimed rather than inheriting from the pooled entry) all match. Fixing this pooled stepsClaimed logic would resolve both descriptions.",
+ "kosten": 0.02778125,
+ "tokens": {
+  "prompt": 5817,
+  "completion": 2051,
+  "reasoning": 1792
+ }
+}

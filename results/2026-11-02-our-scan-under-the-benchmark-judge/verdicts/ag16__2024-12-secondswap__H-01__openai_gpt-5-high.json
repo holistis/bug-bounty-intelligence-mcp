@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The report repeatedly flags the same flaw: the marketplace pools all listed tokens in a single StepVesting entry for the VestingManager, and StepVesting._createVesting only sets stepsClaimed on first creation. As a result, the escrow’s stepsClaimed is anchored to the first lister and later listings merge into that stale step; transferVesting then gives buyers that pooled stepsClaimed instead of the seller’s. This makes buyer claimability depend on listing order (early unlock if the first lister had 0 stepsClaimed, delayed unlock if the first lister had high stepsClaimed). The report’s items “Buyers inherit the VestingManager’s stale stepsClaimed…”, “Pooled escrow entry of the VestingManager gives every buyer the stepsClaimed of the first lister”, “Escrow entry stepsClaimed is set once and reused…”, and similar all describe this exact mechanism, code path (_createVesting/transferVesting via VestingManager), effects, and would be fixed by the same changes (not pooling or correctly propagating the seller’s stepsClaimed).",
+ "kosten": 0.0318605,
+ "tokens": {
+  "prompt": 13306,
+  "completion": 1998,
+  "reasoning": 1728
+ }
+}

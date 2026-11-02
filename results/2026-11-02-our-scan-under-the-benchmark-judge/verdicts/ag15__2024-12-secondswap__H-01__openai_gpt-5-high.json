@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The audit explicitly reports the same issue: buyers inherit the VestingManager’s stale stepsClaimed due to the pooled escrow entry created via StepVesting.transferVesting() and _createVesting(). It explains that the manager’s vesting entry copies stepsClaimed from the first lister and is then reused for subsequent buyers, so listing order (first lister’s stepsClaimed) dictates how much a buyer can claim (early unlock or delayed claims). This matches the vulnerability description’s mechanism, code path, attack scenarios, and impact. Fixing the manager/buyer stepsClaimed propagation (e.g., not pooling or ensuring per-seller step state is used) would resolve both.",
+ "kosten": 0.0276875,
+ "tokens": {
+  "prompt": 7454,
+  "completion": 1837,
+  "reasoning": 1664
+ }
+}
