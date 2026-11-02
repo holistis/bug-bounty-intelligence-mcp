@@ -1,0 +1,313 @@
+{
+ "audit": "2024-08-phi",
+ "verdicts": [
+  {
+   "title": "Public _addCredIdPerAddress/_removeCredIdPerAddress let anyone corrupt a holder's index and block full sells",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a public internal bookkeeping function vulnerability, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes missing access control on internal Cred bookkeeping helpers, which is unrelated to the known findings about signature replay, shareBalance bloating, reentrancy, or art settings",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Claims never check prior minting, so signatures/Merkle proofs can be replayed and quantity is unsigned",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes missing mint‑state checks and unsigned quantity leading to replay, which differs from the chain‑id omission described in H‑01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes same-chain signature/Merkle replay due to missing nonce/used-state checks and unsigned quantity, not the known H-01 cross-chain replay caused by missing chain-id validation.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "buyShareCredFor / batchBuyShareCred reset victim's share lock, letting anyone block selling indefinitely",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a share lock reset issue, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a share-lock reset via buyShareCredFor/batchBuyShareCred, which is not the root cause of any listed known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "getPositionsForCurator writes results at index i instead of the running index",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an out-of-bounds indexing bug in Cred.getPositionsForCurator, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an array indexing bug in getPositionsForCurator, which is unrelated to any of the listed known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "claim()/batchClaim() ignore msg.value and pay mint fees from the factory's own ETH balance",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fee handling issue in claim/batchClaim, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes claim/batchClaim ignoring msg.value and using factory ETH, which is unrelated to any listed known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "createArt signature does not cover CreateConfig and is replayable, so anyone can create arts and reset Merkle roots",
+   "strict": "H-02",
+   "a": {
+    "match": "H-02",
+    "reden": "Both describe the same replayable signature flaw in createArt where CreateConfig isn’t included, enabling impersonation/royalty theft.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-02",
+    "reden": "Both findings describe the same root cause: createArt signature does not include CreateConfig parameters and is replayable, allowing unauthorized creation of art with arbitrary config.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Refund goes to the NFT contract when claims use Claimable on PhiNFT1155, so excess ETH is stuck",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a refund handling issue in Claimable.sol causing ETH to be stuck, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes stuck ETH refunds sent to the NFT contract in Claimable, which is unrelated to the listed known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Curator rewards can be captured by just-in-time share purchase, atomically via buy-refund reentrancy",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reentrancy issue in CuratorRewardsDistributor.distribute(), which is a different contract and function from the known reentrancy finding H-06 in Cred creation.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-06",
+    "reden": "Both exploit the same refund-before-state-update reentrancy in Cred's share-buy path to extract funds.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Creator can change buy/sell royalty up to 50% at any time via updateCred, front-running holders",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a royalty change issue in Cred.updateCred, which does not correspond to any listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability in Cred.sol's updateCred function, while none of the known findings address royalty changes in Cred.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "PhiNFT1155 caches protocolFeeDestination at init, so art-creation fees go to a stale address",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a stale fee destination caching issue, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes stale protocolFeeDestination caching in PhiNFT1155, which is unrelated to any listed known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "createCred/updateCred signatures are replayable and not bound to chain or contract; royalties and creator_ are unsigned",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different contract and function; root cause similar but not the same code location.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes signature replay in createCred/updateCred in Cred.sol, while known findings are about different functions in PhiFactory or other issues in Cred.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Refund to msg.sender happens before lastTradeTimestamp is set, enabling lock bypass by reentrancy",
+   "strict": "H-06",
+   "a": {
+    "match": "H-06",
+    "reden": "Both describe a reentrancy via refund before state update in Cred contract share purchase logic",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-06",
+    "reden": "Both findings describe a reentrancy attack via the refund during buy, where the lock state is updated after the external call, allowing reentrance into sell functions.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "imageURI is unsigned and overwrites the minter's stored URI, so third parties can set it",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unsigned imageURI overwrite bug, which does not correspond to any listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an unsigned imageURI overwrite in PhiNFT1155.mint, which is a different root cause and contract than any known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Unbounded curator list (zero-balance entries never removed) can make distribute() run out of gas",
+   "strict": "H-03",
+   "a": {
+    "match": "H-03",
+    "reden": "Both describe the same root cause of zero‑balance curator entries never being removed, leading to shareBalance bloating that can block/consume gas in reward distribution.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-03",
+    "reden": "Both describe the same root cause: zero-balance curator entries are never removed from shareBalance, causing unbounded growth and eventually blocking rewards distribution.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "TxOriginMismatch anti-contract check is bypassed by routing through claim()/batchClaim()",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a tx.origin check bypass, which is not covered by any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The known findings do not describe a tx.origin check bypass in claim/batchClaim.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Fee setters treat mintProtocolFee and artCreateFee as basis points but they are used as flat wei amounts",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fee misinterpretation bug, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns fee setter unit/cap misconfiguration, which is unrelated to any listed known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "createCred increments credIdCounter after external refund call; reentrancy corrupts cred IDs",
+   "strict": "H-06",
+   "a": {
+    "match": "H-06",
+    "reden": "Both describe a reentrancy vulnerability in cred creation where a refund is sent before incrementing credIdCounter, allowing an attacker to corrupt IDs and steal funds.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-06",
+    "reden": "The candidate describes the same reentrancy in Cred creation via the ETH refund callback before state updates, matching H-06's root cause in the same function.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Zero-balance holders are never removed from shareBalance map, so holder enumeration can be bloated to DoS distribute()",
+   "strict": "H-03",
+   "a": {
+    "match": "H-03",
+    "reden": "Both describe zero-balance entries remaining in the EnumerableMap causing shareBalance bloating and DoS of curator reward distribution",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-03",
+    "reden": "Both describe the same root cause: zero-balance curator entries remain in shareBalance, allowing enumeration bloating that DoSes rewards distribution.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Claim signature's chainId field is not validated against block.chainid in signatureClaim",
+   "strict": "H-01",
+   "a": {
+    "match": "H-01",
+    "reden": "Both describe the missing chain‑id validation in PhiFactory.signatureClaim allowing signature replay across chains",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-01",
+    "reden": "Both describe missing chainId validation in signatureClaim allowing signature replay across chains.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Royalty BPS is unbounded and royalties cannot be disabled",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unbounded royalty BPS issue, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes unbounded royalty BPS and inability to disable royalties in CreatorRoyaltiesControl, which is a different root cause and code location from the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "buyShareCredFor lets anyone reset a victim's lastTradeTimestamp and keep their shares locked",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a timestamp reset vulnerability unrelated to any listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes the lastTradeTimestamp reset or forced share lock issue.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "createArt never enforces artCreateFee on msg.value and the overpayment refund is sent to the factory, which cannot receive ETH",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing fee check and refund to a non-payable factory, which does not correspond to any listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a fee enforcement/refund bug in createArt, which is not mentioned in any of the known findings, which cover signature replay, share balance enumeration, updateArtSettings, and ",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

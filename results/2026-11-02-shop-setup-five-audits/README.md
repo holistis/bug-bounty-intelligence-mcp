@@ -21,6 +21,16 @@ Where the gain over 8 of 20 comes from: the earlier route was stopped by its cos
 
 The scan cost is what our provider's counter showed per run, in dollars, without the judge. The 20 verdicts cost 0.49 dollars by the figures in the verdict files.
 
+## Precision
+
+Added on the evening of 2 November 2026. The recall numbers above did not change; the first version of this folder counted recall only.
+
+Of the 90 hypotheses the five runs wrote, 17 match a known finding when two open judges (gpt-oss-120b and deepseek-v4-flash) both name the same known finding, which is 18.9 percent. 25 match when either judge names one, which is 27.8 percent. A hypothesis that matches no known finding counts as not matching, although it may be a real bug that the audit did not list, so both shares are a floor. Several hypotheses can match the same known finding, which is why 17 hypotheses match 9 known findings.
+
+By audit, strict: nextgen 8 of 35, phi 6 of 22, forte 2 of 9, secondswap 1 of 14, size 0 of 10.
+
+The two open judges are stricter than the benchmark-grader copy: they find 9 of the 20 known findings strictly (13 with one judge) where the copy found 14. The files are hypotheses/ (the 90 hypotheses as written), hypothesis-verdicts/ (each judge's answer per hypothesis) and OPEN-JUDGES-PROMPT.txt, and check.mjs recounts them. Another vendor's precision cannot be set next to these numbers, because the audits, the judges and the counting rules differ.
+
 ## What this does and does not say
 
 - Five audits and one run each. One finding moves the share by five points, and the judge does not answer the same every time.

@@ -1,0 +1,145 @@
+{
+ "audit": "2024-06-size",
+ "verdicts": [
+  {
+   "title": "Multicall cap check measures Size's own aToken balance, so the borrow aToken cap can be bypassed",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a Multicall cap bypass bug, which is unrelated to the known findings about sellCreditMarket fees, race conditions in liquidation, or collateral cap calculations.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns a multicall borrow aToken cap bypass, while the known findings cover unrelated fee, liquidation, and race-condition issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Liquidator reward is computed from futureValue in borrow-token units but added to collateral-token amounts",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a unit conversion error in liquidator reward calculation, which is a different root cause from any of the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-04",
+    "reden": "Both describe the same incorrect liquidator reward calculation mixing borrow-token and collateral-token units in executeLiquidate.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "validateVariablePoolHasEnoughLiquidity reads the underlying balance of the Aave Pool, which holds none",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an incorrect liquidity check in CapsLibrary.sol, which does not correspond to any of the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a flaw in the liquidity check using the wrong balance (Pool vs aToken), which is not related to any of the known findings about fees, race conditions, collateral caps, ",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Deposit credits the contract's entire ETH balance, so stray ETH is credited to the next ETH depositor",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a balance handling bug in Deposit.sol, which does not correspond to any of the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns stray ETH being credited in Deposit.executeDeposit, while the known findings cover unrelated issues in sellCreditMarket, liquidation, and repay race conditions.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "All withdrawals depend on the price feed, so oracle or sequencer downtime blocks users without debt",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a denial-of-service issue due to price feed reliance, which does not correspond to any of the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different issue (oracle/sequencer downtime affecting withdrawals) not present in the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "liquidateWithReplacement sends the 'liquidator profit' in borrow tokens to feeRecipient, not the keeper",
+   "strict": null,
+   "a": {
+    "match": "H-04",
+    "reden": "Both findings describe an incorrect liquidator profit calculation/distribution in the liquidation function, causing the keeper to receive no profit.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a misdirection of liquidator profit to feeRecipient instead of keeper, which is not covered by any known finding; known findings address different issues such as fee calculatio",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Collateral-ratio math assumes 18-decimal collateral and an 18-decimal price feed, but Initialize/UpdateConfig do not enforce it",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a decimal handling bug in initialization, which does not correspond to any of the listed findings about fees, race conditions, or liquidation calculations.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "No known finding describes the same root cause of decimal/price-feed assumptions in collateral calculations.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Collateral ratio and debt-to-collateral conversion assume 18-decimal collateral although Initialize allows fewer decimals",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a decimal handling bug, which does not correspond to any of the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns decimal scaling for non-18-decimal collateral, which is unrelated to the known findings about swap fees, liquidation race conditions, collateral remainder cap, or liquidator pro",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Compensate fragmentation fee is capped at the caller's collateral balance and can be avoided",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fee cap issue in the compensation function, which does not correspond to any of the listed findings that focus on sellCreditMarket, race conditions in liquidation, or liquida",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a fee cap issue in Compensate.sol, which is not related to any of the known findings about sellCreditMarket, liquidation race condition, collateral remainder cap, or liquidator",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Mixed ETH and ERC20 deposits cannot be combined in one multicall",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a deposit multicall issue unrelated to the liquidation or fee calculation findings listed.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a deposit multicall issue in Deposit.sol, while all known findings concern different functions and root causes (sellCreditMarket, liquidation, repay).",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

@@ -1,0 +1,203 @@
+{
+ "audit": "2024-12-secondswap",
+ "verdicts": [
+  {
+   "title": "transferVesting resets grantor releaseRate ignoring amountClaimed, letting sellers over-claim from the pool",
+   "strict": "H-03",
+   "a": {
+    "match": "H-03",
+    "reden": "Both describe transferVesting miscalculating releaseRate by ignoring already‑claimed amounts, enabling over‑claiming",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-03",
+    "reden": "Both describe transferVesting recalculating releaseRate without accounting for already claimed tokens, letting the seller over-claim.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Referral reward is computed and emitted but never paid to the referrer",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing referral payment bug, which is unrelated to the vesting-related findings H-01, H-02, and H-03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns referral reward not being paid, while the known findings are about vesting issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Private-listing whitelist is open self-registration, so the seller cannot choose buyers",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a whitelist self‑registration issue, which is unrelated to the vesting‑related findings listed.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding concerns whitelist self-registration in SecondSwap_Whitelist, while known findings are about vesting calculations in the marketplace and vesting manager.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Self-purchase of own listing inflates `bought` and bypasses maxSellPercent cap",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a self‑purchase bypass of the maxSellPercent cap, which is unrelated to the stepsClaimed inheritance or releaseRate miscalculations in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns self-purchase inflating `bought` to bypass the maxSellPercent cap, while the known findings concern incorrect `stepsClaimed`/`releaseRate` handling in `transferVesting`.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "transferVesting resets grantor releaseRate ignoring claimed steps, allowing over-claim from pooled tokens",
+   "strict": null,
+   "a": {
+    "match": "H-03",
+    "reden": "Both describe transferVesting resetting grantorVesting.releaseRate without accounting for already claimed amount, enabling over‑claim.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "ongeldig": "onbekend-id",
+    "reden": "The candidate describes the same incorrect releaseRate calculation in transferVesting that ignores claimed steps, leading to over-claim, which is the root cause of H-03.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Existing holder receiving vesting gets retroactive early unlock of purchased tokens (incoming stepsClaimed ignored)",
+   "strict": null,
+   "a": {
+    "match": "H-02",
+    "reden": "Both describe misuse of stepsClaimed in transferVesting/_createVesting causing premature token unlock",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-01",
+    "reden": "Both describe _createVesting ignoring the incoming stepsClaimed when adding to an existing vesting, causing retroactive unlock of newly transferred tokens in the VestingManager context.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Step duration rounds down to zero or leaves currentStep above numOfSteps, causing DoS or underflow",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a stepDuration rounding/underflow issue, which is unrelated to the known findings about stepsClaimed inheritance or releaseRate miscalculation.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a rounding issue in stepDuration calculation leading to DoS/underflow, which is not covered by any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Discount percentage is not validated, so a listing can become unpurchasable",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a discount validation underflow bug, which is unrelated to the known findings about vesting stepsClaimed inheritance or releaseRate miscalculations.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding is about discount percentage validation in listVesting/_getDiscountedPrice, while known findings are about vesting transfer and stepsClaimed issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Manager's pooled vesting carries first lister's stepsClaimed to all buyers and unlisters",
+   "strict": null,
+   "a": {
+    "match": "H-01",
+    "reden": "Both describe that the first listed vesting's stepsClaimed is inherited and affects later buyers' claim amounts",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "ongeldig": "onbekend-id",
+    "reden": "The candidate describes the same root cause: the manager's vesting record inherits stepsClaimed from the first listing, affecting all subsequent buyers and unlisters.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Whitelist for private listings is open self-registration, so access control is ineffective and can be griefed",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an access control issue in whitelist logic, unrelated to the vesting transfer bugs of H-01, H-02, or H-03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a whitelist access control flaw in SecondSwap_Whitelist.sol, while all known findings concern vesting calculation errors in the marketplace/vesting manager.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "setTokenOwner is irreversible and one-shot per owner, with broad token-owner power over vestings",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue (irreversible setTokenOwner) not covered by H-01, H-02, or H-03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns irreversible setTokenOwner permissions and broad token-owner authority, not the transferVesting stepsClaimed or releaseRate calculation flaws in the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Transfer into a fresh vesting from a grantor with all steps claimed reverts with division by zero",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a division‑by‑zero bug from releaseRate calculation with stepsClaimed equal to numOfSteps, which is not covered by any of the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a division-by-zero revert in _createVesting, while the known findings concern incorrect stepsClaimed/releaseRate causing premature token unlocking, not this DoS root cause.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Default penaltyFee of 10 ether is applied to a 6-decimal USDT, making early unlisting impossible",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a penalty fee decimal mismatch, which is unrelated to the vesting stepsClaimed or releaseRate issues in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns an incorrectly scaled default penaltyFee blocking unlisting, while the known findings concern vesting stepsClaimed/releaseRate accounting bugs.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Replacing the vesting manager desyncs existing StepVesting authorisations and strands listed tokens",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a manager address desynchronization, which is a different root cause than the stepsClaimed or releaseRate issues in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a desynchronization due to changing the vesting manager, which is not covered by any of the known findings (H-01, H-02, H-03).",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}
