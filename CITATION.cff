@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use these results or tools, please cite them as below."
+title: "Bug Bounty Intelligence: published measurements and tools"
+type: software
+authors:
+  - alias: "holistis"
+    website: "https://github.com/holistis"
+repository-code: "https://github.com/holistis/bug-bounty-intelligence-mcp"
+url: "https://tokenizen.nl"
+license: MIT
