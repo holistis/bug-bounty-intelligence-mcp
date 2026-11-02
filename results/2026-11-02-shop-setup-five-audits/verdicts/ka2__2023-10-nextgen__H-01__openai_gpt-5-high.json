@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The audit repeatedly reports the same reentrancy via ERC721 receiver callback in the NextGenCore.mint -> _safeMint path, noting that tokensMintedAllowlistAddress/tokensMintedPerAddress are incremented after _safeMint (external call) while MinterContract.mint checks limits before the loop. This allows a recipient contract to reenter Minter.mint from onERC721Received and bypass per-address caps to mint arbitrarily many tokens, up to full supply. The audit also mentions the same attack path and impact (caps bypassed; can take whole collection) and the same fix direction (apply CEI/update counters before external call or add reentrancy protection). Thus, the vulnerability mechanism, code path, and remediation match the description.",
+ "kosten": 0.037495,
+ "tokens": {
+  "prompt": 11844,
+  "completion": 2269,
+  "reasoning": 2048
+ }
+}

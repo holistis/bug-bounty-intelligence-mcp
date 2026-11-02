@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The audit report explicitly includes: “[Medium] Manager's pooled vesting carries first lister's stepsClaimed to all buyers and unlisters,” which describes the exact mechanism: the VestingManager pools all listed tokens into a single vesting whose stepsClaimed is initialized from the first lister and then reused for all subsequent deposits/transfers. When buyers without an existing vesting receive tokens, _createVesting() inherits the pool’s stepsClaimed, so buyer claimability depends on the listing order. This matches the submitted issue’s core flaw, code path (listVesting/completePurchase → transferVesting → _createVesting with stepsClaimed passed through), impact (earlier-than-intended or delayed unlocks), and attack scenarios. Fixing the manager’s pooled stepsClaimed inheritance would resolve both descriptions.",
+ "kosten": 0.0229525,
+ "tokens": {
+  "prompt": 7666,
+  "completion": 1337,
+  "reasoning": 1088
+ }
+}

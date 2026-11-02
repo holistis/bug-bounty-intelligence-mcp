@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The report explicitly identifies that Float128.sqrt() uses assembly stop() when the input is zero, which halts execution and skips all subsequent logic, returning success with empty data. This is the same code path and mechanism as the described issue (“sqrt silently reverts/stops on zero”). An attack supplying a zero value to sqrt triggers the same behavior in both descriptions. The suggested fix in the description (return 0 instead of stop) would also resolve the report’s issue, confirming they are the same vulnerability.",
+ "kosten": 0.012945,
+ "tokens": {
+  "prompt": 4492,
+  "completion": 1093,
+  "reasoning": 960
+ }
+}

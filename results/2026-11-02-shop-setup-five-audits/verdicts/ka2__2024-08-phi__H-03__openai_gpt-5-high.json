@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The report explicitly flags that zero-balance curator addresses are never removed from Cred.shareBalance in _updateCuratorShareBalance (set to 0 instead of remove), causing unbounded growth of the EnumerableMap. It ties this directly to CuratorRewardsDistributor.distribute/getCuratorAddresses iterating all entries, leading to out-of-gas and stuck rewards. The attack path (cycling many fresh addresses) and impact (permanent DoS of distribute for that cred) match. The implicit fix (remove the entry when balance reaches zero) is the same as in the description. Same mechanism, same code path, same fix.",
+ "kosten": 0.0173735,
+ "tokens": {
+  "prompt": 8206,
+  "completion": 1446,
+  "reasoning": 1280
+ }
+}

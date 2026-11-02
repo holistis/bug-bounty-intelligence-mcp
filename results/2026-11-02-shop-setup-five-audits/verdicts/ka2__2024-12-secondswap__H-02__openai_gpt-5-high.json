@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The audit report’s issue “Manager’s pooled vesting carries first lister’s stepsClaimed to all buyers and unlisters” describes the same flaw: the VestingManager pools tokens into a single StepVesting entry whose stepsClaimed is set from the first lister and reused for all subsequent transfers. When a new buyer (with no existing vesting) purchases, transferVesting(manager, buyer) passes that pooled stepsClaimed into _createVesting, allowing premature unlocks. This matches the vulnerability’s mechanism, code path (VestingManager.listVesting/completePurchase with StepVesting.transferVesting/_createVesting), and impact (buyers can immediately claim more than intended). A fix that stops reusing the pooled stepsClaimed (e.g., tracking per-listing stepsClaimed or passing the seller’s correct stepsClaimed) would resolve both descriptions.",
+ "kosten": 0.01870025,
+ "tokens": {
+  "prompt": 7469,
+  "completion": 1426,
+  "reasoning": 1216
+ }
+}

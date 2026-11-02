@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The report explicitly flags two issues in Ln.sol ln(): (1) “ln(0) does not revert and returns a large finite negative number,” and (2) “ln() ignores the sign bit, so ln(-x) silently returns ln(x).” The vulnerability description is that ln() silently accepts non‑positive (zero and negative) inputs and returns meaningless values instead of reverting. Both refer to the same function/code path (Ln.ln), the same underlying flaw (missing domain checks/ignoring the sign bit), and would be fixed by the same remedy (reject zero and negative inputs). Thus, the audit detected the described vulnerability.",
+ "kosten": 0.022075,
+ "tokens": {
+  "prompt": 5468,
+  "completion": 1524,
+  "reasoning": 1344
+ }
+}
