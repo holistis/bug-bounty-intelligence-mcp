@@ -1,0 +1,8 @@
+{
+  "file": "erc8004-base-grounded-feedback-2026-11-01.csv",
+  "date": "2026-11-01",
+  "repository": "AgenticFinanceGraph/agentic-finance-graph-spec",
+  "commit": "7b3763d",
+  "sha256": "f38882fbfdad847e34680a7627335fce9de12873c84833a240c038c32c37a502",
+  "percentages": { "largestRater": 52.9, "threeLargestRaters": 88.3 }
+}
