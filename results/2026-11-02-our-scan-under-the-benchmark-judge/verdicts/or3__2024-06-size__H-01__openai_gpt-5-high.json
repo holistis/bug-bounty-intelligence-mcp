@@ -1,0 +1,10 @@
+{
+ "detected": false,
+ "reden": "The described issue is a fee undercollection due to an incorrect swap fee formula in AccountingLibrary.getCreditAmountIn used by sellCreditMarket() (selling for a specific cash amount). The audit report’s findings concern different code paths and mechanisms: liquidation reward unit mismatch in Liquidate.executeLiquidate(), a multicall cap bypass, unconditional oracle calls in collateralRatio(), and collateral decimal normalization. None mention sellCreditMarket() or AccountingLibrary.getCreditAmountIn, and fixing the reported issues would not fix the fee miscalculation. Therefore, the audit did not detect this vulnerability.",
+ "kosten": 0.014455,
+ "tokens": {
+  "prompt": 3516,
+  "completion": 1006,
+  "reasoning": 832
+ }
+}

@@ -19,7 +19,7 @@ Per audit: table.json. Per finding and per source: verdicts/, one file each, wit
 
 ## What this does and does not say
 
-- It is not the scan we sell today. The scan in the shop is a cheaper and simpler route than these research runs, and it is not measured in this folder.
+- It is not the scan we sell today. The scan in the shop is a cheaper and simpler route than these research runs, and its own measurement is in the next section.
 - A union takes everything found by any of the runs. A longer list helps a count that only measures recall. Over these 7 audits the six-run union has 270 entries and one run 70 (check.mjs counts them in reports/), the leader's report 174 (counted by us from their file, see table.json).
 - Under this judge the leader is ahead of us, by one finding on the six-run union and by three on a single run. The benchmark's own grader counted the leader at 26 of 31 on these audits (see table.json, notes.leaderOwnGrader), so under their grader the gap to the union may be two.
 - Audit 2024-04-noya is left out. It holds 20 of the 51 known findings in the audits where we ran our agents, and it is the audit where we lose most. Judging it for every source costs about 20 large calls per source and we have not done it yet.
@@ -28,6 +28,14 @@ Per audit: table.json. Per finding and per source: verdicts/, one file each, wit
 - Our judge ran through OpenRouter, so it can behave differently from the grader at the time the leader's run was graded. Whether the leader's run used the default grader settings is read from their command, not measured.
 - The reports in reports/ were regenerated from our saved hypothesis files with the same function that built the text for the judge. The leader's report is in their own repository (see table.json, notes.leaderReportEntries.repository); only its verdicts are here.
 - Prompts, models and settings of our agents are not published. Outputs, judge and counting are.
+
+## The scan sold in the shop, on 5 of these audits
+
+The deep scan in the shop runs a cheaper route than the research runs: one run per audit through a paid API, with a cost cap. We judged it on 1 November 2026, with the settings of the shop at that time, on 5 of the 7 audits (20 known findings). It found 8 of 20 (40.0 percent). The run on 2025-04-forte was stopped by our cost cap before it delivered a report, and its 5 findings are counted as zero. On the 4 audits where the runs finished it found 8 of 15 (53.3 percent).
+
+On the same 5 audits the leader's report finds 15 of 20 and one of our research runs 14 of 20. Per audit and the sums: table.json, totals.shopRoute. In the file names or2 is secondswap, or3 size, or5 phi and or6 nextgen.
+
+Five audits and one run each: one finding moves the share by five points. The shop has changed since this measurement and has not been judged again.
 
 ## Check it
 
