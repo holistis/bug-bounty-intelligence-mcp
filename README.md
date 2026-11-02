@@ -4,6 +4,10 @@ AI-powered smart contract security analysis for AI agents and developers.
 
 Every public statement of ours that turned out wrong is listed, with the date and the fix, in [ERRATA.md](ERRATA.md). The counting rule behind our results is [MEASUREMENT-RULE-two-judge-strict.md](MEASUREMENT-RULE-two-judge-strict.md).
 
+## Update, 2 November 2026: the scan you can buy, counted
+
+The setup behind our deep scan found 14 of 20 known High findings on five public audits, one run each, graded by a copy of the benchmark's own judge. On the same five audits the leader's own report finds 15 of 20 under that copy. Every verdict, the exact reports the judge read and a script that recounts everything are in [results/2026-11-02-shop-setup-five-audits](results/2026-11-02-shop-setup-five-audits/README.md), with the limits listed. All our result folders are listed in [results/README.md](results/README.md), and the longer story is on [our blog](https://tokenizen.nl/notes/the-scan-you-can-buy-measured).
+
 ## Update, 25 October 2026, night: two free tools next to the scan
 
 We ran Slither 0.11.6 and Aderyn 0.6.8 with default settings on the same contests and had the same two judges compare their output with the known High and Medium findings. They found none: Slither 0 of 34 and Aderyn 0 of 70, on the contests where our setup could run them. On the same contests our scan found 6 of 34 and 10 of 70 in its first 15 hypotheses. Static tools are not built for the business-logic flaws that contests reward, the older contests may be in the training data of the model behind our scan, and the judges are language models, so read it as a description and not as a ranking: [results/2026-10-25-free-tools/README.md](results/2026-10-25-free-tools/README.md).
