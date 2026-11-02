@@ -50,3 +50,5 @@ What this covers: the arithmetic and the consistency of the files. It does not c
     node check.mjs
 
 It recomputes every count in table.json from the verdict files and checks the hashes in SHA256SUMS. No network and no key needed.
+
+Cite as: tokenizen (github.com/holistis), results/2026-11-02-our-scan-under-the-benchmark-judge in holistis/bug-bounty-intelligence-mcp, 2 November 2026.

@@ -27,3 +27,5 @@ To recount, no network and no key:
     node independence-signals.mjs erc8004-base-grounded-feedback-2026-11-01.csv
 
 The output should equal signals-2026-11-01.json in this folder. If a number does not match, please say so in issue 41 of this repository and I will correct it and keep the old text visible.
+
+Cite as: tokenizen (github.com/holistis), results/2026-11-02-independence-signals-afg-fixture in holistis/bug-bounty-intelligence-mcp, 2 November 2026.
