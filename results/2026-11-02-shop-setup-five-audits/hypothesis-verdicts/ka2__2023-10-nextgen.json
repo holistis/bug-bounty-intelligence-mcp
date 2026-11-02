@@ -1,0 +1,495 @@
+{
+ "audit": "2023-10-nextgen",
+ "verdicts": [
+  {
+   "title": "Reentrancy via _safeMint callback bypasses per-address mint limits and the 1-mint-per-period rule",
+   "strict": "H-01",
+   "a": {
+    "match": "H-01",
+    "reden": "Both describe the same reentrancy bug in NextGenCore.mint where counters are updated after an external call, allowing limits to be bypassed.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-01",
+    "reden": "Both describe reentrancy through the mint flow where per-address mint counters are updated after the external _safeMint call, allowing limits to be bypassed and excess supply to be minted.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "claimAuction and cancelBid both valid at t==endTime; bids never invalidated after payout (double spend)",
+   "strict": "H-02",
+   "a": {
+    "match": "H-02",
+    "reden": "Both describe the same overlapping timestamp bug in AuctionDemo allowing claimAuction and cancelBid at endTime leading to double spend/drain",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-02",
+    "reden": "Same AuctionDemo boundary bug at block.timestamp == auctionEndTime allowing both claimAuction and cancelBid, enabling ETH drain/double refund.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Reentrancy via ERC721 receiver callback in mint() bypasses allowlist/public caps and 1-per-period limit",
+   "strict": "H-01",
+   "a": {
+    "match": "H-01",
+    "reden": "Both describe a reentrancy flaw in MinterContract::mint where counters are updated after an external call, allowing limits to be bypassed.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-01",
+    "reden": "Both describe reentrancy in MinterContract.mint via external call in minting, allowing bypass of per-address limits.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Public/allowlist mint limits bypassed by reentrancy through _safeMint callback",
+   "strict": "H-01",
+   "a": {
+    "match": "H-01",
+    "reden": "Both describe reentrancy in NextGenCore.mint allowing bypass of per-address mint limits by updating counters after external call",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-01",
+    "reden": "Both describe reentrancy via _safeMint callback to bypass mint limits due to counter updates after external call.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Reentrancy via _safeMint bypasses allowlist and public mint limits before counters update",
+   "strict": "H-01",
+   "a": {
+    "match": "H-01",
+    "reden": "Both describe reentrancy in NextGenCore.mint allowing limit checks to be bypassed due to counters being updated after an external call.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-01",
+    "reden": "Same reentrancy root cause: mint counters/limits are updated after the external _safeMint callback, allowing reentry to bypass mint limits.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Winner claim can be permanently blocked (non-receiver winner or revoked approval), locking all bids",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a safeTransferFrom revert issue in claimAuction, which does not correspond to the known reentrancy or timestamp phase bug.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a claimAuction transfer-revert lock, which is unrelated to the reentrancy minting bug or the timestamp-boundary ETH drain in the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Claim and cancel both valid at block.timestamp == auction end: reentrant double refund drains the auction contract",
+   "strict": "H-02",
+   "a": {
+    "match": "H-02",
+    "reden": "Both describe the same timestamp equality bug in AuctionDemo allowing re‑entrancy/double refunds that can drain the contract",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-02",
+    "reden": "Both describe the same vulnerability in AuctionDemo where block.timestamp == auctionEndTime allows simultaneous claim and cancel, leading to draining ETH.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "A reverting winner (or missing approval) makes claimAuction revert forever, locking all bids",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue (claimAuction reverting due to token transfer failure) not covered by the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a revert in claimAuction due to a non-ERC721-compliant winner or missing approval, which is a different root cause and impact than the known findings about reentrancy or draini",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Token hash is predictable and the mint can be reverted, so rarity can be sniped (RandomizerNXT / XRandoms)",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a predictable hash and mint revert issue, which does not correspond to the reentrancy or timestamp bugs in H-01 or H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a predictability/rarity-sniping flaw in RandomizerNXT, while the known findings concern reentrancy in mint and auction timing exploits, with no shared root cause or code path.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AuctionDemo.claimAuction refunds without clearing bid status; cancelBid can double-refund at endTime",
+   "strict": "H-02",
+   "a": {
+    "match": "H-02",
+    "reden": "Both describe the overlapping <=/>= timestamp checks allowing claimAuction and cancelBid to be called at the same time, enabling double refunds and draining ETH",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-02",
+    "reden": "Same AuctionDemo endTime boundary issue where claimAuction and cancelBid can both execute, allowing double refunds/draining ETH due to bid status not being cleared.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Token randomness is fully predictable and can be filtered by an atomic minting contract",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes predictable randomness, which does not correspond to the reentrancy or timestamp comparison bugs in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes predictable randomness in RandomizerNXT, while the known findings concern reentrancy in MinterContract and auction timing in AuctionDemo.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Delegation expiry ignored: expired delegations still authorize allowlist minting and external burn/swap",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an expiry check omission, which is unrelated to the reentrancy or timestamp equality bugs in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns ignored delegation expiry in MinterContract, while the known findings are reentrancy in mint and auction ETH draining, with different root causes and impacts.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Unbounded bid array loops allow gas DoS of bidding, cancelling and claiming",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a gas DoS via unbounded loops, which does not correspond to the reentrancy mint issue (H-01) or the timestamp equality drain issue (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a gas denial-of-service via unbounded bid array loops, which is not covered by the known findings H-01 (reentrancy) or H-02 (timing drain).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Highest bid can be cancelled up to the last second (shill / bid-sniping manipulation)",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a bid‑sniping cancellation issue, which differs from the known reentrancy mint and overlapping‑phase drain bugs.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a bid-cancellation manipulation issue in AuctionDemo, which is not the reentrancy drain in H-01 nor the equality-boundary phase overlap drain in H-02.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Failed ETH payouts/refunds are ignored in claimAuction, permanently trapping funds",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes unchecked low‑level calls in claimAuction causing trapped ETH, which is a different root cause than the reentrancy mint bug (H-01) or the timestamp inequality phase overlap bug",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes ignored failed ETH transfers in claimAuction, which is a different root cause and impact from the known reentrancy minting and timestamp-boundary auction drain findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Delegation status ignores expiryDate and token scope, so expired or token-specific delegates can still mint on the delegator's allowlist",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a delegation expiry/scope bug, which does not correspond to the reentrancy or timestamp comparison issues in H-01 or H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes delegation expiry/token-scope checks being ignored, which is unrelated to the reentrancy mint bug (H-01) or the auction timestamp drain (H-02).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "VRF randomizer callbackGasLimit of 40000 is too low for fulfillRandomWords",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a gas limit issue in RandomizerVRF.sol, which is unrelated to the reentrancy or timestamp bugs in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns insufficient VRF callback gas in RandomizerVRF, while the known findings cover reentrancy in minting and auction ETH draining, with no shared root cause or code.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Token-specific delegation treated as full-collection delegation in burnOrSwapExternalToMint",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a delegation scope bug, which does not correspond to the reentrancy or timestamp comparison issues in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes a missing per-token delegation scope check in burnOrSwapExternalToMint, which is unrelated to the reentrancy and auction timing issues in the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Excess ETH sent on mint is never refunded and is credited to artist/team payouts",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an overpayment refund issue, which is unrelated to the reentrancy or timestamp bugs in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes unrefunded excess ETH in mint functions, which is unrelated to the reentrancy supply issue in H-01 or the AuctionDemo drain in H-02.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "payArtist() zeroes collectionTotalAmount before payouts and ignores failed transfers, so funds can be stuck",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a payout accounting issue in payArtist(), which is unrelated to the reentrancy in mint or timestamp logic in AuctionDemo.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a different vulnerability in payArtist() regarding failed transfers and stuck funds, which is not covered by the known findings about reentrancy in mint or auction timi",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "VRF callbackGasLimit of 40,000 is likely too low for fulfillRandomWords, leaving tokens at 'pending' forever",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a gas limit issue in VRF callback, which does not correspond to the reentrancy mint or auction timestamp bugs in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns insufficient VRF callback gas in RandomizerVRF, while the known findings cover mint reentrancy and AuctionDemo ETH draining, with no shared root cause or code.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Minter keeps all excess ETH; Dutch-auction minters overpay with no refund",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an overpayment/refund issue, which is unrelated to the reentrancy or timestamp phase bugs in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an overpayment/refund bug, while both known findings are about reentrancy and auction draining, which are different root causes and impacts.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Winner determination and claim depend on array order, and refunds do not update bid status",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different bug in AuctionDemo unrelated to the timestamp phase overlap described in H-02 and does not match the reentrancy issue in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug in returnHighestBidder and claimAuction logic, not the reentrancy or timestamp equality issues covered by known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "RNG randomizer reverts every mint if it is not funded or ethRequired is zero or stale",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an ETH funding/revert issue in RandomizerRNG.sol, which does not correspond to the reentrancy or auction timestamp bugs in H-01 or H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes RNG funding/fee reverts in RandomizerRNG, which is unrelated to the reentrancy minting bug (H-01) or the AuctionDemo ETH drain (H-02).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "salesOption 3 lastMintDate derived from circulation supply; airdrops and burn-mints desync the schedule",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a timing/schedule bug unrelated to the reentrancy or auction timestamp issues in H-01 and H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a lastMintDate scheduling desync in salesOption 3, not the reentrancy or auction-drain bugs in the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "payArtist zeroes the collection balance and ignores failed transfers, leaving ETH stranded",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a balance-zeroing and failed transfer issue, which does not match the reentrancy mint bug (H-01) or the auction timestamp logic bug (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a different vulnerability in the payArtist function, unrelated to the reentrancy minting or auction timing issues in the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Bids accepted at t==endTime after claim become unrecoverable",
+   "strict": "H-02",
+   "a": {
+    "match": "H-02",
+    "reden": "Both describe the same overlapping-phase bug in AuctionDemo.sol where block.timestamp == endTime allows claim and bid in the same block, leading to financial loss.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-02",
+    "reden": "Same root cause: equality at block.timestamp == auctionEndTime allows claim and bid in the same block, making post-claim bids unrecoverable.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Excess ETH on mint paths is not refunded and is credited to the collection proceeds",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an overpayment handling issue, which is unrelated to the reentrancy or timestamp bugs in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing refund for overpayment, which is not the same root cause or impact as either known finding (reentrancy or auction drain).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "payArtist uses stored artist address percentages that can be out of sync with the primary splits",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a payout percentage sync issue, which does not correspond to the reentrancy or timestamp bugs in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns payArtist split accounting, not reentrancy in mint or AuctionDemo bid/claim timing.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Changing primary splits after addresses are accepted desynchronizes artist payouts",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a payout split logic flaw, which is unrelated to the reentrancy or timestamp comparison bugs in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a split-percentage desynchronization in setPrimaryAndSecondarySplits, which is unrelated to the reentrancy minting or auction-drain findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "burnToMint lets any approved operator burn an owner's token and mints to the owner at the operator's expense",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distinct reentrancy issue in burnToMint, not the mint reentrancy or auction timestamp bugs listed in H-01 or H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability in burnToMint, not related to the known findings about mint reentrancy or auction drain.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Primary/secondary split can be changed after addresses are approved, so payouts no longer match the artist share",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a split percentage validation flaw, which does not correspond to the reentrancy mint issue (H-01) or the auction timestamp bug (H-02).",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability regarding split changes and payout mismatch, not the reentrancy or auction drain issues.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Artist can front-run approval: acceptAddressesAndPercentages approves a status flag, not the proposed content",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a front‑run approval issue, which is unrelated to the reentrancy or timestamp bugs in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes a race condition on admin approval of artist addresses, which is unrelated to the reentrancy mint or auction timing exploits in known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Function-admin permissions are keyed only by selector and shared across all contracts",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a permission scoping bug, which does not correspond to the reentrancy or timestamp comparison bugs in H-01 or H-02.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes shared function-admin selector permissions across contracts, which is unrelated to the reentrancy minting or auction ETH drain findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "setCollectionData can be re-run when collectionTotalSupply is zero, resetting circulation supply",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distinct logic flaw in setCollectionData, unrelated to the reentrancy or timestamp issues of the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a setCollectionData re-initialization bug, not the reentrancy minting issue in H-01 or the AuctionDemo timestamp issue in H-02.",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

@@ -1,0 +1,132 @@
+{
+ "audit": "2025-04-forte",
+ "verdicts": [
+  {
+   "title": "sqrt() uses assembly stop() for zero input and halts the whole calling transaction",
+   "strict": "H-02",
+   "a": {
+    "match": "H-02",
+    "reden": "Both describe sqrt using stop() for zero input, causing silent halt of execution",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-02",
+    "reden": "The candidate describes the same sqrt(0) stop() behavior that halts execution, matching H-02.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "add/sub subtraction path returns a 72-digit mantissa without the L flag for large operands",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a bug in add()/sub() missing L flag, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing L flag in add/sub subtraction path, which is not covered by any of the known findings (H-01 to H-05).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ln(0) does not revert and returns a large finite negative number (~ -18,797)",
+   "strict": null,
+   "a": {
+    "match": "H-03",
+    "reden": "Both describe the ln() function lacking validation for zero/non‑positive inputs, leading to incorrect results instead of reverting.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "ongeldig": "onbekend-id",
+    "reden": "The candidate describes the same root cause as H-3: ln() does not revert on zero input and returns an incorrect finite value.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ln() ignores the sign bit, so ln(-x) silently returns ln(x)",
+   "strict": "H-03",
+   "a": {
+    "match": "H-03",
+    "reden": "Both describe the ln() function failing to validate the sign bit, allowing negative inputs to be processed silently.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-03",
+    "reden": "Both findings describe that ln() does not validate negative inputs, allowing ln(-x) to return ln(x) instead of reverting.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "sqrt() high-exponent path halves an odd pre-exponent after incrementing it, giving a result off by 10x",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different exponent handling bug in sqrt than the early 72-digit adjustment covered by H-01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-01",
+    "reden": "Both describe the same exponent calculation error in sqrt when handling large exponents and odd pre-exponent.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Non-canonical float encodings: L/M boundary off-by-one and inconsistent normalization break raw eq()",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes encoding uniqueness and off‑by‑one normalization issues across eq/add/sub/toPackedFloat, which differ from the specific sqrt, ln, flag handling, or toPackedFloat exponent‑only ",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different root cause (non-canonical encodings in eq/add/sub/toPackedFloat) than any known finding, which focus on sqrt, ln, eq unwrapping, and precision loss in toPackedFloat",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ln() truncates large-mantissa (L) inputs ≥1 to 38 digits, losing the precision the docs promise",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a precision loss bug in ln() for large-mantissa inputs, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a precision loss in ln() for large-mantissa inputs, which is not covered by any of the known findings (H-01 to H-05).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "le()/ge() return false for equal values when mantissa/flag encodings differ (lt/gt reused on tie)",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a bug in le()/ge() comparison logic, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing non-strict tie case in le()/ge(), while the known findings concern sqrt, ln, eq raw equality, and toPackedFloat precision, not this le/ge flaw.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "No exponent range checks: overflow or underflow of the 14-bit exponent wraps silently and corrupts encoding",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes exponent overflow/underflow in arithmetic functions, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes missing exponent range checks causing silent overflow/underflow, which is not the same root cause as any listed finding.",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

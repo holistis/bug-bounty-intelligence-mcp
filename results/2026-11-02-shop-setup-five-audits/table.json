@@ -84,5 +84,62 @@
     "earlierShopRouteKnown": 20,
     "sixRunUnion": 16
   },
-  "linesInScopeNote": "Counted with the shop's own counter on the audit sources. check.mjs does not recompute this column."
+  "linesInScopeNote": "Counted with the shop's own counter on the audit sources. check.mjs does not recompute this column.",
+  "precision": {
+    "note": "Per hypothesis, judged by two open models (gpt-oss-120b and deepseek-v4-flash) that each name the known finding a hypothesis matches or none. Strict means both name the same known finding. Several hypotheses can match the same known finding. A hypothesis that matches no known finding counts as not matching here, although it may be a real bug that the audit did not list, so the share is a floor. These two judges are stricter than the benchmark-grader copy that gave the 14 of 20.",
+    "rows": [
+      {
+        "run": "ka1",
+        "audit": "2025-04-forte",
+        "hypotheses": 9,
+        "strictMatchingHypotheses": 2,
+        "oneJudgeMatchingHypotheses": 4,
+        "strictKnownFound": 2,
+        "oneJudgeKnownFound": 3
+      },
+      {
+        "run": "ka1",
+        "audit": "2024-06-size",
+        "hypotheses": 10,
+        "strictMatchingHypotheses": 0,
+        "oneJudgeMatchingHypotheses": 2,
+        "strictKnownFound": 0,
+        "oneJudgeKnownFound": 1
+      },
+      {
+        "run": "ka2",
+        "audit": "2024-12-secondswap",
+        "hypotheses": 14,
+        "strictMatchingHypotheses": 1,
+        "oneJudgeMatchingHypotheses": 4,
+        "strictKnownFound": 1,
+        "oneJudgeKnownFound": 3
+      },
+      {
+        "run": "ka2",
+        "audit": "2024-08-phi",
+        "hypotheses": 22,
+        "strictMatchingHypotheses": 6,
+        "oneJudgeMatchingHypotheses": 7,
+        "strictKnownFound": 4,
+        "oneJudgeKnownFound": 4
+      },
+      {
+        "run": "ka2",
+        "audit": "2023-10-nextgen",
+        "hypotheses": 35,
+        "strictMatchingHypotheses": 8,
+        "oneJudgeMatchingHypotheses": 8,
+        "strictKnownFound": 2,
+        "oneJudgeKnownFound": 2
+      }
+    ],
+    "totals": {
+      "hypotheses": 90,
+      "strictMatchingHypotheses": 17,
+      "oneJudgeMatchingHypotheses": 25,
+      "strictKnownFound": 9,
+      "oneJudgeKnownFound": 13
+    }
+  }
 }
