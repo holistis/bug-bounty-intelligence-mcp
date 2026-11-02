@@ -1,0 +1,301 @@
+{
+  "note": "The same setup as results/2026-11-02-shop-setup-five-audits, run once on six more audits (not fresh: earlier versions of our scan ran on all of them): run kn1, four small audits (three from January 2026), judged by the grader copy and by the two open judges; run kn3, two larger audits that are not in the EVMbench set, so the grader copy cannot judge them and only the two open judges did (their known findings include Medium severity). Run kn2 repeats two of the small audits and is not in the totals. The cost limit per audit was the one the shop computes for a repository of that size. The first rule for reading the result was written down before the runs; the second rule (all audits together) was added after the scans of the first set and before any judging, and its application with the open judges was chosen after the runs. See README.md.",
+  "rows": [
+    {
+      "run": "kn1",
+      "audit": "2026-01-tempo-feeamm",
+      "primary": true,
+      "judge": "grader-copy",
+      "known": 1,
+      "found": 1,
+      "foundIds": [
+        "H-01"
+      ],
+      "foundOneJudge": 1,
+      "hypotheses": 7,
+      "scanCostUsd": 0.14,
+      "linesInScope": 287,
+      "filesInScope": 1,
+      "filesRead": 1
+    },
+    {
+      "run": "kn1",
+      "audit": "2026-01-tempo-stablecoin-dex",
+      "primary": true,
+      "judge": "grader-copy",
+      "known": 2,
+      "found": 2,
+      "foundIds": [
+        "H-02",
+        "H-04"
+      ],
+      "foundOneJudge": 2,
+      "hypotheses": 8,
+      "scanCostUsd": 0.11,
+      "linesInScope": 474,
+      "filesInScope": 2,
+      "filesRead": 1
+    },
+    {
+      "run": "kn1",
+      "audit": "2026-01-tempo-mpp-streams",
+      "primary": true,
+      "judge": "grader-copy",
+      "known": 1,
+      "found": 1,
+      "foundIds": [
+        "H-03"
+      ],
+      "foundOneJudge": 1,
+      "hypotheses": 8,
+      "scanCostUsd": 0.13,
+      "linesInScope": 478,
+      "filesInScope": 1,
+      "filesRead": 1
+    },
+    {
+      "run": "kn1",
+      "audit": "2025-02-thorwallet",
+      "primary": true,
+      "judge": "grader-copy",
+      "known": 1,
+      "found": 1,
+      "foundIds": [
+        "H-01"
+      ],
+      "foundOneJudge": 1,
+      "hypotheses": 7,
+      "scanCostUsd": 0.08,
+      "linesInScope": 298,
+      "filesInScope": 4,
+      "filesRead": 4
+    },
+    {
+      "run": "kn3",
+      "audit": "2025-03-symm-io-stacking",
+      "primary": true,
+      "judge": "open-judges",
+      "known": 6,
+      "found": 5,
+      "foundIds": [
+        "H-1",
+        "M-2",
+        "M-3",
+        "M-4",
+        "M-5"
+      ],
+      "foundOneJudge": 5,
+      "hypotheses": 14,
+      "scanCostUsd": 0.5,
+      "linesInScope": 1440,
+      "filesInScope": 12,
+      "filesRead": 10
+    },
+    {
+      "run": "kn3",
+      "audit": "2025-05-yearn-ybold",
+      "primary": true,
+      "judge": "open-judges",
+      "known": 3,
+      "found": 1,
+      "foundIds": [
+        "H-2"
+      ],
+      "foundOneJudge": 1,
+      "hypotheses": 10,
+      "scanCostUsd": 0.49,
+      "linesInScope": 1067,
+      "filesInScope": 20,
+      "filesRead": 12
+    },
+    {
+      "run": "kn2",
+      "audit": "2026-01-tempo-feeamm",
+      "primary": false,
+      "judge": "grader-copy",
+      "known": 1,
+      "found": 1,
+      "foundIds": [
+        "H-01"
+      ],
+      "foundOneJudge": 1,
+      "hypotheses": 6,
+      "scanCostUsd": 0.13,
+      "linesInScope": 287,
+      "filesInScope": 1,
+      "filesRead": 1
+    },
+    {
+      "run": "kn2",
+      "audit": "2025-02-thorwallet",
+      "primary": false,
+      "judge": "grader-copy",
+      "known": 1,
+      "found": 1,
+      "foundIds": [
+        "H-01"
+      ],
+      "foundOneJudge": 1,
+      "hypotheses": 8,
+      "scanCostUsd": 0.09,
+      "linesInScope": 298,
+      "filesInScope": 4,
+      "filesRead": 4
+    }
+  ],
+  "totals": {
+    "graderCopy": {
+      "known": 5,
+      "found": 5
+    },
+    "openJudges": {
+      "known": 14,
+      "found": 11,
+      "foundOneJudge": 11
+    },
+    "scanCostUsd": 1.45
+  },
+  "precision": {
+    "note": "Per hypothesis, judged by two open models that each name the known finding a hypothesis matches or none. Strict means both name the same known finding. A hypothesis that matches no known finding counts as not matching here, although it may be a real bug the audit did not list, so the shares are a floor. Totals and slices cover runs kn1 and kn3 only.",
+    "rows": [
+      {
+        "run": "kn1",
+        "audit": "2026-01-tempo-feeamm",
+        "primary": true,
+        "hypotheses": 7,
+        "strictMatchingHypotheses": 1,
+        "oneJudgeMatchingHypotheses": 1,
+        "strictKnownFound": 1,
+        "oneJudgeKnownFound": 1
+      },
+      {
+        "run": "kn1",
+        "audit": "2026-01-tempo-stablecoin-dex",
+        "primary": true,
+        "hypotheses": 8,
+        "strictMatchingHypotheses": 2,
+        "oneJudgeMatchingHypotheses": 2,
+        "strictKnownFound": 2,
+        "oneJudgeKnownFound": 2
+      },
+      {
+        "run": "kn1",
+        "audit": "2026-01-tempo-mpp-streams",
+        "primary": true,
+        "hypotheses": 8,
+        "strictMatchingHypotheses": 1,
+        "oneJudgeMatchingHypotheses": 1,
+        "strictKnownFound": 1,
+        "oneJudgeKnownFound": 1
+      },
+      {
+        "run": "kn1",
+        "audit": "2025-02-thorwallet",
+        "primary": true,
+        "hypotheses": 7,
+        "strictMatchingHypotheses": 1,
+        "oneJudgeMatchingHypotheses": 1,
+        "strictKnownFound": 1,
+        "oneJudgeKnownFound": 1
+      },
+      {
+        "run": "kn3",
+        "audit": "2025-03-symm-io-stacking",
+        "primary": true,
+        "hypotheses": 14,
+        "strictMatchingHypotheses": 5,
+        "oneJudgeMatchingHypotheses": 5,
+        "strictKnownFound": 5,
+        "oneJudgeKnownFound": 5
+      },
+      {
+        "run": "kn3",
+        "audit": "2025-05-yearn-ybold",
+        "primary": true,
+        "hypotheses": 10,
+        "strictMatchingHypotheses": 1,
+        "oneJudgeMatchingHypotheses": 1,
+        "strictKnownFound": 1,
+        "oneJudgeKnownFound": 1
+      },
+      {
+        "run": "kn2",
+        "audit": "2026-01-tempo-feeamm",
+        "primary": false,
+        "hypotheses": 6,
+        "strictMatchingHypotheses": 1,
+        "oneJudgeMatchingHypotheses": 1,
+        "strictKnownFound": 1,
+        "oneJudgeKnownFound": 1
+      },
+      {
+        "run": "kn2",
+        "audit": "2025-02-thorwallet",
+        "primary": false,
+        "hypotheses": 8,
+        "strictMatchingHypotheses": 2,
+        "oneJudgeMatchingHypotheses": 2,
+        "strictKnownFound": 1,
+        "oneJudgeKnownFound": 1
+      }
+    ],
+    "totals": {
+      "hypotheses": 54,
+      "strictMatchingHypotheses": 11,
+      "oneJudgeMatchingHypotheses": 11,
+      "strictKnownFound": 11
+    },
+    "slices": {
+      "topFive": {
+        "hypotheses": 30,
+        "strict": 10,
+        "oneJudge": 10
+      },
+      "highConfidence": {
+        "hypotheses": 9,
+        "strict": 4,
+        "oneJudge": 4
+      }
+    },
+    "byRun": {
+      "kn1": {
+        "hypotheses": 30,
+        "strict": 5,
+        "topFive": {
+          "hypotheses": 20,
+          "strict": 5
+        },
+        "highConfidence": {
+          "hypotheses": 6,
+          "strict": 2
+        }
+      },
+      "kn3": {
+        "hypotheses": 24,
+        "strict": 6,
+        "topFive": {
+          "hypotheses": 10,
+          "strict": 5
+        },
+        "highConfidence": {
+          "hypotheses": 3,
+          "strict": 2
+        }
+      }
+    }
+  },
+  "repeat": [
+    {
+      "audit": "2026-01-tempo-feeamm",
+      "firstRunFound": 1,
+      "repeatRunFound": 1,
+      "known": 1
+    },
+    {
+      "audit": "2025-02-thorwallet",
+      "firstRunFound": 1,
+      "repeatRunFound": 1,
+      "known": 1
+    }
+  ]
+}

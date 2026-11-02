@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The report’s first issue (“Merge credits claimable TITN with no check against TITN balance; late depositors lose TGT”) describes the same root cause and code path as H-1: onTokenTransfer credits claimable without capping it to the TITN deposited (i.e., exceeding TGT_TO_EXCHANGE/TITN_ARB backing), causing later claims to revert and TGT to be stuck. It even ties the numbers (173.7M TITN backing ~579M TGT) and the lack of a deposit cap. The report’s separate issue on withdrawRemainingTitn underflow/brick also matches the second part of H-1, pointing to the same subtraction in withdrawRemainingTitn reverting when totalTitnClaimable exceeds the contract’s TITN balance (including the case caused by oversubscription). The same fix proposed in H-1 (limit total deposits or cap totalTitnClaimable by available TITN) would address the report’s findings for this vulnerability.",
+ "kosten": 0.03731625,
+ "tokens": {
+  "prompt": 5661,
+  "completion": 3024,
+  "reasoning": 2752
+ }
+}

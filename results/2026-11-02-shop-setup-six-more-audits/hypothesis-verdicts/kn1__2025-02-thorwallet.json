@@ -1,0 +1,103 @@
+{
+ "audit": "2025-02-thorwallet",
+ "verdicts": [
+  {
+   "title": "Anyone can brand any address a bridged holder by bridging dust, freezing its Titn transfers",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and flaw unrelated to the MergeTgt overflow issue.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a vulnerability in Titn.sol's _credit function allowing permanent freezing of transfers via bridging dust, while the only known finding [H-01] concerns a different cont",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Merge can allocate more TITN than it holds; no cap on total TGT merged, first-year snapshot then reverts",
+   "strict": "H-01",
+   "a": {
+    "match": "H-01",
+    "reden": "Same missing cap on TGT amount leading to excess TITN claims and overflow in withdrawRemainingTitn",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-01",
+    "reden": "Both describe the same issue: no cap on TGT merged causing claimable TITN to exceed contract balance and underflow in withdrawRemainingTitn.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Owner can withdraw any token, including users' claimable TITN, at any time",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an owner withdrawal issue, which is a different root cause than the known finding about missing limits on TGT amount and overflow in withdrawRemainingTitn.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes unrestricted owner withdrawal of any token, while the known finding [H-01] is about exceeding the hardcoded TGT exchange limit leading to claim failures; these are different ro",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Leftover TITN after year one is paid only to unclaimed merge holders, so early claimers lose out",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes unfair leftover distribution, while the known finding concerns missing handling of TGTTOEXCHANGE limit and overflow, which are different root causes.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate addresses unfair distribution of leftover TITN to early vs late claimers, while the known finding [H-01] is about an overflow when TGTTOEXCHANGE is exceeded, a different root cause and i",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Merge at exactly 360 days accepts TGT but credits zero TITN",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different root cause and logic; candidate describes timestamp edge case, known finding concerns exceeding hardcoded exchange limits and overflow",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a timing edge case causing zero credit, while the known finding is about exceeding a hardcoded exchange limit leading to insolvency.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Deployer-minted supply and Arbitrum lock can strand tokens unless deployer is owner",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a token lock issue in Titn.sol unrelated to the MergeTgt overflow/limit bug in H-01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a deployer mint and Arbitrum lock issue, while the known finding H-01 is about MergeTgt deposit overflow and exchange period handling.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "TITN deposited after the first withdrawRemainingTitn() call is outside the snapshot and is not distributed",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a snapshot timing issue, while the known finding concerns exceeding a hardcoded exchange limit and overflow, which are different root causes.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a timing issue with deposits after the snapshot not being distributed, while the known finding H-01 is about exceeding TGTTOEXCHANGE causing overflow and claiming issues.",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

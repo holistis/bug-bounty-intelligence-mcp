@@ -22,5 +22,6 @@ The settings, prompts and models behind our scan are not published. What is publ
 | 2026-11-02-independence-signals-afg-fixture | Concentration signals over a public file of payment-grounded feedback, 2 November 2026 |
 | 2026-11-02-our-scan-under-the-benchmark-judge | Our research runs under a copy of the benchmark's own judge, 2 November 2026 |
 | 2026-11-02-shop-setup-five-audits | The setup behind our deep scan on five audits, 14 of 20, 2 November 2026 |
+| 2026-11-02-shop-setup-six-more-audits | The current setup on six more audits that earlier versions had run on, with precision and a repeat, 2 November 2026 |
 
 Most folders from 24 October to 1 November list their README file in their own hash list, so those README files are not edited after publication. This index covers them. Folders from 2 November on carry their own Cite as line.
