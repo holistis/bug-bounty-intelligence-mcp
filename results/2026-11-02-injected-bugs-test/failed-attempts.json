@@ -1,0 +1,47 @@
+{
+  "note": "The runs on tare that read no file and wrote no hypotheses, before the one-pass prompt fix. Four more empty runs happened on a private project that was left out, about 0.06 dollars. Costs are the fall of the provider balance counter; the first-attempt costs and the third are copied from our run logs, whose files were overwritten by the later attempts.",
+  "runs": [
+    {
+      "attempt": 1,
+      "run": "mut-tare",
+      "filesRead": 0,
+      "hypotheses": 0,
+      "scanCostUsd": 0.016,
+      "note": "before the fix; nested paths"
+    },
+    {
+      "attempt": 1,
+      "run": "ctl-tare",
+      "filesRead": 0,
+      "hypotheses": 0,
+      "scanCostUsd": 0.007,
+      "note": "before the fix; nested paths"
+    },
+    {
+      "attempt": 2,
+      "run": "mut-tare",
+      "filesRead": 0,
+      "hypotheses": 0,
+      "scanCostUsd": 0,
+      "note": "before the fix; paths flattened with --flat"
+    },
+    {
+      "attempt": 2,
+      "run": "ctl-tare",
+      "filesRead": 0,
+      "hypotheses": 0,
+      "scanCostUsd": 0.016,
+      "note": "before the fix; paths flattened with --flat"
+    },
+    {
+      "attempt": 3,
+      "run": "mut-tare",
+      "filesRead": 0,
+      "hypotheses": 0,
+      "scanCostUsd": 0.017,
+      "note": "before the fix; a third try to see whether it repeated"
+    }
+  ],
+  "totalUsd": 0.056,
+  "leftOutProjectUsd": 0.056
+}

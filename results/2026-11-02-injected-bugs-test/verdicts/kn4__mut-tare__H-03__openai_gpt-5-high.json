@@ -1,0 +1,10 @@
+{
+ "detected": false,
+ "reden": "The described issue is an off-by-one error in acceptSaleOffer’s liquidity check (<= vs < or >= vs >) on require(uint256(offer.price) <= idleLiquidity()). The audit report does not discuss any boundary/inequality check in acceptSaleOffer. Mentions of acceptSaleOffer in the report relate to exchange pointer mismatches after setLoans/setExchange and residual approvals, not to the liquidity comparison. Other findings (e.g., approveRedemption rounding to zero) are different functions and issues. Fixes proposed in the report would not address the off-by-one in acceptSaleOffer. Therefore, the specific vulnerability was not detected.",
+ "kosten": 0.013581,
+ "tokens": {
+  "prompt": 3508,
+  "completion": 1294,
+  "reasoning": 1088
+ }
+}

@@ -1,0 +1,22 @@
+[
+ {
+  "id": "H-01",
+  "title": "SatelliteEmissionsController.setMetaERC20SpokeOrHub: missing access control",
+  "description": "In SatelliteEmissionsController.setMetaERC20SpokeOrHub (src/protocol/emissions/SatelliteEmissionsController.sol) the access control modifier onlyRole(DEFAULT_ADMIN_ROLE) was removed, so any address can call this function."
+ },
+ {
+  "id": "H-02",
+  "title": "TrustToken.mint: missing check",
+  "description": "In TrustToken.mint (src/legacy/TrustToken.sol) the check \"require(minterAmountMinted[msg.sender] + amount <= minterCap, \"Minting cap exceeded for minter\");\" was removed, so the condition is no longer enforced."
+ },
+ {
+  "id": "H-03",
+  "title": "VotingEscrow._withdraw: off-by-one in a boundary check",
+  "description": "In VotingEscrow._withdraw (src/external/curve/VotingEscrow.sol) the comparison in \"require(block.timestamp >= _locked.end, \"The lock didn't expire\");\" was shifted by one (>= became > or <= became <), an off-by-one in a boundary check."
+ },
+ {
+  "id": "H-04",
+  "title": "VotingEscrow.unlock: missing access control",
+  "description": "In VotingEscrow.unlock (src/external/curve/VotingEscrow.sol) the access control modifier onlyRole(DEFAULT_ADMIN_ROLE) was removed, so any address can call this function."
+ }
+]

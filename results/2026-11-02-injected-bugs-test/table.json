@@ -1,0 +1,224 @@
+{
+  "note": "Four bugs per project were inserted on 2 November 2026 with mutate.mjs and seed 2026-11-02 into code of three projects; each project has a copy with the bugs (mut) and a clean control copy (ctl). The scan ran once on each copy. The known bugs for the control copies are the same 4 bugs per project, which are NOT in the clean code, so a control hypothesis that matches one is a false match of the judges.",
+  "sources": {
+    "tare": {
+      "repo": "sherlock-audit/2026-07-tare",
+      "commit": "abdf2a8e0ce8503e81c5b17430e00521e81a8a14",
+      "seed": "2026-11-02",
+      "command": "node mutate.mjs <clone of sherlock-audit/2026-07-tare at that commit> <out> --seed=2026-11-02 --n=4 --max-lines=1200 --flat",
+      "files": [
+        {
+          "file": "src/PortfolioVault.sol",
+          "sha256Original": "afa35453e680be2c4283c3058250610836205941877c43eb7e2485764c362ccb",
+          "sha256Mutated": "9be086d192178e9d0bd51dd0b6fbee12dcb80bbd14c252827546b3b50d4c90db"
+        }
+      ]
+    },
+    "monetrix": {
+      "repo": "code-423n4/2026-04-monetrix",
+      "commit": "3d94be1361ca01d959f9165a78f0d75c5657fe3e",
+      "seed": "2026-11-02",
+      "command": "node mutate.mjs <clone of code-423n4/2026-04-monetrix at that commit> <out> --seed=2026-11-02 --n=4 --max-lines=1200",
+      "files": [
+        {
+          "file": "src/core/MonetrixVault.sol",
+          "sha256Original": "9484c3ffaf86d34daf46c08a9ac069d7c6376ca8efc7b9ea7a42ba5c6c0b8758",
+          "sha256Mutated": "d05f709e129dd070d600ce2fbbe2360e53e2bffbcde4b6282c9689d23fb1e50f"
+        },
+        {
+          "file": "src/core/MonetrixConfig.sol",
+          "sha256Original": "613a1f27ca8f33a5822e8ce1189451e44a0c4a7b833e587a9a133da95a8c4b20",
+          "sha256Mutated": "613a1f27ca8f33a5822e8ce1189451e44a0c4a7b833e587a9a133da95a8c4b20"
+        },
+        {
+          "file": "src/tokens/sUSDM.sol",
+          "sha256Original": "1e3aca6106f3dc015b257f5da2fd3a8d1b63cf68033e7f075dc28346a54dc759",
+          "sha256Mutated": "5c222d2fa2a46fb746916c9bfd8fa34519fb453ceea23b6b2d9baf9b457a8399"
+        }
+      ]
+    },
+    "intuition": {
+      "repo": "code-423n4/2026-03-intuition",
+      "commit": "314b7d4d9ccbaf27e4484a6c0706af83d3f75f36",
+      "seed": "2026-11-02",
+      "command": "node mutate.mjs <clone of code-423n4/2026-03-intuition at that commit> <out> --seed=2026-11-02 --n=4 --max-lines=1200",
+      "files": [
+        {
+          "file": "src/external/curve/VotingEscrow.sol",
+          "sha256Original": "45acca502fc1b99f91605a69270b3c193296f98cd718851acbace22db404de9e",
+          "sha256Mutated": "0ded62df13b93eb71cad16470bb5a09a6d9c0bce36b49ae372d787e9254f4c67"
+        },
+        {
+          "file": "src/protocol/emissions/SatelliteEmissionsController.sol",
+          "sha256Original": "d08d0c27976f3e17e19b48b282907d7e562a06c7b3ae2c8320e33473061d24dd",
+          "sha256Mutated": "c427810d346a6f906e6a9fa9baa5a23ca2ca131869f7dcf4457fb3f1a04bb5c2"
+        },
+        {
+          "file": "src/WrappedTrust.sol",
+          "sha256Original": "44d70c7a90298bcbf434583fa69ef381f7eee04a568491814bd5d1b886881690",
+          "sha256Mutated": "44d70c7a90298bcbf434583fa69ef381f7eee04a568491814bd5d1b886881690"
+        },
+        {
+          "file": "src/legacy/TrustToken.sol",
+          "sha256Original": "c696ec1027277b97057f33e92a85ca4bc6d1260df32d81b5de58ed2137833400",
+          "sha256Mutated": "c01c6ccab9cdae464995de90f3570d9422837740036466fd9f61bbf3e48c7cd2"
+        }
+      ]
+    }
+  },
+  "rows": [
+    {
+      "run": "kn4",
+      "audit": "mut-tare",
+      "set": "tare",
+      "kind": "mut",
+      "hypotheses": 10,
+      "strictMatchingHypotheses": 2,
+      "oneJudgeMatchingHypotheses": 3,
+      "strictKnownFound": 2,
+      "oneJudgeKnownFound": 3,
+      "strictKnownIds": [
+        "H-01",
+        "H-02"
+      ],
+      "scanCostUsd": 0.24,
+      "linesInScope": 1147,
+      "known": 4,
+      "graderCopyFound": 3,
+      "graderCopyIds": [
+        "H-01",
+        "H-02",
+        "H-04"
+      ]
+    },
+    {
+      "run": "kn4",
+      "audit": "ctl-tare",
+      "set": "tare",
+      "kind": "ctl",
+      "hypotheses": 8,
+      "strictMatchingHypotheses": 0,
+      "oneJudgeMatchingHypotheses": 0,
+      "strictKnownFound": 0,
+      "oneJudgeKnownFound": 0,
+      "strictKnownIds": [],
+      "scanCostUsd": 0.28,
+      "linesInScope": 1147
+    },
+    {
+      "run": "kn4",
+      "audit": "mut-monetrix",
+      "set": "monetrix",
+      "kind": "mut",
+      "hypotheses": 9,
+      "strictMatchingHypotheses": 2,
+      "oneJudgeMatchingHypotheses": 2,
+      "strictKnownFound": 2,
+      "oneJudgeKnownFound": 2,
+      "strictKnownIds": [
+        "H-01",
+        "H-04"
+      ],
+      "scanCostUsd": 0.31,
+      "linesInScope": 1176,
+      "known": 4,
+      "graderCopyFound": 2,
+      "graderCopyIds": [
+        "H-01",
+        "H-04"
+      ]
+    },
+    {
+      "run": "kn4",
+      "audit": "ctl-monetrix",
+      "set": "monetrix",
+      "kind": "ctl",
+      "hypotheses": 7,
+      "strictMatchingHypotheses": 0,
+      "oneJudgeMatchingHypotheses": 0,
+      "strictKnownFound": 0,
+      "oneJudgeKnownFound": 0,
+      "strictKnownIds": [],
+      "scanCostUsd": 0.33,
+      "linesInScope": 1176
+    },
+    {
+      "run": "kn4",
+      "audit": "mut-intuition",
+      "set": "intuition",
+      "kind": "mut",
+      "hypotheses": 6,
+      "strictMatchingHypotheses": 3,
+      "oneJudgeMatchingHypotheses": 3,
+      "strictKnownFound": 3,
+      "oneJudgeKnownFound": 3,
+      "strictKnownIds": [
+        "H-01",
+        "H-02",
+        "H-04"
+      ],
+      "scanCostUsd": 0.27,
+      "linesInScope": 1164,
+      "known": 4,
+      "graderCopyFound": 3,
+      "graderCopyIds": [
+        "H-01",
+        "H-02",
+        "H-04"
+      ]
+    },
+    {
+      "run": "kn4",
+      "audit": "ctl-intuition",
+      "set": "intuition",
+      "kind": "ctl",
+      "hypotheses": 6,
+      "strictMatchingHypotheses": 0,
+      "oneJudgeMatchingHypotheses": 0,
+      "strictKnownFound": 0,
+      "oneJudgeKnownFound": 0,
+      "strictKnownIds": [],
+      "scanCostUsd": 0.27,
+      "linesInScope": 1164
+    }
+  ],
+  "totals": {
+    "injectedBugs": 12,
+    "graderCopyFound": 8,
+    "openJudgesStrictFound": 7,
+    "openJudgesOneFound": 8,
+    "mutRunHypotheses": 25,
+    "mutRunStrictMatchingHypotheses": 7,
+    "controlHypotheses": 21,
+    "controlStrictMatches": 0,
+    "controlOneJudgeMatches": 0,
+    "scanCostUsd": 1.7
+  },
+  "slices": {
+    "topFive": {
+      "hypotheses": 15,
+      "strict": 7
+    },
+    "highConfidence": {
+      "hypotheses": 8,
+      "strict": 7
+    }
+  },
+  "byClass": {
+    "access": {
+      "injected": 6,
+      "graderFound": 6,
+      "strictFound": 5
+    },
+    "check": {
+      "injected": 3,
+      "graderFound": 2,
+      "strictFound": 2
+    },
+    "compare": {
+      "injected": 3,
+      "graderFound": 0,
+      "strictFound": 0
+    }
+  }
+}

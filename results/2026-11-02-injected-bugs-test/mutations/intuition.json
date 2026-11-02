@@ -1,0 +1,72 @@
+{
+  "seed": "2026-11-02",
+  "source": "2026-03-intuition",
+  "files": [
+    {
+      "file": "src/external/curve/VotingEscrow.sol",
+      "lines": 777
+    },
+    {
+      "file": "src/protocol/emissions/SatelliteEmissionsController.sol",
+      "lines": 279
+    },
+    {
+      "file": "src/WrappedTrust.sol",
+      "lines": 79
+    },
+    {
+      "file": "src/legacy/TrustToken.sol",
+      "lines": 33
+    }
+  ],
+  "mutations": [
+    {
+      "id": "H-01",
+      "type": "access",
+      "file": "src/protocol/emissions/SatelliteEmissionsController.sol",
+      "contract": "SatelliteEmissionsController",
+      "function": "setMetaERC20SpokeOrHub",
+      "line": 169,
+      "before": "function setMetaERC20SpokeOrHub(address newMetaERC20SpokeOrHub) external onlyRole(DEFAULT_ADMIN_ROLE) {",
+      "after": "function setMetaERC20SpokeOrHub(address newMetaERC20SpokeOrHub) external {",
+      "title": "SatelliteEmissionsController.setMetaERC20SpokeOrHub: missing access control",
+      "description": "In SatelliteEmissionsController.setMetaERC20SpokeOrHub (src/protocol/emissions/SatelliteEmissionsController.sol) the access control modifier onlyRole(DEFAULT_ADMIN_ROLE) was removed, so any address can call this function."
+    },
+    {
+      "id": "H-02",
+      "type": "check",
+      "file": "src/legacy/TrustToken.sol",
+      "contract": "TrustToken",
+      "function": "mint",
+      "line": 27,
+      "before": "require(minterAmountMinted[msg.sender] + amount <= minterCap, \"Minting cap exceeded for minter\");",
+      "after": "",
+      "title": "TrustToken.mint: missing check",
+      "description": "In TrustToken.mint (src/legacy/TrustToken.sol) the check \"require(minterAmountMinted[msg.sender] + amount <= minterCap, \"Minting cap exceeded for minter\");\" was removed, so the condition is no longer enforced."
+    },
+    {
+      "id": "H-03",
+      "type": "compare",
+      "file": "src/external/curve/VotingEscrow.sol",
+      "contract": "VotingEscrow",
+      "function": "_withdraw",
+      "line": 467,
+      "before": "require(block.timestamp >= _locked.end, \"The lock didn't expire\");",
+      "after": "require(block.timestamp > _locked.end, \"The lock didn't expire\");",
+      "title": "VotingEscrow._withdraw: off-by-one in a boundary check",
+      "description": "In VotingEscrow._withdraw (src/external/curve/VotingEscrow.sol) the comparison in \"require(block.timestamp >= _locked.end, \"The lock didn't expire\");\" was shifted by one (>= became > or <= became <), an off-by-one in a boundary check."
+    },
+    {
+      "id": "H-04",
+      "type": "access",
+      "file": "src/external/curve/VotingEscrow.sol",
+      "contract": "VotingEscrow",
+      "function": "unlock",
+      "line": 153,
+      "before": "function unlock() external onlyRole(DEFAULT_ADMIN_ROLE) {",
+      "after": "function unlock() external {",
+      "title": "VotingEscrow.unlock: missing access control",
+      "description": "In VotingEscrow.unlock (src/external/curve/VotingEscrow.sol) the access control modifier onlyRole(DEFAULT_ADMIN_ROLE) was removed, so any address can call this function."
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+[
+ {
+  "id": "H-01",
+  "title": "PortfolioVault.setLoans: missing access control",
+  "description": "In PortfolioVault.setLoans (src/PortfolioVault.sol) the access control modifier onlyRole(GUARDIAN_ROLE) was removed, so any address can call this function."
+ },
+ {
+  "id": "H-02",
+  "title": "PortfolioVault.approveRedemption: missing check",
+  "description": "In PortfolioVault.approveRedemption (src/PortfolioVault.sol) the check \"require(assets > 0, ZeroAmount());\" was removed, so the condition is no longer enforced."
+ },
+ {
+  "id": "H-03",
+  "title": "PortfolioVault.acceptSaleOffer: off-by-one in a boundary check",
+  "description": "In PortfolioVault.acceptSaleOffer (src/PortfolioVault.sol) the comparison in \"require(uint256(offer.price) <= idleLiquidity(), InsufficientLiquidity());\" was shifted by one (>= became > or <= became <), an off-by-one in a boundary check."
+ },
+ {
+  "id": "H-04",
+  "title": "PortfolioVault.setMaxNavComputationTime: missing access control",
+  "description": "In PortfolioVault.setMaxNavComputationTime (src/PortfolioVault.sol) the access control modifier onlyAdminOrGuardian was removed, so any address can call this function."
+ }
+]

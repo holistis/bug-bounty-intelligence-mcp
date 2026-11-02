@@ -1,0 +1,22 @@
+[
+ {
+  "id": "H-01",
+  "title": "MonetrixVault.setHlpDepositEnabled: missing access control",
+  "description": "In MonetrixVault.setHlpDepositEnabled (src/core/MonetrixVault.sol) the access control modifier onlyOperator was removed, so any address can call this function."
+ },
+ {
+  "id": "H-02",
+  "title": "sUSDM.setEscrow: missing check",
+  "description": "In sUSDM.setEscrow (src/tokens/sUSDM.sol) the check \"require(_escrow != address(0), \"sUSDM: zero escrow\");\" was removed, so the condition is no longer enforced."
+ },
+ {
+  "id": "H-03",
+  "title": "MonetrixVault.settle: off-by-one in a boundary check",
+  "description": "In MonetrixVault.settle (src/core/MonetrixVault.sol) the comparison in \"require(available >= proposedYield, \"insufficient EVM USDC\");\" was shifted by one (>= became > or <= became <), an off-by-one in a boundary check."
+ },
+ {
+  "id": "H-04",
+  "title": "MonetrixVault.reclaimFromRedeemEscrow: missing access control",
+  "description": "In MonetrixVault.reclaimFromRedeemEscrow (src/core/MonetrixVault.sol) the access control modifier onlyOperator was removed, so any address can call this function."
+ }
+]

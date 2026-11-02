@@ -1,0 +1,60 @@
+{
+  "seed": "2026-11-02",
+  "source": "2026-07-tare",
+  "files": [
+    {
+      "file": "src/PortfolioVault.sol",
+      "lines": 1148
+    }
+  ],
+  "mutations": [
+    {
+      "id": "H-01",
+      "type": "access",
+      "file": "src/PortfolioVault.sol",
+      "contract": "PortfolioVault",
+      "function": "setLoans",
+      "line": 485,
+      "before": "function setLoans(address _loans, address _loansNFT) external onlyRole(GUARDIAN_ROLE) {",
+      "after": "function setLoans(address _loans, address _loansNFT) external {",
+      "title": "PortfolioVault.setLoans: missing access control",
+      "description": "In PortfolioVault.setLoans (src/PortfolioVault.sol) the access control modifier onlyRole(GUARDIAN_ROLE) was removed, so any address can call this function."
+    },
+    {
+      "id": "H-02",
+      "type": "check",
+      "file": "src/PortfolioVault.sol",
+      "contract": "PortfolioVault",
+      "function": "approveRedemption",
+      "line": 372,
+      "before": "require(assets > 0, ZeroAmount());",
+      "after": "",
+      "title": "PortfolioVault.approveRedemption: missing check",
+      "description": "In PortfolioVault.approveRedemption (src/PortfolioVault.sol) the check \"require(assets > 0, ZeroAmount());\" was removed, so the condition is no longer enforced."
+    },
+    {
+      "id": "H-03",
+      "type": "compare",
+      "file": "src/PortfolioVault.sol",
+      "contract": "PortfolioVault",
+      "function": "acceptSaleOffer",
+      "line": 540,
+      "before": "require(uint256(offer.price) <= idleLiquidity(), InsufficientLiquidity());",
+      "after": "require(uint256(offer.price) < idleLiquidity(), InsufficientLiquidity());",
+      "title": "PortfolioVault.acceptSaleOffer: off-by-one in a boundary check",
+      "description": "In PortfolioVault.acceptSaleOffer (src/PortfolioVault.sol) the comparison in \"require(uint256(offer.price) <= idleLiquidity(), InsufficientLiquidity());\" was shifted by one (>= became > or <= became <), an off-by-one in a boundary check."
+    },
+    {
+      "id": "H-04",
+      "type": "access",
+      "file": "src/PortfolioVault.sol",
+      "contract": "PortfolioVault",
+      "function": "setMaxNavComputationTime",
+      "line": 521,
+      "before": "function setMaxNavComputationTime(uint256 _maxNavComputationTime) external onlyAdminOrGuardian {",
+      "after": "function setMaxNavComputationTime(uint256 _maxNavComputationTime) external {",
+      "title": "PortfolioVault.setMaxNavComputationTime: missing access control",
+      "description": "In PortfolioVault.setMaxNavComputationTime (src/PortfolioVault.sol) the access control modifier onlyAdminOrGuardian was removed, so any address can call this function."
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "seed": "2026-11-02",
+  "source": "2026-04-monetrix",
+  "files": [
+    {
+      "file": "src/core/MonetrixVault.sol",
+      "lines": 628
+    },
+    {
+      "file": "src/core/MonetrixConfig.sol",
+      "lines": 220
+    },
+    {
+      "file": "src/tokens/sUSDM.sol",
+      "lines": 331
+    }
+  ],
+  "mutations": [
+    {
+      "id": "H-01",
+      "type": "access",
+      "file": "src/core/MonetrixVault.sol",
+      "contract": "MonetrixVault",
+      "function": "setHlpDepositEnabled",
+      "line": 309,
+      "before": "function setHlpDepositEnabled(bool enabled) external onlyOperator whenOperatorNotPaused {",
+      "after": "function setHlpDepositEnabled(bool enabled) external whenOperatorNotPaused {",
+      "title": "MonetrixVault.setHlpDepositEnabled: missing access control",
+      "description": "In MonetrixVault.setHlpDepositEnabled (src/core/MonetrixVault.sol) the access control modifier onlyOperator was removed, so any address can call this function."
+    },
+    {
+      "id": "H-02",
+      "type": "check",
+      "file": "src/tokens/sUSDM.sol",
+      "contract": "sUSDM",
+      "function": "setEscrow",
+      "line": 258,
+      "before": "require(_escrow != address(0), \"sUSDM: zero escrow\");",
+      "after": "",
+      "title": "sUSDM.setEscrow: missing check",
+      "description": "In sUSDM.setEscrow (src/tokens/sUSDM.sol) the check \"require(_escrow != address(0), \"sUSDM: zero escrow\");\" was removed, so the condition is no longer enforced."
+    },
+    {
+      "id": "H-03",
+      "type": "compare",
+      "file": "src/core/MonetrixVault.sol",
+      "contract": "MonetrixVault",
+      "function": "settle",
+      "line": 370,
+      "before": "require(available >= proposedYield, \"insufficient EVM USDC\");",
+      "after": "require(available > proposedYield, \"insufficient EVM USDC\");",
+      "title": "MonetrixVault.settle: off-by-one in a boundary check",
+      "description": "In MonetrixVault.settle (src/core/MonetrixVault.sol) the comparison in \"require(available >= proposedYield, \"insufficient EVM USDC\");\" was shifted by one (>= became > or <= became <), an off-by-one in a boundary check."
+    },
+    {
+      "id": "H-04",
+      "type": "access",
+      "file": "src/core/MonetrixVault.sol",
+      "contract": "MonetrixVault",
+      "function": "reclaimFromRedeemEscrow",
+      "line": 431,
+      "before": "function reclaimFromRedeemEscrow(uint256 amount) external onlyOperator requireWired whenOperatorNotPaused {",
+      "after": "function reclaimFromRedeemEscrow(uint256 amount) external requireWired whenOperatorNotPaused {",
+      "title": "MonetrixVault.reclaimFromRedeemEscrow: missing access control",
+      "description": "In MonetrixVault.reclaimFromRedeemEscrow (src/core/MonetrixVault.sol) the access control modifier onlyOperator was removed, so any address can call this function."
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+{
+ "audit": "ctl-intuition",
+ "verdicts": [
+  {
+   "title": "deposit_for pulls tokens from the target address, letting anyone force-lock a victim's approved TRUST",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing access control in VotingEscrow.deposit_for, which does not correspond to any listed known finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing authorization in deposit_for, allowing anyone to force-lock a victim's tokens, which is not among the known findings which cover different issues in different functio",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "totalSupplyAtT / totalSupply reverts for timestamps before the first checkpoint instead of returning 0",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a revert due to underflow in totalSupply calculations, which is a different bug than the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an underflow/revert in _supply_at for pre-checkpoint timestamps, which is unrelated to the known findings (access control removals, mint cap check, and the _withdraw boundary o",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Unclaimed-emissions reclaim has no check that the epoch's claim window is over and relies on an external amount",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing epoch check in withdrawUnclaimedEmissions, which does not correspond to any of the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns unclaimed-emissions reclaim logic in SatelliteEmissionsController, while the known findings cover different functions and bugs.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Reclaim amount snapshotted once per epoch; later changes in unclaimed amount can never be reclaimed",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a logic error in reward reclamation, which does not correspond to any of the known findings about missing access control, missing checks, or off‑by‑one errors.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a different bug in SatelliteEmissionsController's reclaim logic, while none of the known findings address that issue.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "bridgeUnclaimedEmissions marks the epoch reclaimed before the quote and bridge, and has no nonReentrant or balance check",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different flaw (missing reentrancy guard and balance check) in a different function than the known missing access control findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different issue in a different function/contract unrelated to any known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Global unlock() leaves stale veTRUST weight and blocks checkpoint() for the whole system",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a logic flaw in unlock affecting checkpointing, not the missing access control issue of H-04 or any other known finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a consequence of missing access control on unlock(), not the missing access control itself, and the known finding H-04 covers only the access control issue.",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

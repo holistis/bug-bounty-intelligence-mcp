@@ -1,0 +1,117 @@
+{
+ "audit": "ctl-tare",
+ "verdicts": [
+  {
+   "title": "Anyone holding a loan NFT can donate it to the vault to reset NAV cycles and block approvals",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a novel NFT donation issue unrelated to the listed missing access control or off‑by‑one findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a vulnerability involving donation of loan NFTs to reset NAV cycles and block approvals, which is not covered by any of the known findings (H-01 to H-04).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "setExchange swaps exchange while offers and NFT approvals remain live on the old exchange",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a flaw in setExchange, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability (stale approvals/offers on exchange swap) not listed among the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Vault cannot bootstrap: deposits cannot be approved while lastNav is zero",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different bug in approveDeposit/_requireFreshNav, which is not covered by any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug in approveDeposit/_requireFreshNav regarding zero NAV preventing first deposit, while known findings cover access control issues, missing checks, and off-by-one",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "setLoans drops curated NAV and strands old-collection NFTs and loan positions with no check",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes missing checks on old NFTs and unbounded loop in setLoans, which does not correspond to any listed findings about access control or other functions.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different issue (stranded NFTs/loans and unbounded loop) not covered by any known finding about access control or missing checks.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "setLoans does not revalidate or reset the exchange for the new Loans/LoansNFT pair",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing revalidation bug, not the missing access control issue of H-01 or any other known finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing revalidation of exchange after setLoans, which is not the same as any of the known findings (missing access control, missing check, off-by-one, etc.)",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "NAV invalidation relies on lastNavUpdate=0 being older than maxNavAge; large maxNavAge defeats it",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different flaw in NAV invalidation logic, not any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability (NAV invalidation bypass via large maxNavAge) not covered by any of the known findings (access control, missing checks, off-by-one).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "fundLoans admits loan IDs into NAV without checking vault ownership",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing ownership check in _fundLoans, which is a different function and issue than the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing ownership check in _fundLoans, while known findings are about access control in setLoans/setMaxNavComputationTime, a missing zero-amount check in approveRedemption, a",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "acceptSaleOffer spends cash without invalidating NAV if the offer delivers no NFTs",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a NAV invalidation issue, not the off‑by‑one boundary check of H‑03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing NAV invalidation when no NFTs are transferred, which is not covered by any of the known findings. H-03 is an off-by-one in a liquidity check, a different bug in the s",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

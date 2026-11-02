@@ -1,0 +1,100 @@
+{
+ "hypotheses": [
+  {
+   "title": "Anyone holding a loan NFT can donate it to the vault to reset NAV cycles and block approvals",
+   "category": "DoS / griefing",
+   "file": "PortfolioVault.sol",
+   "function": "updateNav()/_requireFreshNav()",
+   "description": "NAV freshness depends on `loansNFT.ownershipNonce(address(this))`. `updateNav` restarts the cycle (navCursor=0, pendingNav=0) whenever the nonce differs from `lastOwnershipNonce`. `approveDeposit` and `approveRedemption` revert with `PortfolioHoldingsChanged` on the same mismatch. `onERC721Received` only checks `msg.sender == loansNFT`, and plain `transferFrom` needs no receiver hook, so any holder of a loan NFT can send one to the vault. The vault has no way to refuse or filter incoming NFTs.",
+   "attackPath": "1. The manager starts a multi-batch `updateNav`, or finalises one and is about to call `approveDeposit` or `approveRedemption`. 2. The attacker transfers a loan NFT to the vault, which bumps the nonce. 3. The next `updateNav` batch restarts from zero, or the approval reverts with `PortfolioHoldingsChanged`. 4. The attacker repeats this whenever the manager makes progress.",
+   "impact": "Investor approvals can be delayed indefinitely, or NAV computation can be starved on large portfolios. Cost to the attacker is only the NFT transfer. This depends on how cheaply an attacker can obtain loan NFTs, which I could not check.",
+   "recommendation": "Make the freshness check tolerate unsolicited inbound transfers, for example by tracking vault-owned NFTs separately from the nonce or by rejecting unsolicited transfers. Alternatively rate-limit restarts.",
+   "severity": "Medium",
+   "confidence": 0.3
+  },
+  {
+   "title": "setExchange swaps exchange while offers and NFT approvals remain live on the old exchange",
+   "category": "cross-contract state / privileged config",
+   "file": "PortfolioVault.sol",
+   "function": "setExchange()",
+   "description": "createSaleOffer() calls IERC721.approve(exchange, loanId) for each loan and creates the offer on the current exchange. setExchange() only checks _requireIdleNav() and that the new exchange's LOANS, LOANS_NFT and CURRENCY match. It does not check or cancel open offers on the old exchange, and it does not clear the per-token approvals given to it. cancelSaleOffer() and acceptSaleOffer() only talk to the new `exchange`, so the vault can no longer cancel stale offers. The old exchange keeps both the offer and the NFT approval, so any buyer can still settle at the old price.",
+   "attackPath": "1) The portfolio manager creates a sale offer for loans L at a low price P on exchange A. 2) The guardian calls setExchange(B) before the offer is cancelled or filled. 3) The vault can no longer cancel the offer, because cancelSaleOffer() calls B. 4) The named buyer (or anyone, if the offer is open) calls A.acceptOffer and takes the loans at the stale price P, because A still holds the NFT approval.",
+   "impact": "Loans can be sold at a stale or unwanted price and the vault has no on-chain way to cancel. The sale bumps the ownership nonce, so NAV has to be refreshed, but the value loss to the vault's investors has already happened.",
+   "recommendation": "Require the old exchange to have no active vault offers before switching, or let the manager cancel against an explicitly named old exchange. Revoke the NFT approvals when offers are cancelled or the exchange is replaced.",
+   "severity": "Medium",
+   "confidence": 0.3
+  },
+  {
+   "title": "Vault cannot bootstrap: deposits cannot be approved while lastNav is zero",
+   "category": "Liveness",
+   "file": "PortfolioVault.sol",
+   "function": "approveDeposit()/_requireFreshNav()",
+   "description": "`lastNav` is computed as the asset balance, plus the adjusted loan value, minus `totalPendingDepositAssets`, minus `totalClaimableRedeemAssets`. A new vault with no loans and only pending deposits therefore has NAV 0. `_requireFreshNav` requires `lastNav > 0` and reverts with `ZeroNav`. `approveDeposit` always calls `_requireFreshNav`. The 1e18 dead shares exist, so supply is nonzero, but there is no way to price the first deposit.",
+   "attackPath": "1. Deploy the vault. 2. Investors call `requestDeposit`. 3. The manager runs `updateNav`, which gives lastNav == 0. 4. `approveDeposit` reverts with `ZeroNav`. 5. The only way out is an out-of-band transfer of assets or loans into the vault.",
+   "impact": "The vault cannot take its first deposits without a manual donation, and that donation accrues to the dead shares. NAV can also fall back to zero after all value is withdrawn, which blocks deposits again.",
+   "recommendation": "Add a bootstrap path that prices the first deposit at 1:1, or an explicit seed-deposit mechanism, instead of requiring lastNav > 0.",
+   "severity": "Medium",
+   "confidence": 0.25
+  },
+  {
+   "title": "setLoans drops curated NAV and strands old-collection NFTs and loan positions with no check",
+   "category": "state sync across contracts / liveness",
+   "file": "PortfolioVault.sol",
+   "function": "setLoans()",
+   "description": "setLoans() calls _clearNavLoanIds(), then overwrites `loans` and `loansNFT`. It never checks that the vault holds no NFTs of the old collection, or that no funded or outstanding positions remain in the old Loans contract. All later paths (transferLoans, createSaleOffer, collectCashflows, addLoansToNav, updateNav) use the new `loansNFT` and `loans`. Old NFTs therefore cannot be transferred out, sold or collected from through the vault, and they are no longer valued, so lastNav falls to roughly cash only. The loop in _clearNavLoanIds() is also unbounded (one pop and one event per id), so a large list can make setLoans uncallable because of gas.",
+   "attackPath": "1) The vault holds many loans in NAV under Loans/LoansNFT v1. 2) The guardian migrates with setLoans(v2) without first moving the loans out. 3) The old NFTs and any cash owed by v1 are stuck, and the next updateNav gives a NAV that excludes them. 4) Approvals at that NAV are then mispriced (cheap deposits, redemptions paid out against missing assets). Alternatively, with a very large list, setLoans() runs out of gas and cannot be used.",
+   "impact": "Investor funds invested in the old Loans deployment can be locked, and share pricing is wrong after the switch. The migration call can also be bricked by gas.",
+   "recommendation": "Require that no old-collection NFTs are held (or that the NAV list is already empty) and that the vault is flushed from the old Loans before switching. Clear the list in bounded batches.",
+   "severity": "Medium",
+   "confidence": 0.25
+  },
+  {
+   "title": "setLoans does not revalidate or reset the exchange for the new Loans/LoansNFT pair",
+   "category": "Configuration consistency",
+   "file": "PortfolioVault.sol",
+   "function": "setLoans()",
+   "description": "`setExchange` requires `exchange.LOANS() == loans` and `exchange.LOANS_NFT() == loansNFT`. `setLoans` replaces `loans` and `loansNFT` but leaves `exchange` untouched and does not re-check it. After `setLoans`, `createSaleOffer` approves new-collection NFTs to an exchange wired to the old collection, and `acceptSaleOffer` validates ownership against the new `loansNFT` while trading on the old exchange.",
+   "attackPath": "1. The guardian calls `setLoans` with a new pair. 2. The portfolio manager calls `createSaleOffer` or `acceptSaleOffer` against the stale exchange. 3. These calls revert, or act on mismatched collections, until `setExchange` is called.",
+   "impact": "Sale-offer operations are broken or inconsistent after a migration. Funds are unlikely to be lost, but the vault is in an invalid configuration without any check.",
+   "recommendation": "Revalidate the current exchange against the new wiring in `setLoans`, or require a new exchange to be passed in the same call.",
+   "severity": "Medium",
+   "confidence": 0.2
+  },
+  {
+   "title": "NAV invalidation relies on lastNavUpdate=0 being older than maxNavAge; large maxNavAge defeats it",
+   "category": "Stale state / config",
+   "file": "PortfolioVault.sol",
+   "function": "_requireFreshNav()/setMaxNavAge()",
+   "description": "`_invalidateNav` only sets `lastNavUpdate = 0`. `_requireFreshNav` then enforces `block.timestamp - lastNavUpdate <= maxNavAge`. `setMaxNavAge` only requires a value greater than 0. If `maxNavAge >= block.timestamp`, the check passes even after invalidation. In that case approvals can run against a NAV that `fundLoans`, `collectCashflows`, `addLoansToNav` or `removeLoansFromNav` explicitly marked stale. There is no separate invalidated flag.",
+   "attackPath": "1. `maxNavAge` is set to a very large value (admin or guardian misconfiguration, or an intentional 'never stale' setting). 2. The manager calls `fundLoans` or `removeLoansFromNav`, which invalidate NAV. 3. `approveDeposit` and `approveRedemption` still pass the freshness check and use the outdated `lastNav`.",
+   "impact": "Deposits and redemptions can be priced off a NAV that no longer matches the vault's holdings. This requires a privileged misconfiguration.",
+   "recommendation": "Add an explicit `require(lastNavUpdate != 0)` in `_requireFreshNav`, and put an upper bound on `maxNavAge`.",
+   "severity": "Medium",
+   "confidence": 0.2
+  },
+  {
+   "title": "fundLoans admits loan IDs into NAV without checking vault ownership",
+   "category": "Input validation",
+   "file": "PortfolioVault.sol",
+   "function": "_fundLoans()",
+   "description": "`_fundLoans` calls `loans.fund(loanId, ...)` and then `_addLoanToNav(loanId)`. The NatSpec says callers guarantee ownership, but `_fundLoans` has no `ownerOf == address(this)` check, unlike `addLoansToNav` and `acceptSaleOffer`. If `Loans.fund` does not require the caller to own the NFT, the vault's USDC goes into a loan it does not hold. The loan ID is then recorded in `_navLoanIds`. The next `updateNav` removes the entry because ownership fails, so the funded amount silently drops out of NAV. Whether this is reachable depends on `Loans.fund`, which I did not read.",
+   "attackPath": "1. A PORTFOLIO_MANAGER (trusted, or compromised, or making an input error) calls `fundLoan` with a loanId the vault does not own. 2. Funds leave the vault. 3. The next NAV sweep drops the entry, so NAV and share price fall.",
+   "impact": "A manager mistake or compromise can move vault assets into loans the vault does not hold. The loss falls on investors and is not detected.",
+   "recommendation": "Require `loansNFT.ownerOf(loanId) == address(this)` (or equivalent) before and after funding, and revert otherwise.",
+   "severity": "Medium",
+   "confidence": 0.15
+  },
+  {
+   "title": "acceptSaleOffer spends cash without invalidating NAV if the offer delivers no NFTs",
+   "category": "NAV freshness / order of operations",
+   "file": "PortfolioVault.sol",
+   "function": "acceptSaleOffer()",
+   "description": "acceptSaleOffer() reduces vault cash by offer.price and never calls _invalidateNav(). It relies on the ownership-nonce bump from an incoming NFT transfer to make _requireFreshNav() fail. Loan IDs are only checked in the post-loop `ownerOf` check, which runs once per listed loan. If an offer lists no loans, or lists loans the vault already owns, the loop adds nothing, no new transfer into the vault occurs, and the nonce does not change. Cash has left the vault, but lastNav, lastNavUpdate and the nonce still pass _requireFreshNav() with the pre-purchase value.",
+   "attackPath": "1) A seller creates an offer on the configured exchange with price P and an empty or already-owned loan set, which depends on whether LoansExchange.createOffer allows that. 2) The portfolio manager accepts it, so P leaves the vault. 3) approveDeposit or approveRedemption is run against the cached lastNav, which is now overstated by P, until the next updateNav.",
+   "impact": "Shares are minted or burned at an overstated NAV for up to maxNavAge. This requires a permissive exchange and a manager mistake, so the likelihood is low.",
+   "recommendation": "Call _invalidateNav() unconditionally at the end of acceptSaleOffer(), as the other cash-moving paths do. Require offer.loanIds.length > 0 and that every loan is not already owned.",
+   "severity": "Medium",
+   "confidence": 0.15
+  }
+ ]
+}

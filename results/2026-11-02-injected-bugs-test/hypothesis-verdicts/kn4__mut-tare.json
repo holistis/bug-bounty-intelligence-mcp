@@ -1,0 +1,146 @@
+{
+ "audit": "mut-tare",
+ "verdicts": [
+  {
+   "title": "setLoans() has no access control: anyone can rewire loans/NFT and wipe the NAV list",
+   "strict": "H-01",
+   "a": {
+    "match": "H-01",
+    "reden": "Both describe missing access control on PortfolioVault.setLoans allowing any address to call it",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-01",
+    "reden": "The candidate describes the same missing access control on setLoans() in PortfolioVault.sol, which matches known finding H-01.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "setMaxNavComputationTime() is callable by anyone, letting an attacker DoS NAV updates",
+   "strict": null,
+   "a": {
+    "match": "H-04",
+    "reden": "Both describe missing access control on PortfolioVault.setMaxNavComputationTime allowing anyone to call it",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "ongeldig": "onbekend-id",
+    "reden": "The candidate describes the same missing access control in setMaxNavComputationTime, leading to a DoS on NAV updates, exactly as known finding H-4.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "approveRedemption can burn shares for zero assets, leaving them unredeemable",
+   "strict": "H-02",
+   "a": {
+    "match": "H-02",
+    "reden": "Both describe the missing require(assets > 0) check in PortfolioVault.approveRedemption",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-02",
+    "reden": "The candidate describes the same missing require(assets > 0) check in approveRedemption, which is exactly the issue reported in H-02.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "setLoans does not re-validate the exchange or reset NFT-related state for the new pair",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a state‑validation issue in setLoans, which differs from the access‑control or off‑by‑one bugs listed in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes stale exchange/NFT state after setLoans, not the known missing access control in setLoans.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Anyone holding a loan NFT can grief NAV cycles and approvals by sending it to the vault",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a nonce/ NFT transfer issue in updateNav, which does not correspond to any of the listed missing access control, missing check, or off‑by‑one findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a griefing vector via unsolicited NFT transfers to the vault affecting NAV cycles; none of the known findings relate to that issue.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "setExchange swaps the exchange while open offers and NFT approvals remain on the old exchange",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a logic flaw in setExchange and related offer handling, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug (stale approvals/offers when exchange is changed) not present in any of the known findings (access control, missing check, off-by-one).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "First deposit cannot be approved on an empty vault because lastNav is zero",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a zero NAV issue in updateNav/approveDeposit, which does not correspond to any of the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a zero-nav issue in first deposit logic, which is not the same root cause as any of the known findings about missing access control, missing check, or off-by-one boundary in ot",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "fundLoans adds loans to NAV without verifying vault ownership, and leaves residual allowances",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing ownership check and allowance issue in _fundLoans, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns _fundLoans missing ownership verification and residual allowances, which is unrelated to the known findings in setLoans, approveRedemption, acceptSaleOffer's off-by-one, or setM",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "createSaleOffer approvals are not revoked on cancel, and offers can be created mid-NAV-cycle",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue (approval persistence in createSaleOffer/cancelSaleOffer) not covered by any known finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes approval persistence and NAV cycle timing issues in createSaleOffer/cancelSaleOffer, which is a different root cause and code than the known findings (access control, missing c",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "deposit(), mint() and cancelRedeemRequest() do not require the receiver to be a verified investor",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing investor verification in deposit/mint/cancelRedeemRequest, which does not correspond to any of the listed findings about setLoans, approveRedemption, acceptSaleOffer,",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes missing investor verification in deposit/mint/cancelRedeemRequest, which is not the same root cause as any of the known findings (H-01 to H-04).",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

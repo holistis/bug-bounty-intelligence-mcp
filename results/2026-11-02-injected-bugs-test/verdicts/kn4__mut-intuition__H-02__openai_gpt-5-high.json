@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The audit report explicitly states that TrustToken.mint computes minterCap but never checks minterAmountMinted[msg.sender] + amount against it, enforcing only the global cap. This is the same missing per-minter cap check described (the removed require), in the same function and code path, and would be fixed by reintroducing that check.",
+ "kosten": 0.0114665,
+ "tokens": {
+  "prompt": 1946,
+  "completion": 1105,
+  "reasoning": 960
+ }
+}

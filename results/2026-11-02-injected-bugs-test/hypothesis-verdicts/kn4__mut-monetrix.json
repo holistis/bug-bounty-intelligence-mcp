@@ -1,0 +1,131 @@
+{
+ "audit": "mut-monetrix",
+ "verdicts": [
+  {
+   "title": "setHlpDepositEnabled has no access control; anyone can toggle the HLP deposit switch",
+   "strict": "H-01",
+   "a": {
+    "match": "H-01",
+    "reden": "Both describe missing access control on MonetrixVault.setHlpDepositEnabled allowing anyone to call it",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-01",
+    "reden": "The candidate describes the same missing access control in setHlpDepositEnabled as the known finding H-01.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "reclaimFromRedeemEscrow is callable by anyone and can drain pre-funded redemption USDC from the escrow",
+   "strict": "H-04",
+   "a": {
+    "match": "H-04",
+    "reden": "Both describe missing access control on MonetrixVault.reclaimFromRedeemEscrow allowing anyone to call it",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-04",
+    "reden": "Both describe missing access control in reclaimFromRedeemEscrow, allowing anyone to call it.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "sUSDM yield can be sniped just-in-time; the cooldown does not stop it because the rate is locked at request time",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue (yield injection and cooldown exploitation) not covered by any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a yield sniping vulnerability in sUSDM's injectYield and cooldownShares functions, which is unrelated to the known findings that involve missing access control, missing checks,",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "distributeYield reverts permanently when userShare exceeds maxYieldPerInjection, blocking yield and insurance/foundation payouts",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different bug in distributeYield, not covered by any known finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different issue (distributeYield failure due to missing chunking when userShare exceeds maxYieldPerInjection) that is not among the known findings (H-01 to H-04), which cover",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "outstandingL1Principal drifts below real L1 principal when yield is paid from EVM-held deposits",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a principal accounting drift bug, which does not correspond to any of the listed missing access control or off‑by‑one findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a logic drift in principal tracking, while all known findings are about access control, missing checks, or off-by-one errors in different functions.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "removeTradeableAsset makes closeHedge/repairHedge revert for delisted assets, so open hedges cannot be unwound",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different function and issue (whitelist removal causing hedge operations to revert) not covered by any known finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate describes a different bug (delisting asset breaks hedge unwinding) not covered by any known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Dust staker can capture the whole user yield share when real stakers have exited",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The finding describes a yield distribution exploit in distributeYield, which does not correspond to any listed missing access control or off‑by‑one issues.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a yield capture attack via dust staking in distributeYield/injectYield, while the known findings are about access control, missing checks, and off-by-one errors in other functi",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Replacing redeemEscrow or yieldEscrow strands in-flight obligations and funds in the old contract",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing migration/obligation check in setRedeemEscrow/setYieldEscrow, which does not correspond to any listed finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability (stranding obligations and funds when replacing escrow addresses) than any of the known findings, which cover missing access control, missing zero-add",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "_sendL1Bridge counts spot `total` including held balance as available, so SEND_ASSET can still be silently dropped",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different bug in a different function, not matching any known finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different bug in _sendL1Bridge, while known findings cover access control and off-by-one issues in other functions.",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

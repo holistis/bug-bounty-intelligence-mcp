@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The report’s second High finding explicitly states that setMaxNavComputationTime has no role check (callable by anyone) and details the DoS impact. This is the same root cause (missing access control) in the same function (PortfolioVault.setMaxNavComputationTime). Adding the onlyAdminOrGuardian (or equivalent) modifier would fix both, so they are the same vulnerability.",
+ "kosten": 0.00775475,
+ "tokens": {
+  "prompt": 3487,
+  "completion": 714,
+  "reasoning": 576
+ }
+}
