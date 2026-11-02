@@ -1,0 +1,89 @@
+{
+ "audit": "mut-intuition",
+ "verdicts": [
+  {
+   "title": "Anyone can call VotingEscrow.unlock() and release every lock early",
+   "strict": "H-04",
+   "a": {
+    "match": "H-04",
+    "reden": "Both describe missing access control on VotingEscrow.unlock allowing any address to call it",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-04",
+    "reden": "The candidate describes exactly the same missing access control in VotingEscrow.unlock, which is the same root cause and location as known finding H-04.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "setMetaERC20SpokeOrHub in SatelliteEmissionsController has no access control",
+   "strict": "H-01",
+   "a": {
+    "match": "H-01",
+    "reden": "Both describe the missing access control on SatelliteEmissionsController.setMetaERC20SpokeOrHub",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-01",
+    "reden": "Both findings describe the same missing access control in SatelliteEmissionsController.setMetaERC20SpokeOrHub.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "TrustToken.mint never enforces the per-minter caps",
+   "strict": "H-02",
+   "a": {
+    "match": "H-02",
+    "reden": "Both describe the missing per‑minter cap check in TrustToken.mint",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-02",
+    "reden": "Both describe the removed per-minter cap check in TrustToken.mint, allowing minters to exceed their cap.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "VotingEscrow.deposit_for pulls tokens from the target address, not from the caller",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue in VotingEscrow.deposit_for, which is not covered by any of the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability in deposit_for (tokens pulled from _addr instead of msg.sender), while known findings concern access control removal, missing check, off-by-one, and m",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Satellite unclaimed-emission accounting depends on unverified TrustBonding state",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing epoch validation in withdrawUnclaimedEmissions, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns unverified TrustBonding state in withdrawUnclaimedEmissions/bridgeUnclaimedEmissions, which is unrelated to the known findings (access control in setMetaERC20SpokeOrHub, TrustTo",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "totalSupplyAtT reverts for timestamps before the first checkpoint instead of returning zero",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different underflow revert bug in _totalSupply/_supply_at, not matching any listed finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns a revert in _totalSupply/_supply_at/_find_timestamp_epoch, not the _withdraw boundary check or unlock access control in the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

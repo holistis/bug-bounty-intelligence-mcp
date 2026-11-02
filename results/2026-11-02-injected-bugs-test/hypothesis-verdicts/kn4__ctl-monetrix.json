@@ -1,0 +1,103 @@
+{
+ "audit": "ctl-monetrix",
+ "verdicts": [
+  {
+   "title": "Just-in-time staking captures injected yield with no holding period",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a timing/exploit issue unrelated to the missing access control, missing check, or off-by-one bugs listed in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a just-in-time yield capture / no holding period issue in sUSDM, which is unrelated to the known findings about missing access control, missing zero-address check, or off-by-on",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "distributeYield reverts when user share exceeds maxYieldPerInjection, trapping yield in YieldEscrow",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue in distributeYield unrelated to the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a revert in distributeYield due to exceeding maxYieldPerInjection, which is a different root cause and function than any of the known findings (H-01 to H-04).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "L1 bridge-back checks use stale async L1 state while outstandingL1Principal is decremented eagerly",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a stale async state check in bridge functions, which does not correspond to any of the listed missing access control or off‑by‑one findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes stale asynchronous L1 bridge state and eager principal decrement, which is unrelated to the known access-control, zero-check, and off-by-one findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "removeTradeableAsset can orphan open hedge positions so closeHedge and repairHedge revert",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing whitelist check in removeTradeableAsset, which differs from the known missing‑check issue in sUSDM.setEscrow.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an issue with removing a tradeable asset while positions are open, which is a different root cause and impact than any of the known findings (access control, missing check, off",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "keeperBridge to multisig puts principal on an account the vault cannot pull back from",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different bug in keeperBridge/bridgePrincipalFromL1, not matching any listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a fund-routing flaw in keeperBridge/bridgePrincipalFromL1, which is unrelated to the four known findings (access control on setHlpDepositEnabled/reclaimFromRedeemEscrow, sUSDM.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Replacing redeemEscrow or yieldEscrow leaves pending obligations and funds stranded in the old escrow",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing migration/obligation handling in setRedeemEscrow/setYieldEscrow, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different issue (migration of escrow obligations) not covered by any known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "supplyToBlp whitelist check truncates the uint64 token to uint32 while the full value is sent to L1",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different bug (uint truncation in supplyToBlp) not present in the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a type truncation in supplyToBlp, which is not among the known findings (H-01 to H-04) that cover access control, missing checks, and off-by-one errors.",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

@@ -1,0 +1,37 @@
+name: Recount
+
+# Runs every check.mjs under results/ on a GitHub runner, so the counts in our result folders are recounted by a machine that is not ours.
+# It checks the counting and the hashes. It does not check whether the judges' verdicts are right.
+
+on:
+  push:
+    paths:
+      - 'results/**'
+  pull_request:
+    paths:
+      - 'results/**'
+  schedule:
+    - cron: '17 5 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  recount:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Recount every result folder
+        run: |
+          status=0
+          for d in results/*/; do
+            if [ -f "$d/check.mjs" ]; then
+              echo "== $d"
+              (cd "$d" && node check.mjs) || status=1
+            fi
+          done
+          exit $status

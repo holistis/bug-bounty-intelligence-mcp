@@ -1,0 +1,76 @@
+{
+ "hypotheses": [
+  {
+   "title": "deposit_for pulls tokens from the target address, letting anyone force-lock a victim's approved TRUST",
+   "category": "access control / allowance abuse",
+   "file": "VotingEscrow.sol",
+   "function": "deposit_for() / _deposit_for()",
+   "description": "deposit_for(_addr,_value) can be called by anyone, with no onlyUserOrWhitelist check and no check that msg.sender == _addr. It calls _deposit_for, which runs IERC20(token).safeTransferFrom(_addr, address(this), _value). The tokens are therefore taken from the victim's wallet, using the victim's allowance to the VotingEscrow, not from the caller. The only requirements are that the victim already has a non-expired lock and a sufficient allowance. The caller needs no authorization from the victim.",
+   "attackPath": "1. A victim has an active lock and has approved the VotingEscrow for a large or unlimited amount, for example for a later increase_amount. 2. The attacker calls deposit_for(victim, victimBalance). 3. The victim's TRUST is pulled into their lock and cannot be withdrawn until the lock end. 4. The victim's lock amount, bias and slope are changed without their consent.",
+   "impact": "Forced locking of a user's liquid TRUST for up to the remaining lock period, which is loss of access to funds. It also lets a third party change the victim's voting power and, in the bonding contract, their reward weight.",
+   "recommendation": "Take the tokens from msg.sender (safeTransferFrom(msg.sender, ...)) in deposit_for. Alternatively, restrict deposit_for to _addr == msg.sender.",
+   "severity": "Medium",
+   "confidence": 0.6
+  },
+  {
+   "title": "totalSupplyAtT / totalSupply reverts for timestamps before the first checkpoint instead of returning 0",
+   "category": "underflow / liveness",
+   "file": "VotingEscrow.sol",
+   "function": "_totalSupply() / _supply_at()",
+   "description": "_find_timestamp_epoch returns 0 when _ts < point_history[0].ts, and its comment says the supply is zero in that case. _totalSupply then calls _supply_at(point_history[0], t). Inside, t_i is clamped to t, and `int128(int256(t_i - last_point.ts))` is computed in uint256. Because t is below point_history[0].ts (the init timestamp), `t_i - last_point.ts` underflows and reverts under Solidity 0.8 checked arithmetic. The same revert happens when epoch==0 and t is earlier than the init time. totalSupplyAt(block) has the same problem when the block is before the first point.",
+   "attackPath": "Any caller, such as a bonding or reward contract, queries totalSupplyAtT(t) for an epoch end earlier than the VotingEscrow initialization. This is plausible when the emissions epoch schedule starts before the escrow deployment, or for epoch 0. The call reverts.",
+   "impact": "Reward and claim computations that depend on past total veTRUST supply revert for early epochs. Claims or unclaimed-emission calculations for those epochs can be blocked.",
+   "recommendation": "In _totalSupply and totalSupplyAt, return 0 when t is before point_history[0].ts. Alternatively, guard the subtraction in _supply_at.",
+   "severity": "Medium",
+   "confidence": 0.35
+  },
+  {
+   "title": "Unclaimed-emissions reclaim has no check that the epoch's claim window is over and relies on an external amount",
+   "category": "accounting / trust assumption",
+   "file": "SatelliteEmissionsController.sol",
+   "function": "withdrawUnclaimedEmissions() / bridgeUnclaimedEmissions()",
+   "description": "Both functions take `amount` from ITrustBonding.getUnclaimedRewardsForEpoch(epoch) at call time. Then they set _reclaimedEmissions[epoch]=amount and send or bridge that native TRUST out of the controller. The controller itself checks nothing about whether the epoch has ended or whether users can still claim it. It also does not cap the amount against its own accounting. The _reclaimedEmissions flag only prevents a second reclaim. It is not exposed to the claim path, which I could not see. If TrustBonding still lets users claim the reclaimed epoch, or reports a non-final amount, the same funds are both reclaimed and claimable. The result is insolvency, and later claims through transfer() fail with InsufficientBalance. Because TrustBonding was not available, this depends on its behaviour.",
+   "attackPath": "1. An operator or admin calls bridgeUnclaimedEmissions or withdrawUnclaimedEmissions for an epoch whose value is still changing or is still claimable. 2. The amount leaves the contract and _reclaimedEmissions[epoch] is locked, so a corrected, larger amount can never be reclaimed. 3. Users who then claim the same epoch draw from the remaining balance, which may be drained.",
+   "impact": "Reward shortfall for honest claimants. Alternatively, part of the unclaimed amount can never be reclaimed, because the epoch is permanently marked as reclaimed with a smaller amount.",
+   "recommendation": "Require the epoch to be finished and its claim period closed before reclaiming. Make TrustBonding read getReclaimedEmissions so a reclaimed epoch can no longer be claimed.",
+   "severity": "Medium",
+   "confidence": 0.25
+  },
+  {
+   "title": "Reclaim amount snapshotted once per epoch; later changes in unclaimed amount can never be reclaimed",
+   "category": "accounting / state sync",
+   "file": "SatelliteEmissionsController.sol",
+   "function": "withdrawUnclaimedEmissions() / bridgeUnclaimedEmissions()",
+   "description": "Both functions read `amount = ITrustBonding.getUnclaimedRewardsForEpoch(epoch)` once and store it in `_reclaimedEmissions[epoch]`. Any later call for the same epoch reverts on `_reclaimedEmissions[epoch] > 0`. If TrustBonding's number can change after the reclaim (late claims, rewards re-attributed, or a new TrustBonding set via setTrustBonding), the difference cannot be reclaimed later. Nor can a first partial reclaim be topped up. The mapping is also keyed only by epoch, not by TrustBonding address, so replacing TrustBonding keeps the old reclaimed flags.",
+   "attackPath": "1. Operator or admin reclaims epoch N while getUnclaimedRewardsForEpoch(N) returns X. 2. The value later rises to X+Y, or the admin swaps TrustBonding. 3. A second reclaim reverts with PreviouslyBridgedUnclaimedEmissions, so Y stays in the satellite and is never burned.",
+   "impact": "Unclaimed emissions can remain stuck in the satellite and never be returned to the BaseEmissionsController for burning, or the epoch flags go stale after a TrustBonding swap.",
+   "recommendation": "Track reclaimed amount as a running total and allow reclaiming only the positive difference. Reset or key the mapping by TrustBonding address when the contract is replaced.",
+   "severity": "Medium",
+   "confidence": 0.2
+  },
+  {
+   "title": "bridgeUnclaimedEmissions marks the epoch reclaimed before the quote and bridge, and has no nonReentrant or balance check",
+   "category": "state ordering / liveness",
+   "file": "SatelliteEmissionsController.sol",
+   "function": "bridgeUnclaimedEmissions()",
+   "description": "_reclaimedEmissions[epoch]=amount is set before _quoteGasPayment and _bridgeTokensViaNativeToken run. Unlike withdrawUnclaimedEmissions, the function has no nonReentrant modifier. It also does not check address(this).balance >= amount plus gas. The refund `sendValue(msg.sender, msg.value-gasLimit)` is an external call made after the bridge. The refund goes only to the OPERATOR_ROLE caller, so this is not exploitable by outsiders. If the bridge dispatch silently fails or sends less than `amount`, the epoch stays permanently marked as reclaimed. A retry reverts with PreviouslyBridgedUnclaimedEmissions.",
+   "attackPath": "The operator calls bridgeUnclaimedEmissions. The dispatcher call succeeds in a way that does not deliver the full amount, or the operator is a contract that reenters during the refund. The epoch is locked as reclaimed and cannot be re-bridged.",
+   "impact": "Unclaimed emissions for that epoch can be stuck or mis-accounted, with no retry path. This depends on the unseen dispatcher's behaviour.",
+   "recommendation": "Add nonReentrant. Verify the balance covers amount plus gas before dispatching. Consider a recovery path for epochs whose bridge failed.",
+   "severity": "Medium",
+   "confidence": 0.15
+  },
+  {
+   "title": "Global unlock() leaves stale veTRUST weight and blocks checkpoint() for the whole system",
+   "category": "liveness / state sync",
+   "file": "VotingEscrow.sol",
+   "function": "unlock() / checkpoint()",
+   "description": "After `unlock()` sets `unlocked = true`, `checkpoint()`, `create_lock`, `increase_*` and `deposit_for` all revert through `notUnlocked`. Existing locks keep their bias and slope, and `balanceOf` and `totalSupply` keep returning decaying weight, until each holder calls `withdraw()`. Global history is then advanced only as a side effect of individual withdrawals. Any consumer of the weights (for example reward accounting in a child contract) keeps treating un-withdrawn, now-unlocked positions as voting-locked. The weights of users who exit are removed one by one, so totals move unpredictably.",
+   "attackPath": "1. Admin calls unlock(). 2. Some users withdraw immediately, others stay. 3. Remaining holders keep full ve weight and share of rewards with no commitment, while no one can call checkpoint().",
+   "impact": "Reward or vote shares computed from veTRUST become inconsistent after unlock, and the global point history is not kept current.",
+   "recommendation": "Allow checkpoint() when unlocked, and have balance and total supply report zero once `unlocked` is true.",
+   "severity": "Medium",
+   "confidence": 0.15
+  }
+ ]
+}

@@ -1,0 +1,124 @@
+{
+ "hypotheses": [
+  {
+   "title": "setLoans() has no access control: anyone can rewire loans/NFT and wipe the NAV list",
+   "category": "access control",
+   "file": "PortfolioVault.sol",
+   "function": "setLoans()",
+   "description": "`setLoans(address,address)` is `external` and its only guard is `_requireIdleNav()`, so any address can call it. The only other checks are `_validateLoansWiring`, which reads `currency()` and `LOANS_CONTRACT()` from the supplied addresses. An attacker can pass contracts they control that return the right values. The function then runs `_clearNavLoanIds()`, which empties the whole curated NAV list. It then overwrites `loans` and `loansNFT` and invalidates the NAV. Every other config setter (`setCalculator`, `setExchange`, `setMaxNavAge`) has a role check; this one does not, which looks like a missing modifier.",
+   "attackPath": "1) Attacker deploys a fake Loans contract whose `currency()` returns the asset, plus a fake NFT whose `LOANS_CONTRACT()` returns the fake Loans. 2) Any time no NAV cycle is in progress, attacker calls `setLoans(fake, fakeNFT)`. 3) The vault forgets all real loans, and its NAV now excludes them. `loans` points at attacker code. 4) A later `fundLoans` or `fundLoan` does `forceApprove(loans, total)` and calls `loans.fund` on the attacker contract, which can pull the approved USDC. `registerAddress` and `collectCashflows` also call the fake contract. 5) The next `updateNav` computes a NAV far below the real value, so redemptions and deposits are priced against it.",
+   "impact": "Anyone can take over the vault's external wiring, drop the real loan book out of NAV and distort share pricing. Funds can be drained through approvals to a malicious Loans contract. Real loan NFTs are left stranded outside accounting. The vault is effectively unprotected.",
+   "recommendation": "Restrict `setLoans` to GUARDIAN_ROLE (or admin). Also require that the vault holds no NFTs from the old collection, and revoke allowances to the old loans contract.",
+   "severity": "High",
+   "confidence": 0.9
+  },
+  {
+   "title": "setMaxNavComputationTime() is callable by anyone, letting an attacker DoS NAV updates",
+   "category": "access control",
+   "file": "PortfolioVault.sol",
+   "function": "setMaxNavComputationTime()",
+   "description": "`setMaxNavComputationTime` has no role check, only `_maxNavComputationTime > 0`. `updateNav` restarts the computation (`navCursor = 0; pendingNav = 0`) whenever `block.timestamp - navStart > maxNavComputationTime`. Any caller can set the value to 1. Any NAV that needs more than one batch, or more than one block or transaction, then restarts every time and can never finalise. `navStart` stays non-zero, so `_requireFreshNav` and `_requireIdleNav` keep reverting.",
+   "attackPath": "1) Attacker calls `setMaxNavComputationTime(1)`. 2) The manager starts a multi-batch `updateNav`. 3) The attacker repeats the call, or relies on the 1-second window. 4) Each subsequent `updateNav` call sees the timeout and restarts at cursor 0. 5) `lastNav` never refreshes, `approveDeposit` and `approveRedemption` revert with StaleNav, and the other functions guarded by `_requireIdleNav` stay blocked. The attacker can also set an enormous value to disable the intended timeout guard.",
+   "impact": "Permissionless denial of service on NAV finalisation, and so on all deposit and redemption approvals. `fundLoans`, `acceptSaleOffer`, `transferLoans`, `collectCashflows` and the NAV-list changes are also blocked while a cycle is stuck in progress. The only recovery is for a privileged user to reset the value, and the attacker can undo it.",
+   "recommendation": "Add an admin or guardian role check to `setMaxNavComputationTime`, and enforce a sane lower bound.",
+   "severity": "High",
+   "confidence": 0.88
+  },
+  {
+   "title": "approveRedemption can burn shares for zero assets, leaving them unredeemable",
+   "category": "rounding / missing check",
+   "file": "PortfolioVault.sol",
+   "function": "approveRedemption()",
+   "description": "A comment above the liquidity check says it 'prevents approving a tiny amount that rounds to 0 assets', but no `require(assets > 0)` follows it. `assets = shares * lastNav / totalSupply` can round to 0 for small share amounts, because shares have 18 decimals and the asset typically has 6. The function still moves `shares` from pending to `claimableRedeemShares` and burns them from the vault. `redeem` and `withdraw` then require `claimableAssets_ > 0` and `assets > 0`, so shares recorded against 0 assets can never be claimed.",
+   "attackPath": "1) A controller requests a redeem of a small number of shares, or a manager approves a small slice. 2) With `shares * lastNav < totalSupply`, assets = 0 and the check `0 <= idleLiquidity()` passes. 3) The shares are burned and moved to `claimableRedeemShares`. 4) `redeem` reverts at `claimableAssets_ > 0` or at `assets > 0` in `_claimRedeem`. 5) The shares cannot be cancelled either, because they are no longer pending.",
+   "impact": "The controller permanently loses the shares, and the other holders gain slightly from the burn. The size is bounded by rounding dust, but it breaks the stated invariant.",
+   "recommendation": "Add `require(assets > 0, ZeroAmount())` after computing assets in `approveRedemption`.",
+   "severity": "Medium",
+   "confidence": 0.55
+  },
+  {
+   "title": "setLoans does not re-validate the exchange or reset NFT-related state for the new pair",
+   "category": "state sync",
+   "file": "PortfolioVault.sol",
+   "function": "setLoans()",
+   "description": "After `setLoans` replaces `loans` and `loansNFT`, the `exchange` reference is not re-checked. `setExchange` requires `exchange.LOANS() == loans` and `exchange.LOANS_NFT() == loansNFT`, but `setLoans` never re-establishes that. `createSaleOffer`, `acceptSaleOffer` and `cancelSaleOffer` therefore keep operating on an exchange tied to the old pair. `acceptSaleOffer` then adds the old collection's loan IDs to the NAV list while checking ownership against the new `loansNFT`. Allowances the vault granted to the old loans contract (`forceApprove` residuals) are also not revoked.",
+   "attackPath": "1) A privileged caller, or anyone, since `setLoans` is open, switches the loans pair. 2) The exchange still points at the old collection. 3) `acceptSaleOffer` pays real USDC to the old exchange while `ownerOf` is checked on the new NFT contract. The call reverts or admits the wrong IDs, and the vault's accounting no longer reflects what it holds.",
+   "impact": "Inconsistent state across contracts after a re-wire. Possible stuck sale flows, or NAV that includes wrong IDs. Stale allowances stay in place to the old Loans contract.",
+   "recommendation": "In `setLoans`, re-validate the exchange against the new pair, or force a new exchange to be set. Reset allowances to the old loans contract.",
+   "severity": "Medium",
+   "confidence": 0.4
+  },
+  {
+   "title": "Anyone holding a loan NFT can grief NAV cycles and approvals by sending it to the vault",
+   "category": "DoS / state sync",
+   "file": "PortfolioVault.sol",
+   "function": "updateNav() / _requireFreshNav()",
+   "description": "The vault's freshness check ties `lastOwnershipNonce` to `loansNFT.ownershipNonce(address(this))`. The code comments say any out-of-band NFT transfer to the vault, including a donation, bumps that nonce. `onERC721Received` only guards `safeTransferFrom`, so a plain `transferFrom` of a loan NFT to the vault is not blocked. In `updateNav`, a nonce change mid-cycle resets `navCursor` and `pendingNav`. After finalisation, a nonce change makes `_requireFreshNav` revert with `PortfolioHoldingsChanged`. The vault has no way to refuse or return an unsolicited NFT except `transferLoans`, which only a manager can call.",
+   "attackPath": "1. The attacker holds loan NFTs. 2. After the manager finalises `updateNav`, or between batches of a multi-batch cycle, the attacker transfers an NFT to the vault. 3. All `approveDeposit` and `approveRedemption` calls revert, or the in-progress cycle restarts from cursor 0. 4. The attacker repeats this in front of every `updateNav` or approval transaction.",
+   "impact": "Investor deposit and redemption approvals can be delayed indefinitely. A cycle that needs several batches can be prevented from finishing. The cost to the attacker is one NFT per bump, and it depends on how freely loan NFTs can be obtained.",
+   "recommendation": "Do not let unsolicited transfers into the vault change the freshness-relevant nonce, for example by tracking only NFTs the vault admitted. Alternatively, make freshness depend only on NAV-list membership and not on a nonce that third parties can bump.",
+   "severity": "Medium",
+   "confidence": 0.3
+  },
+  {
+   "title": "setExchange swaps the exchange while open offers and NFT approvals remain on the old exchange",
+   "category": "state sync across contracts",
+   "file": "PortfolioVault.sol",
+   "function": "setExchange() / cancelSaleOffer()",
+   "description": "`createSaleOffer` approves each loan NFT to the current `exchange` and creates the offer there. `setExchange` only validates the new exchange and overwrites the `exchange` pointer. `cancelSaleOffer` and `acceptSaleOffer` always use the current `exchange`, so offers on the old exchange can no longer be cancelled through the vault. The per-token approvals to the old exchange also remain. A buyer can still settle those offers at their original, possibly stale, price. The NFT leaves the vault without any manager action.",
+   "attackPath": "1. A manager creates a sale offer on exchange A. 2. The guardian calls `setExchange(B)`. 3. The manager cannot cancel the offer on A through the vault. 4. The named buyer, or anyone if the buyer is address(0), accepts the offer on A at the old price.",
+   "impact": "The vault can lose loans at a price that no longer reflects their value, and the manager cannot prevent it.",
+   "recommendation": "Revert `setExchange` while offers are outstanding, or cancel all open offers and clear approvals before switching. Also keep a way to cancel offers on a previous exchange.",
+   "severity": "Medium",
+   "confidence": 0.3
+  },
+  {
+   "title": "First deposit cannot be approved on an empty vault because lastNav is zero",
+   "category": "liveness / bootstrap",
+   "file": "PortfolioVault.sol",
+   "function": "updateNav() / approveDeposit()",
+   "description": "`updateNav` computes `lastNav` as balance plus loan value minus `totalPendingDepositAssets` minus `totalClaimableRedeemAssets`. On a fresh vault with only pending deposits, `lastNav` is 0. `_requireFreshNav` requires `lastNav > 0` and reverts with `ZeroNav`. `approveDeposit` therefore can never approve the first deposit unless someone donates assets or funds loans from other money. If a tiny donation is used to unlock it, `shares = assets * totalSupply / lastNav` is priced against the 1e18 dead shares and the arbitrary seed value. The first investors then get a share count and price that depend only on that arbitrary seed.",
+   "attackPath": "1. The vault is deployed with only the dead shares. 2. Investors call `requestDeposit`. 3. The manager runs `updateNav`, which gives `lastNav` = 0. 4. `approveDeposit` reverts with `ZeroNav`. 5. A donor sends 1 wei of the asset, `lastNav` becomes 1, and the first deposit is approved at an extreme share ratio.",
+   "impact": "Launch is blocked until a donation is made. The initial share price is set by a manipulable seed instead of a defined starting price.",
+   "recommendation": "Add an explicit bootstrap path that prices the first deposit at a fixed initial share price. Alternatively, treat `lastNav == 0` as 1:1 against the dead shares.",
+   "severity": "Medium",
+   "confidence": 0.3
+  },
+  {
+   "title": "fundLoans adds loans to NAV without verifying vault ownership, and leaves residual allowances",
+   "category": "validation",
+   "file": "PortfolioVault.sol",
+   "function": "_fundLoans()",
+   "description": "`_fundLoans` calls `_addLoanToNav(loanId)` after `loans.fund`, without checking `loansNFT.ownerOf(loanId) == address(this)`. By contrast, `addLoansToNav` and `acceptSaleOffer` both check this. The vault also does `assetToken.forceApprove(address(loans), totalAmount)` and never resets it to 0. If `fund` pulls less than `totalAmount` (for example because of a per-loan cap or a skipped transfer), the remaining allowance persists on the Loans contract. A funded loan that the vault does not own is only dropped at the next `updateNav` sweep.",
+   "attackPath": "1) The manager funds a loan ID the vault does not hold, or the Loans contract takes less than approved. 2) The ID enters `_navLoanIds`, and the allowance stays non-zero. 3) The next `updateNav` has to heal the list, and the allowance stays available to the Loans contract.",
+   "impact": "Short-lived list inconsistency and leftover token allowances. The impact is limited by the trusted manager and the Loans contract. This is a hardening gap, not a direct theft.",
+   "recommendation": "Verify ownership before adding the ID to the NAV list. Reset the allowance to 0 after the funding loop.",
+   "severity": "Medium",
+   "confidence": 0.25
+  },
+  {
+   "title": "createSaleOffer approvals are not revoked on cancel, and offers can be created mid-NAV-cycle",
+   "category": "state sync / approvals",
+   "file": "PortfolioVault.sol",
+   "function": "createSaleOffer()/cancelSaleOffer()",
+   "description": "`createSaleOffer` calls `loansNFT.approve(exchange, loanId)` for each loan, and `cancelSaleOffer` only calls `exchange.cancelOffer` without clearing those approvals. The approval to the exchange therefore persists after cancel, and also after `setExchange` swaps the exchange (the old exchange keeps the approval). The functions do not require an idle NAV. If the exchange has any code path that moves approved NFTs outside a valid offer, those loans can leave the vault without the manager intending it. Any such transfer would still be detected by the ownership nonce.",
+   "attackPath": "1) The manager creates an offer, then cancels it or replaces the exchange. 2) The NFT approval to the old or cancelled exchange remains. 3) A bug or malicious exchange logic moves the NFT out.",
+   "impact": "Residual approvals on valuable NFTs. This is conditional on exchange behaviour that is not in scope, so I treat it as low-probability.",
+   "recommendation": "Clear the NFT approvals (approve address(0)) after cancel or when swapping the exchange.",
+   "severity": "Medium",
+   "confidence": 0.2
+  },
+  {
+   "title": "deposit(), mint() and cancelRedeemRequest() do not require the receiver to be a verified investor",
+   "category": "access control / compliance",
+   "file": "PortfolioVault.sol",
+   "function": "deposit()/mint()/cancelRedeemRequest()",
+   "description": "`redeem`, `withdraw` and `cancelDepositRequest` call `_requireInvestor(receiver)`. `deposit(assets,receiver,controller)` and `mint(shares,receiver,controller)` through `_claimDeposit` only require `receiver != address(this)`. `cancelRedeemRequest` only requires `receiver != address(this)`. The vault's only investor check on these paths is on the controller. The receiver is chosen by the controller or by an operator. The vault therefore relies entirely on the share token to enforce SHAREHOLDER_ROLE on transfers.",
+   "attackPath": "1. A controller or an approved operator calls `deposit` or `cancelRedeemRequest` with a receiver that is not a shareholder. 2. If the share token does not restrict transfers by recipient role, shares reach a non-verified address.",
+   "impact": "The investor-whitelist invariant that the vault applies elsewhere can be bypassed if the share token does not enforce it.",
+   "recommendation": "Call `_requireInvestor(receiver)` in `_claimDeposit` and `cancelRedeemRequest`, as the other receiver-taking functions do.",
+   "severity": "Medium",
+   "confidence": 0.2
+  }
+ ]
+}

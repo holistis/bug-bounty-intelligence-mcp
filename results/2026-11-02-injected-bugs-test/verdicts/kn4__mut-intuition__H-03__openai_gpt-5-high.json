@@ -1,0 +1,10 @@
+{
+ "detected": false,
+ "reden": "The described issue is an off-by-one inequality in VotingEscrow._withdraw’s time check (>= vs > or <= vs <). The audit report’s related item concerns unlock() being publicly callable, which sets unlocked=true and makes _withdraw skip the time check entirely. That is an access-control/logic flaw, not a boundary off-by-one in _withdraw. Fixing one would not fix the other, so the report did not detect the described vulnerability.",
+ "kosten": 0.01381025,
+ "tokens": {
+  "prompt": 1957,
+  "completion": 1338,
+  "reasoning": 1216
+ }
+}

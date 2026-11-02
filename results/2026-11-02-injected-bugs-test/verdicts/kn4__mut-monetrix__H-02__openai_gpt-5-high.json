@@ -1,0 +1,10 @@
+{
+ "detected": false,
+ "reden": "The report does not mention sUSDM.setEscrow or a missing zero-address check. The sUSDM issues discussed are about injectYield/cooldown mechanics and yield sniping, and separate Vault functions setRedeemEscrow/setYieldEscrow causing stranded funds. These are different code paths and root causes from a missing require(_escrow != address(0)) in sUSDM.setEscrow. Fixes for the reported issues would not fix the missing zero-address guard.",
+ "kosten": 0.0113115,
+ "tokens": {
+  "prompt": 3182,
+  "completion": 1079,
+  "reasoning": 960
+ }
+}

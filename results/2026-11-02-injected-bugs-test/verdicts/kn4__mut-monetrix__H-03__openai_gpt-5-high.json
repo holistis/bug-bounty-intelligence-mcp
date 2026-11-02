@@ -1,0 +1,10 @@
+{
+ "detected": false,
+ "reden": "The target issue is an off-by-one boundary check in MonetrixVault.settle (require comparing available and proposedYield). None of the report’s findings mention an off-by-one or that specific require condition in settle. The only settle-related items concern accounting drift and distribution caps, which are different mechanisms and fixes. Therefore, the report did not detect this vulnerability.",
+ "kosten": 0.011659,
+ "tokens": {
+  "prompt": 3196,
+  "completion": 1112,
+  "reasoning": 960
+ }
+}
