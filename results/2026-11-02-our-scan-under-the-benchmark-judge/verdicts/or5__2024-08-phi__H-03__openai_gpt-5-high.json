@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The report’s issue “Zero-balance holders are never removed from shareBalance map, enabling unbounded growth and a gas-DoS of distribute()” is the same as H-03. Both identify that in Cred._updateCuratorShareBalance, when a curator sells to zero, the code sets balance to 0 rather than removing the entry from shareBalance (EnumerableMap). This causes unbounded growth and makes CuratorRewardsDistributor.distribute iterate over many zero entries, leading to gas exhaustion and blocking rewards distribution. The code path, mechanism (state bloat due to not removing zero entries), impact (DoS of distribute), and the specific fix (remove the entry when balance hits zero) are identical.",
+ "kosten": 0.0134445,
+ "tokens": {
+  "prompt": 4434,
+  "completion": 1107,
+  "reasoning": 896
+ }
+}

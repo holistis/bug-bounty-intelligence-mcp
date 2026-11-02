@@ -1,0 +1,10 @@
+{
+ "detected": false,
+ "reden": "Not detected. The vulnerability concerns PhiFactory.updateArtSettings allowing artists to arbitrarily change URI, royalties, and soulBounded after creation. The audit report does not mention updateArtSettings or unrestricted post-creation setting changes. Its PhiFactory findings are about claim replay/quantity/imageURI not in signatures, createArt signature replay/config binding, and fee handling in claim/batchClaim—different code paths and root causes. Fixing the reported issues would not address unrestricted updates to art settings.",
+ "kosten": 0.014137,
+ "tokens": {
+  "prompt": 3740,
+  "completion": 1263,
+  "reasoning": 1088
+ }
+}

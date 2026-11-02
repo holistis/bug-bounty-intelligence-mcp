@@ -60,12 +60,52 @@
   "totals": {
     "audits": 7,
     "known": 31,
-    "verdictFiles": 124,
+    "verdictFiles": 139,
     "unreadableVerdicts": 0,
     "reportEntries": {
       "ag12": 70,
       "ag15": 137,
       "ag16": 270
+    },
+    "shopRoute": {
+      "rows": [
+        {
+          "source": "or2",
+          "audit": "2024-12-secondswap",
+          "known": 3,
+          "found": 3
+        },
+        {
+          "source": "or3",
+          "audit": "2024-06-size",
+          "known": 4,
+          "found": 1
+        },
+        {
+          "source": "or5",
+          "audit": "2024-08-phi",
+          "known": 6,
+          "found": 2
+        },
+        {
+          "source": "or6",
+          "audit": "2023-10-nextgen",
+          "known": 2,
+          "found": 2
+        }
+      ],
+      "forte": {
+        "audit": "2025-04-forte",
+        "known": 5,
+        "found": 0,
+        "note": "the run was stopped by our cost cap before it delivered a report, so it is counted as zero"
+      },
+      "found": 8,
+      "known": 20,
+      "foundWhereFinished": 8,
+      "knownWhereFinished": 15,
+      "sameAuditsLeader": 15,
+      "sameAuditsOneResearchRun": 14
     },
     "azimuth-raw": 25,
     "ag12": 22,
@@ -85,6 +125,10 @@
       "repository": "testmachine-ai/azimuth-evmbench-101-of-117"
     },
     "judgeCopyChecked": "results/2026-11-01-same-reports-different-judges",
+    "shopRouteShares": {
+      "all": "40.0 percent",
+      "whereFinished": "53.3 percent"
+    },
     "leaderOwnGrader": {
       "found": 26,
       "note": "the count of the benchmark grader itself on these 7 audits, from their run log as quoted in the 2026-11-01 folder, not recomputed by check.mjs"

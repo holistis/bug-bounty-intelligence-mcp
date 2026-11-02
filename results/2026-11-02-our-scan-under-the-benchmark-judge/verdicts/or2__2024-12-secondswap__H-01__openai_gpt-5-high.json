@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The audit report’s finding “Vesting pooled in the manager's single entry carries the first lister's stepsClaimed to every buyer” describes the exact same issue as the vulnerability description. Both point to SecondSwap_StepVesting.transferVesting/_createVesting pooling all listed vesting under the VestingManager address and initializing stepsClaimed from the first lister when the entry is created (totalAmount == 0). Subsequent transfers to buyers with no prior entry cause them to inherit the manager’s stepsClaimed (i.e., the first lister’s), making claimable amounts depend on listing order. The mechanism, code path, impact, and required fix (avoid using a single pooled entry or correctly tracking stepsClaimed per source allocation) are the same. Fixing the pooling/stepsClaimed inheritance logic as in the report would fix the described issue.",
+ "kosten": 0.0202025,
+ "tokens": {
+  "prompt": 5426,
+  "completion": 1342,
+  "reasoning": 1088
+ }
+}

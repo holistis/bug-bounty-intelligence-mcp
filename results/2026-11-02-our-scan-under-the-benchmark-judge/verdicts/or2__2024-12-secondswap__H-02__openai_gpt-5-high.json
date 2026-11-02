@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The report’s finding “Vesting pooled in the manager's single entry carries the first lister's stepsClaimed to every buyer” describes the same flaw: transferVesting/_createVesting pool all listings under the VestingManager, causing buyers to inherit a single stepsClaimed value (from the first lister) instead of the original seller’s, leading to incorrect schedules and potential premature unlocks. It cites the same functions and mechanism, and fixing per-listing stepsClaimed transfer would resolve both.",
+ "kosten": 0.01982825,
+ "tokens": {
+  "prompt": 5229,
+  "completion": 1574,
+  "reasoning": 1408
+ }
+}

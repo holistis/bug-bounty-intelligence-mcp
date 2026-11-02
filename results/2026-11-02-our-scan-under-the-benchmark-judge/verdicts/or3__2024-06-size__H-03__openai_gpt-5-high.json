@@ -1,0 +1,10 @@
+{
+ "detected": false,
+ "reden": "Not detected. The report’s High issue focuses on a unit/decimals mismatch in executeLiquidate() when computing liquidatorReward (mixing borrow-token units with collateral-token units). The described vulnerability H-03 concerns an incorrect collateral remainder cap calculation (using crLiquidation instead of crLiquidation - 100%), which inflates the cap and unfairly increases protocol fees for higher-CR users. These are different sub-calculations with different fixes; correcting the unit mismatch would not address the remainder-cap formula error. None of the other report items cover the remainder-cap issue either.",
+ "kosten": 0.01846,
+ "tokens": {
+  "prompt": 3392,
+  "completion": 1566,
+  "reasoning": 1408
+ }
+}

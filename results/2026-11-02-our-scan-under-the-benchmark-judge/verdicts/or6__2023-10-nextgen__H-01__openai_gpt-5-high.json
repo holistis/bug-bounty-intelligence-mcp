@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The audit’s first High finding describes the same reentrancy via ERC721 _safeMint/onERC721Received where NextGenCore.mint/_mintProcessing updates tokensMintedPerAddress/Allowlist only after the external call. This allows reentering into MinterContract.mint to read stale counters, bypass per-wallet/allowlist limits, and mint out the collection. The functions, mechanism (CEI violation), attack path, and remediation (move state updates before external call) match the vulnerability description.",
+ "kosten": 0.0208175,
+ "tokens": {
+  "prompt": 4190,
+  "completion": 1558,
+  "reasoning": 1408
+ }
+}
