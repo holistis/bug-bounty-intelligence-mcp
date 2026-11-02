@@ -1,0 +1,10 @@
+{
+ "detected": true,
+ "reden": "Yes. The audit’s finding “Merge can allocate more TITN than it holds; no cap on total TGT merged, first-year snapshot then reverts” is the same issue. It identifies the lack of a cap in MergeTgt.onTokenTransfer on either TGT_TO_EXCHANGE or TITN_ARB, leading to totalTitnClaimable exceeding the TITN balance, first-come-first-served claims where late claimers revert, and an underflow/revert in withdrawRemainingTitn via remainingTitnAfter1Year - initialTotalClaimable. It points to the same functions (onTokenTransfer and withdrawRemainingTitn), same root cause (no cap/coverage check), same impact, and the same fix (cap total TGT or totalTitnClaimable vs TITN_ARB).",
+ "kosten": 0.0218425,
+ "tokens": {
+  "prompt": 5154,
+  "completion": 1540,
+  "reasoning": 1344
+ }
+}

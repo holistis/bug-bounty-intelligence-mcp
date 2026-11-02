@@ -1,0 +1,201 @@
+{
+ "audit": "2025-03-symm-io-stacking",
+ "verdicts": [
+  {
+   "title": "resetAmount rebases startTime to now, so claiming 0 locked tokens skips the vesting delay at no cost",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a startTime rebasing issue in resetAmount, which is not covered by any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a startTime rebasing flaw in resetAmount, which is a different root cause and impact from the known findings, including M-5's double-spending issue in resetVestingPlans.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Reset check compares new amount to old unlocked amount, so addLiquidity reverts for users with an existing LP plan",
+   "strict": "M-3",
+   "a": {
+    "match": "M-3",
+    "reden": "Both describe the same faulty check in Vesting.sol::_resetVestingPlans that blocks adding liquidity after unlocked tokens exceed the new amount",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "M-3",
+    "reden": "The candidate describes the same flawed `_resetVestingPlans` check that prevents adding liquidity in `SymmVesting`.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Permissionless notifyRewardAmount lets anyone stretch the reward period and lose rewards to rounding",
+   "strict": "M-4",
+   "a": {
+    "match": "M-4",
+    "reden": "Both describe the permissionless notifyRewardAmount allowing anyone to extend the reward period and dilute rewards",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "M-4",
+    "reden": "Both describe that anyone can call notifyRewardAmount with tiny amounts to extend the reward period, diluting rewards.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Relisting a reward token lets users who staked while it was delisted claim its historical rewards",
+   "strict": "M-2",
+   "a": {
+    "match": "M-2",
+    "reden": "Both describe the same flaw where re‑adding a previously delisted reward token leaves perTokenStored non‑zero and userRewardPerTokenPaid unsynced, letting users who deposited during the delisted perio",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "M-2",
+    "reden": "Both describe the same root cause: users who stake while a reward token is delisted keep userRewardPerTokenPaid at 0, and re-adding the token without resetting perTokenStored lets them claim historica",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "rewardPerToken floors per update and lastUpdated always advances, so frequent updates destroy rewards for low-decimal tokens",
+   "strict": "H-1",
+   "a": {
+    "match": "H-1",
+    "reden": "Both describe the same flooring loss in rewardPerToken/_updateRewardsStates causing USDC rewards to be lost when updates are frequent.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-1",
+    "reden": "Both describe loss of rewards due to integer truncation in rewardPerToken when updates are frequent, especially for low-decimal tokens like USDC.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Rewards accrued while totalSupply is 0 are lost and block delisting of the reward token",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distinct issue with rewards lost when totalSupply is zero and token delisting, which does not correspond to any listed known finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes lost rewards during zero totalSupply and blocked token removal, which is a different root cause from the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Reset or locked claim on a fully vested plan reverts, and a finished plan cannot be re-setup",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different revert logic for finished vesting plans, not the bad check described in M-3 or any other known finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different root cause (resetAmount reverting on finished plans and setup blocking re-setup) than the known findings, which concern reward accounting, initialization, reset che",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "resetVestingPlans bounds the new amount by already-claimed tokens, and resetAmount drops claim history",
+   "strict": "M-5",
+   "a": {
+    "match": "M-5",
+    "reden": "Both describe resetAmount resetting claimedAmount to zero, allowing re‑granting of already‑claimed tokens and causing double‑spending.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "M-5",
+    "reden": "Both describe resetAmount resetting claimedAmount to zero after a claimed-amount check, allowing already-claimed tokens to be re-granted/double spent.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "A single reverting reward token blocks claimRewards for all reward tokens",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue (reverting token blocking all claims) not covered by any known finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a reverting reward token blocking all claims, which is not the same root cause as any listed known finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "totalVested[SYMM] is not reduced when locked SYMM is moved into the pool by addLiquidity",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different issue (totalVested not decremented) not covered by any known finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a totalVested accounting error in _addLiquidityProcess, which is not the same root cause as any listed finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Setter can re-allocate users who already claimed, enabling a second mint",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a reallocation bug in SymmAllocationClaimer.sol, which is not covered by any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns SymmAllocationClaimer's setBatchAllocations/claim reallocation, while none of the known findings describe that contract or root cause.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "addLiquidity default USDC and LP slippage checks give no protection against pool manipulation",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a slippage check manipulation in addLiquidity, which does not correspond to any listed known finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability in addLiquidity slippage checks, not present in the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Reward-rate truncation leaves unclaimable dust in pendingRewards, so delisting can never pass the <=10 check",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes reward-rate truncation causing unclaimable dust, which is a different root cause than any listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes rate-flooring dust that blocks reward-token delisting, not the known H-1 issue of frequent _updateRewardsStates causing USDC rewards not to distribute.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "AirdropHelper final batch deletes entire arrays and can run out of gas on large airdrops",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unbounded array deletion gas issue in AirdropHelper, which does not correspond to any listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns unbounded array deletion in AirdropHelper, while all known findings are unrelated issues in SymmStaking/Vesting contracts.",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

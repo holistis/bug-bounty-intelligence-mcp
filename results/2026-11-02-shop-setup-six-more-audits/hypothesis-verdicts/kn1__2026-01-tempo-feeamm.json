@@ -1,0 +1,103 @@
+{
+ "audit": "2026-01-tempo-feeamm",
+ "verdicts": [
+  {
+   "title": "Permissionless 1-wei donation via executeFeeSwap permanently bricks pool initialization (div by zero / zero shares)",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a permissionless donation causing division by zero in executeFeeSwap/mint, which is unrelated to the reentrancy issue in burn described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a donation attack that bricks pool initialization via division by zero, while the known finding H-01 is about reentrancy in burn.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "executeFeeSwap is callable by anyone at a fixed 0.997 rate with no oracle or peg check",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unrestricted fee swap with a fixed rate, which does not correspond to the reentrancy issue in the burn() function of H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an unrestricted external swap with fixed rate, while the known finding is about reentrancy in burn function; they are unrelated.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Mint prices LP shares with userToken discounted by N but burn pays out proportionally, so mint then burn extracts value from LPs",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a pricing discrepancy between mint and burn, not the reentrancy issue in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a mint/burn pricing arbitrage, not the reentrancy in burn() that allows pool drainage.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Unchecked ERC20 return values and unchecked uint128 additions (Solidity 0.7.6, no SafeMath)",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different root cause; candidate describes unchecked ERC20 returns and uint128 overflow, not the reentrancy issue in burn",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes unchecked ERC20 return values and uint128 overflow in mint() and executeFeeSwap(), while the known finding H-01 is a reentrancy vulnerability in burn() due to state updates aft",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "burn()/executeFeeSwap() update state after external token calls; unchecked subtraction can underflow",
+   "strict": "H-01",
+   "a": {
+    "match": "H-01",
+    "reden": "Both describe the same reentrancy issue in FeeAMM.sol's burn where external token transfers occur before state updates, causing stale state and potential underflow.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-01",
+    "reden": "Both describe the same reentrancy vulnerability in burn() due to state updates after external token calls, with the same root cause and impact, including the pre-0.8 underflow issue.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "checkSufficientLiquidity multiplies unchecked in 0.7.6 and can wrap, passing the check for huge maxAmount",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an overflow issue in checkSufficientLiquidity, not the reentrancy bug in burn.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an arithmetic overflow in checkSufficientLiquidity, which is unrelated to the reentrancy vulnerability in burn described in H-01.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Pool residual reserves stranded behind MIN_LIQUIDITY shares; later minters lose value to rounding",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a rounding/locked MIN_LIQUIDITY issue in mint(), not the reentrancy bug in burn() described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "Candidate is about rounding issues from MIN_LIQUIDITY, not reentrancy in burn.",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

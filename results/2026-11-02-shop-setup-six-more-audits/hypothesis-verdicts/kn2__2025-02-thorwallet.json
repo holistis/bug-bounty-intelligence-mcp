@@ -1,0 +1,117 @@
+{
+ "audit": "2025-02-thorwallet",
+ "verdicts": [
+  {
+   "title": "Merge credits claimable TITN with no check against TITN balance; late depositors lose TGT",
+   "strict": "H-01",
+   "a": {
+    "match": "H-01",
+    "reden": "Both describe the same missing check that allows claimable TITN/TGT to exceed the contract's hard‑coded balance, causing later claims to fail.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-01",
+    "reden": "Both describe the same root cause: no limit on TGT deposits exceeding the hardcoded TITN amount, causing later claimers to lose TGT.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Anyone can permanently flag any address as bridged-token holder, locking its transfers",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different contract and issue unrelated to the known MergeTgt overflow finding.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability in a different function and contract (Titn.sol _credit) than the known finding (MergeTgt exchange limit).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Owner withdraw() can pull TITN that backs user claims, including after the post-1-year snapshot",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an owner‑withdraw misuse, while the known finding concerns missing limits on TGT exchange causing overflow in withdrawRemainingTitn; different root causes and functions.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes owner withdrawal of TITN backing claims, while H-01 concerns exceeding the hardcoded TGT exchange cap causing claimable TITN to exceed balance and overflow.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "withdrawRemainingTitn can underflow/brick if TITN balance is below total claimable",
+   "strict": "H-01",
+   "a": {
+    "match": "H-01",
+    "reden": "Both describe the overflow/underflow in withdrawRemainingTitn caused by over‑subscription of TGT leading to claimable amount exceeding contract balance",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-01",
+    "reden": "Both describe the same underflow in withdrawRemainingTitn caused by TGT over-subscription making claimable TITN exceed the contract's actual TITN balance.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Leftover-TITN bonus is shared pro rata to claimable, so dust or late depositors capture unmerged TITN",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a bonus distribution issue, not the hard‑coded TGT limit overflow described in H‑01",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes a different issue (distribution of leftover TITN proportional to claimable amounts) than the known finding (exceeding TGTTOEXCHANGE causing overflow).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "No minimum-output protection; deposits can yield zero TITN and TGT is lost",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing minimum-output check leading to zero token output, which is a different root cause than the known finding about exceeding hardcoded TGT limits and overflow.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes missing minimum-output protection and zero quoteTitn due to rate decay/rounding, while H-01 concerns exceeding the hardcoded TGT exchange amount and resulting claim/overflow is",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Early claimTitn() forfeits the user's share of the leftover bonus, so claimants are treated unequally",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unequal bonus distribution due to early claims, which is unrelated to the TGTTOEXCHANGE limit and overflow issue of H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes unequal bonus treatment from early claiming, while H-01 concerns exceeding hardcoded exchange limits causing claim failures/overflow in withdrawRemainingTitn.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Titn restrictions depend on transferAllowedContract being set to MergeTgt, and the default blocks claimTitn on Arbitrum",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a transfer restriction bug, while the known finding concerns overflow and excess TGT handling, so they are unrelated.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes transfer restrictions blocking claims when transferAllowedContract is unset, while H-01 concerns exceeding hardcoded exchange limits and an overflow in withdrawRemainingTitn.",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

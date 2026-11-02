@@ -1,0 +1,32 @@
+[
+ {
+  "id": "H-1",
+  "title": "USDC rewards will not be distributed if `_updateRewardsStates` is triggered too often",
+  "excerptAsShown": "### Summary https://github.com/sherlock-audit/2025-03-symm-io-stacking/blob/main/token/contracts/staking/SymmStaking.sol#L402-L423 _updateRewardsStates can be triggered as often as each block (2 seconds) via deposit/withdraw/claim/notifyRewardAmount e.g. if there's 1209.6e6 USDC rewards for one week (604800 seconds) https://github.com/sherlock-audit/2025-03-symm-io-stacking/blob/main/token/contracts/staking/SymmStaking.sol#L374 rate = 1209_600000 / 604800 = 2000 \"usdc units\" per second https://github.com/sherlock-audit/2025-03-symm-io-stacking/blob/main/token/contracts/staking/SymmStaking.sol#"
+ },
+ {
+  "id": "M-1",
+  "title": "Incorrect initializer modifier in Vesting contract prevents proper initialization",
+  "excerptAsShown": "## Description: In the Symmio protocol, the `Vesting` contract is designed to be inherited by `SymmVesting`. However, the `__vesting_init()` function in `Vesting` uses the `initializer` modifier instead of the `onlyInitializing` modifier: https://github.com/sherlock-audit/2025-03-symm-io-stacking/blob/main/token/contracts/vesting/Vesting.sol#L76 ```solidity // Vesting.sol function __vesting_init(address admin, uint256 _lockedClaimPenalty, address _lockedClaimPenaltyReceiver) public initializer { __AccessControlEnumerable_init(); __Pausable_init(); __ReentrancyGuard_init(); // ...rest of initia"
+ },
+ {
+  "id": "M-2",
+  "title": "Readding the reward token causes userRewardPerTokenPaid to be incorrect for some users, resulting in them receiving too many rewards.",
+  "excerptAsShown": "### Summary New users who deposit during the time when the reward token is not added do not get their `userRewardPerTokenPaid` updated for this token, so it remains 0. When the token is re-added, however, `perTokenStored` for this token is not 0 because it retains the previous state. This leads to a situation where users who joined in the meantime when the reward token was not added, can receive all the previous rewards of the token when new rewards are notified, effectively taking them away from other users. ### Root Cause https://github.com/sherlock-audit/2025-03-symm-io-stacking/blob/main/t"
+ },
+ {
+  "id": "M-3",
+  "title": "Bad check in `Vesting.sol::_resetVestingPlans` will prevent users from adding additional liquidity in `SymmVesting.sol`",
+  "excerptAsShown": "### Summary The `_resetVestingPlans` check makes it impossible to increase a user's locked tokens if the increase does not push the new amount above the total unlocked tokens. This is problematic as it will prevent users from adding additional liquidity to the `SymmVesting.sol` after a certain number of their lp tokens have been unlocked. ### Root Cause In [Vesting.sol:231](https://github.com/sherlock-audit/2025-03-symm-io-stacking/blob/main/token/contracts/vesting/Vesting.sol#L231), the check will cause a revert when a user tries to add additional liquidity ### Internal Pre-conditions The use"
+ },
+ {
+  "id": "M-4",
+  "title": "Malicious User can dilute staking Rewards to a longer timeframe",
+  "excerptAsShown": "### Summary The `SymmStaking` contract allows anyone to add new rewards using the `notifyRewardAmount` function. However, if new rewards are continuously added while existing rewards are still active, the total rewards get spread over a longer period. A malicious actor can exploit this by repeatedly adding tiny amounts, effectively delaying stakers from receiving their full rewards. ### Root Cause * `notifyRewardAmount` function can be called by anyone, with any reward amount. * Each time it's called, the reward rate is recalculated as: * `amount / state.duration` (if the previous reward perio"
+ },
+ {
+  "id": "M-5",
+  "title": "Double spending attack in the Vesting contract",
+  "excerptAsShown": "### Summary The function resetVestingPlans() is called by an administrator account and resets vesting plans for a list of users, with the corresponding amount provided as input. The function calls _resetVestingPlans(), where it checks whether the given amount is greater than or equal to the claimed amount for the user. After that, it calls resetAmount() from LibVestingPlan. In this function, the state is updated, the new amount is recorded, and claimedAmount is set to 0. ### Root Cause The issue here is that this can lead to double spending. Even though the user executing the request is truste"
+ }
+]

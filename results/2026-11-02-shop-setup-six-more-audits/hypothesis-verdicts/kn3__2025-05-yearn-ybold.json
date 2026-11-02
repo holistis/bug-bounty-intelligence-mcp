@@ -1,0 +1,145 @@
+{
+ "audit": "2025-05-yearn-ybold",
+ "verdicts": [
+  {
+   "title": "Deposits/harvest use provideToSP(...,false), stashing collateral gains that tend never sees",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distinct issue with provideToSP false flag and stashed collateral gains, which does not correspond to any of the listed known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes stashed collateral gains being hidden from the tend trigger, which is a different root cause from the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Pending BOLD yield from the Stability Pool is never counted or claimed by harvest",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing yield claim issue, which does not correspond to any of the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes unclaimed Stability Pool yield omitted from harvest/accounting, which is unrelated to the known inflation, loss-timing, or dustThreshold findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Collateral gains excluded from totalAssets let late depositors capture recovery after a temporary loss",
+   "strict": "H-2",
+   "a": {
+    "match": "H-2",
+    "reden": "Both describe the same timing exploit where deposits between a loss report and collateral auction/recovery let attackers capture undervalued shares",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-2",
+    "reden": "Same root cause and impact: depositing between a reported loss and the later collateral auction recovery lets the depositor capture the recovered value at the expense of existing holders.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Permissionless StakerFactory.newStrategy lets anyone overwrite deployments[asset] registry",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an access control issue in StakerFactory.newStrategy, which is unrelated to the root causes of the known findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a permissionless StakerFactory registry overwrite, which is unrelated to the known findings about share inflation, loss-timing deposits, or dustThreshold.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Accountant takes full fee on a gain even if a loss on another strategy is not yet reported",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fee overcharging issue in Accountant.sol, which does not correspond to any of the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes fee overcharging in Accountant.report() due to unrealized losses, which is unrelated to the known findings about strategy share inflation, deposit timing after loss reports, or",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Accountant distributes held fee shares to the Staker even while yBOLD is below 1:1 (loss never covered)",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fee distribution logic flaw in Accountant.sol, which does not correspond to any of the listed findings about share inflation, deposit timing, or dustThreshold limits.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate concerns Accountant fee-share distribution during losses, which is unrelated to the known findings about first-depositor inflation, loss-timing deposits, or dustThreshold.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Strategies and Staker deployed by the factories keep the default 10% performance fee, leaking yield away from the Accountant",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a performance fee default issue, which does not correspond to any of the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing performance fee initialization, which is a different root cause and impact than any of the known findings (share inflation, timing attack, dust threshold lock).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Staker pins the vault's accountant at construction; a later accountant change or a feeRecipient mismatch breaks every report",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a distinct issue with Staker's accountant immutability, which does not correspond to any of the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an immutable accountant/feeRecipient mismatch breaking reports, which is unrelated to the known findings about share inflation, loss-timing deposits, or dustThreshold.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Strategy withdraw/claim reverts when SP deposit is zero (_requireUserHasDeposit)",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a revert due to zero deposit, which does not correspond to any of the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a revert when SP deposit is zero, which is not covered by any of the known findings.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Auction starting price truncated to whole BOLD units, which erodes the buffer on small lots",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a rounding issue in _tend() affecting auction start price, which is unrelated to the listed findings.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a price truncation bug in the auction starting price calculation, which is not the same root cause or code as any of the known findings (H-1, H-2, M-1).",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

@@ -1,0 +1,89 @@
+{
+ "audit": "2026-01-tempo-feeamm",
+ "verdicts": [
+  {
+   "title": "1-wei fee swap on an uninitialised pool permanently blocks the first mint (pool initialisation DoS)",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a pool initialization DoS due to division by zero, which is unrelated to the reentrancy issue in burn described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a DoS on pool initialization due to a 1-wei fee swap, which is a different root cause and impact than the known reentrancy in burn finding.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "mint prices U reserves at 0.9985 but burn pays them at face value: risk-free mint/burn extraction",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a pricing discrepancy between mint and burn, not the reentrancy issue in burn described in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a mint/burn pricing mismatch, not the reentrancy via external token transfer before LP accounting in H-01.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "executeFeeSwap has no access control and lets anyone swap at a fixed 0.997 rate",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different function and issue; candidate describes missing access control, known finding is reentrancy in burn",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an access control issue in executeFeeSwap, while the known finding is about reentrancy in burn.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "No uint128 overflow check on reserve additions in a pre-0.8 compiler (unchecked arithmetic)",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes an unchecked uint128 overflow issue, which is unrelated to the reentrancy bug in H-01.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes an arithmetic overflow in executeFeeSwap/mint, while the known finding is about reentrancy in burn.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "burn transfers tokens before updating balances and reserves (reentrancy)",
+   "strict": "H-01",
+   "a": {
+    "match": "H-01",
+    "reden": "Both describe the same reentrancy issue in FeeAMM.sol's burn() where token transfers occur before state updates",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-01",
+    "reden": "The candidate describes the same burn() reentrancy caused by external token transfers before updating LP accounting in FeeAMM.sol.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ERC20 transfer and transferFrom return values are ignored, with no SafeERC20",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes unchecked ERC20 return values, while the known finding is about reentrancy in burn, a different root cause.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes unchecked ERC20 return values, while H-01 describes a reentrancy/CEI violation in burn(); these are different root causes.",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

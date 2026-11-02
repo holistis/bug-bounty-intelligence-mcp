@@ -1,0 +1,17 @@
+[
+ {
+  "id": "H-1",
+  "title": "A malicious attacker can steal 25% of the funds of the first depositor in a strategy",
+  "excerptAsShown": "### Summary Inflatability of the `TokenizedStrategy` share value, combined with the lack of an initial deposit via the `StrategyFactory`, allows a malicious attacker to steal 25% of the first depositor's funds. ### Root Cause The [Strategy](https://github.com/sherlock-audit/2025-05-yearn-ybold/blob/88a3b89c05fd6e59ec130c79659195cd05d872af/yv3-liquityv2-sp-strategy/src/Strategy.sol#L13) contract inherits it's vault logic from Yearn's `BaseStrategy` which delegates to the logic of the `TokenizedStrategy` contract. The issue is that the `Strategy` does not perform an initial deposit into the vaul"
+ },
+ {
+  "id": "H-2",
+  "title": "Attacker can deposit after the keeper reports a loss, but before the collateral auction to steal from other depositors",
+  "excerptAsShown": "### Summary An attacker can exploit the timing between when a loss is reported and when the associated collateral is later auctioned and reported as profit. By depositing in between these events, the attacker mints undervalued shares and redeems them at a profit, stealing from prior depositors. ### Root Cause If there have been [liquidations in the Stability Pool](https://github.com/liquity/bold/blob/36139d909fcc4d2c2918d7fd2b20b11951138ccb/contracts/src/StabilityPool.sol#L24-L25) that reduced the strategy's BOLD balance, and the resulting collateral has not yet been auctioned, the strategy te"
+ },
+ {
+  "id": "M-1",
+  "title": "No maximum on `dustThreshold` allows management to lock user funds",
+  "excerptAsShown": "### Summary Because there is no maximum amount on `dustThreshold`, management can increase it to an absurdly high number. By doing this, they stop all auctions from happening. Users will continue to lose BOLD to liquidations but will not be able to receive anything in return, therefore leading to permanent locking of funds users are owed. ### Root Cause [Strategy.sol#L155:](https://github.com/sherlock-audit/2025-05-yearn-ybold/blob/main/yv3-liquityv2-sp-strategy/src/Strategy.sol#L155) /// @notice Set the dust threshold for the strategy /// @param _dustThreshold New dust threshold function setD"
+ }
+]

@@ -1,0 +1,88 @@
+{
+ "hypotheses": [
+  {
+   "title": "Anyone can brand any address a bridged holder by bridging dust, freezing its Titn transfers",
+   "category": "access control / griefing",
+   "file": "Titn.sol",
+   "function": "_credit()",
+   "description": "_credit sets isBridgedTokenHolder[_to] = true for every recipient of an incoming LayerZero transfer. The flag is never cleared. The sender is not checked and the amount is not bounded. _validateTransfer blocks any transfer whose `from` has the flag while isBridgedTokensTransferLocked is true. This applies unless `from` is the owner or transferAllowedContract, or `to` is the allowed contract or lzEndpoint. An attacker can therefore bridge 1 wei to any victim address from another chain. The victim's whole Titn balance on that chain then becomes non-transferable, including tokens the victim obtained by normal means.",
+   "attackPath": "1. Attacker holds a little Titn on a source chain. 2. Attacker calls send() with the victim as the recipient on a chain where Titn is deployed, with a tiny amount. 3. _credit mints and sets isBridgedTokenHolder[victim] = true. 4. While the lock is on, the victim's transfer() and transferFrom() revert with BridgedTokensTransferLocked. This includes sends to DEX pools and contracts.",
+   "impact": "Targeted freezing of arbitrary users or contracts such as pools, vaults and multisigs. The victim can only move tokens to transferAllowedContract or the lz endpoint, or wait for the owner to unlock.",
+   "recommendation": "Do not flag recipients automatically for arbitrary senders. Track restrictions per balance of bridged tokens, or restrict by allow-list, rather than by a permanent address flag that anyone can set.",
+   "severity": "Medium",
+   "confidence": 0.55
+  },
+  {
+   "title": "Merge can allocate more TITN than it holds; no cap on total TGT merged, first-year snapshot then reverts",
+   "category": "accounting / insolvency",
+   "file": "MergeTgt.sol",
+   "function": "onTokenTransfer()/withdrawRemainingTitn()",
+   "description": "onTokenTransfer credits claimableTitnPerUser and totalTitnClaimable with no cap. It checks neither totalTitnClaimable against TITN_ARB nor the TGT received against TGT_TO_EXCHANGE (579M). It also does not check that the contract's TITN balance covers the claims. If more than 579M TGT is merged, or TITN was not fully deposited, total claims exceed the TITN balance. Claims are then first-come-first-served, so late claimers' transfers revert. After 360 days, withdrawRemainingTitn computes `remainingTitnAfter1Year - initialTotalClaimable`. If the balance is below the snapshot of totalTitnClaimable, this underflows and reverts for every user.",
+   "attackPath": "1. TGT holders merge more than 579M TGT in total, or the owner has deposited less than the full amount. 2. Early claimers drain the TITN via claimTitn. 3. Remaining users cannot claim. 4. After 1 year, withdrawRemainingTitn reverts on the underflow for all users, whether or not they claimed.",
+   "impact": "Some users' TGT is locked in the contract with no TITN claimable. Late merge participants can lose funds, and the claim logic can be bricked.",
+   "recommendation": "Cap the cumulative TITN allocated (totalTitnClaimed + totalTitnClaimable <= TITN_ARB, or the balance). Handle the case where the balance is below initialTotalClaimable by pro-rating.",
+   "severity": "Medium",
+   "confidence": 0.45
+  },
+  {
+   "title": "Owner can withdraw any token, including users' claimable TITN, at any time",
+   "category": "centralization / rug",
+   "file": "MergeTgt.sol",
+   "function": "withdraw()",
+   "description": "withdraw() lets the owner transfer any amount of any token to itself, with no check against totalTitnClaimable or the time since launch. This covers both the TITN backing user claims and the TGT users deposited. The owner can also set lockedStatus to Locked. If the TITN balance falls below the claims, claimTitn reverts. withdrawRemainingTitn also reverts on the underflow in `remainingTitnAfter1Year - initialTotalClaimable`.",
+   "attackPath": "1. Users merge TGT and accrue claimableTitnPerUser. 2. Owner calls withdraw(titn, balance). 3. claimTitn and withdrawRemainingTitn fail for users.",
+   "impact": "Users lose the TITN they are owed after giving up TGT, and the claim accounting is bricked.",
+   "recommendation": "Restrict withdraw so that titn.balanceOf - amount >= totalTitnClaimable. Allow full withdrawal only after the claim window, and treat TGT separately.",
+   "severity": "Medium",
+   "confidence": 0.35
+  },
+  {
+   "title": "Leftover TITN after year one is paid only to unclaimed merge holders, so early claimers lose out",
+   "category": "economic design / accounting",
+   "file": "MergeTgt.sol",
+   "function": "withdrawRemainingTitn()",
+   "description": "After 360 days, withdrawRemainingTitn() snapshots remainingTitnAfter1Year = titn.balanceOf(this) and initialTotalClaimable = totalTitnClaimable. It then pays each caller claimable + claimable * (remaining - initialTotalClaimable) / initialTotalClaimable. The pool 'remaining - initialTotalClaimable' is all TITN not backed by a pending claim. That includes the unmerged part of the 173.7M TITN_ARB deposit and any dust or donated TITN. This pool is split only among users who left their claimable balance untouched. Users who called claimTitn() earlier get no share. A holder with a tiny remaining claimable balance can end up with a large part of the unmerged supply. Each wallet's share is proportional to its own claimable balance, so splitting wallets does not help.",
+   "attackPath": "1. Merge only a small amount of TGT, or hold a small claimable balance, and never call claimTitn() before day 360. 2. After 360 days, call withdrawRemainingTitn(). 3. Receive claimable plus claimable/initialTotalClaimable of the whole unmerged TITN. If few people hold claimable balances, this is nearly all of it. Rational users are pushed to delay claiming, and users who claimed early are treated worse.",
+   "impact": "A large part of the TITN reserve goes to whoever still has an unclaimed balance, instead of staying with the treasury or being split fairly. The outcome depends on how many users claimed early.",
+   "recommendation": "Return unmerged TITN to the owner or treasury after the merge ends, or compute any bonus over all merged TGT (claimed plus claimable) rather than over unclaimed balances only.",
+   "severity": "Medium",
+   "confidence": 0.3
+  },
+  {
+   "title": "Merge at exactly 360 days accepts TGT but credits zero TITN",
+   "category": "boundary / input validation",
+   "file": "MergeTgt.sol",
+   "function": "onTokenTransfer()",
+   "description": "onTokenTransfer only reverts when `block.timestamp - launchTime > 360 days`. At exactly 360 days it proceeds, but quoteTitn returns 0 because `timeSinceLaunch < 360 days` is false. The TGT is accepted and kept by the contract, and nothing is credited. Likewise, quoteTitn can round to 0 for tiny late amounts. There is no minimum-out check, so the user cannot protect against receiving nothing.",
+   "attackPath": "A user transfers TGT via transferAndCall in the block where the timestamp equals launchTime + 360 days. The TGT is taken and claimable += 0.",
+   "impact": "Loss of the user's TGT. The window is narrow, but there is no slippage protection.",
+   "recommendation": "Use `>=` in the end check, and revert when titnOut == 0.",
+   "severity": "Medium",
+   "confidence": 0.25
+  },
+  {
+   "title": "Deployer-minted supply and Arbitrum lock can strand tokens unless deployer is owner",
+   "category": "configuration / token restriction",
+   "file": "Titn.sol",
+   "function": "constructor()/_validateTransfer()",
+   "description": "The constructor mints initialMintAmount to msg.sender, while the owner is `_delegate`. On Arbitrum (chainid 42161) with the lock on, every transfer is blocked unless `from` is the owner or transferAllowedContract, or `to` is transferAllowedContract or the lz endpoint. A deployer who is not the owner therefore cannot move the minted tokens. The same holds for any ordinary holder. Claims from Merge only work if transferAllowedContract is set to the merge contract. Until the owner calls setTransferAllowedContract, claimTitn and the owner's deposit may revert.",
+   "attackPath": "Deploy with a deployer different from _delegate on Arbitrum. The deployer's transfer to the owner or any other address reverts with BridgedTokensTransferLocked.",
+   "impact": "Initial supply can be locked, or merge claims can be blocked until the admin configuration is fixed.",
+   "recommendation": "Mint to _delegate, or the intended treasury. Set transferAllowedContract in the constructor or deployment script.",
+   "severity": "Medium",
+   "confidence": 0.2
+  },
+  {
+   "title": "TITN deposited after the first withdrawRemainingTitn() call is outside the snapshot and is not distributed",
+   "category": "state sync / accounting",
+   "file": "MergeTgt.sol",
+   "function": "deposit()/withdrawRemainingTitn()",
+   "description": "deposit() can be called any number of times by the owner. It requires amount == TITN_ARB each time and has no cutoff or one-shot guard. withdrawRemainingTitn() fixes remainingTitnAfter1Year and initialTotalClaimable once, at the first successful call after day 360. A deposit or donation made after that is not part of the snapshot, so it is never distributed to claimants. It is recoverable only through the owner's unrestricted withdraw(). A deposit made before the snapshot is instead absorbed into the bonus pool for claimants, so the same action has different effects depending on timing.",
+   "attackPath": "1. After day 360 the first user calls withdrawRemainingTitn(), and the snapshot is taken. 2. The owner (or anyone, by plain transfer) then adds TITN. 3. The extra TITN is not counted in any later user payout.",
+   "impact": "The merge's accounting depends on when TITN arrives, and extra TITN can be left stranded under the owner's control.",
+   "recommendation": "Allow deposit() only once and only before launchTime or the merge end. Compute payouts from current balances, or freeze deposits once the snapshot is set.",
+   "severity": "Medium",
+   "confidence": 0.2
+  }
+ ]
+}

@@ -1,0 +1,117 @@
+{
+ "audit": "2026-01-tempo-mpp-streams",
+ "verdicts": [
+  {
+   "title": "initiateClose() has no access control: anyone can force-close any channel and strand unsettled vouchers",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "Different function and root cause; not the authorized signer zero address issue.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding describes an access control flaw in initiateClose(), while the known finding addresses a different vulnerability involving zero address signature recovery.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "openChannel() never uses or validates `deadline`",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing deadline validation, which is unrelated to the authorizedSigner zero address validation in H-03",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate finding about missing deadline validation is unrelated to the known finding about zero address signer validation.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "authorizedSigner may be address(0), letting any invalid signature authorize settle()/close()",
+   "strict": "H-03",
+   "a": {
+    "match": "H-03",
+    "reden": "Describes the same zero‑address authorizedSigner bypass leading to invalid signatures being accepted",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": "H-03",
+    "reden": "Both findings describe the same vulnerability where a zero authorizedSigner combined with ecrecover returning zero allows settlement with any invalid signature.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "A voucher whose cumulativeAmount exceeds the deposit cannot be partially settled, which can strand earned funds",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a different bug (cumulative voucher exceeding deposit) unrelated to the authorized signer zero address issue.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a different vulnerability (partial settlement failure due to over-deposit voucher) not related to the known finding (authorized signer bypass).",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Settle vs finalize race at the grace period boundary",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a race condition, not the zero address signer bypass described in H-03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a race condition in settle/finalize, while the only known finding is about signature validation bypass.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "Any ERC20 accepted, with deposits credited at nominal amount (fee-on-transfer/rebasing insolvency)",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a fee-on-transfer token deposit accounting issue, which is unrelated to the zero address signer validation bypass in H-03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a fee-on-transfer token vulnerability, while the known finding is about zero address signature validation.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "ecrecover-only signatures: contract-wallet or P256/passkey payers and signers cannot sign vouchers or close",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes a missing ERC-1271 support for contract wallets, which is a different root cause than the zero-address authorizedSigner issue in H-03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes a missing support for contract wallets and alternative signature schemes, which is a different root cause and impact than the known finding about zero address signature bypass.",
+    "model": "deepseek-v4-flash"
+   }
+  },
+  {
+   "title": "close() omits expiry/nonce checks and uses a payer signature not bound to chain, contract or nonce",
+   "strict": null,
+   "a": {
+    "match": null,
+    "reden": "The candidate describes missing expiry/nonce checks and an unbound signature in close(), which is a different root cause than the zero-address authorizedSigner bypass in H-03.",
+    "model": "gpt-oss-120b"
+   },
+   "b": {
+    "match": null,
+    "reden": "The candidate describes missing expiry/nonce checks and missing chain/contract binding in the close function, which is a different issue from the known finding about zero address signature recovery.",
+    "model": "deepseek-v4-flash"
+   }
+  }
+ ]
+}

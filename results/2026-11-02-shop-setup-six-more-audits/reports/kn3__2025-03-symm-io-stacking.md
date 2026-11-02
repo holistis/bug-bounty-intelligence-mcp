@@ -1,0 +1,155 @@
+# Audit report
+
+## [Medium] resetAmount rebases startTime to now, so claiming 0 locked tokens skips the vesting delay at no cost
+
+File: LibVestingPlan.sol
+Function: resetAmount()
+
+resetAmount() always sets startTime = block.timestamp and endTime = block.timestamp + remainingDuration(). It never checks whether the plan has started. For a plan whose startTime is in the future (a cliff or delayed start), the rebase pulls the start forward to now while endTime stays the same. The remaining amount then vests linearly from now. Vesting.claimLockedToken() calls resetAmount(lockedAmount - amount) for any amount, including 0. With amount 0 the penalty is 0 and the transfers are zero-value. The same rebase happens when the SETTER calls resetVestingPlans on a not-yet-started plan.
+
+Attack path: 1. SETTER sets up a plan for a user with startTime in the future, for example a 6-month cliff and a 12-month end. 2. The user calls claimLockedToken(token, 0), or claimLockedTokenByPercentage(token, 0). _claimUnlockedToken claims 0, then resetAmount sets startTime to now and keeps the old endTime. 3. Tokens start unlocking linearly immediately, with no cliff. Penalty paid is 0.
+
+Impact: Any user can bypass the configured vesting start or cliff without penalty and receive tokens earlier than the schedule allows. This defeats the lock-up that the penalty on early locked claims is meant to enforce. A SETTER reset on an unstarted plan has the same effect.
+
+## [Medium] Reset check compares new amount to old unlocked amount, so addLiquidity reverts for users with an existing LP plan
+
+File: Vesting.sol
+Function: _resetVestingPlans()
+
+`_resetVestingPlans` first claims unlocked tokens, then requires `amount >= vestingPlan.unlockedAmount()`, where `unlockedAmount()` is still the old plan's unlocked portion. `resetAmount` then rebases the plan so `amount` becomes the new locked amount and `claimedAmount` goes to 0. The old unlocked part has already been paid out, so it should not constrain the new amount. `SymmVesting._addLiquidityProcess` passes `lpVestingPlan.lockedAmount() + lpAmount` to this function when an LP plan already exists. Once more than about half of the rebased period has elapsed, unlocked is larger than locked plus the new LP, and the call reverts with `AlreadyClaimedMoreThanThis`. SETTER resets are subject to the same spurious floor.
+
+Attack path: 1) A user adds liquidity once, which creates the SYMM_LP plan. 2) After a large part of the vesting period has passed, so that unlocked LP exceeds locked LP plus new LP, the user calls addLiquidity or addLiquidityByPercentage again. 3) `_resetVestingPlans(SYMM_LP, ...)` reverts, so the user cannot add liquidity again. The SETTER also cannot reduce such a plan to an amount below the already-unlocked part.
+
+Impact: Users who already hold an LP plan lose the add-liquidity feature late in vesting. The only way out is to claim locked tokens at the 50% penalty. SETTER resets are also blocked arbitrarily.
+
+## [Medium] Permissionless notifyRewardAmount lets anyone stretch the reward period and lose rewards to rounding
+
+File: SymmStaking.sol
+Function: notifyRewardAmount() / _addRewardsForToken()
+
+`notifyRewardAmount` has no role check, so anyone can call it for any whitelisted token. `_addRewardsForToken` recomputes `rate = (amount + remaining*rate) / duration` and sets `periodFinish = now + duration`. A call with a tiny amount therefore restarts the full week and spreads the remaining rewards over it. The integer division also drops up to `duration-1` (604799) reward-token wei on every call. For 6-decimal tokens such as USDC, that is up to about 0.6 USDC per call.
+
+Attack path: 1) A reward period is active, for example 1000 USDC per week. 2) The attacker repeatedly calls `notifyRewardAmount([USDC],[1])`. 3) Each call resets `periodFinish` to now plus a week and re-floors the rate. Streaming is slowed and part of the reward is stranded in the contract.
+
+Impact: Griefing: stakers' reward emission is slowed or indefinitely postponed, and rewards are permanently lost to rounding. The loss is stuck in `pendingRewards`, which blocks delisting of the token.
+
+## [Medium] Relisting a reward token lets users who staked while it was delisted claim its historical rewards
+
+File: SymmStaking.sol
+Function: configureRewardToken() / _updateRewardsStates()
+
+configureRewardToken(false) removes the token from rewardTokens but keeps rewardState[token].perTokenStored, a cumulative non-zero value. _updateRewardsStates only loops over rewardTokens, so while the token is delisted no one's userRewardPerTokenPaid[user][token] is synced. A user who first deposits during the delisted window keeps userRewardPerTokenPaid = 0. When the token is relisted via configureRewardToken(true), the state is not reset, only duration is set. On that user's next update, earned() computes balanceOf * (perTokenStored - 0) / 1e18, which is the whole historical per-token reward as if they had been staked all along.
+
+Attack path: 1) Admin delists reward token X once pendingRewards[X] <= 10. 2) Attacker deposits a large amount of the staking token while X is delisted; the deposit's update loop skips X. 3) Admin relists X and notifies new rewards. 4) Attacker calls claimRewards and receives balance * perTokenStored[X] / 1e18 on top of their real share, paid out of the newly notified rewards and other stakers' funds. If the contract balance is too low, pendingRewards[token] -= reward underflows and claims revert for everyone.
+
+Impact: Theft of newly notified rewards from honest stakers, or a claim DoS through underflow, after any delist and relist cycle.
+
+## [Medium] rewardPerToken floors per update and lastUpdated always advances, so frequent updates destroy rewards for low-decimal tokens
+
+File: SymmStaking.sol
+Function: rewardPerToken() / _updateRewardsStates()
+
+`rewardPerToken` adds `dt*rate*1e18/totalSupply` and floors it. `_updateRewardsStates` stores that value and sets `lastUpdated` to the current time on every deposit, withdraw, claim, notify and configure call. When `dt*rate*1e18 < totalSupply`, which is typical for a 6-decimal reward token such as USDC against a large 18-decimal SYMM supply, the increment is 0 or loses almost a full unit. The elapsed time is still consumed, so the lost rewards are never credited. Each update can lose up to `totalSupply/1e18` reward wei.
+
+Attack path: 1) USDC is a reward token and many SYMM are staked. 2) Any user, including an attacker with no stake, calls `claimRewards()` or a tiny `deposit` every block or every few seconds. 3) Each call advances `lastUpdated` while crediting little or nothing to `perTokenStored`.
+
+Impact: A large share of USDC rewards is never credited to stakers. It stays stuck in the contract and in `pendingRewards`.
+
+## [Medium] Rewards accrued while totalSupply is 0 are lost and block delisting of the reward token
+
+File: SymmStaking.sol
+Function: _updateRewardsStates() / configureRewardToken()
+
+When `totalSupply == 0`, `rewardPerToken` returns `perTokenStored`, but `_updateRewardsStates` still sets `lastUpdated = lastTimeRewardApplicable`. Rewards for periods with no stakers are never distributed. `pendingRewards[token]` is increased on notify and decreased only on user claims, so the unallocatable part is never released. `configureRewardToken(false)` requires `pendingRewards <= 10`, so a token with stranded rewards can never be removed.
+
+Attack path: 1) A reward is notified before the first deposit, or after all stakers have withdrawn. 2) Time passes with no stakers. 3) The rewards for that time are unrecoverable through the staking logic. 4) `configureRewardToken(token,false)` reverts with `OngoingRewardPeriodForToken` forever.
+
+Impact: Reward tokens are stranded, and a reward token cannot be delisted. Only the admin `rescueTokens` can pull them out, which also bypasses the pending accounting.
+
+## [Medium] Reset or locked claim on a fully vested plan reverts, and a finished plan cannot be re-setup
+
+File: LibVestingPlan.sol
+Function: resetAmount() / setup()
+
+resetAmount() reverts with PlanIsFinished when remainingDuration == 0. _resetVestingPlans loops over all users, so one user with a finished plan reverts the whole batch and the SETTER cannot reset (top up) that user. setup() reverts with AlreadySetup whenever amount != 0. A user who has fully claimed a finished plan keeps amount != 0 forever, because claimedAmount is not cleared. That user can never receive a new plan for the same token. A user who fully claims the locked part gets amount == 0 and can be re-setup, so the two end states are inconsistent. The same revert makes claimLockedToken(token, 0) and the operator variants revert on finished plans.
+
+Attack path: 1. A plan reaches endTime and the user claims everything. 2. The SETTER calls setupVestingPlans for the same user and token. isSetup() is true, so it reverts with AlreadySetup and blocks the whole batch. 3. The SETTER calls resetVestingPlans with a batch that includes the finished plan. It reverts with PlanIsFinished, so no other user in the batch is updated.
+
+Impact: The SETTER cannot grant new allocations to users with finished plans, and one stale entry blocks batch operations. Fixing this requires working around the contract, for example using a different token address or a redeploy.
+
+## [Medium] resetVestingPlans bounds the new amount by already-claimed tokens, and resetAmount drops claim history
+
+File: LibVestingPlan.sol
+Function: resetAmount()
+
+resetAmount() sets amount = the new amount and claimedAmount = 0, so the argument becomes the new remaining (locked) allocation. The plan is rebased from now, and totalVested is adjusted as totalVested - oldLocked + amount. _resetVestingPlans documents the value as a 'new total token amount' and rejects amount < unlockedAmount(), which after the preceding claim equals the already-claimed amount. A SETTER who passes a new total (claimed plus remaining) therefore re-grants the already-claimed tokens as a fresh vesting plan. The guard also wrongly rejects any new remaining amount that is smaller than the amount already claimed.
+
+Attack path: 1. A user has a plan of 1000 and has claimed 400. 2. The SETTER wants a total of 1200 and calls resetVestingPlans with 1200. 3. The check 1200 < 400 passes. The plan becomes amount = 1200, claimed = 0, and rebased from now, so the user can receive 400 + 1200 = 1600 in total. Conversely, wanting to cut the remainder to 300 is rejected because 300 < 400.
+
+Impact: Over-allocation of tokens (or mint, if the mint hook is active) and the inability to reduce the remainder, depending on the SETTER's interpretation. totalVested is consistent with the new amount, but the economic total diverges from the intended one.
+
+## [Medium] A single reverting reward token blocks claimRewards for all reward tokens
+
+File: SymmStaking.sol
+Function: _claimRewardsFor() / claimRewards()
+
+claimRewards and claimFor loop over every entry in rewardTokens and call safeTransfer for each token with a non-zero reward. There is no per-token claim and no try/catch. If one token reverts for that user (a USDC or USDT blacklist, or a token pause), the whole transaction reverts and the user cannot claim any of the other reward tokens. Admin cannot remove the offending token while pendingRewards[token] > 10, and a blocked claim keeps that pending balance from falling.
+
+Attack path: 1) Multiple stablecoin rewards are listed, including a blacklistable one such as USDC. 2) A staker is blacklisted on that token, or the token is paused. 3) The staker's claimRewards reverts on that token's transfer. 4) Rewards in the other tokens are unreachable, and delisting the broken token is blocked by the pendingRewards > 10 check.
+
+Impact: Users' rewards in healthy tokens are locked as long as one reward token reverts on transfer. If the token itself pauses, this affects every staker.
+
+## [Medium] totalVested[SYMM] is not reduced when locked SYMM is moved into the pool by addLiquidity
+
+File: SymmVesting.sol
+Function: _addLiquidityProcess()
+
+In _addLiquidityProcess the SYMM plan is reduced via symmVestingPlan.resetAmount(symmLockedAmount - amountsIn[0]), but totalVested[SYMM] is never decremented by amountsIn[0]. Every other path keeps totalVested equal to the sum of amount minus claimed: _claimUnlockedToken, _claimLockedToken and _resetVestingPlans all adjust it. The LP side is adjusted through _resetVestingPlans or _setupVestingPlans. Each addLiquidity call therefore leaves totalVested[SYMM] permanently overstated by the SYMM sent to the pool, while totalVested[SYMM_LP] grows by the LP received.
+
+Attack path: Any user calls addLiquidity or addLiquidityByPercentage with a non-zero amount. totalVested[SYMM] keeps counting SYMM that is already in the pool. Repeated calls by many users widen the gap.
+
+Impact: The public totalVested[SYMM] no longer reflects real outstanding vesting obligations. Anything that uses it for solvency, minting limits or reporting is wrong. Nothing in the in-scope code reads it, so the on-chain impact is limited.
+
+## [Medium] Setter can re-allocate users who already claimed, enabling a second mint
+
+File: SymmAllocationClaimer.sol
+Function: setBatchAllocations() / claim()
+
+`claim()` sets `userAllocations[msg.sender] = 0` and records `userClaimedAmounts`. `setBatchAllocations` never checks `userClaimedAmounts`, so it can write a fresh non-zero allocation for an address that has already claimed. Because `claim` only zeroes the allocation, that address can claim and mint again. `totalAllocation` does count the new allocation, so the 400M cap still bounds total issuance. However, a repeated or overlapping batch, or a corrected batch re-submitted after users have claimed, silently grants extra claims.
+
+Attack path: 1) User A claims their allocation. 2) The setter later submits a batch that includes A again, for example a re-upload or a correction. 3) `userAllocations[A]` becomes non-zero, and A claims again.
+
+Impact: Duplicate minting up to the cap, which dilutes supply and wastes the issuance budget, due to an operational mistake or a compromised setter.
+
+## [Medium] addLiquidity default USDC and LP slippage checks give no protection against pool manipulation
+
+File: SymmVesting.sol
+Function: _addLiquidity() / getLiquidityQuote()
+
+`usdcIn` and `expectedLpAmount` are both derived from the live pool balances in the same transaction. When `maxUsdcIn == 0`, no cap applies. When `minLpAmount == 0`, the floor is 99% of the in-transaction quote. Neither check is independent of the pool state the attacker can set. The router call is exact-BPT-out, so the user pays whatever USDC the skewed ratio demands.
+
+Attack path: 1) The attacker swaps in the SYMM/USDC pool to skew the SYMM:USDC ratio. 2) The victim calls addLiquidity with `maxUsdcIn = 0` or `minLpAmount = 0`. 3) The victim pays more USDC per SYMM than fair value. 4) The attacker swaps back and profits.
+
+Impact: Users who use the defaults can overpay USDC to a sandwich attacker.
+
+## [Medium] Reward-rate truncation leaves unclaimable dust in pendingRewards, so delisting can never pass the <=10 check
+
+File: SymmStaking.sol
+Function: _addRewardsForToken() / configureRewardToken()
+
+The rate is stored as amount / duration, which floors. Up to duration-1 (604799) raw units of each notification are in pendingRewards and in the contract but are never distributed or claimable. configureRewardToken(false) requires pendingRewards[token] <= 10. For 6-decimal tokens the unclaimable remainder is typically far above 10 units, and it only drops if rescued out-of-band, because pendingRewards is decremented only inside _claimRewardsFor. The flooring in rewardPerToken adds further undistributable dust.
+
+Attack path: 1) Admin or any caller notifies, for example, 1000 USDC (1e9 units) over the 1-week duration. 2) rate = 1e9 / 604800 = 1653 and 1653 * 604800 is about 9.9e8 of the 1e9, so about 6e6 units (6 USDC) are never emitted. 3) After all users claim, pendingRewards is still about 6e6, so configureRewardToken(false) always reverts with OngoingRewardPeriodForToken.
+
+Impact: A reward token can never be delisted once it has been used, and the dust cannot be recovered through the pending-rewards accounting.
+
+## [Medium] AirdropHelper final batch deletes entire arrays and can run out of gas on large airdrops
+
+File: AirdropHelper.sol
+Function: transferAirdrops() / clearAirdropConfig()
+
+When the last batch is processed, `transferAirdrops` runs `delete _airdropRecipients; delete _airdropAmounts;` over the full arrays, so the cost is proportional to the total recipient count, not the batch size. With a few thousand recipients, the last call exceeds the gas limit and reverts. `clearAirdropConfig` has the same unbounded deletion. The owner then cannot finish or clear the configuration.
+
+Attack path: 1) The owner configures a very large recipient list through repeated `configureAirdrop` calls. 2) The owner processes batches until the final one. 3) The final batch triggers the full deletion and reverts on gas.
+
+Impact: The airdrop cannot be completed or reset, and the last recipients are never paid. Funds can only be recovered through `rescueFunds`.
