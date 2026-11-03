@@ -43,7 +43,7 @@ for (const r of table.precision.rows) {
   for (const x of v) for (const j of [x.a, x.b]) if (j?.ongeldig) voided++
   const h = read('hypotheses', r.run + '__' + r.audit + '.json').hypotheses
   // every precision row holds open-judge answers, whatever its judge label in table.rows: all ids must be in known/
-  // (first version by Darja Rihla, PR 74, for the open-judges rows; extended to all rows on 3 November 2026)
+  // (first version: PR 74, for the open-judges rows; extended to all rows on 3 November 2026)
   {
     const knownIds = knownIdsOf(r.run, r.audit)
     if (knownIds.size === 0) fail(r.run + ' ' + r.audit + ' no known ids to check the open-judge answers against')
