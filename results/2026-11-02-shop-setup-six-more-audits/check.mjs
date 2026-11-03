@@ -14,6 +14,14 @@ const okId = (id) => id && /^[HM]-?\d+$/.test(id)
 const strictOf = (x) => okId(x.a?.match) && x.a.match === x.b?.match
 const oneOf = (x) => okId(x.a?.match) || okId(x.b?.match)
 const read = (...p) => JSON.parse(fs.readFileSync(path.join(HERE, ...p), 'utf8'))
+// the known ids of an audit: the file names in verdicts/ (one grader-copy file per known finding) and known/<audit>.json when it exists
+const idsPerAudit = {}
+for (const f of fs.readdirSync(path.join(HERE, 'verdicts'))) { const [run, audit, finding] = f.split('__'); (idsPerAudit[run + '__' + audit] ??= new Set()).add(finding) }
+const knownIdsOf = (run, audit) => {
+  const s = new Set(idsPerAudit[run + '__' + audit] ?? [])
+  if (fs.existsSync(path.join(HERE, 'known', audit + '.json'))) for (const x of read('known', audit + '.json')) s.add(x.id)
+  return s
+}
 
 // grader copy: one verdict file per known finding
 const per = {}
@@ -34,13 +42,11 @@ for (const r of table.precision.rows) {
   const v = read('hypothesis-verdicts', r.run + '__' + r.audit + '.json').verdicts
   for (const x of v) for (const j of [x.a, x.b]) if (j?.ongeldig) voided++
   const h = read('hypotheses', r.run + '__' + r.audit + '.json').hypotheses
-  const auditRow = table.rows.find(
-    (row) => row.run === r.run && row.audit === r.audit
-  )
-  if (auditRow?.judge === 'open-judges') {
-    const knownIds = new Set(
-      read('known', r.audit + '.json').map((x) => x.id)
-    )
+  // every precision row holds open-judge answers, whatever its judge label in table.rows: all ids must be in known/
+  // (first version by Darja Rihla, PR 74, for the open-judges rows; extended to all rows on 3 November 2026)
+  {
+    const knownIds = knownIdsOf(r.run, r.audit)
+    if (knownIds.size === 0) fail(r.run + ' ' + r.audit + ' no known ids to check the open-judge answers against')
     for (const verdict of v) {
       for (const judge of ['a', 'b']) {
         const id = verdict[judge]?.match
