@@ -9,10 +9,29 @@ const ok = (id) => id && /^[HM]-?\d+$/.test(id)
 const strict = (v) => (v.a?.match && v.a.match === v.b?.match && ok(v.a.match) ? v.a.match : null)
 const one = (v) => (ok(v.a?.match) ? v.a.match : ok(v.b?.match) ? v.b.match : null)
 const distinct = (list, k, f) => new Set(list.slice(0, k).map(f).filter(Boolean)).size
+const registry = JSON.parse(fs.readFileSync(path.join(dir, 'known-finding-ids.json'), 'utf8'))
 let bad = 0
 const tot = { known: 0, s15: 0, s30: 0, sAll: 0, o30: 0, oAll: 0 }
 for (const row of table) {
   const v = JSON.parse(fs.readFileSync(path.join(dir, 'judge', row.audit + '.json'), 'utf8')).verdicts
+  const ids = registry.audits[row.audit]
+  if (!Array.isArray(ids) || ids.length !== row.known_findings ||
+      new Set(ids).size !== ids.length) {
+    bad++
+    console.log('MISMATCH', row.audit, 'canonical registry')
+  }
+  const known = new Set(Array.isArray(ids) ? ids : [])
+  for (const [index, verdict] of v.entries()) {
+    for (const judge of ['a', 'b']) {
+      const id = verdict[judge]?.match
+      if (id != null && !known.has(id)) {
+        bad++
+        console.log('MISMATCH', row.audit,
+          'unknown finding ID', id,
+          'hypothesis', index + 1, 'judge', judge)
+      }
+    }
+  }
   const mine = { s15: distinct(v, 15, strict), s30: distinct(v, 30, strict), sAll: distinct(v, 1e3, strict), o30: distinct(v, 30, one), oAll: distinct(v, 1e3, one) }
   const same = mine.s15 === row.strict_top15 && mine.s30 === row.strict_top30 && mine.sAll === row.strict_all && mine.o30 === row.one_judge_top30 && mine.oAll === row.one_judge_all
   if (!same) { bad++; console.log('MISMATCH', row.audit, JSON.stringify(mine)) }
