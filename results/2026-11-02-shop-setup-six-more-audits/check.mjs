@@ -34,6 +34,21 @@ for (const r of table.precision.rows) {
   const v = read('hypothesis-verdicts', r.run + '__' + r.audit + '.json').verdicts
   for (const x of v) for (const j of [x.a, x.b]) if (j?.ongeldig) voided++
   const h = read('hypotheses', r.run + '__' + r.audit + '.json').hypotheses
+  const auditRow = table.rows.find(
+    (row) => row.run === r.run && row.audit === r.audit
+  )
+  if (auditRow?.judge === 'open-judges') {
+    const knownIds = new Set(
+      read('known', r.audit + '.json').map((x) => x.id)
+    )
+    for (const verdict of v) {
+      for (const judge of ['a', 'b']) {
+        const id = verdict[judge]?.match
+        if (id != null && !knownIds.has(id))
+          fail(r.run + ' ' + r.audit + ' unknown finding ID ' + id)
+      }
+    }
+  }
   if (v.length !== h.length || h.length !== r.hypotheses) fail(r.run + ' ' + r.audit + ' hypotheses')
   const strict = v.filter(strictOf), one = v.filter(oneOf)
   const strictIds = new Set(strict.map((x) => x.a.match)), oneIds = new Set(v.flatMap((x) => [x.a?.match, x.b?.match]).filter(okId))
