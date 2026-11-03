@@ -33,6 +33,8 @@ The two open judges are stricter than the benchmark-grader copy: they find 9 of 
 
 Correction on 2 November 2026: OPEN-JUDGES-PROMPT.txt first held the text of the grader copy's prompt instead of the prompt the open judges received. It now holds the prompt the two open judges actually got. Their answers were not affected, because the files with their answers were always the real ones.
 
+Correction on 3 November 2026, found by Tom Smart (smartflowproai-lang) in his recount of this folder: three answers of deepseek-v4-flash hold no match because the id was not in the exact form of our known ids. The example id in our judge prompt is H-3 and the ids are H-03, and our reading rule voids an id that is not in the list. The three answers are the third hypothesis of forte and the fifth and ninth of secondswap. They counted as no match, and the README did not say how many there were. In the first two the reason names H-3 and the other judge named H-03, and counting them would give 19 of 90 hypotheses strict instead of 17. In the ninth the other judge named H-01 and the reason describes the same problem without an id; counting it as well would give 20, and it would decide whether 9 or 10 known findings are found strictly. We keep 17 and 9 as the published figures, because our rule says so, and the fair range is 17 to 20 and 9 to 10. The 14 of 20 of the grader copy is not affected. check.mjs now prints how many answers were voided. For any later run we will write the example id in the exact form, and these folders keep the prompt as it was used.
+
 ## What this does and does not say
 
 - Five audits and one run each. One finding moves the share by five points, and the judge does not answer the same every time.
