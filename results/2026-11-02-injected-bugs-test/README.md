@@ -26,6 +26,12 @@ These are inserted faults, not proven vulnerabilities. A shifted comparison can 
 | monetrix | 1176 | 4 | 2 | 2 | 9 | 0.31 |
 | intuition | 1164 | 4 | 3 | 3 | 6 | 0.27 |
 
+## Correction of 3 November 2026: one voided answer
+
+One answer of deepseek-v4-flash counts as no match because its id was not in the exact form of our known ids. For the second hypothesis of the run on tare it wrote H-4 where the known id is H-04, and our reading rule voids an id that is not in the list. The other judge named H-04, and the reason of deepseek describes the same fault, the missing access control on setMaxNavComputationTime. This README did not say so. Tom Smart (smartflowproai-lang) found the same kind of gap in results/2026-11-02-shop-setup-five-audits; we then checked all our folders for it and found this one.
+
+If that answer counted, the figures would be: 8 of 12 faults found strictly with the open judges (published: 7), removed access control 6 of 6 (published: 5), 8 of 25 hypotheses strict (published: 7), the first five hypotheses per run 8 of 15 (published: 7), and 8 of 8 with confidence above 0.5 (published: 7 of 8). We keep the published figures, because the rule says so, and the fair range is 7 to 8 of 12. The rule held either way: it needed at least 5 of 12. The grader copy (8 of 12) and the controls (0 matches in 21 hypotheses) are not affected. check.mjs now prints how many answers were voided: 1 here, 3 in the five-audits folder, 0 in the six-more-audits folder.
+
 ## By kind of fault
 
 | Kind | Inserted | Found, grader copy | Found, open judges strict |
