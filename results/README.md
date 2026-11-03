@@ -26,3 +26,15 @@ The settings, prompts and models behind our scan are not published. What is publ
 | 2026-11-02-injected-bugs-test | Twelve faults inserted into three projects on the day, with clean controls, a script to rebuild the test and a script to re-judge with your own model, 2 November 2026 |
 
 Most folders from 24 October to 1 November list their README file in their own hash list, so those README files are not edited after publication. This index covers them. Folders from 2 November on carry their own Cite as line.
+
+## Voided open-judge answers in the older folders
+
+In the open-judge runs a judge names the known finding it matches by its id. Our reading rule voids an answer whose id is not in the list or that cannot be read, and counts it as no match. Until 3 November 2026 the folders did not say how many answers were voided. Tom Smart found this in 2026-11-02-shop-setup-five-audits, and when we then went through every folder we found voided answers in the five older folders below. A voided answer can turn at most one hypothesis from not strict into strict, so a strict figure in such a folder could be higher by at most that many hypotheses. We publish these folders as they were and have not recounted them with the voided answers counted. Folders from 2 November on print the number in their own check.mjs and README.
+
+| Folder | Voided answers | Unknown id | Unreadable |
+|---|---|---|---|
+| 2026-10-24-dev-set | 5 voided answers | 4 | 1 |
+| 2026-10-24-dev-set-2 | 41 voided answers | 3 | 38 |
+| 2026-10-25-v31 | 1 voided answer | 0 | 1 |
+| 2026-10-26-evmbench | 3 voided answers | 3 | 0 |
+| 2026-10-31-lab-sealed | 6 voided answers | 0 | 6 |
