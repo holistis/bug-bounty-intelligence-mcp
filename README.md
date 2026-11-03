@@ -2,6 +2,30 @@
 
 AI-powered smart contract security analysis for AI agents and developers.
 
+## Verify us in two minutes
+
+You need Node 22 or newer (what our recount workflow uses) and nothing else.
+
+```
+git clone https://github.com/holistis/bug-bounty-intelligence-mcp
+cd bug-bounty-intelligence-mcp
+node results/2026-11-02-shop-setup-five-audits/check.mjs
+node tools/checker-selftest.mjs
+```
+
+The first command recounts one result folder from its verdict files and checks its hashes. It runs offline.
+
+The second command tests the checkers. It copies every result folder to a temp directory, plants a made-up finding id and a flipped verdict, and runs the check.mjs of that folder. CAUGHT is good. BLIND means the checker accepted the planted fault. Today one folder is BLIND: results/2026-10-26-evmbench. To see where we started, test the state before our fixes:
+
+```
+git worktree add ../selftest-before 0fafa23
+node tools/checker-selftest.mjs ../selftest-before/results
+```
+
+Three of the five checkers a made-up id can reach were BLIND then.
+
+First issues, each sized for an evening: [good first issues](https://github.com/holistis/bug-bounty-intelligence-mcp/labels/good%20first%20issue). How a change is reviewed and how credit works: [CONTRIBUTING.md](CONTRIBUTING.md). The scan engine itself is not in this repository.
+
 Every public statement of ours that turned out wrong is listed, with the date and the fix, in [ERRATA.md](ERRATA.md). The counting rule behind our results is [MEASUREMENT-RULE-two-judge-strict.md](MEASUREMENT-RULE-two-judge-strict.md).
 
 ## Update, 2 November 2026: the scan you can buy, counted

@@ -7,7 +7,7 @@ This repository holds our evidence: result folders, the scripts that recount the
 The open checks are listed at the end of results/README.md. Pick one, say so in issue 41 (or open an issue of your own), and do it. Other useful things:
 
 - Recount a folder on your own machine and tell us what you got.
-- Plant a fault in a copy of a folder and see whether its check.mjs notices. A checker that accepts a planted fault is a bug.
+- Plant a fault in a copy of a folder and see whether its check.mjs notices. A checker that accepts a planted fault is a bug. node tools/checker-selftest.mjs does this for every folder.
 - Tell us a number that is wrong.
 
 ## How a change is reviewed
