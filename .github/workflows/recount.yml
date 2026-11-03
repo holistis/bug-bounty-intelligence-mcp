@@ -35,3 +35,12 @@ jobs:
             fi
           done
           exit $status
+      - name: Every folder with open-judge answers must print how many were voided
+        run: |
+          status=0
+          for d in results/*/; do
+            if [ -d "$d/hypothesis-verdicts" ]; then
+              (cd "$d" && node check.mjs) | grep -Eq "open-judge answers? with an unknown id" || { echo "MISSING voided count: $d"; status=1; }
+            fi
+          done
+          exit $status
