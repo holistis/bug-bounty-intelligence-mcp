@@ -43,6 +43,5 @@ In the open-judge runs a judge names the known finding it matches by its id. Our
 
 These checks are not done yet. If you do one, say so in issue 41. Your name goes into the README of the folder you checked, and your commits keep your authorship.
 
-1. 2026-10-26-evmbench does not hold the ids of the 117 known findings, so its check.mjs cannot reject an id that does not exist. We found this by planting a made-up id in a copy of every folder, a test that Darja Rihla showed us in PR 74. The ids are in the benchmark source (openai/frontier-evals, commit b78dab1, each audit lists its findings). The counts per audit match (117 of 117). The titles and texts have not been compared, and we cloned that commit on 30 October, four days after the run.
-2. The five older folders with voided answers (table above): recount their figures with the voided answers counted, and report the range.
-3. A sample of the judges' verdicts read by a person: do they name the right finding? So far only the counting has been checked, not the judging.
+1. The five older folders with voided answers (table above): recount their figures with the voided answers counted, and report the range.
+2. The judges' verdicts read by a person: do they name the right finding? The 17 strict matches of 2026-11-02-shop-setup-five-audits have been read by hand (15 the same bug, 2 arguable, see its README). The 25 matches that rest on one judge, and every other folder, have not.
