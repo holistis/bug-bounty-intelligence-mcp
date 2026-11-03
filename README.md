@@ -24,7 +24,7 @@ node tools/checker-selftest.mjs ../selftest-before/results
 
 Three of the five checkers a made-up id can reach were BLIND then.
 
-First issues, each sized for an evening: [good first issues](https://github.com/holistis/bug-bounty-intelligence-mcp/labels/good%20first%20issue). How a change is reviewed and how credit works: [CONTRIBUTING.md](CONTRIBUTING.md). The scan engine itself is not in this repository.
+First issues, each scoped to one folder or one audit: [good first issues](https://github.com/holistis/bug-bounty-intelligence-mcp/labels/good%20first%20issue). How a change is reviewed and how credit works: [CONTRIBUTING.md](CONTRIBUTING.md). The scan engine itself is not in this repository.
 
 Every public statement of ours that turned out wrong is listed, with the date and the fix, in [ERRATA.md](ERRATA.md). The counting rule behind our results is [MEASUREMENT-RULE-two-judge-strict.md](MEASUREMENT-RULE-two-judge-strict.md).
 
