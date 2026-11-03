@@ -10,6 +10,10 @@ The open checks are listed at the end of results/README.md. Pick one, say so in 
 - Plant a fault in a copy of a folder and see whether its check.mjs notices. A checker that accepts a planted fault is a bug. node tools/checker-selftest.mjs does this for every folder.
 - Tell us a number that is wrong.
 
+## Taking an issue
+
+To take an issue, comment on it. The first comment claims it, and a claim lapses after 7 days without news. A maintainer may reassign a lapsed claim.
+
 ## How a change is reviewed
 
 - Only the maintainer has write access. Workflows on pull requests from outside run read-only and without secrets.
