@@ -8,6 +8,7 @@ const HERE = path.dirname(fileURLToPath(import.meta.url))
 const END = '__openai_gpt-5-high.json'
 const table = JSON.parse(fs.readFileSync(path.join(HERE, 'table.json'), 'utf8'))
 let bad = 0
+let voided = 0
 const fail = (m) => { bad++; console.log('MISMATCH', m) }
 const okId = (id) => id && /^[HM]-?\d+$/.test(id)
 const strictOf = (x) => okId(x.a?.match) && x.a.match === x.b?.match
@@ -31,6 +32,7 @@ let pH = 0, pStrict = 0, pOne = 0
 const sl = { topFive: { hypotheses: 0, strict: 0, oneJudge: 0 }, highConfidence: { hypotheses: 0, strict: 0, oneJudge: 0 } }
 for (const r of table.precision.rows) {
   const v = read('hypothesis-verdicts', r.run + '__' + r.audit + '.json').verdicts
+  for (const x of v) for (const j of [x.a, x.b]) if (j?.ongeldig) voided++
   const h = read('hypotheses', r.run + '__' + r.audit + '.json').hypotheses
   if (v.length !== h.length || h.length !== r.hypotheses) fail(r.run + ' ' + r.audit + ' hypotheses')
   const strict = v.filter(strictOf), one = v.filter(oneOf)
@@ -84,6 +86,6 @@ for (const line of fs.readFileSync(path.join(HERE, 'SHA256SUMS'), 'utf8').split(
   if (crypto.createHash('sha256').update(fs.readFileSync(path.join(HERE, file))).digest('hex') !== hash) fail('hash ' + file)
 }
 console.log(bad === 0
-  ? 'all counts and hashes match (grader copy ' + G.found + ' of ' + G.known + ' on the four small audits; open judges, strict, ' + O.found + ' of ' + O.known + ' on all six; precision ' + pStrict + ' of ' + pH + ' strict; first five ' + sl.topFive.strict + ' of ' + sl.topFive.hypotheses + '; confidence above 0.5 ' + sl.highConfidence.strict + ' of ' + sl.highConfidence.hypotheses + '; ' + files + ' verdict files, ' + unreadable + ' unreadable)'
+  ? 'all counts and hashes match (grader copy ' + G.found + ' of ' + G.known + ' on the four small audits; open judges, strict, ' + O.found + ' of ' + O.known + ' on all six; precision ' + pStrict + ' of ' + pH + ' strict; first five ' + sl.topFive.strict + ' of ' + sl.topFive.hypotheses + '; confidence above 0.5 ' + sl.highConfidence.strict + ' of ' + sl.highConfidence.hypotheses + '; ' + files + ' verdict files, ' + unreadable + ' unreadable; ' + voided + ' open-judge answers with an unknown id counted as no match)'
   : bad + ' mismatches')
 process.exitCode = bad === 0 ? 0 : 1
