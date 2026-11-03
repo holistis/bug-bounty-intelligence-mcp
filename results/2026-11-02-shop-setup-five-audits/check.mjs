@@ -51,11 +51,13 @@ for (const r of table.precision.rows) {
 if (pH !== table.precision.totals.hypotheses) fail('total hypotheses ' + pH + ' vs ' + table.precision.totals.hypotheses)
 if (pStrict !== table.precision.totals.strictMatchingHypotheses) fail('total strict ' + pStrict)
 if (pOne !== table.precision.totals.oneJudgeMatchingHypotheses) fail('total one-judge ' + pOne)
+let voided = 0
+for (const r of table.precision.rows) for (const x of JSON.parse(fs.readFileSync(path.join(HERE, 'hypothesis-verdicts', r.run + '__' + r.audit + '.json'), 'utf8')).verdicts) for (const j of [x.a, x.b]) if (j?.ongeldig) voided++
 for (const line of fs.readFileSync(path.join(HERE, 'SHA256SUMS'), 'utf8').split('\n').filter(Boolean)) {
   const [hash, ...rest] = line.split(/\s+/)
   const file = rest.join(' ').replace(/^\*/, '')
   const h = crypto.createHash('sha256').update(fs.readFileSync(path.join(HERE, file))).digest('hex')
   if (h !== hash) fail('hash ' + file)
 }
-console.log(bad === 0 ? 'all counts and hashes match (' + found + ' of ' + known + ', ' + files + ' verdict files, ' + unreadable + ' unreadable; precision ' + pStrict + ' of ' + pH + ' hypotheses strict, ' + pOne + ' with one judge)' : bad + ' mismatches')
+console.log(bad === 0 ? 'all counts and hashes match (' + found + ' of ' + known + ', ' + files + ' verdict files, ' + unreadable + ' unreadable; precision ' + pStrict + ' of ' + pH + ' hypotheses strict, ' + pOne + ' with one judge; ' + voided + ' open-judge answers with an unknown id counted as no match)' : bad + ' mismatches')
 process.exitCode = bad === 0 ? 0 : 1
