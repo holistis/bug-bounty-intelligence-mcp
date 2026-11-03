@@ -17,6 +17,7 @@ What the texts said: that check.mjs recounts every number and the hashes.
 What was wrong: it did so for the numbers, but it did not reject a verdict that names a finding id that does not exist, so a planted made-up id passed.
 How found: Darja Rihla (darjarihla-prog) showed it with a made-up id in pull request 74. We then planted a made-up id and a flipped verdict in a copy of every folder. Of the five checkers where an id can be planted, three accepted it.
 What we did: pull requests 74 and 77 make the checkers of the five-audits and six-more-audits folders reject unknown ids in every precision row. The EVMbench folder still accepts one, because it does not hold the ids of the 117 known findings. That is open check 1 in results/README.md.
+Update, 3 November 2026, evening: pull request 89 by Darja Rihla (darjarihla-prog) added the ids of the 117 known findings to results/2026-10-26-evmbench and made its check.mjs reject an unknown id. We read the change, compared its list of ids with the benchmark source at commit b78dab1 (40 audits, 117 ids, the same list) and ran the self-test on the merged result: no checker is blind. That comparison is our own check, not an independent one.
 
 ## 2 November 2026, the scan sold in our shop was described with an older measurement
 

@@ -15,7 +15,7 @@ node tools/checker-selftest.mjs
 
 The first command recounts one result folder from its verdict files and checks its hashes. It runs offline.
 
-The second command tests the checkers. It copies every result folder to a temp directory, plants a made-up finding id and a flipped verdict, and runs the check.mjs of that folder. CAUGHT is good. BLIND means the checker accepted the planted fault. Today one folder is BLIND: results/2026-10-26-evmbench. To see where we started, test the state before our fixes:
+The second command tests the checkers. It copies every result folder to a temp directory, plants a made-up finding id and a flipped verdict, and runs the check.mjs of that folder. CAUGHT is good. BLIND means the checker accepted the planted fault. Today no folder is BLIND. The last one, results/2026-10-26-evmbench, was fixed on 3 November 2026 in pull request 89. To see where we started, test the state before our fixes:
 
 ```
 git worktree add ../selftest-before 0fafa23
