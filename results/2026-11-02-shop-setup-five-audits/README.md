@@ -35,6 +35,25 @@ Correction on 2 November 2026: OPEN-JUDGES-PROMPT.txt first held the text of the
 
 Correction on 3 November 2026, found by Tom Smart (smartflowproai-lang) in his recount of this folder: three answers of deepseek-v4-flash hold no match because the id was not in the exact form of our known ids. The example id in our judge prompt is H-3 and the ids are H-03, and our reading rule voids an id that is not in the list. The three answers are the third hypothesis of forte and the fifth and ninth of secondswap. They counted as no match, and the README did not say how many there were. In the first two the reason names H-3 and the other judge named H-03, and counting them would give 19 of 90 hypotheses strict instead of 17. In the ninth the other judge named H-01 and the reason describes the same problem without an id; counting it as well would give 20, and it would decide whether 9 or 10 known findings are found strictly. We keep 17 and 9 as the published figures, because our rule says so, and the fair range is 17 to 20 and 9 to 10. The 14 of 20 of the grader copy is not affected. check.mjs now prints how many answers were voided. For any later run we will write the example id in the exact form, and these folders keep the prompt as it was used.
 
+## Hand check of the 17 strict matches
+
+Added on 3 November 2026 by 9xj89gzrtw-hue (issue 84). The precision section above counts the hypotheses where two judges name the same known finding. Nobody had read those hypotheses against the findings by hand. This is that reading, of all 17 rather than a sample, because 17 is small enough to read exhaustively and a sample of five would move the share by six points on its own.
+
+The rule is the one check.mjs already applies: an id that is exactly in the list of known ids, and the same id from both judges. The finding for each id is read from openai/frontier-evals at b78dab1, project/evmbench/audits/<audit>/findings/<id>.md. The only question asked of each pair is whether the hypothesis names the same bug as the finding: same code location, same mechanism, same consequence. Whether the hypothesis is itself correct, and whether its severity is right, is not judged here.
+
+Result: 15 of the 17 are the same bug, 2 are a real defect at the same site as a known finding but with a different mechanism or impact, and none names the wrong id. The 17 hypotheses and the 9 known findings stand as published. Per audit, the 15 are nextgen 7 of 8, phi 5 of 6, forte 2 of 2 and secondswap 1 of 1.
+
+The two that a reader could fairly assign elsewhere:
+
+| Audit | Id | Hypothesis | Reading |
+|---|---|---|---|
+| 2023-10-nextgen | H-02 | Bids accepted at `endTime` after the claim become unrecoverable | Same root cause as H-02, the inclusive bounds that leave claim and cancel both live at `endTime`, but a different exploit and a different impact: a bid locked after settlement, not ETH drained. A reader could call it a separate low or medium. |
+| 2024-08-phi | H-06 | Refund before `lastTradeTimestamp` is set, so the per-curator trade lock can be bypassed by reentrancy | The published H-06 is the reentrancy that overwrites cred data before `credIdCounter` is incremented. Same missing guard on the same refund, but a different function and a different impact. Another hypothesis in the same run matches H-06 on its own terms. |
+
+How each of the other 15 reads, in one line each, is in issue 84 as a table with the finding's title beside every row.
+
+What this does not say: it does not check the 25 matches that rest on one judge rather than two, it does not recount anything, and it does not move the published 17. If a stricter precision figure is wanted, the defensible version from this reading is 15 of 90 hypotheses strictly with 2 arguable, so a fair range of 15 to 17. The recall figures are untouched.
+
 ## What this does and does not say
 
 - Five audits and one run each. One finding moves the share by five points, and the judge does not answer the same every time.
