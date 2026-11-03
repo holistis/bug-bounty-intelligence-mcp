@@ -58,3 +58,23 @@ Scan: 2.79 dollars for the 40 audits (0.01 to 0.21 dollar each). Judges: 0.31 do
 - `judge/`: the verdict of both judges for every hypothesis.
 - `totals.json`: the sums above.
 - `check.mjs`: recomputes every number in this file from `judge/`. Run `node check.mjs`.
+
+## Independent finding-ID validation
+
+On 3 November 2026, darjarihla-prog (Darja Rihla,
+OSSR-004) independently compared the 40 audit finding
+counts and the stored non-null judge match IDs against
+the official `openai/frontier-evals` EVMbench configurations
+at commit `b78dab1da774a6456b1ed9c48c9ff194ee3ff36d`.
+
+The 117 published finding counts matched, and no stored
+non-null judge ID was outside its audit's canonical ID list.
+
+The local `known-finding-ids.json` registry now lets
+`check.mjs` reject invented IDs without network access.
+The checker selftest changed from BLIND to CAUGHT.
+
+This verifies ID membership, not whether each judge's
+semantic match is correct. The three previously invalidated
+judge answers retain their published no-match status.
+The benchmark scores have not been changed.
