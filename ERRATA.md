@@ -2,6 +2,37 @@
 
 Every public statement of ours that turned out to be wrong or too strong, with the date, where it was said, what was wrong, how it was found, and what we did. Newest first. We keep the wrong wording quoted here instead of deleting it. If you find something that belongs on this list, open an issue on this repository and we add it with your name.
 
+## 3 November 2026, open-judge answers voided without saying how many
+
+Where: results/2026-11-02-shop-setup-five-audits/README.md and results/2026-11-02-injected-bugs-test/README.md, until 3 November 2026.
+What the texts said: the figures of the two open judges (17 of 90 strict, 7 of 12 faults) without saying that some answers had been voided because the judge wrote an id that is not exactly in our list, for example H-3 for H-03.
+What was wrong: three answers in the five-audits folder and one in the injected-bugs folder counted as no match and were not reported. Counted, the five-audits figure would be 17 to 20 of 90 and the injected-bugs figure 7 to 8 of 12. Five older folders hold voided answers too, 56 in total, and their figures have not been recounted.
+How found: Tom Smart (smartflowproai-lang) in his recount of the five-audits folder, issue 41. We then checked every folder and found the fourth answer.
+What we did: both READMEs state the correction and the range, every check.mjs of a folder with open-judge files prints the number of voided answers, the Recount workflow fails without it, and results/README.md lists the older folders with their counts. The published figures stay and the range stands next to them.
+
+## 3 November 2026, checkers that accepted a made-up finding id
+
+Where: check.mjs of results/2026-11-02-shop-setup-five-audits, results/2026-11-02-shop-setup-six-more-audits and results/2026-10-26-evmbench.
+What the texts said: that check.mjs recounts every number and the hashes.
+What was wrong: it did so for the numbers, but it did not reject a verdict that names a finding id that does not exist, so a planted made-up id passed.
+How found: Darja Rihla (darjarihla-prog) showed it with a made-up id in pull request 74. We then planted a made-up id and a flipped verdict in a copy of every folder. Of the five checkers where an id can be planted, three accepted it.
+What we did: pull requests 74 and 77 make the checkers of the five-audits and six-more-audits folders reject unknown ids in every precision row. The EVMbench folder still accepts one, because it does not hold the ids of the 117 known findings. That is open check 1 in results/README.md.
+
+## 2 November 2026, the scan sold in our shop was described with an older measurement
+
+Where: results/2026-11-02-our-scan-under-the-benchmark-judge/README.md, its row on the scoreboard of tokenizen.nl, and our comment in issue 41 of 2 November 2026.
+What the texts said: that the scan sold in our shop found 8 of 20 known findings on five audits.
+What was wrong: that measurement was of an earlier, simpler single-run version. The setup the shop runs reads a repository in parts and makes a second round, and it had not been measured yet.
+How found: our own check of what the shop runs, the same day.
+What we did: the README and the scoreboard row say so and keep the first text. The setup the shop runs was measured on 2 November: 14 of 20 on the same five audits (results/2026-11-02-shop-setup-five-audits).
+
+## 2 November 2026, a prompt file that held the wrong prompt
+
+Where: results/2026-11-02-shop-setup-five-audits/OPEN-JUDGES-PROMPT.txt.
+What was wrong: the file first held the text of the grader copy's prompt instead of the prompt the two open judges received.
+How found: our own check of the folder before the outside recounts.
+What we did: the file now holds the prompt the open judges actually got, and the README says so. Their answers were not affected, because the files with their answers were always the real ones.
+
 ## 1 November 2026, we said the benchmark's own grader was out of reach
 
 Where: results/2026-10-26-evmbench/README.md ("The one judge row is the closest we can offer to their way of counting"), the note "The ruler and the misses" on tokenizen.nl, 26 October 2026 ("the closest we can get to how the benchmark counts"), and the first version of results/2026-11-01-same-reports-different-judges/README.md ("We did not run the canonical grader's model").
