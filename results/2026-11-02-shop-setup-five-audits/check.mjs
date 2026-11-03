@@ -52,7 +52,7 @@ if (pH !== table.precision.totals.hypotheses) fail('total hypotheses ' + pH + ' 
 if (pStrict !== table.precision.totals.strictMatchingHypotheses) fail('total strict ' + pStrict)
 if (pOne !== table.precision.totals.oneJudgeMatchingHypotheses) fail('total one-judge ' + pOne)
 // every id an open judge names must be one of the known findings of that audit (the ids are the file names in verdicts/);
-// idea of the check: Darja Rihla, PR 74
+// idea of the check: PR 74
 const knownIds = {}
 for (const f of fs.readdirSync(path.join(HERE, 'verdicts'))) { const [run, audit, finding] = f.split('__'); (knownIds[run + '__' + audit] ??= new Set()).add(finding) }
 for (const r of table.precision.rows) for (const x of JSON.parse(fs.readFileSync(path.join(HERE, 'hypothesis-verdicts', r.run + '__' + r.audit + '.json'), 'utf8')).verdicts) for (const j of [x.a, x.b]) if (j?.match != null && !knownIds[r.run + '__' + r.audit]?.has(j.match)) fail(r.run + ' ' + r.audit + ' unknown finding ID ' + j.match)
