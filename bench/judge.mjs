@@ -104,11 +104,13 @@ export function beslisVoor(a, b, c) {
 
 /**
  * Zuivere telling. `oordelen[i]` hoort bij hypothese i en heeft `a` en `b` (de twee beoordelaars), en optioneel `c`
- * (de derde rechter, alleen gevraagd bij onenigheid). Geeft per wedstrijd: gevonden bevindingen (streng en ruim),
- * precisie, overeenstemming, herstel per niveau, en hoe vaak de derde rechter de beslissing heeft gemaakt.
+ * (de derde rechter, alleen gevraagd bij onenigheid). `streng`/`strengeHyp`/`precisieStreng`/`recallStreng` komen
+ * ALLEEN van a en b: dat is de bevroren Two-Judge Strict Rule (MEASUREMENT-RULE-two-judge-strict.md, punt 4) en mag
+ * niet stilzwijgend ruimer worden zodra er een derde rechter bij komt. Wat de derde rechter bij onenigheid oplost
+ * staat apart in `gevondenStrengMetDerde`/`derdeBeslist`: een diagnostisch getal, nooit het koptal.
  */
 export function scoor(hypotheses, bekende, oordelen) {
-  const streng = new Set(), ruim = new Set()
+  const streng = new Set(), ruim = new Set(), strengMetDerde = new Set()
   let strengeHyp = 0, ruimeHyp = 0, eens = 0, ongeldig = 0, derdeBeslist = 0
   hypotheses.forEach((_, i) => {
     const { a, b, c } = oordelen[i]
@@ -116,10 +118,13 @@ export function scoor(hypotheses, bekende, oordelen) {
     if (b.ongeldig) ongeldig++
     // Twee weggegooide antwoorden zijn geen overeenstemming: alleen twee bruikbare antwoorden die gelijk zijn tellen (4 nov 2026, de 100 procent van layeredge in dev-set-2).
     const directEens = !a.ongeldig && !b.ongeldig && a.match === b.match
-    let besl
-    if (directEens) { eens++; besl = a.match }
-    else { const d = beslisVoor(a, b, c); if (d !== undefined) { besl = d; derdeBeslist++ } }
-    if (besl) { streng.add(besl); strengeHyp++ }
+    if (directEens) {
+      eens++
+      if (a.match) { streng.add(a.match); strengeHyp++; strengMetDerde.add(a.match) }
+    } else {
+      const d = beslisVoor(a, b, c)
+      if (d !== undefined) { derdeBeslist++; if (d) strengMetDerde.add(d) }
+    }
     if (a.match || b.match) { if (a.match) ruim.add(a.match); if (b.match) ruim.add(b.match); ruimeHyp++ }
   })
   const perNiveau = {}
@@ -129,7 +134,7 @@ export function scoor(hypotheses, bekende, oordelen) {
   }
   return {
     hypotheses: hypotheses.length, bekend: bekende.length,
-    gevondenStreng: [...streng].sort(), gevondenRuim: [...ruim].sort(),
+    gevondenStreng: [...streng].sort(), gevondenRuim: [...ruim].sort(), gevondenStrengMetDerde: [...strengMetDerde].sort(),
     recallStreng: bekende.length ? streng.size / bekende.length : 0, recallRuim: bekende.length ? ruim.size / bekende.length : 0,
     precisieStreng: hypotheses.length ? strengeHyp / hypotheses.length : 0, precisieRuim: hypotheses.length ? ruimeHyp / hypotheses.length : 0,
     overeenstemming: hypotheses.length ? eens / hypotheses.length : 1, derdeBeslist, ongeldigeAntwoorden: ongeldig, perNiveau,
