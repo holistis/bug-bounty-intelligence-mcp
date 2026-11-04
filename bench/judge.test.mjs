@@ -102,16 +102,18 @@ test('beslisVoor: de derde rechter beslist alleen als hij hetzelfde zegt als een
   assert.equal(beslisVoor({ match: 'H-1' }, { match: 'M-2' }, undefined), undefined)
 })
 
-test('scoor: bij onenigheid telt de derde rechter mee, maar redt geen twee weggegooide antwoorden', () => {
+test('scoor: de derde rechter verruimt NOOIT gevondenStreng (bevroren Two-Judge Strict Rule), alleen gevondenStrengMetDerde', () => {
   const hyps = [{}, {}, {}, {}]
   const o = [
-    { a: { match: 'H-1' }, b: { match: null }, c: { match: 'H-1' } }, // derde bevestigt a
-    { a: { match: 'H-1' }, b: { match: 'M-3' }, c: { match: 'M-3' } }, // derde bevestigt b
+    { a: { match: 'H-1' }, b: { match: null }, c: { match: 'H-1' } }, // derde bevestigt a: alleen met-derde
+    { a: { match: 'H-1' }, b: { match: 'M-3' }, c: { match: 'M-3' } }, // derde bevestigt b: alleen met-derde
     { a: { match: 'H-1' }, b: { match: 'M-3' }, c: { match: null } }, // derde eens met geen van beide: blijft oneens
     { a: { match: null, ongeldig: 'geen-json' }, b: { match: null, ongeldig: 'geen-json' }, c: { match: 'H-1' } }, // beide weggegooid: niet gered
   ]
   const s = scoor(hyps, bekend, o)
-  assert.deepEqual(s.gevondenStreng, ['H-1', 'M-3'])
+  assert.deepEqual(s.gevondenStreng, [], 'twee rechters alleen: geen van de vier was het direct eens')
+  assert.deepEqual(s.gevondenStrengMetDerde, ['H-1', 'M-3'])
+  assert.equal(s.precisieStreng, 0, 'de derde rechter mag de bevroren Two-Judge Strict Rule niet verruimen')
   assert.equal(s.derdeBeslist, 2)
   assert.equal(s.overeenstemming, 0)
   assert.equal(s.ongeldigeAntwoorden, 2)
