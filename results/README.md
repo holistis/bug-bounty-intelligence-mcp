@@ -57,11 +57,21 @@ Which folder holds which runs (taken from the README of each folder, so the lett
 | 2026-10-26-evmbench | evmbench |
 | 2026-10-31-lab-sealed | lab |
 
+A command of ours now gives its own range for three of the five, computed from the raw judge files already in this repository (`res-*.json`), no new judge calls: `node bench/hertel-oudere-mappen.mjs` in holistis/bug-bounty-intelligence-mcp. Its lower bound is the published rule unchanged (a voided answer counts as no match); its upper bound gives the benefit of the doubt only when exactly one of the two judges was voided and the other named a real known finding (two voided answers are not rescued, for the same reason two voided answers are not agreement). This is our own method, not a reproduction of Tom Smart's, and the two sets of numbers are not expected to match:
+
+| Folder | Hypotheses | Voided | Strict, lower bound | Strict, upper bound |
+|---|---|---|---|---|
+| 2026-10-24-dev-set | 163 | 5 | 12 | 16 |
+| 2026-10-24-dev-set-2 | 150 | 41 | 12 | 15 |
+| 2026-10-25-v31 | 120 | 1 | 9 | 9 |
+
+2026-10-26-evmbench and 2026-10-31-lab-sealed keep only totals per audit in their raw files, not a judge verdict per hypothesis, so this command cannot recount them; open check 1 for those two stays open.
+
 One sentence of ours depends on this. The README of 2026-10-24-dev-set-2 says the judges agreed on 97 percent (G) and 98 percent (H) of the hypotheses. Our own judge log of run H lists the contest layeredge with 15 hypotheses, strict 0, loose 0 and agreement 100 percent. Fifteen hypotheses with two judges each is 30 answers, which is the number Tom Smart reports as voided. If that holds, the 100 percent there is two voided answers agreeing with each other, and the 98 percent is too high. The README of that folder is sealed by its hash list, so the correction is here and in ERRATA.md.
 
 ## Open checks
 
 These checks are not done yet. If you do one, say so in issue 41. Your name goes into the README of the folder you checked, and your commits keep your authorship.
 
-1. The five older folders with voided answers (table above): recount their figures with the voided answers counted, and report the range.
+1. The five older folders with voided answers (table above): three now have our own mechanical range (`node bench/hertel-oudere-mappen.mjs`, table above), which does not reproduce Tom Smart's numbers by his method. Open for all five: a command that reproduces Tom Smart's own numbers. Open for evmbench and lab-sealed: any range at all, since their raw files keep only totals per audit.
 2. The judges' verdicts read by a person: do they name the right finding? The 17 strict matches of 2026-11-02-shop-setup-five-audits have been read by hand (15 the same bug, 2 arguable, see its README). The 25 matches that rest on one judge, and every other folder, have not.

@@ -9,7 +9,7 @@
  *   OPENROUTER_API_KEY=... node kalibreer.mjs ontwikkelset.json uit.json [aantal per wedstrijd]
  */
 import { readFileSync, writeFileSync, appendFileSync } from 'node:fs'
-import { OORDEELDERS, bouwPrompt, leesOordeel, vraagBeoordelaar } from './judge.mjs'
+import { OORDEELDERS, bouwPrompt, vraagEnLees } from './judge.mjs'
 import { haalSleutel } from './sleutel.mjs'
 
 const [, , setBestand, uitBestand, nStr] = process.argv
@@ -34,18 +34,16 @@ for (let ci = 0; ci < set.length; ci++) {
   const pos = kies(c, n), neg = kies(ander, n)
   for (const o of RECHTERS) {
     for (const i of pos) {
-      const r = await vraagBeoordelaar({ model: o.model, sleutel, prompt: bouwPrompt(alsHypothese(i), c.issues) })
-      const l = leesOordeel(r.tekst, c.issues)
-      rij[o.naam].kosten += r.kosten; rij[o.naam].positief.n++
+      const l = await vraagEnLees({ model: o.model, sleutel, prompt: bouwPrompt(alsHypothese(i), c.issues), bekende: c.issues })
+      rij[o.naam].kosten += l.kosten; rij[o.naam].positief.n++
       if (l.ongeldig) rij[o.naam].ongeldig++
       if (l.match === i.id) rij[o.naam].positief.raak++
       else if (l.match) rij[o.naam].positief.fout++
       else rij[o.naam].positief.mis++
     }
     for (const i of neg) {
-      const r = await vraagBeoordelaar({ model: o.model, sleutel, prompt: bouwPrompt(alsHypothese(i), c.issues) })
-      const l = leesOordeel(r.tekst, c.issues)
-      rij[o.naam].kosten += r.kosten; rij[o.naam].negatief.n++
+      const l = await vraagEnLees({ model: o.model, sleutel, prompt: bouwPrompt(alsHypothese(i), c.issues), bekende: c.issues })
+      rij[o.naam].kosten += l.kosten; rij[o.naam].negatief.n++
       if (l.ongeldig) rij[o.naam].ongeldig++
       if (l.match) rij[o.naam].negatief.onzin++
     }
