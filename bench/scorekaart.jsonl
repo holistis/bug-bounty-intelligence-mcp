@@ -1,0 +1,6 @@
+{"datum":"2026-11-04","naam":"gpt-oss-120b","model":"openai/gpt-oss-120b","n_per_wedstrijd":4,"positief":{"n":23,"raak":23,"mis":0,"fout":0},"negatief":{"n":23,"onzin":0},"ongeldig":0,"kosten":0.006327945999999998}
+{"datum":"2026-11-04","naam":"deepseek-v4-flash","model":"deepseek/deepseek-v4-flash","n_per_wedstrijd":4,"positief":{"n":23,"raak":23,"mis":0,"fout":0},"negatief":{"n":23,"onzin":0},"ongeldig":0,"kosten":0.015594244899999997}
+{"datum":"2026-11-04","naam":"qwen3-235b","model":"qwen/qwen3-235b-a22b-2507","n_per_wedstrijd":4,"positief":{"n":23,"raak":23,"mis":0,"fout":0},"negatief":{"n":23,"onzin":0},"ongeldig":0,"kosten":0.01781023}
+{"datum":"2026-11-04","naam":"llama-3.3-70b","model":"meta-llama/llama-3.3-70b-instruct","n_per_wedstrijd":4,"positief":{"n":23,"raak":23,"mis":0,"fout":0},"negatief":{"n":23,"onzin":0},"ongeldig":0,"kosten":0.022775899999999998}
+{"datum":"2026-11-04","naam":"gemini-2.5-flash-lite","model":"google/gemini-2.5-flash-lite","n_per_wedstrijd":4,"positief":{"n":23,"raak":21,"mis":2,"fout":0},"negatief":{"n":23,"onzin":1},"ongeldig":2,"kosten":0.014456799999999999}
+{"datum":"2026-11-04","naam":"mistral-medium-3.1","model":"mistralai/mistral-medium-3.1","n_per_wedstrijd":4,"positief":{"n":23,"raak":23,"mis":0,"fout":0},"negatief":{"n":23,"onzin":0},"ongeldig":0,"kosten":0.06027600000000002}
