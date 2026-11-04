@@ -18,7 +18,8 @@ test('de prompt noemt de kandidaat en alle bekende bevindingen met hun id', () =
 })
 
 test('antwoorden worden robuust gelezen', () => {
-  assert.deepEqual(leesOordeel('{"match": "H-1", "reason": "same bug"}', bekend), { match: 'H-1', reden: 'same bug' })
+  // Het ruwe antwoord blijft sinds 4 nov 2026 bij elk oordeel bewaard (`ruw`), zodat ook een weggegooid antwoord later te lezen is.
+  assert.deepEqual(leesOordeel('{"match": "H-1", "reason": "same bug"}', bekend), { match: 'H-1', reden: 'same bug', ruw: '{"match": "H-1", "reason": "same bug"}' })
   assert.equal(leesOordeel('Sure! ```json\n{"match": null, "reason": "no"}\n```', bekend).match, null)
   assert.equal(leesOordeel('{"match": "null"}', bekend).match, null)
   assert.equal(leesOordeel('{"match": "H-99"}', bekend).ongeldig, 'onbekend-id')

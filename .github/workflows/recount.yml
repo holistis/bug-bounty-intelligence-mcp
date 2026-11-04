@@ -9,10 +9,12 @@ on:
     paths:
       - 'results/**'
       - 'tools/**'
+      - 'bench/**'
   pull_request:
     paths:
       - 'results/**'
       - 'tools/**'
+      - 'bench/**'
   schedule:
     - cron: '17 5 * * 1'
   workflow_dispatch:
@@ -47,5 +49,7 @@ jobs:
             fi
           done
           exit $status
+      - name: Tests of the judges and of the judge selection (a judge may not invent or lose an id, two voided answers are not agreement)
+        run: node --test bench/*.test.mjs
       - name: Plant a fault in a copy of every folder, no checker may accept it
         run: node tools/checker-selftest.mjs

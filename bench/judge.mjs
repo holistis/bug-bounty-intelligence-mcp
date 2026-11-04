@@ -28,17 +28,28 @@ description: ${String(h.description ?? '').replace(/\s+/g, ' ').slice(0, 900)}`
   return `${kop}\n\nKNOWN VALID FINDINGS\n${lijst}\n\nDoes the candidate match one of the known findings? Reply with JSON only, in this exact form:\n{"match": "<id of the known finding, for example H-3>" or null, "reason": "<one short sentence>"}`
 }
 
-/** Leest het antwoord. Een onbekend id of onleesbare tekst telt als "geen treffer", met een vlag. */
+/** Zet een id in een vergelijkbare vorm: hoofdletters, alleen letters en cijfers, geen voorloopnullen ("H-04", "h4" en "H 4" geven dezelfde sleutel). */
+export const idSleutel = (x) => String(x ?? '').toUpperCase().replace(/[^A-Z0-9]/g, '').replace(/^([A-Z]+)0+([0-9])/, '$1$2')
+
+/**
+ * Leest het antwoord. Het ruwe antwoord blijft ALTIJD bewaard in `ruw` (de eerste 1500 tekens), ook als het wordt weggegooid, zodat een buitenstaander later kan zien wat de
+ * beoordelaar schreef (4 nov 2026, na de nameting van Tom Smart van de 56 weggegooide antwoorden in de oudere mappen). Een id dat alleen anders is opgeschreven ("H-4" voor
+ * "H-04") wordt gekoppeld aan het ENE bekende id met dezelfde sleutel, met de vlag `genormaliseerd`. Een onbekend id of onleesbare tekst telt als "geen treffer", met een vlag.
+ */
 export function leesOordeel(tekst, bekende) {
   const t = String(tekst ?? '')
+  const ruw = t.slice(0, 1500)
   const m = t.match(/\{[\s\S]*?\}/)
-  if (!m) return { match: null, ongeldig: 'geen-json', reden: '' }
+  if (!m) return { match: null, ongeldig: 'geen-json', reden: '', ruw }
   let o
-  try { o = JSON.parse(m[0]) } catch { return { match: null, ongeldig: 'json-kapot', reden: '' } }
+  try { o = JSON.parse(m[0]) } catch { return { match: null, ongeldig: 'json-kapot', reden: '', ruw } }
+  const reden = String(o.reason ?? '').slice(0, 200)
   const id = o.match == null || o.match === 'null' ? null : String(o.match).trim()
-  if (id === null) return { match: null, reden: String(o.reason ?? '').slice(0, 200) }
-  if (!bekende.some(b => b.id === id)) return { match: null, ongeldig: 'onbekend-id', reden: String(o.reason ?? '').slice(0, 200) }
-  return { match: id, reden: String(o.reason ?? '').slice(0, 200) }
+  if (id === null) return { match: null, reden, ruw }
+  if (bekende.some(b => b.id === id)) return { match: id, reden, ruw }
+  const gelijk = bekende.filter(b => idSleutel(b.id) === idSleutel(id))
+  if (gelijk.length === 1) return { match: gelijk[0].id, genormaliseerd: true, reden, ruw }
+  return { match: null, ongeldig: 'onbekend-id', reden, ruw }
 }
 
 /** Een beoordelaar aanroepen via OpenRouter. `sleutel` komt uit de omgeving en wordt nooit getoond. */
@@ -73,7 +84,8 @@ export function scoor(hypotheses, bekende, oordelen) {
     const { a, b } = oordelen[i]
     if (a.ongeldig) ongeldig++
     if (b.ongeldig) ongeldig++
-    if (a.match === b.match) eens++
+    // Twee weggegooide antwoorden zijn geen overeenstemming: alleen twee bruikbare antwoorden die gelijk zijn tellen (4 nov 2026, de 100 procent van layeredge in dev-set-2).
+    if (!a.ongeldig && !b.ongeldig && a.match === b.match) eens++
     if (a.match && b.match && a.match === b.match) { streng.add(a.match); strengeHyp++ }
     if (a.match || b.match) { if (a.match) ruim.add(a.match); if (b.match) ruim.add(b.match); ruimeHyp++ }
   })
