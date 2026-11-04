@@ -4,6 +4,7 @@
 // The folder calibration-other-judges/ holds an earlier trial with two other judges and is not counted here.
 import fs from 'node:fs'
 import path from 'node:path'
+import crypto from 'node:crypto'
 import { fileURLToPath } from 'node:url'
 
 const HERE = path.dirname(fileURLToPath(import.meta.url))
@@ -99,4 +100,16 @@ if (argClone) {
   }
 }
 console.log(bad === 0 ? 'every count matches the verdict files' : `${bad} mismatches`)
+// The hash list must exist, list files and match them. An emptied list used to pass here (found 4 Nov 2026 with a planted empty list).
+{
+  const sums = path.join(HERE, 'SHA256SUMS')
+  const lines = fs.existsSync(sums) ? fs.readFileSync(sums, 'utf8').split('\n').filter(Boolean) : []
+  if (lines.length === 0) { bad++; console.log('MISMATCH SHA256SUMS is missing or empty') }
+  for (const line of lines) {
+    const [hash, ...rest] = line.split(/\s+/)
+    const file = rest.join(' ').replace(/^\*/, '')
+    const f = path.join(HERE, file)
+    if (!fs.existsSync(f) || crypto.createHash('sha256').update(Buffer.from(fs.readFileSync(f, 'utf8').replace(/\r\n/g, '\n'))).digest('hex') !== hash) { bad++; console.log('MISMATCH hash', file) }
+  }
+}
 process.exit(bad === 0 ? 0 : 1)

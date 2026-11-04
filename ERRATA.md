@@ -19,6 +19,8 @@ How found: Darja Rihla (darjarihla-prog) showed it with a made-up id in pull req
 What we did: pull requests 74 and 77 make the checkers of the five-audits and six-more-audits folders reject unknown ids in every precision row. The EVMbench folder still accepts one, because it does not hold the ids of the 117 known findings. That is open check 1 in results/README.md.
 Update, 3 November 2026, evening: pull request 89 by Darja Rihla (darjarihla-prog) added the ids of the 117 known findings to results/2026-10-26-evmbench and made its check.mjs reject an unknown id. We read the change, compared its list of ids with the benchmark source at commit b78dab1 (40 audits, 117 ids, the same list) and ran the self-test on the merged result: no checker is blind. That comparison is our own check, not an independent one.
 
+Update, 4 November 2026: the self-test now plants four more faults in a copy of every folder, with the hash list recomputed so that it cannot be what catches them: an emptied hash list, a cut-off file, a missing file and a row counted twice. Before this, all seven check.mjs scripts accepted an emptied hash list (three of them never read it) and the EVMbench checker accepted a verdict row that appeared twice. Both are fixed, and every checker now fails on all four faults wherever the folder has something to plant. The self-test runs in the Recount workflow.
+
 ## 2 November 2026, the scan sold in our shop was described with an older measurement
 
 Where: results/2026-11-02-our-scan-under-the-benchmark-judge/README.md, its row on the scoreboard of tokenizen.nl, and our comment in issue 41 of 2 November 2026.

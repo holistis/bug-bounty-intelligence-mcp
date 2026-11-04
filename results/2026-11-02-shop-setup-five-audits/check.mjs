@@ -58,6 +58,7 @@ for (const f of fs.readdirSync(path.join(HERE, 'verdicts'))) { const [run, audit
 for (const r of table.precision.rows) for (const x of JSON.parse(fs.readFileSync(path.join(HERE, 'hypothesis-verdicts', r.run + '__' + r.audit + '.json'), 'utf8')).verdicts) for (const j of [x.a, x.b]) if (j?.match != null && !knownIds[r.run + '__' + r.audit]?.has(j.match)) fail(r.run + ' ' + r.audit + ' unknown finding ID ' + j.match)
 let voided = 0
 for (const r of table.precision.rows) for (const x of JSON.parse(fs.readFileSync(path.join(HERE, 'hypothesis-verdicts', r.run + '__' + r.audit + '.json'), 'utf8')).verdicts) for (const j of [x.a, x.b]) if (j?.ongeldig) voided++
+if (fs.readFileSync(path.join(HERE, 'SHA256SUMS'), 'utf8').split('\n').filter(Boolean).length === 0) fail('SHA256SUMS is empty: an emptied hash list checks nothing')
 for (const line of fs.readFileSync(path.join(HERE, 'SHA256SUMS'), 'utf8').split('\n').filter(Boolean)) {
   const [hash, ...rest] = line.split(/\s+/)
   const file = rest.join(' ').replace(/^\*/, '')

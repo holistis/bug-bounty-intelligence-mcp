@@ -63,6 +63,7 @@ for (const r of table.rows.filter((x) => x.kind === 'mut')) {
 if (JSON.stringify(bc) !== JSON.stringify(table.byClass)) fail('by kind of bug')
 for (const k of Object.keys(T)) if (T[k] !== table.totals[k]) fail('total ' + k + ' ' + T[k] + ' vs ' + table.totals[k])
 for (const k of ['topFive', 'highConfidence']) for (const f of ['hypotheses', 'strict']) if (sl[k][f] !== table.slices[k][f]) fail(k + ' ' + f)
+if (fs.readFileSync(path.join(HERE, 'SHA256SUMS'), 'utf8').split('\n').filter(Boolean).length === 0) fail('SHA256SUMS is empty: an emptied hash list checks nothing')
 for (const line of fs.readFileSync(path.join(HERE, 'SHA256SUMS'), 'utf8').split('\n').filter(Boolean)) {
   const [hash, ...rest] = line.split(/\s+/)
   const file = rest.join(' ').replace(/^\*/, '')
