@@ -11,11 +11,14 @@ git clone https://github.com/holistis/bug-bounty-intelligence-mcp
 cd bug-bounty-intelligence-mcp
 node results/2026-11-02-shop-setup-five-audits/check.mjs
 node tools/checker-selftest.mjs
+node tools/ranges-check.mjs
 ```
 
 The first command recounts one result folder from its verdict files and checks its hashes. It runs offline.
 
 The second command tests the checkers. It copies every result folder to a temp directory, plants a made-up finding id and a flipped verdict, and runs the check.mjs of that folder. CAUGHT is good. BLIND means the checker accepted the planted fault. Today no folder is BLIND. The last one, results/2026-10-26-evmbench, was fixed on 3 November 2026 in pull request 89. To see where we started, test the state before our fixes:
+
+The third command checks that every folder results/README.md names with a voided-answer count above zero is also named under its "Ranges if the voided answers are counted" section. Tom Smart found that this was missing for five older folders on 4 November 2026 (issue 41); this is a published count never standing alone again without a range next to it.
 
 ```
 git worktree add ../selftest-before 0fafa23
