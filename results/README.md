@@ -47,6 +47,16 @@ Tom Smart recounted the five older folders on 4 November 2026 and posted the ran
 >
 > evmbench, the three: strict all 29 to 30, strict hypotheses 45 to 47.
 
+Which folder holds which runs (taken from the README of each folder, so the letters above can be found):
+
+| Folder | Runs named in the recount |
+|---|---|
+| 2026-10-24-dev-set | h1, h0, A |
+| 2026-10-24-dev-set-2 | G, H |
+| 2026-10-25-v31 | V31cap |
+| 2026-10-26-evmbench | evmbench |
+| 2026-10-31-lab-sealed | lab |
+
 One sentence of ours depends on this. The README of 2026-10-24-dev-set-2 says the judges agreed on 97 percent (G) and 98 percent (H) of the hypotheses. Our own judge log of run H lists the contest layeredge with 15 hypotheses, strict 0, loose 0 and agreement 100 percent. Fifteen hypotheses with two judges each is 30 answers, which is the number Tom Smart reports as voided. If that holds, the 100 percent there is two voided answers agreeing with each other, and the 98 percent is too high. The README of that folder is sealed by its hash list, so the correction is here and in ERRATA.md.
 
 ## Open checks
