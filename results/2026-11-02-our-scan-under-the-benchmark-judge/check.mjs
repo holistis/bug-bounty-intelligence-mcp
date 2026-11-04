@@ -53,6 +53,7 @@ if (process.argv.includes('--write')) {
   if (JSON.stringify(t.notes.shares) !== JSON.stringify(notes.shares)) fail('shares differ')
   if (JSON.stringify(t.notes.shopRouteShares) !== JSON.stringify(notes.shopRouteShares)) fail('shop route shares differ')
 }
+if (fs.readFileSync(path.join(HERE, 'SHA256SUMS'), 'utf8').split('\n').filter(Boolean).length === 0) fail('SHA256SUMS is empty: an emptied hash list checks nothing')
 for (const line of fs.readFileSync(path.join(HERE, 'SHA256SUMS'), 'utf8').split('\n').filter(Boolean)) {
   const [hash, file] = line.split(/\s+\*?/)
   const p = path.join(HERE, file)

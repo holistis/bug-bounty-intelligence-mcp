@@ -101,6 +101,7 @@ if (JSON.stringify(byRun) !== JSON.stringify(table.precision.byRun)) fail('preci
 const T = table.precision.totals
 if (pH !== T.hypotheses || pStrict !== T.strictMatchingHypotheses || pOne !== T.oneJudgeMatchingHypotheses) fail('precision totals ' + pStrict + ' of ' + pH)
 for (const k of ['topFive', 'highConfidence']) for (const f of ['hypotheses', 'strict', 'oneJudge']) if (sl[k][f] !== table.precision.slices[k][f]) fail(k + ' ' + f)
+if (fs.readFileSync(path.join(HERE, 'SHA256SUMS'), 'utf8').split('\n').filter(Boolean).length === 0) fail('SHA256SUMS is empty: an emptied hash list checks nothing')
 for (const line of fs.readFileSync(path.join(HERE, 'SHA256SUMS'), 'utf8').split('\n').filter(Boolean)) {
   const [hash, ...rest] = line.split(/\s+/)
   const file = rest.join(' ').replace(/^\*/, '')
