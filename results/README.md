@@ -39,6 +39,16 @@ In the open-judge runs a judge names the known finding it matches by its id. Our
 | 2026-10-26-evmbench | 3 voided answers | 3 | 0 |
 | 2026-10-31-lab-sealed | 6 voided answers | 0 | 6 |
 
+### Ranges if the voided answers are counted
+
+Tom Smart recounted the five older folders on 4 November 2026 and posted the ranges in [issue 41](https://github.com/holistis/bug-bounty-intelligence-mcp/issues/41#issuecomment-6625747399). They are his recount. A command of ours has not reproduced them yet, so open check 1 below stays open. His words, with the figures unchanged:
+
+> Strict known: h1 1 to 2, H 4 to 10 of 85; A, G, V31cap, lab unchanged. Strict hypotheses: h1 1 to 2 of 39, A 11 to 14 of 88, G 6 to 8 of 90, H 6 to 24 of 60 (layeredge: 30/30 answers voided). One judge: h1 3 to 5, A 7 to 10, V31cap 9 to 10, lab-2 29 to 35. H agreement 59/60 could be 39.
+>
+> evmbench, the three: strict all 29 to 30, strict hypotheses 45 to 47.
+
+One sentence of ours depends on this. The README of 2026-10-24-dev-set-2 says the judges agreed on 97 percent (G) and 98 percent (H) of the hypotheses. Our own judge log of run H lists the contest layeredge with 15 hypotheses, strict 0, loose 0 and agreement 100 percent. Fifteen hypotheses with two judges each is 30 answers, which is the number Tom Smart reports as voided. If that holds, the 100 percent there is two voided answers agreeing with each other, and the 98 percent is too high. The README of that folder is sealed by its hash list, so the correction is here and in ERRATA.md.
+
 ## Open checks
 
 These checks are not done yet. If you do one, say so in issue 41. Your name goes into the README of the folder you checked, and your commits keep your authorship.
