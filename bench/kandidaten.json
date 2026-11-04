@@ -1,0 +1,11 @@
+{
+  "uitleg": "Modellen die kalibreer.mjs kan meten voor de scorekaart (bench/scorekaart.jsonl). Alleen modellen die op OpenRouter bestaan, gecontroleerd op 4 november 2026. Een model komt pas in een volgende vooraf geregistreerde run als het hier beter scoort dan de huidige beoordelaars; OORDEELDERS in judge.mjs verandert nooit stilzwijgend.",
+  "kandidaten": [
+    { "naam": "gpt-oss-120b", "model": "openai/gpt-oss-120b" },
+    { "naam": "deepseek-v4-flash", "model": "deepseek/deepseek-v4-flash" },
+    { "naam": "qwen3-235b", "model": "qwen/qwen3-235b-a22b-2507" },
+    { "naam": "llama-3.3-70b", "model": "meta-llama/llama-3.3-70b-instruct" },
+    { "naam": "gemini-2.5-flash-lite", "model": "google/gemini-2.5-flash-lite" },
+    { "naam": "mistral-medium-3.1", "model": "mistralai/mistral-medium-3.1" }
+  ]
+}
