@@ -9,13 +9,20 @@
  */
 import { readFileSync, writeFileSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
-import { OORDEELDERS, bouwPrompt, leesOordeel, vraagBeoordelaar, scoor } from './judge.mjs'
+import { fileURLToPath } from 'node:url'
+import { OORDEELDERS, bouwPrompt, vraagEnLees, scoor } from './judge.mjs'
+import { kiesDerde, leesScorekaart } from './kies-rechters.mjs'
 import { haalSleutel } from './sleutel.mjs'
 
 const [, , setPad, uitmap, voor, uitPad] = process.argv
 const set = JSON.parse(readFileSync(setPad, 'utf8')).contests
 const sleutel = haalSleutel('OPENROUTER_API_KEY')
 if (!sleutel) { console.error('geen sleutel beschikbaar'); process.exit(2) }
+
+// Scheidsrechter bij onenigheid tussen de twee vaste rechters: de beste gemeten kandidaat uit een derde modelfamilie.
+// Zonder gemeten kandidaat (nog geen scorekaart) blijft `derde` undefined en verandert er niets aan het gedrag.
+const derde = kiesDerde(leesScorekaart(fileURLToPath(new URL('./scorekaart.jsonl', import.meta.url))), OORDEELDERS.map(o => o.model))
+if (derde) console.log(`scheidsrechter bij onenigheid: ${derde.naam}`)
 
 const resultaat = { voorvoegsel: voor, wedstrijden: {}, totaal: null, kosten: 0 }
 const som = { bekend: 0, hyps: 0, streng: 0, ruim: 0, strengHyp: 0, eens: 0, perNiveau: { makkelijk: { totaal: 0, streng: 0 }, midden: { totaal: 0, streng: 0 }, moeilijk: { totaal: 0, streng: 0 } } }
@@ -27,14 +34,20 @@ for (const c of set) {
   for (const h of hyps) {
     const prompt = bouwPrompt(h, c.issues)
     const [a, b] = await Promise.all(OORDEELDERS.map(async o => {
-      const r = await vraagBeoordelaar({ model: o.model, sleutel, prompt })
+      const r = await vraagEnLees({ model: o.model, sleutel, prompt, bekende: c.issues })
       resultaat.kosten += r.kosten
-      return { ...leesOordeel(r.tekst, c.issues), model: o.naam }
+      return { ...r, model: o.naam }
     }))
-    oordelen.push({ a, b })
+    let derdeOordeel
+    if (a.match !== b.match && derde) {
+      const r = await vraagEnLees({ model: derde.model, sleutel, prompt, bekende: c.issues })
+      resultaat.kosten += r.kosten
+      derdeOordeel = { ...r, model: derde.naam }
+    }
+    oordelen.push({ a, b, c: derdeOordeel })
   }
   const s = scoor(hyps, c.issues, oordelen)
-  resultaat.wedstrijden[c.contest] = { ...s, hypothesesLijst: hyps.map((h, i) => ({ title: h.title, file: h.file, function: String(h.function ?? '').split('\n')[0], a: oordelen[i].a, b: oordelen[i].b })) }
+  resultaat.wedstrijden[c.contest] = { ...s, hypothesesLijst: hyps.map((h, i) => ({ title: h.title, file: h.file, function: String(h.function ?? '').split('\n')[0], a: oordelen[i].a, b: oordelen[i].b, c: oordelen[i].c })) }
   som.bekend += s.bekend; som.hyps += s.hypotheses; som.streng += s.gevondenStreng.length; som.ruim += s.gevondenRuim.length
   som.strengHyp += Math.round(s.precisieStreng * s.hypotheses); som.eens += Math.round(s.overeenstemming * s.hypotheses)
   for (const n of ['makkelijk', 'midden', 'moeilijk']) { som.perNiveau[n].totaal += s.perNiveau[n].totaal; som.perNiveau[n].streng += s.perNiveau[n].streng }

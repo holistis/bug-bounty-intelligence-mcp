@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { leesOordeel, idSleutel, scoor } from './judge.mjs'
-import { kiesRechters, fouten, nieuwstePerModel, familie } from './kies-rechters.mjs'
+import { kiesRechters, kiesDerde, fouten, nieuwstePerModel, familie } from './kies-rechters.mjs'
 
 const BEKENDE = [{ id: 'H-04', title: 'a' }, { id: 'M-9', title: 'b' }, { id: 'M-10', title: 'c' }]
 
@@ -76,6 +76,15 @@ test('kiezen: het minste aantal fouten wint, dan de laagste kosten, en nooit twe
   assert.deepEqual(r.gekozen.map((g) => g.model), ['openai/b', 'deepseek/c'])
   assert.equal(r.genoeg, true)
   assert.equal(familie('Google/Gemini'), 'google')
+})
+
+test('kiesDerde: een scheidsrechter uit een nog niet gebruikte familie, minste fouten dan laagste kosten, of undefined zonder kandidaat', () => {
+  const m = (model, fout, kosten) => ({ datum: '2026-11-04', model, naam: model, positief: { n: 10, raak: 10 - fout, mis: fout, fout: 0 }, negatief: { n: 10, onzin: 0 }, ongeldig: 0, kosten })
+  const regels = [m('openai/a', 0, 0.01), m('deepseek/b', 0, 0.02), m('qwen/c', 1, 0.001), m('google/d', 0, 0.09)]
+  const derde = kiesDerde(regels, ['openai/a', 'deepseek/b'])
+  assert.equal(derde.model, 'google/d')
+  assert.equal(kiesDerde(regels, ['openai/a', 'deepseek/b', 'qwen/c', 'google/d']), undefined)
+  assert.equal(kiesDerde([], ['openai/a', 'deepseek/b']), undefined)
 })
 
 test('te weinig gemeten modellen uit verschillende families geeft geen advies maar zegt wat er mist', () => {

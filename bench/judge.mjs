@@ -52,6 +52,22 @@ export function leesOordeel(tekst, bekende) {
   return { match: null, ongeldig: 'onbekend-id', reden, ruw }
 }
 
+/**
+ * Vraagt een beoordelaar en leest het antwoord. Is het antwoord onleesbaar (geen JSON, kapotte JSON), dan wordt het
+ * EENMALIG opnieuw gevraagd met een strengere herinnering, in plaats van meteen weg te gooien (4 nov 2026, koning-wens
+ * na de 56 weggegooide antwoorden van Tom Smart). Een ONBEKEND id wordt NIET opnieuw gevraagd: dat is geen leesprobleem
+ * maar een verzonnen nummer, en opnieuw vragen zou alleen uitnodigen tot een nieuw verzonnen nummer.
+ */
+export async function vraagEnLees({ model, sleutel, prompt, bekende, haal = fetch }) {
+  const r1 = await vraagBeoordelaar({ model, sleutel, prompt, haal })
+  const l1 = leesOordeel(r1.tekst, bekende)
+  if (l1.ongeldig !== 'geen-json' && l1.ongeldig !== 'json-kapot') return { ...l1, kosten: r1.kosten }
+  const herinnering = prompt + '\n\nYour previous answer could not be read as JSON. Reply with JSON only, in exactly the form shown above, nothing before or after it.'
+  const r2 = await vraagBeoordelaar({ model, sleutel, prompt: herinnering, haal })
+  const l2 = leesOordeel(r2.tekst, bekende)
+  return { ...l2, kosten: r1.kosten + r2.kosten, herhaald: true }
+}
+
 /** Een beoordelaar aanroepen via OpenRouter. `sleutel` komt uit de omgeving en wordt nooit getoond. */
 export async function vraagBeoordelaar({ model, sleutel, prompt, haal = fetch }) {
   for (let poging = 1; poging <= 2; poging++) {
@@ -74,19 +90,36 @@ export async function vraagBeoordelaar({ model, sleutel, prompt, haal = fetch })
 export const niveau = (finders) => finders >= 5 ? 'makkelijk' : finders >= 3 ? 'midden' : 'moeilijk'
 
 /**
- * Zuivere telling. `oordelen[i]` hoort bij hypothese i en heeft `a` en `b` (de twee beoordelaars).
- * Geeft per wedstrijd: gevonden bevindingen (streng en ruim), precisie, overeenstemming, herstel per niveau.
+ * Zijn a en b het oneens (of is een van beide weggegooid), dan beslist de derde rechter `c` WELKE van de twee gelijk
+ * heeft, mits hij zelf niet weggegooid is en hetzelfde zegt als een van de twee. Zegt hij iets anders, of is hij er zelf
+ * ook niet uit, dan blijft het oneens: een derde mening alleen is geen bevestiging (4 nov 2026, dezelfde reden als
+ * waarom twee weggegooide antwoorden geen overeenstemming zijn, geldt ook hier als a EN b allebei weggegooid zijn).
+ */
+export function beslisVoor(a, b, c) {
+  if (!c || c.ongeldig) return undefined
+  if (!a.ongeldig && c.match === a.match) return a.match
+  if (!b.ongeldig && c.match === b.match) return b.match
+  return undefined
+}
+
+/**
+ * Zuivere telling. `oordelen[i]` hoort bij hypothese i en heeft `a` en `b` (de twee beoordelaars), en optioneel `c`
+ * (de derde rechter, alleen gevraagd bij onenigheid). Geeft per wedstrijd: gevonden bevindingen (streng en ruim),
+ * precisie, overeenstemming, herstel per niveau, en hoe vaak de derde rechter de beslissing heeft gemaakt.
  */
 export function scoor(hypotheses, bekende, oordelen) {
   const streng = new Set(), ruim = new Set()
-  let strengeHyp = 0, ruimeHyp = 0, eens = 0, ongeldig = 0
+  let strengeHyp = 0, ruimeHyp = 0, eens = 0, ongeldig = 0, derdeBeslist = 0
   hypotheses.forEach((_, i) => {
-    const { a, b } = oordelen[i]
+    const { a, b, c } = oordelen[i]
     if (a.ongeldig) ongeldig++
     if (b.ongeldig) ongeldig++
     // Twee weggegooide antwoorden zijn geen overeenstemming: alleen twee bruikbare antwoorden die gelijk zijn tellen (4 nov 2026, de 100 procent van layeredge in dev-set-2).
-    if (!a.ongeldig && !b.ongeldig && a.match === b.match) eens++
-    if (a.match && b.match && a.match === b.match) { streng.add(a.match); strengeHyp++ }
+    const directEens = !a.ongeldig && !b.ongeldig && a.match === b.match
+    let besl
+    if (directEens) { eens++; besl = a.match }
+    else { const d = beslisVoor(a, b, c); if (d !== undefined) { besl = d; derdeBeslist++ } }
+    if (besl) { streng.add(besl); strengeHyp++ }
     if (a.match || b.match) { if (a.match) ruim.add(a.match); if (b.match) ruim.add(b.match); ruimeHyp++ }
   })
   const perNiveau = {}
@@ -99,6 +132,6 @@ export function scoor(hypotheses, bekende, oordelen) {
     gevondenStreng: [...streng].sort(), gevondenRuim: [...ruim].sort(),
     recallStreng: bekende.length ? streng.size / bekende.length : 0, recallRuim: bekende.length ? ruim.size / bekende.length : 0,
     precisieStreng: hypotheses.length ? strengeHyp / hypotheses.length : 0, precisieRuim: hypotheses.length ? ruimeHyp / hypotheses.length : 0,
-    overeenstemming: hypotheses.length ? eens / hypotheses.length : 1, ongeldigeAntwoorden: ongeldig, perNiveau,
+    overeenstemming: hypotheses.length ? eens / hypotheses.length : 1, derdeBeslist, ongeldigeAntwoorden: ongeldig, perNiveau,
   }
 }

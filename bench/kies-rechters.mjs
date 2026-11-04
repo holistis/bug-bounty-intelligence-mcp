@@ -51,6 +51,19 @@ export function kiesRechters(regels, { aantal = 2 } = {}) {
   }
 }
 
+/**
+ * Kiest EEN extra rechter voor de rol van scheidsrechter bij onenigheid (bench/judge.mjs, beslisVoor): het minste aantal
+ * fouten, dan de laagste kosten, uit een modelfamilie die nog niet in `gebruikteModellen` voorkomt (de twee vaste
+ * rechters). Geeft undefined als er geen kandidaat uit een nieuwe familie gemeten is.
+ */
+export function kiesDerde(regels, gebruikteModellen = []) {
+  const gebruikteFamilies = new Set(gebruikteModellen.map(familie))
+  const lijst = nieuwstePerModel(regels)
+    .filter((r) => !gebruikteFamilies.has(familie(r.model)))
+    .sort((a, b) => fouten(a) - fouten(b) || Number(a.kosten ?? 0) - Number(b.kosten ?? 0))
+  return lijst[0] ? { model: lijst[0].model, naam: lijst[0].naam, fouten: fouten(lijst[0]), kosten: Number(lijst[0].kosten ?? 0) } : undefined
+}
+
 export function leesScorekaart(pad) {
   if (!existsSync(pad)) return []
   return readFileSync(pad, 'utf8').split('\n').filter(Boolean).map((l) => { try { return JSON.parse(l) } catch { return null } }).filter(Boolean)
