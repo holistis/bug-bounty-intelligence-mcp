@@ -64,6 +64,21 @@ export function emptyHashList(copy) {
 }
 emptyHashList.keepHashes = true
 
+// A nonempty list can still leave evidence unhashed. Keep the file, omit only its unique hash entry.
+export function omitHashEntry(copy) {
+  const p = join(copy, 'SHA256SUMS')
+  if (!existsSync(p)) return null
+  const lines = readFileSync(p, 'utf8').split(/\r?\n/)
+  const entries = lines.map((line, i) => ({ i, file: line.match(/^[0-9a-f]{64}\s+\*?(.+)$/)?.[1] })).filter((e) => e.file)
+  if (entries.length < 2) return null
+  const entry = entries.find((e) => existsSync(join(copy, e.file)) && entries.filter((x) => x.file === e.file).length === 1)
+  if (!entry) return null
+  lines.splice(entry.i, 1)
+  writeFileSync(p, lines.join('\n'))
+  return p
+}
+omitHashEntry.keepHashes = true
+
 export function truncateFile(copy) {
   for (const p of verdictFiles(copy)) {
     const text = readFileSync(p, "utf8")
@@ -111,7 +126,7 @@ export function rehash(copy) {
 
 const run = (dir) => { const r = spawnSync(process.execPath, ['check.mjs'], { cwd: dir, encoding: 'utf8', timeout: 60000 }); return r.status ?? 2 }
 
-export const FAULTS = { "made-up id": plantFakeId, "flipped verdict": flipVerdict, "empty hash list": emptyHashList, "cut-off file": truncateFile, "missing file": deleteFile, "duplicate row": duplicateRow }
+export const FAULTS = { "made-up id": plantFakeId, "flipped verdict": flipVerdict, "empty hash list": emptyHashList, "cut-off file": truncateFile, "missing file": deleteFile, "duplicate row": duplicateRow, "missing hash entry": omitHashEntry }
 
 export function testFolder(source, faults = FAULTS) {
   const result = {}
