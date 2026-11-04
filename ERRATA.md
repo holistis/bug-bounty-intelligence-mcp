@@ -21,6 +21,14 @@ Update, 3 November 2026, evening: pull request 89 by Darja Rihla (darjarihla-pro
 
 Update, 4 November 2026: the self-test now plants four more faults in a copy of every folder, with the hash list recomputed so that it cannot be what catches them: an emptied hash list, a cut-off file, a missing file and a row counted twice. Before this, all seven check.mjs scripts accepted an emptied hash list (three of them never read it) and the EVMbench checker accepted a verdict row that appeared twice. Both are fixed, and every checker now fails on all four faults wherever the folder has something to plant. The self-test runs in the Recount workflow.
 
+## 4 November 2026, figures of the older folders depend on voided answers
+
+Where: the five older folders listed in results/README.md, notably the sentence in results/2026-10-24-dev-set-2/README.md that the judges agreed on 97 percent (G) and 98 percent (H) of the hypotheses.
+What the texts said: figures and a judge agreement computed with every voided answer counted as no match, and with two voided answers of the same hypothesis counted as agreeing.
+What was wrong: the figures move once the voided answers are counted, and the agreement of run H is too high if the voided answers of the contest layeredge count as disagreement (59 of 60 could be 39, in the recount below).
+How found: Tom Smart (smartflowproai-lang) recounted the five older folders on 4 November 2026 and posted the ranges in [issue 41](https://github.com/holistis/bug-bounty-intelligence-mcp/issues/41#issuecomment-6625747399).
+What we did: the ranges are listed under his name in results/README.md, as his recount, not yet reproduced by a command of ours. The READMEs of the sealed folders are unchanged. Open check 1 in results/README.md stays open until a command of ours gives the same ranges.
+
 ## 2 November 2026, the scan sold in our shop was described with an older measurement
 
 Where: results/2026-11-02-our-scan-under-the-benchmark-judge/README.md, its row on the scoreboard of tokenizen.nl, and our comment in issue 41 of 2 November 2026.
