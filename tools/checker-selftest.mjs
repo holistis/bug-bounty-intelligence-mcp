@@ -2,9 +2,9 @@
 // checker-selftest.mjs: tests the checkers, not the numbers.
 // For every folder under results/ that has a check.mjs it copies the folder to a temp directory, checks that the unchanged copy passes, plants a fault,
 // recomputes SHA256SUMS (so the hash list does not catch the edit first, as when a stranger updates it too), and runs check.mjs again.
-// Faults: (1) a made-up finding id (H-999) in both judges' answers of a strict match, (2) a flipped verdict of the grader copy (detected true becomes false and the other way round).
-// CAUGHT: check.mjs failed on the planted fault. BLIND: it passed, so that checker accepts this kind of fault. N/A: the layout of the folder has nothing to plant. NOT MEASURABLE: the unchanged copy already fails.
-// Usage: node tools/checker-selftest.mjs [path-to-results]      exit 0 when nothing is blind, 1 when at least one checker is blind.
+// Faults (ten): a made-up finding id, a flipped verdict, an emptied hash list, a cut-off file, a missing file, a duplicate row, and four omissions: one hash line removed from a non-empty list, a file nobody listed, a line for a file that is gone, two names swapped.
+// CAUGHT: check.mjs or verify-manifests.mjs failed on the planted fault. BLIND: it passed, so that checker accepts this kind of fault. N/A: the layout of the folder has nothing to plant. NOT MEASURABLE: the unchanged copy already fails.
+// Usage: node tools/checker-selftest.mjs [path-to-results]      exit 0 when nothing is blind and nothing is unmeasurable, 1 otherwise.
 // To see our first result (three of the five reachable checkers blind) check out commit 0fafa23 and run it; on main only results/2026-10-26-evmbench is blind until its known ids are added.
 import { cpSync, existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -193,12 +193,16 @@ export function testFolder(source, faults = FAULTS) {
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1].replace(/\//g, '\\').replace(/^\\/, '') || process.argv[1]?.endsWith('checker-selftest.mjs')) {
   const base = process.argv[2] ?? join(HERE, '..', 'results')
   let blind = 0
+  let unmeasurable = 0
   for (const d of readdirSync(base, { withFileTypes: true }).filter((x) => x.isDirectory()).map((x) => x.name).sort()) {
     if (!existsSync(join(base, d, 'check.mjs'))) continue
     const r = testFolder(join(base, d))
     blind += Object.values(r).filter((v) => v === 'BLIND').length
+    unmeasurable += Object.values(r).filter((v) => v === 'NOT MEASURABLE').length
     console.log(d.padEnd(52), Object.entries(r).map(([k, v]) => k + ': ' + v).join(' | '))
   }
-  console.log(blind === 0 ? 'No checker is blind.' : blind + ' planted fault(s) accepted: that checker is blind to this kind of fault.')
-  process.exit(blind === 0 ? 0 : 1)
+  if (blind) console.log(blind + ' planted fault(s) accepted: that checker is blind to this kind of fault.')
+  if (unmeasurable) console.log(unmeasurable + ' fault(s) could not be measured because the unchanged folder already fails: a checker that cannot be tested is an open gap, not a pass.')
+  if (!blind && !unmeasurable) console.log('No checker is blind.')
+  process.exit(blind === 0 && unmeasurable === 0 ? 0 : 1)
 }

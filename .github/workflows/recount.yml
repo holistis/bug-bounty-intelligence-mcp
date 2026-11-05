@@ -2,7 +2,7 @@ name: Recount
 
 # Runs every check.mjs under results/ on a GitHub runner, so the counts in our result folders are recounted by a machine that is not ours.
 # It checks the counting and the hashes. It does not check whether the judges' verdicts are right.
-# It also tests the checkers themselves: tools/checker-selftest.mjs plants a made-up finding id and a flipped verdict in a copy of every folder, and this workflow fails if any checker accepts it.
+# It also tests the checkers themselves: tools/checker-selftest.mjs plants ten kinds of fault (a made-up id, a flipped verdict, an emptied or cut list, a missing, extra or swapped entry, and more) in a copy of every folder, and this workflow fails if any checker accepts it.
 
 on:
   push:
@@ -10,11 +10,15 @@ on:
       - 'results/**'
       - 'tools/**'
       - 'bench/**'
+      - '.github/**'
+      - '.gitattributes'
   pull_request:
     paths:
       - 'results/**'
       - 'tools/**'
       - 'bench/**'
+      - '.github/**'
+      - '.gitattributes'
   schedule:
     - cron: '17 5 * * 1'
   workflow_dispatch:

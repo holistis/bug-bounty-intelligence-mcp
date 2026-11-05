@@ -73,3 +73,37 @@ test('tools/README.md says ten kinds of fault, so the self-test must plant exact
   assert.equal(Object.keys(FAULTS).length, 10)
   assert.match(readFileSync(new URL('./README.md', import.meta.url), 'utf8'), /Plants ten kinds of fault/)
 })
+
+import { spawnSync } from 'node:child_process'
+import { mkdirSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
+
+const SELFTEST = fileURLToPath(new URL('./checker-selftest.mjs', import.meta.url))
+
+function resultsWith(t, checkSource) {
+  const base = mkdtempSync(join(tmpdir(), 'selftest-cli-'))
+  t.after(() => rmSync(base, { recursive: true, force: true }))
+  const dir = join(base, '2026-11-06-fixture')
+  mkdirSync(dir)
+  writeFileSync(join(dir, 'check.mjs'), checkSource)
+  writeFileSync(join(dir, 'data.json'), '{"n":1}\n')
+  const lines = ['check.mjs', 'data.json'].map((n) => sha(readFileSync(join(dir, n), 'utf8')) + '  ' + n)
+  writeFileSync(join(dir, 'SHA256SUMS'), lines.join('\n') + '\n')
+  return base
+}
+
+test('the self-test exits 1 when a folder cannot be measured, because a checker that cannot be tested is an open gap', (t) => {
+  const base = resultsWith(t, 'process.exit(1)\n')
+  const r = spawnSync(process.execPath, [SELFTEST, base], { encoding: 'utf8', timeout: 60000 })
+  assert.equal(r.status, 1)
+  assert.match(r.stdout, /could not be measured/)
+  assert.doesNotMatch(r.stdout, /No checker is blind/)
+})
+
+test('the self-test exits 0 for a folder whose checker catches every planted fault it can plant', (t) => {
+  const base = resultsWith(t, 'process.exit(0)\n')
+  const r = spawnSync(process.execPath, [SELFTEST, base], { encoding: 'utf8', timeout: 60000 })
+  assert.equal(r.status, 0, r.stdout)
+  assert.match(r.stdout, /No checker is blind/)
+  assert.match(r.stdout, /missing hash entry: CAUGHT/)
+})
