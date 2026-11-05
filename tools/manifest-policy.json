@@ -1,0 +1,21 @@
+{
+  "note": "Gaps in the hash lists of folders published before tools/verify-manifests.mjs existed. Only folders dated before 2026-11-05 can be named here; a new folder has to name every file itself. An entry that is no longer true fails the run, and this file may only shrink. Measured on 5 November 2026 at 7216a6d. results/README.md, the index, is not named in any hash list.",
+  "noManifest": [
+    "2026-10-24-baseline",
+    "2026-10-24-v2",
+    "2026-11-02-independence-signals-afg-fixture"
+  ],
+  "legacyUnlisted": {
+    "2026-10-25-v31": [
+      "first-real-payment/SHA256SUMS",
+      "first-real-payment/README.md",
+      "quick-scan-purchase/SHA256SUMS",
+      "standard-client-purchase/SHA256SUMS"
+    ],
+    "2026-11-02-injected-bugs-test": ["README.md"],
+    "2026-11-02-our-scan-under-the-benchmark-judge": ["README.md", "check.mjs"],
+    "2026-11-02-shop-setup-five-audits": ["README.md"],
+    "2026-11-02-shop-setup-six-more-audits": ["README.md"]
+  },
+  "looseFiles": ["README.md"]
+}
