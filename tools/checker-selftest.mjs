@@ -8,10 +8,11 @@
 // To see our first result (three of the five reachable checkers blind) check out commit 0fafa23 and run it; on main only results/2026-10-26-evmbench is blind until its known ids are added.
 import { cpSync, existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { dirname, join } from 'node:path'
+import { basename, dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
+import { loadPolicy, verifyFolder } from './verify-manifests.mjs'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 const SKIP = new Set(['raw', 'node_modules'])
@@ -79,6 +80,43 @@ export function omitHashEntry(copy) {
 }
 omitHashEntry.keepHashes = true
 
+// The other half of an omission, in the same spirit: nothing visible changes, the list just stops matching the folder.
+// A file nobody listed.
+export function addUnlistedFile(copy) {
+  const p = join(copy, 'SHA256SUMS')
+  if (!existsSync(p)) return null
+  const extra = join(copy, 'unlisted-extra-evidence.json')
+  writeFileSync(extra, '{"added":"after the list was written"}\n')
+  return extra
+}
+addUnlistedFile.keepHashes = true
+
+// A line for a file that is not there.
+export function addDanglingEntry(copy) {
+  const p = join(copy, 'SHA256SUMS')
+  if (!existsSync(p)) return null
+  const text = readFileSync(p, 'utf8')
+  writeFileSync(p, text + (text.endsWith('\n') ? '' : '\n') + createHash('sha256').update('nothing').digest('hex') + '  vanished-evidence.json\n')
+  return p
+}
+addDanglingEntry.keepHashes = true
+
+// Two lines that keep their hashes but trade file names.
+export function swapEntryNames(copy) {
+  const p = join(copy, 'SHA256SUMS')
+  if (!existsSync(p)) return null
+  const lines = readFileSync(p, 'utf8').split(/\r?\n/)
+  const rows = lines.map((line, i) => { const m = line.match(/^([0-9a-f]{64})(\s+\*?)(.+)$/); return m ? { i, hash: m[1], sep: m[2], file: m[3] } : null }).filter((r) => r && existsSync(join(copy, r.file)))
+  const a = rows[0]
+  const b = a && rows.find((r) => r.file !== a.file && r.hash !== a.hash)
+  if (!b) return null
+  lines[a.i] = a.hash + a.sep + b.file
+  lines[b.i] = b.hash + b.sep + a.file
+  writeFileSync(p, lines.join('\n'))
+  return p
+}
+swapEntryNames.keepHashes = true
+
 export function truncateFile(copy) {
   for (const p of verdictFiles(copy)) {
     const text = readFileSync(p, "utf8")
@@ -124,21 +162,29 @@ export function rehash(copy) {
   writeFileSync(p, out.join('\n') + '\n')
 }
 
-const run = (dir) => { const r = spawnSync(process.execPath, ['check.mjs'], { cwd: dir, encoding: 'utf8', timeout: 60000 }); return r.status ?? 2 }
+// A folder counts as catching a fault when its own check.mjs fails or the manifest verifier does (tools/verify-manifests.mjs): the old check.mjs files only hash what the list names.
+const POLICY = loadPolicy()
+const run = (dir, name) => {
+  const r = spawnSync(process.execPath, ['check.mjs'], { cwd: dir, encoding: 'utf8', timeout: 60000 })
+  const status = r.status ?? 2
+  if (status !== 0) return status
+  return verifyFolder(dir, name, POLICY).length === 0 ? 0 : 1
+}
 
-export const FAULTS = { "made-up id": plantFakeId, "flipped verdict": flipVerdict, "empty hash list": emptyHashList, "cut-off file": truncateFile, "missing file": deleteFile, "duplicate row": duplicateRow, "missing hash entry": omitHashEntry }
+export const FAULTS = { "made-up id": plantFakeId, "flipped verdict": flipVerdict, "empty hash list": emptyHashList, "cut-off file": truncateFile, "missing file": deleteFile, "duplicate row": duplicateRow, "missing hash entry": omitHashEntry, "unlisted file": addUnlistedFile, "dangling entry": addDanglingEntry, "swapped names": swapEntryNames }
 
 export function testFolder(source, faults = FAULTS) {
   const result = {}
+  const folder = basename(source)
   for (const [name, plant] of Object.entries(faults)) {
     const root = mkdtempSync(join(tmpdir(), 'selftest-'))
     const copy = join(root, 'folder')
     try {
       cpSync(source, copy, { recursive: true })
-      if (run(copy) !== 0) { result[name] = 'NOT MEASURABLE'; continue }
+      if (run(copy, folder) !== 0) { result[name] = 'NOT MEASURABLE'; continue }
       if (!plant(copy)) { result[name] = 'N/A'; continue }
       if (!plant.keepHashes) rehash(copy)
-      result[name] = run(copy) !== 0 ? 'CAUGHT' : 'BLIND'
+      result[name] = run(copy, folder) !== 0 ? 'CAUGHT' : 'BLIND'
     } finally { rmSync(root, { recursive: true, force: true }) }
   }
   return result

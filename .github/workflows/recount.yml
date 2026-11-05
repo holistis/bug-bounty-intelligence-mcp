@@ -53,5 +53,7 @@ jobs:
         run: node --test bench/*.test.mjs
       - name: A published voided-answer count must have a range next to it, not just the count
         run: node tools/ranges-check.mjs && node --test tools/ranges-check.test.mjs
+      - name: Every hash list must name every file in its folder (the gaps of old folders are listed by name in tools/manifest-policy.json)
+        run: node tools/verify-manifests.mjs && node --test tools/verify-manifests.test.mjs tools/manifest-faults.test.mjs tools/checker-faults.test.mjs
       - name: Plant a fault in a copy of every folder, no checker may accept it
         run: node tools/checker-selftest.mjs

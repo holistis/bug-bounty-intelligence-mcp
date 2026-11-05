@@ -1,0 +1,29 @@
+{
+  "note": "Gaps in the hash lists of folders published before tools/verify-manifests.mjs existed. New folders may not use this: every file must be named in SHA256SUMS. A stale entry here fails the run. Measured on 5 November 2026 at 7216a6d.",
+  "noManifest": [
+    "2026-10-24-baseline",
+    "2026-10-24-v2",
+    "2026-11-02-independence-signals-afg-fixture"
+  ],
+  "legacyUnlisted": {
+    "2026-10-25-v31": [
+      "first-real-payment/SHA256SUMS",
+      "quick-scan-purchase/SHA256SUMS",
+      "standard-client-purchase/SHA256SUMS",
+      "first-real-payment/README.md"
+    ],
+    "2026-11-02-injected-bugs-test": [
+      "README.md"
+    ],
+    "2026-11-02-our-scan-under-the-benchmark-judge": [
+      "README.md",
+      "check.mjs"
+    ],
+    "2026-11-02-shop-setup-five-audits": [
+      "README.md"
+    ],
+    "2026-11-02-shop-setup-six-more-audits": [
+      "README.md"
+    ]
+  }
+}
