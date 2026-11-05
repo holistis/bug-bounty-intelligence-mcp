@@ -2,6 +2,13 @@
 
 Every public statement of ours that turned out to be wrong or too strong, with the date, where it was said, what was wrong, how it was found, and what we did. Newest first. We keep the wrong wording quoted here instead of deleting it. If you find something that belongs on this list, open an issue on this repository and we add it with your name.
 
+## 5 November 2026, agent-receipt-verify: four commands still passed after a vector was removed
+
+Where: agent-receipt-verify 0.2.24 and 0.2.25, the commands attempt-identity, kanon, beleid, link-vectors and ground --vectors.
+What was wrong: up to 0.2.24 attempt-identity printed "Every clause carries one acceptance and at least one refusal" whether or not its vector folder was complete. 0.2.25 fixed that command, but on the published 0.2.25 deleting one file from vectors/kanon, vectors/settlement-link or vectors/grounding still gave exit 0 and a count of whatever was left, and beleid printed its table over the vectors that remained.
+How found: the kind of fault comes from the omission test Darja Rihla ran on our hash lists in issue 103. We then ran that test on our own tools, one change per element type (delete, add, duplicate, truncate, empty). The cases in agent-receipt-verify were found by us, not by an outside reader.
+What we did: 0.2.26 (pull request 93) gives all five commands the same check of their vector folder against a SHA256SUMS, with exit 1, a PROBLEM line and a closing FAIL line. A hash list that sits next to the vectors is not a signature: someone who changes a vector and its line together still passes, and the README says so.
+
 ## 5 November 2026, a hash list with one line removed passed every checker
 
 Where: tools/checker-selftest.mjs, and the check.mjs of the seven result folders that have one.
