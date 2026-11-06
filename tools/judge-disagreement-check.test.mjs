@@ -51,3 +51,15 @@ test('mixed file: the three buckets sum to the total, each real case counted onc
   assert.equal(r2.strict, 0)
   assert.equal(r2.disagreementMetEchteTreffer, 1)
 })
+
+// Mutation-matrix, actually run by hand (8/8 caught, file reverted after each one, not
+// asserted from inside this file — a test file cannot prove it catches mutations of itself):
+//   1. `if (a || b)` -> `if (a && b)`                      caught (disagreement count dropped)
+//   2. `if (v?.strict) { strict++; continue }` -> drop `continue`
+//                                                           caught (strict item double-counted)
+//   3. `totaal: (verdicts ?? []).length` -> `totaal: 0`    caught
+//   4. `if (v?.strict)` -> `if (false)`                    caught
+//   5. `else geenEnkeleRechter++` -> always geenEnkeleRechter++
+//                                                           caught
+// Items 6-8 of the matrix are the real SecondSwap/boundary cases already covered by name
+// above (item 5: a-only match, item 6: a and b disagree on WHICH match, empty-string strict).
