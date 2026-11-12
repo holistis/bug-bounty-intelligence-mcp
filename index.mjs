@@ -187,20 +187,27 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
         }
       }
       return {
-        content: [{
-          type: 'text',
-          text: [
-            'PAYMENT REQUIRED to start the scan.',
-            '',
-            `Amount:  ${amtUsdc} USDC`,
-            `Network: Base mainnet (eip155:8453)`,
-            `Pay to:  ${accept.payTo}`,
-            `Asset:   USDC — ${accept.asset}`,
-            '',
-            'After paying, retry scan_contract with the same repo_url.',
-            'Terms: https://x402.tokenizen.nl/terms',
-          ].join('\n'),
-        }],
+        content: [
+          {
+            type: 'text',
+            text: [
+              'PAYMENT REQUIRED to start the scan.',
+              '',
+              `Amount:  ${amtUsdc} USDC`,
+              `Network: Base mainnet (eip155:8453)`,
+              `Pay to:  ${accept.payTo}`,
+              `Asset:   USDC — ${accept.asset}`,
+              '',
+              'After paying, retry scan_contract with the same repo_url.',
+              'Terms: https://x402.tokenizen.nl/terms',
+            ].join('\n'),
+          },
+          // The prose block above is for a human or an LLM reading the chat.
+          // A strict x402 client (or an automated directory checker) looks
+          // for the machine-readable challenge object instead, so it goes
+          // in its own content item rather than being folded into the text.
+          { type: 'text', text: JSON.stringify({ x402Version: json.x402Version, accepts: json.accepts }) },
+        ],
         isError: false,
       }
     }
