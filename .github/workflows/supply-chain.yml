@@ -1,0 +1,47 @@
+name: supply-chain
+
+# Makes a software bill of materials (CycloneDX) from the lockfile and signs a build provenance
+# attestation for it and for the source archive. Check one yourself with:
+#   gh attestation verify sbom.cdx.json --repo OWNER/REPO
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sbom:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+      - name: Install exactly what the lockfile says, without running install scripts
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Write the SBOM
+        run: npm sbom --sbom-format cyclonedx --omit dev > sbom.cdx.json
+      - name: Pack the source of this commit
+        run: git archive --format=tar.gz --output=source.tar.gz HEAD
+      # A pull request from a fork gets a read-only token and cannot sign. The SBOM is still built and uploaded there.
+      - if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: |
+            sbom.cdx.json
+            source.tar.gz
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: sbom-and-source
+          path: |
+            sbom.cdx.json
+            source.tar.gz
