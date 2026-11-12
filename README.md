@@ -86,13 +86,13 @@ Reading the production scan code on 24 October 2026 showed that earlier text on 
 
 Official source: this repository and the payment address in the payment section below are the only official ones for Bug Bounty Intelligence. If a listing, a reply or a website gives a different payment address, it is not ours. Check the address against the one below before you pay.
 
-**Drawn from a corpus of 27,681 submitted findings across 105 Sherlock audit competitions.**
+**Drawn from a corpus of 56,657 submitted findings across 212 measured Sherlock audit competitions.**
 **Cost: $5 USDC on Base (eip155:8453) via x402 for the full scan, $1 USDC for the quick scan.**
 **Free tool: `list_vulnerability_patterns`, no payment needed.**
 
 `list_vulnerability_patterns`' acceptance-rate numbers are computed only from the subset where
-results could be exactly reconciled against Sherlock's own published outcomes: 1,032 findings
-across 10 contests. We'd rather show fewer, verified numbers than a bigger set we can't stand
+results could be exactly reconciled against Sherlock's own published outcomes: 7,388 findings
+across 35 contests. We'd rather show fewer, verified numbers than a bigger set we can't stand
 behind. See [METHODOLOGY.md](METHODOLOGY.md) for exactly why, and how to reproduce it.
 
 ## Free dataset: no server, no MCP, no payment

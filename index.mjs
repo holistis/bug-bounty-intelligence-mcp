@@ -21,25 +21,27 @@ import {
 } from '@modelcontextprotocol/sdk/types.js'
 const API_URL = 'https://x402.tokenizen.nl'
 
-// Embedded pattern library — Sherlock audit-competition findings, updated 2026-07-21.
+// Embedded pattern library — Sherlock audit-competition findings, updated 2026-11-12.
 // Methodology: only contests where Sherlock's own judging-repo result structure could be
-// exactly reconciled (accepted + invalid === total submissions) are included — 10 contests,
-// 1,032 findings. A much larger raw corpus exists (27,681 submissions across 105 contests),
-// but acceptance could not be verified for the rest without risking a wrong number, so
-// those are excluded rather than estimated. See BENCHMARK.md for the full methodology note.
+// exactly reconciled (accepted + invalid === total submissions) are included, 35 contests,
+// 7,388 findings. A much larger raw corpus exists (56,657 submissions across 212 measured
+// contests), but acceptance could not be verified for the rest without risking a wrong number,
+// so those are excluded rather than estimated. See METHODOLOGY.md for the full methodology note,
+// including the 2026-11-12 re-verification that replaced an unreliable local cache.
 const PATTERN_LIBRARY = {
-  'reentrancy':         { acceptance_rate: '0.78', total: 51,  accepted: 40, examples_accepted: ['m4k2 - Reentrancy in GoatPairV1::burn if token is a non-standard ERC20', 'Tonchi - Reentrancy in burn function, as it does not update the state of liquidity', 'C1rdan - hacker can steal fee from LPs'] },
-  'overflow':           { acceptance_rate: '0.58', total: 45,  accepted: 26, examples_accepted: ['Fassi_Security - When an order is exactly matched, a buyer can end up paying more', 'mstpr-brainbot - Pairs with MAX_FEE can revert due to rounding inconsistencies', 'irresponsible - Partition rounds up which can cause orders to be unfillable'] },
-  'trusted-actor':      { acceptance_rate: '0.51', total: 311, accepted: 159, examples_accepted: ['LTDingZhen - Users can grief fillers by set malicious ValidationContract', 'mstpr-brainbot - Pairs with MAX_FEE can revert due to rounding inconsistencies', 'HSP - Attacker can submit malicious order and user may lose funds'] },
-  'fee-miscalculation': { acceptance_rate: '0.50', total: 109, accepted: 55, examples_accepted: ['WangAudit - [H] RubiconFeeController::getFeeOutputs incorrectly creates feeOut', 'turvec - The feeController differs from its specification', 'hals - IG contract can be DoS-ed from minting or burning options'] },
-  'staleness':          { acceptance_rate: '0.49', total: 174, accepted: 86, examples_accepted: ['LTDingZhen - Users can grief fillers by set malicious ValidationContract', 'HSP - Attacker can submit malicious order and user may lose funds', 'pkqs90 - Orders with equal decayStartTime and decayEndTime benefit the filler'] },
-  'mev-slippage':       { acceptance_rate: '0.49', total: 89,  accepted: 44, examples_accepted: ['ge6a - DOS of IG mint/burn because of _deltaHedgePosition() revert', 'ge6a - Dos through large deposit', 'ge6a - Permanent Dos through trackVaultFee()'] },
-  'access-control':     { acceptance_rate: '0.47', total: 74,  accepted: 35, examples_accepted: ['skatas192 - The owner address has never been set which will cause the auth modifier', 'bearonbike - DVP _mint/_burn function could be DoS-ed by FeeManager', 'KingNFT - Attack on FeeManager.trackVaultFee() to make the IG contract'] },
-  'flash-loan':         { acceptance_rate: '0.46', total: 13,  accepted: 6,  examples_accepted: ['cawfree - The invariant maxDeposit for a Vault can be exceeded', 'mgf15 - Use of slot0 to get sqrtPriceX96 can lead to price manipulation', 'bughuntoor - Any user can do a AAVE flashloan on behalf of FlashLoanAggregator'] },
-  'dos-griefing':       { acceptance_rate: '0.41', total: 156, accepted: 64, examples_accepted: ['ni8mare - execute transactions can be reverted by a malicious user', 'LTDingZhen - Users can grief fillers by set malicious ValidationContract', 'mstpr-brainbot - Pairs with MAX_FEE can revert due to rounding inconsistencies'] },
-  'rounding':           { acceptance_rate: '0.40', total: 63,  accepted: 25, examples_accepted: ['mstpr-brainbot - Pairs with MAX_FEE can revert due to rounding inconsistencies', 'KingNFT - Execution of orders would revert unexpectedly', 'blutorque - PartialFillLib::partition() unexpectedly reverts'] },
-  'oracle-manipulation':{ acceptance_rate: '0.36', total: 131, accepted: 47, examples_accepted: ['ge6a - DOS of IG mint/burn because of _deltaHedgePosition() revert', 'ge6a - Dos through large deposit', 'jasonxiale - Vault._state.liquidity.totalDeposit can avoid being decreased'] },
-  'liquidation':        { acceptance_rate: '0.29', total: 14,  accepted: 4,  examples_accepted: ['M3azad - No updation of _state.liquidity.pendingWithdrawals may lead to abnormal', 'bughuntoor - Liquidation bonus scales exponentially instead of linearly', 'cawfree - Calls to addToBlackList(address,address[]) can be frontrun'] },
+  'flash-loan':         { acceptance_rate: '0.69', total: 185,  accepted: 127, examples_accepted: ['duc - Borrower can reduce the interest of shortly loans', 'ShadowForce - Bypass the VAULT_ACCOUNT_MIN_TIME check in VaultAccountAction.sol when exiting the vau', 'mstpr-brainbot - Compound exchange rate can be manipulated to withdraw more underlying tokens from N'] },
+  'liquidation':        { acceptance_rate: '0.66', total: 869,  accepted: 576, examples_accepted: ['w42d3n - The protocol is not protected against Signature malleability', 'gryphon - Buyer may not be able to liquidate the loan', 'peanuts - NFTs are not stored in the appropriate contracts'] },
+  'fee-miscalculation': { acceptance_rate: '0.55', total: 540,  accepted: 297, examples_accepted: ['7siech - Total loss of funds when using certain popular ERC20 tokens', 'iglyx - MigratePrimeCash\'s _calculateInterestRateCurves calculates new kinkRate1 and kinkRate2 incor', 'xiaoming90 - Prime vaults do not consider secondary debt when assessing vault fees'] },
+  'dos-griefing':       { acceptance_rate: '0.54', total: 680,  accepted: 365, examples_accepted: ['w42d3n - The protocol is not protected against Signature malleability', 'duc - Borrower can reduce the interest of shortly loans', '0xd1r4cde17a - lender gets minInterestsToRepay / loan.nbOfPositions'] },
+  'staleness':          { acceptance_rate: '0.54', total: 1090, accepted: 586, examples_accepted: ['w42d3n - The protocol is not protected against Signature malleability', 'peanuts - Some NFTs like CryptoKitty and CryptoFighter can be paused, which block repaying/liquidati', 'csanuragjain - Liquidation occur at incorrect time'] },
+  'oracle-manipulation':{ acceptance_rate: '0.54', total: 911,  accepted: 488, examples_accepted: ['iglyx - TokenHandler\'s _redeemMoneyMarketIfRequired can fail valid withdrawal requests', 'xiaoming90 - Underlying delta is calculated on internal token balance', 'xiaoming90 - Rebalance stops working when more holdings are added'] },
+  'trusted-actor':      { acceptance_rate: '0.52', total: 1814, accepted: 935, examples_accepted: ['gryphon - Buyer may not be able to liquidate the loan', 'peanuts - Some NFTs like CryptoKitty and CryptoFighter can be paused, which block repaying/liquidati', 'Go-langer - Init function left open for anyone to call and initialize the protocol.'] },
+  'idor':               { acceptance_rate: '0.50', total: 18,   accepted: 9,   examples_accepted: ['0Kage - A borrower with multiple loans of which one is liquidated can withdraw much more than his sh', '0xbepresent - Claimable amount could be sent to the approved address instead the provision/position', 'GimelSec - ClaimFacet.sendShareOfSaleAsSupplier() calculates unfair shares, the money should compe'] },
+  'overflow':           { acceptance_rate: '0.48', total: 346,  accepted: 165, examples_accepted: ['peanuts - Some NFTs like CryptoKitty and CryptoFighter can be paused, which block repaying/liquidati', 'Robert - checkedTransfer In claim() and claimAsBorrower() Functions Can Permanently Lock Tokens', 'Inspex - Denial-of-Service in the liquidation flow results in the collateral NTF will be stuck in th'] },
+  'mev-slippage':       { acceptance_rate: '0.48', total: 368,  accepted: 178, examples_accepted: ['xiaoming90 - Liquidation discount does not take slippage into consideration', 'xiaoming90 - Inadequate slippage control', 'ShadowForce - Bypass the VAULT_ACCOUNT_MIN_TIME check in VaultAccountAction.sol when exiting the vau'] },
+  'access-control':     { acceptance_rate: '0.46', total: 538,  accepted: 249, examples_accepted: ['Go-langer - Init function left open for anyone to call and initialize the protocol.', 'Englave - Signature Replay Attack on OfferArgs', 'xiaoming90 - It may be possible to liquidate on behalf of another account'] },
+  'reentrancy':         { acceptance_rate: '0.40', total: 279,  accepted: 111, examples_accepted: ['SPYBOY - A malicious signer can exploite reentrancy while Borrowing', 'glcanvas - Possible reentrancy which allows to write incorrect supplyPositionIndex', 'Robert - A Loan\'s supplyPositionIndex Can Be Duplicated Through Re-entrancy'] },
+  'rounding':           { acceptance_rate: '0.40', total: 485,  accepted: 192, examples_accepted: ['usmannk - Borrowers may steal funds from lenders', 'jekapi - Borrower can lock lender assets if offer has large LTV', 'iglyx - MigratePrimeCash\'s _calculateInterestRateCurves calculates new kinkRate1 and kinkRate2 incor'] },
 }
 
 // ── helpers ──────────────────────────────────────────────────────────────────
@@ -96,7 +98,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
         'Submit a public GitHub repository for an automated Solidity analysis. The result is a list of AI-generated hypotheses to review by hand. It is not an audit and not a list of confirmed bugs.',
         'The scan reads the files most likely to move funds first, in at most six parts. Tests, mocks, scripts, interfaces and vendored dependencies are left out. The report states what share of the in-scope code was actually read, and a report can say that no hypotheses came out of the part that was read.',
         'Check the repository first, for free: GET https://x402.tokenizen.nl/api/bug-intel/precheck?repo=owner/name says whether the scan counts any Solidity in it and roughly how much of it will be read.',
-        'How often the scan finds known issues on closed audit contests, including the misses, is published in the README of the repository (github.com/holistis/bug-bounty-intelligence-mcp). The prompt uses acceptance-rate hints from the 1,032 findings that could be exact-reconciled against contest outcomes, see METHODOLOGY.md.',
+        'How often the scan finds known issues on closed audit contests, including the misses, is published in the README of the repository (github.com/holistis/bug-bounty-intelligence-mcp). The prompt uses acceptance-rate hints from the 7,388 findings that could be exact-reconciled against contest outcomes, see METHODOLOGY.md.',
         'Cost: $5 USDC on Base (eip155:8453) via x402. Reports usually arrive within the hour. If the scan fails or the report does not help, write to info@holistischadviseur.nl for a new attempt or a refund, see the terms.',
         'Returns a job_id. Use get_scan_report to poll for results.',
         'If payment_required is true, pay $5 USDC to the payTo address on Base, then retry scan_contract with the same repo_url.',
@@ -137,7 +139,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
       name: 'list_vulnerability_patterns',
       description: [
         'Returns historical vulnerability patterns and acceptance rates from Sherlock audit-competition findings.',
-        'Numbers are limited to contests where results could be exactly reconciled against Sherlock\'s own published outcomes (1,032 findings across 10 contests) — no estimated or unverifiable figures.',
+        'Numbers are limited to contests where results could be exactly reconciled against Sherlock\'s own published outcomes (7,388 findings across 35 contests), no estimated or unverifiable figures.',
         'Useful for understanding what types of bugs are most likely to be valid in a given protocol type.',
         'This tool is FREE — no payment required.',
       ].join(' '),
