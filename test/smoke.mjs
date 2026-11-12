@@ -33,6 +33,22 @@ try {
   assert.ok(somTotal > 0, 'er staat echte data in vulnerability-acceptance-rates.json')
   assert.equal(rates.contests_included > 0, true, 'contests_included moet een echt, positief getal zijn')
 
+  // Eigen vondst 12 nov 2026: 'idor' stond wel in de dataset, maar in GEEN ENKELE
+  // protocol_type-categorie, dus kon een gebruiker het nooit te zien krijgen, bij geen
+  // enkele instelling. Dit bewijst dat elk patroon in het dataset-bestand bereikbaar is via
+  // minstens één protocol_type, zodat een toekomstig nieuw patroon dezelfde fout niet
+  // stilletjes herhaalt.
+  const PROTOCOL_TYPES = ['DEX', 'LENDING', 'BRIDGE', 'GOVERNANCE', 'STAKING', 'DERIVATIVES', 'GENERAL']
+  const bereikbaar = new Set()
+  for (const type of PROTOCOL_TYPES) {
+    const r2 = await client.callTool({ name: 'list_vulnerability_patterns', arguments: { protocol_type: type } })
+    for (const pattern of Object.keys(rates.patterns)) {
+      if (r2.content[0].text.includes(pattern)) bereikbaar.add(pattern)
+    }
+  }
+  const onbereikbaar = Object.keys(rates.patterns).filter((p) => !bereikbaar.has(p))
+  assert.deepEqual(onbereikbaar, [], `deze patronen zijn via GEEN ENKEL protocol_type te zien: ${onbereikbaar.join(', ')}`)
+
   console.log(`OK: ${tools.length} tools, ${Object.keys(rates.patterns).length} patronen, ${rates.contests_included} wedstrijden, ${rates.total_findings} meldingen`)
 } finally {
   await client.close()

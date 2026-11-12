@@ -71,11 +71,11 @@ async function callApi(path, method = 'GET', body = null, extraHeaders = {}) {
 function ilmPatterns(protocolType) {
   const TYPE = {
     DEX:        ['oracle-manipulation','mev-slippage','rounding','flash-loan','fee-miscalculation','reentrancy'],
-    LENDING:    ['oracle-manipulation','liquidation','staleness','rounding','flash-loan','access-control'],
+    LENDING:    ['oracle-manipulation','liquidation','staleness','rounding','flash-loan','access-control','idor'],
     BRIDGE:     ['access-control','reentrancy','overflow','dos-griefing'],
     GOVERNANCE: ['access-control','dos-griefing','trusted-actor'],
     STAKING:    ['rounding','fee-miscalculation','access-control','overflow','staleness'],
-    GENERAL:    ['oracle-manipulation','rounding','access-control','fee-miscalculation','reentrancy','flash-loan'],
+    GENERAL:    ['oracle-manipulation','rounding','access-control','fee-miscalculation','reentrancy','flash-loan','idor'],
   }
   const keys = TYPE[protocolType?.toUpperCase()] ?? TYPE.GENERAL
   return keys.filter(k => PATTERN_LIBRARY[k]).map(k => ({
