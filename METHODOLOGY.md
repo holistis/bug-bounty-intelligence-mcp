@@ -10,6 +10,9 @@ are computed, what they don't claim, and how to reproduce them from public data.
 
 ## Data source
 
+Two platforms, two different public data shapes, two different reconciliation rules (same
+zero-tolerance standard on both). Sherlock first, Code4rena below.
+
 Sherlock runs public GitHub repos for judging each audit contest
 (`sherlock-audit/<contest>-judging`), where security researchers ("Watsons") open one GitHub
 issue per submitted finding. 218 of these judging repos were crawled; a real issue count could be
@@ -54,6 +57,31 @@ also how the reconciliation check itself works (see Reproducing this, below). Re
 same reconciliation rule this way, with no local cache in the loop, is what produced the 35/7,388/
 3,694 figures above.
 
+## Code4rena: a different shape, a much smaller yield
+
+Code4rena's `code-423n4/<contest>-findings` repos do not have Sherlock's accepted/invalid folder
+convention. Contests from 2021-2023 instead use per-researcher folders
+(`<researcher>/<researcher>-submission.md`) with no accept/reject marker in the file tree at
+all. Contests from roughly late 2024 onward move the judging data off GitHub entirely; the repo
+is reduced to a README pointing sponsors at code4rena.com (verified on
+`2024-12-unruggable-findings`: the repo contains only that README).
+
+What the 2023-era contests do have is GitHub issues with labels, including `satisfactory`,
+`unsatisfactory`, and `partial-NN` (a duplicate that earned partial credit). We tested this
+against five real contests spanning 2021 to 2024: the two 2021-2022 contests sampled had zero
+issues carrying any of these labels (a different, unidentified labelling convention was in use),
+while three contests from October 2023 reconciled exactly once `satisfactory`/`partial-NN`
+(accepted), `unsatisfactory`/`withdrawn-by-warden` (rejected), and
+`qa`/`gas optimization`/`analysis`-only issues (excluded, same treatment as Sherlock's
+`low_info`) were counted against the real issue total.
+
+Applying the same zero-tolerance rule (accepted + rejected + excluded must equal the real
+total, with zero unexplained residual) to all 372 crawled Code4rena judging repos: **3 reconcile
+exactly** (1,812 findings, 317 accepted), all three from October 2023. The other 369 either have
+no GitHub-issue judging data at all, or have labels that don't account for every issue. This is
+a small, honest addition on top of Sherlock, not padding — most of Code4rena's history is
+excluded for the same reason most of Sherlock's is: it does not reconcile.
+
 ## What the resulting numbers mean
 
 For each pattern (keyword-matched against finding titles/bodies — e.g. "reentrancy",
@@ -71,9 +99,12 @@ number of distinct vulnerabilities found.
 - The keyword-based pattern tagging is a simple substring matcher (see `detectPatterns()` in the
   crawler scripts), not a semantic classifier — a manual audit found roughly 65% tagging
   precision on a sample. Pattern labels are directional, not exact classifications.
-- The 35-contest sample is still small relative to the full Sherlock history. Some pattern rows
-  have thin n (e.g. `idor`, n=18) — treat low-n rows as lower-confidence than high-n rows (e.g.
-  `trusted-actor`, n=1,814).
+- The 38-contest sample (35 Sherlock, 3 Code4rena) is still small relative to either platform's
+  full history. Some pattern rows have thin n (e.g. `idor`, n=35) — treat low-n rows as
+  lower-confidence than high-n rows (e.g. `trusted-actor`, n=2,127).
+- Code4rena's three contests are a narrow, single-month slice (all October 2023), not a
+  representative sample of Code4rena's history. Treat the combined numbers as Sherlock-dominated
+  (7,388 of 9,200 findings), with Code4rena adding a small, real, but not yet broad correction.
 
 ## Reproducing this
 
@@ -105,5 +136,6 @@ not use that contest's data.
 An earlier draft of this tool advertised acceptance percentages computed from the full,
 unverified raw corpus. Independent review caught that those specific percentages were
 unreliable. We would rather ship a smaller number we can prove than a bigger one we can't. That
-is still true today: the raw corpus is 56,657 findings, the reconciled, trustworthy number
-published here is 7,388.
+is still true today: the raw Sherlock corpus alone is 56,657 findings, the reconciled,
+trustworthy number published here (Sherlock plus the three Code4rena contests that also
+reconcile) is 9,200.

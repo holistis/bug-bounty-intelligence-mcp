@@ -1,7 +1,7 @@
 {
   "name": "bug-bounty-intelligence-mcp",
-  "version": "1.1.0",
-  "description": "MCP server for AI-powered smart contract security analysis. $5 USDC/scan via x402. Drawn from 56,657 Sherlock submissions, verified acceptance rates from 7,388 exact-reconciled findings. Includes a free, standalone dataset (vulnerability-acceptance-rates.json), no server required.",
+  "version": "1.2.0",
+  "description": "MCP server for AI-powered smart contract security analysis. $5 USDC/scan via x402. Drawn from 56,657 Sherlock submissions plus Code4rena, verified acceptance rates from 9,200 exact-reconciled findings. Includes a free, standalone dataset (vulnerability-acceptance-rates.json), no server required.",
   "type": "module",
   "main": "index.mjs",
   "bin": {
