@@ -105,6 +105,19 @@ number of distinct vulnerabilities found.
 - Code4rena's three contests are a narrow, single-month slice (all October 2023), not a
   representative sample of Code4rena's history. Treat the combined numbers as Sherlock-dominated
   (7,388 of 9,200 findings), with Code4rena adding a small, real, but not yet broad correction.
+- **The 9,200/4,011 totals are independently confirmed; the accepted/rejected split within some
+  Sherlock contests is not (2026-11-12).** A second, independent recount of 8 of the 35 Sherlock
+  contests, done by fetching the full issue-and-label list rather than reading the folder tree,
+  matched on only 3 of 8, with real differences on the other 5 (e.g. one contest off by around 45
+  issues between the two methods). The *totals* (accepted + rejected + excluded = real issue
+  count) matched on all 8, so which contests qualify as "reconciled" is not in question, but
+  *which specific issue is accepted versus rejected* can differ depending on whether Sherlock's
+  own folder placement or its own GitHub label is read, because the two occasionally disagree
+  with each other (a handful of paid, rewarded issues were found sitting in `invalid/`, and
+  issues labelled `Excluded` were found sitting in an accepted folder). Neither side has been
+  shown to be the more reliable one. Until this is resolved, read the per-pattern percentages
+  (e.g. "reentrancy: 34% accepted") as directional, not exact, for the same reason the pattern
+  tagging itself is directional above.
 
 ## Reproducing this
 
