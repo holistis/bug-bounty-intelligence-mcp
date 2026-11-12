@@ -31,6 +31,9 @@
   ],
   "author": "holistis",
   "license": "MIT",
+  "scripts": {
+    "test": "node test/smoke.mjs"
+  },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.32.2"
   },
