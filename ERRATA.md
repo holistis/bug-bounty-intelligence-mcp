@@ -2,6 +2,14 @@
 
 Every public statement of ours that turned out to be wrong or too strong, with the date, where it was said, what was wrong, how it was found, and what we did. Newest first. We keep the wrong wording quoted here instead of deleting it. If you find something that belongs on this list, open an issue on this repository and we add it with your name.
 
+## 24 November 2026, our entry in a third-party list of MCP servers described the scan wrongly
+
+Where: our entry in pull request 10488 of punkpeye/awesome-mcp-servers, open since 19 July 2026.
+What the text said: that the scan is "Powered by Al-Mizaan v3 7-gate analysis", that it was "Trained on 27,681 real audit findings from Sherlock and Code4rena", and that a report comes "in 24h".
+What was wrong: the 7-gate filter is not part of the paid scan (see the update of 2 November 2026 in the README), nothing in this repository supports the number 27,681 or the word "trained", and the scan_contract tool itself says that reports usually arrive within the hour.
+How found: our own reading of the README and of index.mjs when the list maintainer asked us on 24 November 2026 to link back to our Glama listing.
+What we did: the entry in the pull request now says what the README says: three tools, $5 per scan, a report usually within the hour, and that the scan engine runs on our hosted service. This entry keeps the wrong wording quoted.
+
 ## 5 November 2026, agent-receipt-verify: four commands still passed after a vector was removed
 
 Where: agent-receipt-verify 0.2.24 and 0.2.25, the commands attempt-identity, kanon, beleid, link-vectors and ground --vectors.
