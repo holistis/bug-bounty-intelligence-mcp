@@ -2,6 +2,8 @@
 
 AI-powered smart contract security analysis for AI agents and developers.
 
+[![holistis/bug-bounty-intelligence-mcp MCP server](https://glama.ai/mcp/servers/holistis/bug-bounty-intelligence-mcp/badges/score.svg)](https://glama.ai/mcp/servers/holistis/bug-bounty-intelligence-mcp)
+
 ## Verify us in two minutes
 
 You need Node 22 or newer (what our recount workflow uses) and nothing else.
