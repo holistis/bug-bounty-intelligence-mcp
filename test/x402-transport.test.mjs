@@ -110,7 +110,7 @@ test('een betaling volgt nooit een redirect (naar een andere host zou de handtek
 })
 
 test('betaling verstuurd maar geen of een 5xx-antwoord: waarschuwen dat de betaling al kan zijn afgerekend, zodat er niet opnieuw betaald wordt', async () => {
-  for (const stand of ['server-error', 'network-error']) {
+  for (const stand of ['server-error', 'network-error', 'empty-200', 'accepted-202']) {
     await metClient(stand, async (client) => {
       const r = await scan(client, { 'x402/payment': PAYMENT })
       assert.equal(r.isError, true, stand)
@@ -134,5 +134,22 @@ test('een 200 waarin de afrekening mislukt is, is een fout en geen ingediende sc
     assert.equal(r.isError, true)
     assert.ok(!/Scan submitted/.test(JSON.stringify(r.content)))
     assert.match(r.content[0].text, /Settlement failed/)
+  })
+})
+
+test('betaling verstuurd en een 200 zonder job-id is geen ingediende scan maar een onzekere afloop', async () => {
+  await metClient('empty-200', async (client) => {
+    const r = await scan(client, { 'x402/payment': PAYMENT })
+    assert.equal(r.isError, true)
+    assert.ok(!/Scan submitted|Job ID/.test(JSON.stringify(r.content)))
+  })
+})
+
+test('een 4xx op een betaalde aanvraag is een duidelijke weigering (de API valideert voor het afrekenen) en geeft geen waarschuwing over afrekenen', async () => {
+  await metClient('client-error', async (client) => {
+    const r = await scan(client, { 'x402/payment': PAYMENT })
+    assert.equal(r.isError, true)
+    assert.match(r.content[0].text, /API error 400/)
+    assert.equal(/collected/.test(r.content[0].text), false)
   })
 })

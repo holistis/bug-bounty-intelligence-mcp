@@ -1,6 +1,6 @@
 // Voorgeladen module voor de tests (node --import): vervangt fetch naar https://x402.tokenizen.nl door
 // een nepserver, zodat de betaalde weg getest kan worden zonder echte betaling en zonder netwerk.
-// STUB_MODE: challenge | accept-payment | refuse-payment | no-payto | server-error | network-error | settle-false
+// STUB_MODE: challenge | accept-payment | refuse-payment | no-payto | server-error | network-error | settle-false | empty-200 | accepted-202 | client-error
 // STUB_LOG: pad van een bestand waar elk verzoek als een JSON-regel in komt.
 import { appendFileSync } from 'node:fs'
 
@@ -29,6 +29,9 @@ globalThis.fetch = async (url, opts = {}) => {
   if (process.env.STUB_LOG) appendFileSync(process.env.STUB_LOG, JSON.stringify({ url: String(url), method: opts.method ?? 'GET', paymentSignature: header, body: opts.body ?? null, redirect: opts.redirect ?? null }) + '\n')
   const mode = process.env.STUB_MODE ?? 'challenge'
   if (mode === 'server-error') return json(503, { error: 'unavailable' })
+  if (mode === 'empty-200' && header) return new Response('', { status: 200 })
+  if (mode === 'accepted-202' && header) return json(202, { jobId: 'bi-test-3', status: 'queued' })
+  if (mode === 'client-error' && header) return json(400, { error: 'bad request' })
   if (mode === 'network-error' && header) throw new TypeError('fetch failed')
   if (mode === 'settle-false' && header) return json(200, { jobId: 'bi-test-2', status: 'queued' }, { 'PAYMENT-RESPONSE': Buffer.from(JSON.stringify({ success: false, errorReason: 'insufficient_funds', network: 'eip155:8453' })).toString('base64') })
   if (mode === 'no-payto') return json(402, { x402Version: 2, accepts: [{ scheme: 'exact', network: 'eip155:8453' }] })

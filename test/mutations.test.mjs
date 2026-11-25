@@ -23,8 +23,11 @@ const MUTANTEN = [
   ['oude beschrijving terug', "Do not send USDC to the address by hand: this tool cannot attach a manual transfer to a scan.", 'If payment_required is true, pay $5 USDC to the payTo address on Base, then retry scan_contract with the same repo_url.'],
   ['redirect met betaling niet geblokkeerd', "...(extraHeaders['PAYMENT-SIGNATURE'] ? { redirect: 'error' } : {})", '...{}'],
   ['redirect altijd geblokkeerd', "...(extraHeaders['PAYMENT-SIGNATURE'] ? { redirect: 'error' } : {})", "redirect: 'error'"],
-  ['onzekere afloop niet gemeld', 'if (paid.header && (status === 0 || status >= 500)) {', 'if (false) {'],
-  ['waarschuwing ook zonder betaling', 'if (paid.header && (status === 0 || status >= 500)) {', 'if (status === 0 || status >= 500) {'],
+  ['onzekere afloop niet gemeld', 'if (paid.header && !(status >= 400 && status < 500)) {', 'if (false) {'],
+  ['waarschuwing ook zonder betaling', 'if (paid.header && !(status >= 400 && status < 500)) {', 'if (!(status >= 400 && status < 500)) {'],
+  ['waarschuwing ook bij een 4xx', 'if (paid.header && !(status >= 400 && status < 500)) {', 'if (paid.header) {'],
+  ['alleen 5xx en geen antwoord gemeld', 'if (paid.header && !(status >= 400 && status < 500)) {', 'if (paid.header && (status === 0 || status >= 500)) {'],
+  ['succes zonder job-id', "&& typeof json?.jobId === 'string' && json.jobId) {", ') {'],
   ['mislukte afrekening als succes', 'if (settlement?.success === false) {', 'if (false) {'],
   ['betaalkop ook zonder betaling', "paid.header ? { 'PAYMENT-SIGNATURE': paid.header } : {}", "{ 'PAYMENT-SIGNATURE': paid.header ?? 'e30=' }"],
 ]

@@ -236,7 +236,7 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
       }
     }
 
-    if (status === 200 || status === 201) {
+    if ((status === 200 || status === 201) && typeof json?.jobId === 'string' && json.jobId) {
       const settlement = settlementFromHeaders(headers)
       if (settlement?.success === false) {
         // The transport spec wants a failed settlement reported as an error, never as a delivered scan.
@@ -260,13 +260,14 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
       }
     }
 
-    if (paid.header && (status === 0 || status >= 500)) {
-      // A signed payment went out and the answer is unknown: the API may or may not have collected it.
+    if (paid.header && !(status >= 400 && status < 500)) {
+      // A signed payment went out and the answer is unknown (no answer, a 5xx, or a success without a job id):
+      // the API may or may not have collected it.
       // Say so, so that an agent does not sign a second payment with a new nonce on top of the first.
       return {
         content: [{
           type: 'text',
-          text: `The scan was not confirmed (${status === 0 ? 'no answer from the API' : `API error ${status}`}). The signed payment may already have been collected. Do not sign a new payment before you have checked whether the first one went through (look for a USDC transfer from the paying address on Base), or write to info@holistischadviseur.nl with the paying address and the time.`,
+          text: `The scan was not confirmed (${status === 0 ? 'no answer from the API' : `unexpected answer from the API, HTTP ${status}`}). The signed payment may already have been collected. Do not sign a new payment before you have checked whether the first one went through (look for a USDC transfer from the paying address on Base), or write to info@holistischadviseur.nl with the paying address and the time.`,
         }],
         isError: true,
       }
