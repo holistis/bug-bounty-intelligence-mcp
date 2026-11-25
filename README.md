@@ -1,5 +1,7 @@
 # Bug Bounty Intelligence: MCP Server
 
+[![holistis/bug-bounty-intelligence-mcp MCP server](https://glama.ai/mcp/servers/holistis/bug-bounty-intelligence-mcp/badges/score.svg)](https://glama.ai/mcp/servers/holistis/bug-bounty-intelligence-mcp)
+
 AI-powered smart contract security analysis for AI agents and developers.
 
 [![holistis/bug-bounty-intelligence-mcp MCP server](https://glama.ai/mcp/servers/holistis/bug-bounty-intelligence-mcp/badges/score.svg)](https://glama.ai/mcp/servers/holistis/bug-bounty-intelligence-mcp)
