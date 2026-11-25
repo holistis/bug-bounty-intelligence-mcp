@@ -24,7 +24,7 @@ function challenge(extra = {}) {
 const json = (status, body, headers = {}) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json', ...headers } })
 
 globalThis.fetch = async (url, opts = {}) => {
-  if (!String(url).startsWith(API)) return echteFetch(url, opts)
+  if (new URL(String(url)).origin !== API) return echteFetch(url, opts)
   const header = opts.headers?.['PAYMENT-SIGNATURE'] ?? null
   if (process.env.STUB_LOG) appendFileSync(process.env.STUB_LOG, JSON.stringify({ url: String(url), method: opts.method ?? 'GET', paymentSignature: header, body: opts.body ?? null, redirect: opts.redirect ?? null }) + '\n')
   const mode = process.env.STUB_MODE ?? 'challenge'
