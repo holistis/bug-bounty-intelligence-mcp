@@ -7,8 +7,9 @@
  *   get_scan_report(job_id)                  → poll status + get report URL
  *   list_vulnerability_patterns(protocol?)   → show historical patterns from 27K findings
  *
- * Payment: $5 USDC on Base (eip155:8453) via x402.
- * If you receive a payment_required response, pay to the address shown and retry.
+ * Payment: $5 USDC on Base (eip155:8453) via x402, over the x402 MCP transport.
+ * scan_contract without a payment returns an error result with the payment requirements; the client
+ * signs them and calls again with the signed payment in _meta["x402/payment"].
  *
  * Run: node index.mjs  (or: npx -y bug-bounty-intelligence-mcp@latest)
  */
@@ -54,6 +55,8 @@ async function callApi(path, method = 'GET', body = null, extraHeaders = {}) {
     method,
     headers: { 'Content-Type': 'application/json', ...extraHeaders },
     signal: AbortSignal.timeout(30_000),
+    // A signed payment must never follow a redirect to another origin.
+    ...(extraHeaders['PAYMENT-SIGNATURE'] ? { redirect: 'error' } : {}),
   }
   if (body) opts.body = JSON.stringify(body)
   try {
@@ -61,11 +64,46 @@ async function callApi(path, method = 'GET', body = null, extraHeaders = {}) {
     const text = await res.text()
     let json
     try { json = JSON.parse(text) } catch { json = { raw: text } }
-    return { status: res.status, ok: res.ok, json }
+    return { status: res.status, ok: res.ok, json, headers: res.headers }
   } catch (err) {
     const reason = err.name === 'TimeoutError' || err.name === 'AbortError' ? 'timed out after 30s' : err.message
-    return { status: 0, ok: false, json: { error: `Could not reach ${API_URL} (${reason})` } }
+    return { status: 0, ok: false, json: { error: `Could not reach ${API_URL} (${reason})` }, headers: null }
   }
+}
+
+// ── x402 over MCP ────────────────────────────────────────────────────────────
+// Spec: github.com/coinbase/x402, specs/transports-v2/mcp.md. The payment travels in
+// params._meta["x402/payment"] on the tools/call request. The challenge comes back as a tool
+// result with isError true, the PaymentRequired object in structuredContent and the same JSON in
+// content[0].text. A settled payment is reported in result._meta["x402/payment-response"].
+
+// The API takes the payment as base64 of the JSON payload in the PAYMENT-SIGNATURE header.
+function paymentHeaderFromMeta(meta) {
+  const payment = meta?.['x402/payment']
+  if (payment === undefined) return { header: null }
+  if (payment === null || typeof payment !== 'object' || Array.isArray(payment)) {
+    return { error: 'Error: _meta["x402/payment"] must be the signed x402 payment object, not a string, array or null.' }
+  }
+  return { header: Buffer.from(JSON.stringify(payment), 'utf8').toString('base64') }
+}
+
+// Pass on what the API asked for and nothing else. Returns null when the API did not name a
+// payment address and asset: never fall back to a hardcoded address, a stale one sends real USDC
+// to a wallet nobody is watching.
+function challengeFromApi(json) {
+  const accept = json?.accepts?.[0]
+  if (!accept?.payTo || !accept?.asset) return null
+  const challenge = { x402Version: json.x402Version ?? 2 }
+  for (const key of ['error', 'resource', 'accepts', 'extensions']) {
+    if (json[key] !== undefined) challenge[key] = json[key]
+  }
+  return challenge
+}
+
+function settlementFromHeaders(headers) {
+  const raw = headers?.get?.('payment-response') ?? headers?.get?.('x-payment-response')
+  if (!raw) return null
+  try { return JSON.parse(Buffer.from(raw, 'base64').toString('utf8')) } catch { return null }
 }
 
 function ilmPatterns(protocolType) {
@@ -104,7 +142,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
         'How often the scan finds known issues on closed audit contests, including the misses, is published in the README of the repository (github.com/holistis/bug-bounty-intelligence-mcp). The prompt uses acceptance-rate hints from the 9,200 findings that could be exact-reconciled against contest outcomes, see METHODOLOGY.md.',
         'Cost: $5 USDC on Base (eip155:8453) via x402. Reports usually arrive within the hour. If the scan fails or the report does not help, write to info@holistischadviseur.nl for a new attempt or a refund, see the terms.',
         'Returns a job_id. Use get_scan_report to poll for results.',
-        'If payment_required is true, pay $5 USDC to the payTo address on Base, then retry scan_contract with the same repo_url.',
+        'Payment uses the x402 MCP transport. A call without a payment returns an error result that carries the payment requirements as structured content and as JSON in the first text item. Sign them with an x402 client and call scan_contract again with the signed payment in _meta["x402/payment"]. Do not send USDC to the address by hand: this tool cannot attach a manual transfer to a scan.',
       ].join(' '),
       inputSchema: {
         type: 'object',
@@ -170,14 +208,17 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
       return { content: [{ type: 'text', text: 'Error: repo_url is required' }], isError: true }
     }
 
-    const { status, json } = await callApi('/api/bug-intel', 'POST', { repo: repo_url, protocolType: protocol_type })
+    const paid = paymentHeaderFromMeta(req.params._meta)
+    if (paid.error) return { content: [{ type: 'text', text: paid.error }], isError: true }
+
+    const { status, json, headers } = await callApi(
+      '/api/bug-intel', 'POST', { repo: repo_url, protocolType: protocol_type },
+      paid.header ? { 'PAYMENT-SIGNATURE': paid.header } : {},
+    )
 
     if (status === 402) {
-      const accept  = json.accepts?.[0] ?? {}
-      const amtUsdc = accept.amount ? (parseInt(accept.amount) / 1_000_000).toFixed(2) : '5.00'
-      if (!accept.payTo || !accept.asset) {
-        // Never fall back to a hardcoded address here: a stale one silently
-        // sends real USDC to a wallet nobody is watching. Fail loud instead.
+      const challenge = challengeFromApi(json)
+      if (!challenge) {
         return {
           content: [{
             type: 'text',
@@ -186,33 +227,24 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
           isError: true,
         }
       }
+      // structuredContent and content[0].text carry the same object, as the transport spec asks.
+      // When a payment was sent and refused, the API's own `error` says why.
       return {
-        content: [
-          {
-            type: 'text',
-            text: [
-              'PAYMENT REQUIRED to start the scan.',
-              '',
-              `Amount:  ${amtUsdc} USDC`,
-              `Network: Base mainnet (eip155:8453)`,
-              `Pay to:  ${accept.payTo}`,
-              `Asset:   USDC — ${accept.asset}`,
-              '',
-              'After paying, retry scan_contract with the same repo_url.',
-              'Terms: https://x402.tokenizen.nl/terms',
-            ].join('\n'),
-          },
-          // The prose block above is for a human or an LLM reading the chat.
-          // A strict x402 client (or an automated directory checker) looks
-          // for the machine-readable challenge object instead, so it goes
-          // in its own content item rather than being folded into the text.
-          { type: 'text', text: JSON.stringify({ x402Version: json.x402Version, accepts: json.accepts }) },
-        ],
-        isError: false,
+        isError: true,
+        structuredContent: challenge,
+        content: [{ type: 'text', text: JSON.stringify(challenge) }],
       }
     }
 
-    if (status === 200 || status === 201) {
+    if ((status === 200 || status === 201) && typeof json?.jobId === 'string' && json.jobId) {
+      const settlement = settlementFromHeaders(headers)
+      if (settlement?.success === false) {
+        // The transport spec wants a failed settlement reported as an error, never as a delivered scan.
+        return {
+          isError: true,
+          content: [{ type: 'text', text: JSON.stringify({ x402Version: 2, error: 'Settlement failed', settlement }) }],
+        }
+      }
       return {
         content: [{
           type: 'text',
@@ -224,6 +256,20 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
             `Reports usually arrive within the hour. The report states how much of the code was read.`,
           ].join('\n'),
         }],
+        ...(settlement ? { _meta: { 'x402/payment-response': settlement } } : {}),
+      }
+    }
+
+    if (paid.header && !(status >= 400 && status < 500)) {
+      // A signed payment went out and the answer is unknown (no answer, a 5xx, or a success without a job id):
+      // the API may or may not have collected it.
+      // Say so, so that an agent does not sign a second payment with a new nonce on top of the first.
+      return {
+        content: [{
+          type: 'text',
+          text: `The scan was not confirmed (${status === 0 ? 'no answer from the API' : `unexpected answer from the API, HTTP ${status}`}). The signed payment may already have been collected. Do not sign a new payment before you have checked whether the first one went through (look for a USDC transfer from the paying address on Base), or write to info@holistischadviseur.nl with the paying address and the time.`,
+        }],
+        isError: true,
       }
     }
 

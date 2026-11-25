@@ -172,7 +172,9 @@ npx -y bug-bounty-intelligence-mcp@latest
 
 ## Payment
 
-If `scan_contract` returns `PAYMENT REQUIRED`, send exactly $5 USDC on Base to the address shown, then retry. Payment = acceptance of [service terms](https://x402.tokenizen.nl/terms).
+Payment goes through the [x402 MCP transport](https://github.com/coinbase/x402/blob/main/specs/transports-v2/mcp.md). Called without a payment, `scan_contract` returns an error result (`isError: true`) that carries the x402 payment requirements, in `structuredContent` and as the same JSON in the first text item. An x402 client signs them and calls the tool again with the signed payment in `_meta["x402/payment"]`. The server passes the payment on to the API as a `PAYMENT-SIGNATURE` header and reports the settlement in `_meta["x402/payment-response"]`.
+
+Do not send USDC to the address by hand. This tool cannot attach a manual transfer to a scan, so a plain transfer buys nothing. Payment = acceptance of [service terms](https://x402.tokenizen.nl/terms).
 
 **x402 info:**
 - Network: Base mainnet (eip155:8453)
@@ -180,7 +182,7 @@ If `scan_contract` returns `PAYMENT REQUIRED`, send exactly $5 USDC on Base to t
 - Asset: 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913 (USDC)
 - Wallet: 0x015Eb036560216B3051339061FF68A207E0fe88f
 
-The wallet address can change. Always pay the address `scan_contract` actually returns in its `PAYMENT REQUIRED` response, not a copy of this README. This document is updated when the address changes, but the live tool response is the source of truth.
+The wallet address can change. Always use the address in the payment requirements `scan_contract` actually returns, not a copy of this README. This document is updated when the address changes, but the live tool response is the source of truth.
 
 ## Example session
 
@@ -198,14 +200,9 @@ access-control           47% accepted (74 cases)
 
 > scan_contract({ repo_url: "https://github.com/myprotocol/contracts", protocol_type: "LENDING" })
 
-PAYMENT REQUIRED to start the scan.
+(isError: true) the payment requirements, which an x402 client signs and sends back in _meta["x402/payment"]:
 
-Amount:  5.00 USDC
-Network: Base mainnet (eip155:8453)
-Pay to:  0x015Eb036560216B3051339061FF68A207E0fe88f
-Asset:   USDC — 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913
-
-After paying, retry scan_contract with the same repo_url.
+{"x402Version":2,"error":"PAYMENT-SIGNATURE header is required","resource":{"url":"https://x402.tokenizen.nl/api/bug-intel", ...},"accepts":[{"scheme":"exact","network":"eip155:8453","amount":"5000000","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","payTo":"0x015Eb036560216B3051339061FF68A207E0fe88f", ...}], ...}
 ```
 
 ## Sample scan output

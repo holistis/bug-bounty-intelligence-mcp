@@ -1,6 +1,6 @@
 {
   "name": "bug-bounty-intelligence-mcp",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "MCP server for AI-powered smart contract security analysis. $5 USDC/scan via x402. Drawn from 56,657 Sherlock submissions plus Code4rena, verified acceptance rates from 9,200 exact-reconciled findings. Includes a free, standalone dataset (vulnerability-acceptance-rates.json), no server required.",
   "type": "module",
   "main": "index.mjs",
@@ -32,7 +32,7 @@
   "author": "holistis",
   "license": "MIT",
   "scripts": {
-    "test": "node test/smoke.mjs && node test/x402-challenge.test.mjs"
+    "test": "node test/smoke.mjs && node test/x402-challenge.test.mjs && node --test test/x402-transport.test.mjs test/mutations.test.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.32.2"

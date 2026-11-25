@@ -1,8 +1,7 @@
 // Echte end-to-end proef (geen mock): spawnt de stdio MCP-server en roept
 // scan_contract aan tegen de LEVENDE backend (x402.tokenizen.nl), die altijd
 // al een echte 402 teruggeeft voor een onbetaalde aanvraag. Bevestigt dat het
-// tweede content-item machine-leesbare x402-JSON is, niet alleen het eerste
-// (door-mensen-leesbare) prozablok.
+// de betaaleis het x402 MCP-transport volgt: isError true, structuredContent en dezelfde JSON in content[0].
 import { spawn } from 'node:child_process'
 
 function rpc(proc, payload) {
@@ -46,22 +45,26 @@ try {
     params: { name: 'scan_contract', arguments: { repo_url: 'https://github.com/Uniswap/v2-core' } },
   })
 
-  const content = res.result?.content
-  if (!Array.isArray(content) || content.length < 2) {
-    throw new Error(`verwacht 2 content-items, kreeg ${content?.length ?? 0}: ${JSON.stringify(res.result)}`)
+  const result = res.result
+  if (result?.isError !== true) {
+    throw new Error(`een onbetaalde aanvraag moet isError true geven (x402 MCP-transport): ${JSON.stringify(result)}`)
+  }
+  const content = result.content
+  if (!Array.isArray(content) || content.length !== 1) {
+    throw new Error(`verwacht precies 1 content-item met de betaaleis als JSON, kreeg ${content?.length ?? 0}: ${JSON.stringify(result)}`)
+  }
+  if (/Pay to|After paying|then retry/i.test(content[0].text)) {
+    throw new Error(`de tekst nodigt uit tot een handmatige overmaking, die de API niet aan een scan kan koppelen: ${content[0].text}`)
   }
 
-  const prose = content[0].text
-  if (!prose.includes('PAYMENT REQUIRED')) {
-    throw new Error(`eerste item mist de door-mensen-leesbare proza-tekst: ${prose}`)
-  }
-
-  const challengeText = content[1].text
   let challenge
   try {
-    challenge = JSON.parse(challengeText)
+    challenge = JSON.parse(content[0].text)
   } catch (e) {
-    throw new Error(`tweede item is geen geldige JSON: ${challengeText}`)
+    throw new Error(`content[0] is geen geldige JSON: ${content[0].text}`)
+  }
+  if (JSON.stringify(challenge) !== JSON.stringify(result.structuredContent)) {
+    throw new Error('structuredContent en content[0].text moeten hetzelfde object zijn')
   }
   if (typeof challenge.x402Version !== 'number') {
     throw new Error(`x402Version ontbreekt of is geen nummer: ${JSON.stringify(challenge)}`)
@@ -70,7 +73,7 @@ try {
     throw new Error(`accepts ontbreekt of is leeg: ${JSON.stringify(challenge)}`)
   }
 
-  console.log('OK: tools/call op scan_contract (onbetaald) geeft nu ook een machine-leesbare x402-JSON terug')
+  console.log('OK: tools/call op scan_contract (onbetaald) geeft een foutresultaat met de betaaleis als structuredContent en JSON')
   console.log(`    x402Version=${challenge.x402Version}, accepts[0].amount=${challenge.accepts[0]?.amount}`)
 } finally {
   proc.kill()
