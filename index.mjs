@@ -55,6 +55,8 @@ async function callApi(path, method = 'GET', body = null, extraHeaders = {}) {
     method,
     headers: { 'Content-Type': 'application/json', ...extraHeaders },
     signal: AbortSignal.timeout(30_000),
+    // A signed payment must never follow a redirect to another origin.
+    ...(extraHeaders['PAYMENT-SIGNATURE'] ? { redirect: 'error' } : {}),
   }
   if (body) opts.body = JSON.stringify(body)
   try {
@@ -236,6 +238,13 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
 
     if (status === 200 || status === 201) {
       const settlement = settlementFromHeaders(headers)
+      if (settlement?.success === false) {
+        // The transport spec wants a failed settlement reported as an error, never as a delivered scan.
+        return {
+          isError: true,
+          content: [{ type: 'text', text: JSON.stringify({ x402Version: 2, error: 'Settlement failed', settlement }) }],
+        }
+      }
       return {
         content: [{
           type: 'text',
@@ -248,6 +257,18 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
           ].join('\n'),
         }],
         ...(settlement ? { _meta: { 'x402/payment-response': settlement } } : {}),
+      }
+    }
+
+    if (paid.header && (status === 0 || status >= 500)) {
+      // A signed payment went out and the answer is unknown: the API may or may not have collected it.
+      // Say so, so that an agent does not sign a second payment with a new nonce on top of the first.
+      return {
+        content: [{
+          type: 'text',
+          text: `The scan was not confirmed (${status === 0 ? 'no answer from the API' : `API error ${status}`}). The signed payment may already have been collected. Do not sign a new payment before you have checked whether the first one went through (look for a USDC transfer from the paying address on Base), or write to info@holistischadviseur.nl with the paying address and the time.`,
+        }],
+        isError: true,
       }
     }
 

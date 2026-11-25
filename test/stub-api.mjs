@@ -1,6 +1,6 @@
 // Voorgeladen module voor de tests (node --import): vervangt fetch naar https://x402.tokenizen.nl door
 // een nepserver, zodat de betaalde weg getest kan worden zonder echte betaling en zonder netwerk.
-// STUB_MODE: challenge | accept-payment | refuse-payment | no-payto
+// STUB_MODE: challenge | accept-payment | refuse-payment | no-payto | server-error | network-error | settle-false
 // STUB_LOG: pad van een bestand waar elk verzoek als een JSON-regel in komt.
 import { appendFileSync } from 'node:fs'
 
@@ -26,8 +26,11 @@ const json = (status, body, headers = {}) => new Response(JSON.stringify(body), 
 globalThis.fetch = async (url, opts = {}) => {
   if (!String(url).startsWith(API)) return echteFetch(url, opts)
   const header = opts.headers?.['PAYMENT-SIGNATURE'] ?? null
-  if (process.env.STUB_LOG) appendFileSync(process.env.STUB_LOG, JSON.stringify({ url: String(url), method: opts.method ?? 'GET', paymentSignature: header, body: opts.body ?? null }) + '\n')
+  if (process.env.STUB_LOG) appendFileSync(process.env.STUB_LOG, JSON.stringify({ url: String(url), method: opts.method ?? 'GET', paymentSignature: header, body: opts.body ?? null, redirect: opts.redirect ?? null }) + '\n')
   const mode = process.env.STUB_MODE ?? 'challenge'
+  if (mode === 'server-error') return json(503, { error: 'unavailable' })
+  if (mode === 'network-error' && header) throw new TypeError('fetch failed')
+  if (mode === 'settle-false' && header) return json(200, { jobId: 'bi-test-2', status: 'queued' }, { 'PAYMENT-RESPONSE': Buffer.from(JSON.stringify({ success: false, errorReason: 'insufficient_funds', network: 'eip155:8453' })).toString('base64') })
   if (mode === 'no-payto') return json(402, { x402Version: 2, accepts: [{ scheme: 'exact', network: 'eip155:8453' }] })
   if (mode === 'refuse-payment') return json(402, challenge({ error: 'invalid payment: signature does not match' }))
   if (mode === 'accept-payment' && header) {

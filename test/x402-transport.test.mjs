@@ -98,3 +98,41 @@ test('geen betaaladres in het antwoord van de API: hard falen, nooit raden', asy
     assert.match(r.content[0].text, /did not return a payment address/)
   })
 })
+
+test('een betaling volgt nooit een redirect (naar een andere host zou de handtekening lekken); zonder betaling blijft het standaardgedrag', async () => {
+  await metClient('accept-payment', async (client, verzoeken) => {
+    await scan(client, { 'x402/payment': PAYMENT })
+    await scan(client)
+    const v = verzoeken()
+    assert.equal(v[0].redirect, 'error')
+    assert.equal(v[1].redirect, null)
+  })
+})
+
+test('betaling verstuurd maar geen of een 5xx-antwoord: waarschuwen dat de betaling al kan zijn afgerekend, zodat er niet opnieuw betaald wordt', async () => {
+  for (const stand of ['server-error', 'network-error']) {
+    await metClient(stand, async (client) => {
+      const r = await scan(client, { 'x402/payment': PAYMENT })
+      assert.equal(r.isError, true, stand)
+      assert.match(r.content[0].text, /may already have been collected/, stand)
+      assert.match(r.content[0].text, /Do not sign a new payment/, stand)
+    })
+  }
+})
+
+test('zonder betaling geeft een serverfout geen waarschuwing over afrekenen (er is niets afgerekend)', async () => {
+  await metClient('server-error', async (client) => {
+    const r = await scan(client)
+    assert.equal(r.isError, true)
+    assert.equal(/collected/.test(r.content[0].text), false)
+  })
+})
+
+test('een 200 waarin de afrekening mislukt is, is een fout en geen ingediende scan', async () => {
+  await metClient('settle-false', async (client) => {
+    const r = await scan(client, { 'x402/payment': PAYMENT })
+    assert.equal(r.isError, true)
+    assert.ok(!/Scan submitted/.test(JSON.stringify(r.content)))
+    assert.match(r.content[0].text, /Settlement failed/)
+  })
+})
